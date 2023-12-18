@@ -543,7 +543,7 @@ normative:
    QDELAY_TREND_LO (0.2):
      : Threshold value for qdelay_trend.
 
-   T_RESUME_FAST_INCREASE (5 s):  
+   T_RESUME_FAST_INCREASE (5 s):
      : Time span until fast increase mode can
      be resumed, given that the qdelay_trend is below QDELAY_TREND_LO.
 
