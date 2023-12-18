@@ -134,7 +134,8 @@ normative:
    based congestion control algorithm.  The algorithm is evaluated over
    both simulated Internet bottleneck scenarios as well as in a Long
    Term Evolution (LTE) system simulator and is shown to achieve both
-   low latency and high video throughput in these scenarios.
+   low latency and high video throughput in these scenarios. This
+   specification obsoletes RFC 8298.
 
 --- middle
 
@@ -168,6 +169,10 @@ normative:
    where ECN is supported by the network and the hosts.  However, ECN is
    not required for the basic congestion control functionality in
    SCReAM.
+
+   This specification replaces the previous experimental version
+   {{RFC8298}}. There are many and fairly significant changes to
+   the SCREAM algorithm.
 
 ## Wireless (LTE) Access Properties
 
@@ -533,101 +538,101 @@ normative:
      implementation.
 
    RTP_QDELAY_TH (0.02 s):
-     : RTP queue delay threshold for a target rate
+   : RTP queue delay threshold for a target rate
       reduction.
 
    TARGET_RATE_SCALE_RTP_QDELAY (0.95):
-     : Scale factor for target rate
+   : Scale factor for target rate
        when RTP qdelay threshold exceeds RTP_QDELAY_TH.
 
    QDELAY_TREND_LO (0.2):
-     : Threshold value for qdelay_trend.
+   : Threshold value for qdelay_trend.
 
    T_RESUME_FAST_INCREASE (5 s):
-     : Time span until fast increase mode can
+   : Time span until fast increase mode can
      be resumed, given that the qdelay_trend is below QDELAY_TREND_LO.
 
    RATE_PACE_MIN (50000 bps):
-     : Minimum pacing rate.
+   : Minimum pacing rate.
 
 #### State Variables
 
    The values within parentheses "()" indicate initial values.
 
    qdelay_target (QDELAY_TARGET_LO):
-     : qdelay target, a variable qdelay target is introduced to manage
+   : qdelay target, a variable qdelay target is introduced to manage
        cases where a fixed qdelay target would otherwise starve the RMCAT
        flow under such circumstances (e.g., FTP competes for the bandwidth
        over the same bottleneck).  The qdelay target is allowed to vary
        between QDELAY_TARGET_LO and QDELAY_TARGET_HI.
 
    qdelay_fraction_avg (0.0):
-     : Fractional qdelay filtered by the Exponentially Weighted Moving
+   : Fractional qdelay filtered by the Exponentially Weighted Moving
        Average (EWMA).
 
    qdelay_fraction_hist\[20] (\{0,..,0\}):
-     : Vector of the last 20 fractional qdelay samples.
+   : Vector of the last 20 fractional qdelay samples.
 
    qdelay_trend (0.0):
-     : qdelay trend; indicates incipient congestion.
+   : qdelay trend; indicates incipient congestion.
 
    qdelay_trend_mem (0.0):
-     : Low-pass filtered version of qdelay_trend.
+   : Low-pass filtered version of qdelay_trend.
 
    qdelay_norm_hist\[100] (\{0,..,0\}):
-     : Vector of the last 100 normalized qdelay samples.
+   : Vector of the last 100 normalized qdelay samples.
 
    in_fast_increase (true):
-     : True if in fast increase mode.
+   : True if in fast increase mode.
 
    cwnd (MIN_CWND):
-     : Congestion window.
+   : Congestion window.
 
    bytes_newly_acked (0):
-     : The number of bytes that was acknowledged with the last received
+   : The number of bytes that was acknowledged with the last received
        acknowledgement, i.e., bytes acknowledged since the last CWND
        update.
 
    max_bytes_in_flight (0):
-     : The maximum number of bytes in flight over a sliding time window,
+   : The maximum number of bytes in flight over a sliding time window,
        i.e., transmitted but not yet acknowledged bytes.
 
    send_wnd (0):
-     : Upper limit to how many bytes can currently be transmitted.
+   : Upper limit to how many bytes can currently be transmitted.
        Updated when cwnd is updated and when RTP packet is transmitted.
 
    target_bitrate (0 bps):
-     : Media target bitrate.
+   : Media target bitrate.
 
    target_bitrate_last_max (1 bps):
-     : Inflection point of the media target bitrate, i.e., the last known
+   : Inflection point of the media target bitrate, i.e., the last known
        highest target_bitrate.  Used to limit bitrate increase speed close
        to the last known congestion point.
 
    rate_transmit (0.0 bps):
-     : Measured transmit bitrate.
+   : Measured transmit bitrate.
 
    rate_ack (0.0 bps):
-     : Measured throughput based on received acknowledgements.
+   : Measured throughput based on received acknowledgements.
 
    rate_media (0.0 bps):
-     : Measured bitrate from the media encoder.
+   : Measured bitrate from the media encoder.
 
    rate_media_median (0.0 bps):
-     : Median value of rate_media, computed over more than 10 s.
+   : Median value of rate_media, computed over more than 10 s.
 
    s_rtt (0.0s):
-     : Smoothed RTT (in seconds), computed with a similar method to that
+   : Smoothed RTT (in seconds), computed with a similar method to that
        described in {{RFC6298}}.
 
    rtp_queue_size (0 bits):
-     : Sum of the sizes of RTP packets in queue.
+   : Sum of the sizes of RTP packets in queue.
 
    rtp_size (0 byte):
-     : Size of the last transmitted RTP packet.
+   : Size of the last transmitted RTP packet.
 
    loss_event_rate (0.0):
-     : The estimated fraction of RTTs with lost packets detected.
+   : The estimated fraction of RTTs with lost packets detected.
 
 ### Network Congestion Control
 
