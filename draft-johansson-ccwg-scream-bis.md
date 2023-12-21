@@ -130,12 +130,13 @@ normative:
 
    This memo describes a rate adaptation algorithm for conversational
    media services such as interactive video.  The solution conforms to
-   the packet conservation principle and uses a hybrid loss-and-delay-
-   based congestion control algorithm.  The algorithm is evaluated over
+   the packet conservation principle and is a hybrid loss- and delay based congestion control/rate management algorithm that also supports ECN and L4S.  
+   The algorithm is evaluated over
    both simulated Internet bottleneck scenarios as well as in a Long
-   Term Evolution (LTE) system simulator and is shown to achieve both
+   Term Evolution (LTE and 5G) system simulator and is shown to achieve both
    low latency and high video throughput in these scenarios. This
    specification obsoletes RFC 8298.
+   The algorithm supports handling of multiple media streams, typical use cases are streaming for remote control and 3D VR googles.
 
 --- middle
 
@@ -174,7 +175,23 @@ normative:
    {{RFC8298}}. There are many and fairly significant changes to
    the SCREAM algorithm.
 
-## Wireless (LTE) Access Properties
+   The algorithm in this memo differs greatly against the previous version of SCReAM.
+   The main differences are:
+
+   o  L4S support added. The L4S algoritm has many similarities with the DCTCP and Prague congestion control but has a few extra modifications to make it work well with peridic sources such as video.
+
+   o  The delay based congestion control is changed to implement a pseudo-L4S approach, this simplifies the delay based congestion control
+
+   o  The fast increase mode is removed. The congestion window additive increase is replaced with an adaptive multiplicative increase to increase convergence speed.
+
+   o  The algorithm is more rate based than self-clocked. The calculated congestion window is used mainly to calculated proper media bitrates. Bytes in flight is however allowed to exceeed the congestion window
+
+   o  The media bitrate calculation is dramatically changed and simplified
+
+   o  Additional compensation is added to make SCReAM handle cases such as large changing frame sizes
+
+
+## Wireless (LTE and 5G) Access Properties
 
    {{RFC8869}} describes the complications that can be observed in
    wireless environments.  Wireless access such as LTE typically cannot
@@ -197,8 +214,7 @@ normative:
    load, and historical throughput.  The bottom line is, if the
    throughput drops, the sender has no other option than to reduce the
    bitrate.  Once the radio scheduler has reduced the resource
-   allocation for a bearer, a flow (which is using RTP Media Congestion
-   Avoidance Techniques (RMCAT)) in that bearer aims to reduce the
+   allocation for a bearer, a flow in that bearer aims to reduce the
    sending rate quite quickly (within one RTT) in order to avoid
    excessive queuing delay or packet loss.
 
@@ -215,7 +231,11 @@ normative:
 
    o  A fine-grained congestion control given by the self-clocking; it
       operates on a shorter time scale (1 RTT).  The benefits of self-
-      clocking are also elaborated upon in {{TFWC}}.
+      clocking are also elaborated upon in {{TFWC}}. The self-clocking
+      however acts more like an emergency break as bytes in flight can
+      exceed the congesion window to a certain degree. The rationale is
+      to be able to transmit large video frames and avoid that they are
+      unnecessarily queued up on the
 
    A rate-based congestion control algorithm typically adjusts the rate
    based on delay and loss.  The congestion detection needs to be done
@@ -286,37 +306,12 @@ normative:
    of LEDBAT in SCReAM is quite simple; however, there are a few steps
    in order to make the concept work with conversational media:
 
-   o  Congestion window validation techniques.  These are similar to the
-      method described in {{RFC7661}}.  Congestion window validation
-      ensures that the congestion window is limited by the actual number
-      bytes in flight; this is important especially in the context of
-      rate-limited sources such as video.  Lack of congestion window
-      validation would lead to a slow reaction to congestion as the
-      congestion window does not properly reflect the congestion state
-      in the network.  The allowed idle period in this memo is shorter
-      than in {{RFC7661}}; this to avoid excessive delays in the cases
-      where, e.g., wireless throughput has decreased during a period
-      where the output bitrate from the media coder has been low (for
-      instance, due to inactivity).  Furthermore, this memo allows for
-      more relaxed rules for when the congestion window is allowed to
-      grow; this is necessary as the variable output bitrate generally
-      means that the congestion window is often underutilized.
-
-   o  Fast increase mode makes the bitrate increase faster when no
-      congestion is detected.  It makes the media bitrate ramp up within
-      5 to 10 seconds.  The behavior is similar to TCP slowstart.  Fast
-      increase mode is exited when congestion is detected.  However,
-      fast increase mode can resume if the congestion level is low; this
-      enables a reasonably quick rate increase in case link throughput
-      increases.
-
-   o  A qdelay trend is computed for earlier detection of incipient
-      congestion; as a result, it reduces jitter.
-
    o  Addition of a media rate control function.
 
-   o  Use of inflection points in the media rate calculation to achieve
-      reduced jitter.
+   o  Congestion window validation techniques. The congestion window is used as a basis for the target bitrate calculation. For that reason, various actions are taken to avoid that the congestion window grows too much beyond the bytes in flight. Additional contraints are applied when in congested state and when the max target bitrate is reached.    
+
+   o  Use of inflection points in the congestion window calculation to achieve
+      reduced delay jitter (when L4S is not active).
 
    o  Adjustment of qdelay target for better performance when competing
       with other loss-based congestion-controlled flows.
@@ -324,7 +319,6 @@ normative:
    The above-mentioned features will be described in more detail in
    Sections 3.1 to 3.3.  The full details are described in Section 4.
 
-~~~~~~~~~~~ aasvg
                     +---------------------------+
                     |        Media encoder      |
                     +---------------------------+
@@ -334,16 +328,16 @@ normative:
                         |                  V
                         |            +-----------+
                    +---------+       |           |
-                   | Media   |  (2)  |   Queue   |
-                   | rate    |<------|           |
+                   | Media   |       |   Queue   |
+                   | rate    |       |           |
                    | control |       |RTP packets|
                    +---------+       |           |
-                                     +-----------+
-                                           |
-                                           |(4)
-                                          RTP
-                                           |
-                                           v
+                        ^            +-----------+
+                        |                  |
+                        | (2)              |(4)
+                        |                 RTP
+                        |                  |
+                        |                  v
               +------------+       +--------------+
               |  Network   |  (7)  |    Sender    |
           +-->| congestion |------>| Transmission |
@@ -374,7 +368,7 @@ normative:
    (congestion window) and is used in the sender transmission control.
 
    The SCReAM congestion control method uses techniques similar to
-   LEDBAT {{RFC6817}}ß to measure the qdelay.  As is the case with LEDBAT,
+   LEDBAT {{RFC6817}} to measure the qdelay.  As is the case with LEDBAT,
    it is not necessary to use synchronized clocks in the sender and
    receiver in order to compute the qdelay.  However, it is necessary
    that they use the same clock frequency, or that the clock frequency
@@ -384,39 +378,41 @@ normative:
    delay.
 
    The SCReAM sender calculates the congestion window based on the
-   feedback from the SCReAM receiver.  The congestion window is allowed
-   to increase if the qdelay is below a predefined qdelay target;
-   otherwise, the congestion window decreases.  The qdelay target is
-   typically set to 50-100 ms.  This ensures that the queuing delay is
-   kept low.  The reaction to loss or ECN events leads to an instant
-   reduction of CWND.  Note that the source rate-limited nature of real-
-   time media, such as video, typically means that the queuing delay
-   will mostly be below the given delay target.  This is contrary to the
-   case where large files are transmitted using LEDBAT congestion
-   control and the queuing delay will stay close to the delay target.
+   feedback from the SCReAM receiver. The feedback is timestamp and ECN echo for
+   individual RTP packets.
+
+   The congestion window seeks to increase by at least one segment per RTT and this increase regardless congestion occurs or not.
+   Congestion window reduction is triggered by:
+
+   o Packet loss is detected : The congestion window is reduced by a predetermined fraction
+
+   o Estimated queue delay exceeds a given threshold : The congestion window is reduced given by how much the delay exceeds the threshold
+
+   o Classic ECN marking detected : The congestion window is reduced by a predetermined fraction
+
+   o L4S ECN marking detected : The congestion window is reduced in proportion to the fraction of packets that are marked (scalable congestion control)
 
 ## Sender Transmission Control
 
    The sender transmission control limits the output of data, given by
    the relation between the number of bytes in flight and the congestion
-   window.  Packet pacing is used to mitigate issues with ACK
+   window. The congestion window is however not a hard limit, additional slack is given to avoid that RTP packets are queued up unnecessarily on the sender side. This means that the algoritm prefers to build up a queue in the network rather than on the sender side. Additional congestion that this causes will reflect back and cause a reduction of the congestion window.  
+   Packet pacing is used to mitigate issues with ACK
    compression that MAY cause increased jitter and/or packet loss in the
    media traffic.  Packet pacing limits the packet transmission rate
    given by the estimated link throughput.  Even if the send window
    allows for the transmission of a number of packets, these packets are
    not transmitted immediately; rather, they are transmitted in
-   intervals given by the packet size and the estimated link throughput.
+   intervals given by the packet size and the estimated link throughput. Packets are generally paced at a higher rate than the target bitrate, this makes it possible to transmit occasionally larger video frames in a timely manner.
 
 ## Media Rate Control
 
    The media rate control serves to adjust the media bitrate to ramp up
    quickly enough to get a fair share of the system resources when link
    throughput increases.
-
    The reaction to reduced throughput MUST be prompt in order to avoid
    getting too much data queued in the RTP packet queue(s) in the
-   sender.  The media bitrate is decreased if the RTP queue size exceeds
-   a threshold.
+   sender. The media rate is calculated based on the congestion window and RTT. For the case that multiple streams are enabled, the media rate among the streams is distrubuted according to the relative priorities.  
 
    In cases where the sender's frame queues increase rapidly, such as in
    the case of a Radio Access Type (RAT) handover, the SCReAM sender MAY
@@ -429,6 +425,8 @@ normative:
 # Detailed Description of SCReAM
 
 ## SCReAM Sender
+
+TODO  Continue here
 
    This section describes the sender-side algorithm in more detail.  It
    is split between the network congestion control, sender transmission
