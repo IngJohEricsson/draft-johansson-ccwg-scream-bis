@@ -426,8 +426,6 @@ normative:
 
 ## SCReAM Sender
 
-TODO  Continue here
-
    This section describes the sender-side algorithm in more detail.  It
    is split between the network congestion control, sender transmission
    control, and media rate control.
@@ -443,19 +441,25 @@ TODO  Continue here
    implemented in {{SCReAM-CPP-implementation}}.
 
    Media frames are encoded and forwarded to the RTP queue (1) in
-   Figure 1.  The media rate adaptation adapts to the size of the RTP
-   queue (2) and provides a target rate for the media encoder (3).  The
+   Figure 1.  The
    RTP packets are picked from the RTP queue (4), for multiple flows
    from each RTP queue based on some defined priority order or simply in
-   a round-robin fashion, by the sender transmission controller.  The
-   sender transmission controller (in case of multiple flows a
+   a round-robin fashion, by the sender transmission controller.  
+
+   The network congestion control computes a congestion window. The congestion window update is increased by one MSS (maximum know RTP packet size) per RTT at a minimum. This is complemented by a multiplicative increase that allows to the congestion to increase by a fraction when congestion has not occured for a while. The congestion window is thus an adaptive multiplicative increase that is mainly additive increase when steady state is reached but allows a faster convergence to a higher link speed.  
+
+   The sender transmission controller (in case of multiple flows a
    transmission scheduler) sends the RTP packets to the UDP socket (5).
    In the general case, all media SHOULD go through the sender
    transmission controller and is limited so that the number of bytes in
-   flight is less than the congestion window.  RTCP packets are received
+   flight is less than the congestion window albeit with a slack to avoid that packets are unnecessarily delayed in the RTP queue.
+
+   RTCP packets are received
    (6) and the information about the bytes in flight and congestion
    window is exchanged between the network congestion control and the
    sender transmission control (7).
+
+   The congestion window and the estimated RTT is communicated to the media rate control (2) to compute the appropriate target bitrate. The target bitrate is updated whenever the congestion window is updated. Additional parameters are also communicated to make the rate control more stable when the congestion window is very small or when L4S is not active. This is described more in detail below.
 
 ### Constants and Parameter Values
 
@@ -479,35 +483,20 @@ TODO  Continue here
      high value, as it would increase end-to-end delay and also make the
      rate control and congestion control loops sluggish.
 
-   QDELAY_WEIGHT (0.1):
-   : Averaging factor for qdelay_fraction_avg.
-
-   QDELAY_TREND_TH (0.2):
-   : Threshold for the detection of incipient congestion.
-
    MIN_CWND (3000 bytes):
    : Minimum congestion window.
 
    MAX_BYTES_IN_FLIGHT_HEAD_ROOM (1.1):
    : Headroom for the limitation of CWND.
 
-   GAIN (1.0):
-   : Gain factor for congestion window adjustment.
-
-   BETA_LOSS (0.8):
+   BETA_LOSS (0.7):
    : CWND scale factor due to loss event.
 
-   BETA_ECN (0.9):
+   BETA_ECN (0.8):
    : CWND scale factor due to ECN event.
-
-   BETA_R (0.9):
-   : Scale factor for target rate due to loss event.
 
    MSS (1000 byte):
    : Maximum segment size = Max RTP packet size.
-
-   RATE_ADJUST_INTERVAL (0.2 s):
-   : Interval between media bitrate adjustments.
 
    TARGET_BITRATE_MIN:
    : Minimum target bitrate in bps (bits per second).
@@ -515,43 +504,11 @@ TODO  Continue here
    TARGET_BITRATE_MAX:
    : Maximum target bitrate in bps.
 
-   RAMP_UP_SPEED (200000 bps/s):
-   : Maximum allowed rate increase speed.
-
-   PRE_CONGESTION_GUARD  (0.0..1.0):
-   : Guard factor against early congestion onset.  A higher value gives
-     less jitter, possibly at the expense of a lower link utilization.
-     This value MAY be subject to tuning depending on e.g., media coder
-     characteristics.  Experiments with H264 and VP8 indicate that 0.1
-     is a suitable value.  See {{SCReAM-CPP-implementation}} and
-     {{SCReAM-implementation-experience}} for evaluation of a real
-     implementation.
-
-   TX_QUEUE_SIZE_FACTOR (0.0..2.0):
-   : Guard factor against RTP queue buildup.  This value MAY be subject
-     to tuning depending on, e.g., media coder characteristics.
-     Experiments with H264 and VP8 indicate that 1.0 is a suitable
-     value.  See {{SCReAM-CPP-implementation}} and
-     {{SCReAM-implementation-experience}} for evaluation of a real
-     implementation.
-
-   RTP_QDELAY_TH (0.02 s):
-   : RTP queue delay threshold for a target rate
-      reduction.
-
-   TARGET_RATE_SCALE_RTP_QDELAY (0.95):
-   : Scale factor for target rate
-       when RTP qdelay threshold exceeds RTP_QDELAY_TH.
-
-   QDELAY_TREND_LO (0.2):
-   : Threshold value for qdelay_trend.
-
-   T_RESUME_FAST_INCREASE (5 s):
-   : Time span until fast increase mode can
-     be resumed, given that the qdelay_trend is below QDELAY_TREND_LO.
-
    RATE_PACE_MIN (50000 bps):
    : Minimum pacing rate.
+
+   CWND_OVERHEAD (1.5):
+   : Indicates how much bytes in flight can exceed cwnd.
 
 #### State Variables
 
@@ -571,18 +528,6 @@ TODO  Continue here
    qdelay_fraction_hist\[20] (\{0,..,0\}):
    : Vector of the last 20 fractional qdelay samples.
 
-   qdelay_trend (0.0):
-   : qdelay trend; indicates incipient congestion.
-
-   qdelay_trend_mem (0.0):
-   : Low-pass filtered version of qdelay_trend.
-
-   qdelay_norm_hist\[100] (\{0,..,0\}):
-   : Vector of the last 100 normalized qdelay samples.
-
-   in_fast_increase (true):
-   : True if in fast increase mode.
-
    cwnd (MIN_CWND):
    : Congestion window.
 
@@ -601,11 +546,6 @@ TODO  Continue here
 
    target_bitrate (0 bps):
    : Media target bitrate.
-
-   target_bitrate_last_max (1 bps):
-   : Inflection point of the media target bitrate, i.e., the last known
-       highest target_bitrate.  Used to limit bitrate increase speed close
-       to the last known congestion point.
 
    rate_transmit (0.0 bps):
    : Measured transmit bitrate.
@@ -631,6 +571,9 @@ TODO  Continue here
 
    loss_event_rate (0.0):
    : The estimated fraction of RTTs with lost packets detected.
+
+   bytes_in_flight_ratio (0.0):
+   : Ratio between the bytes in flight and the congestion window
 
 ### Network Congestion Control
 
@@ -665,6 +608,10 @@ TODO  Continue here
    SN-3 was lost -- the size of RTP packet with sequence number SN-3
    will still be considered in the computation of bytes_in_flight.
 
+   bytes_in_flight_ratio is calculated as the ratio between bytes_flight and cwnd. This value should be computed at the beginning of the ACK processing.
+
+   cwnd_ratio is computed as the relation between MSS and cwnd.
+
    Furthermore, a variable bytes_newly_acked is incremented with a value
    corresponding to how much the highest sequence number has increased
    since the last feedback.  As an example: If the previous
@@ -679,14 +626,12 @@ TODO  Continue here
    The feedback from the receiver is assumed to consist of the following
    elements.
 
-   o  A list of received RTP packets' sequence numbers.
+   o  A list of received RTP packets' sequence numbers. With an indication if packets are ECN-CE marked.
 
    o  The wall-clock timestamp corresponding to the received RTP packet
       with the highest sequence number.
 
-   o  The accumulated number of ECN-CE-marked packets (n_ECN).  Here,
-      "CE" refers to "Congestion Experienced".
-
+   It is recommended
    When the sender receives RTCP feedback, the qdelay is calculated as
    outlined in {{RFC6817}}.  A qdelay sample is obtained for each received
    acknowledgement.  No smoothing of the qdelay is performed; however,
@@ -706,55 +651,8 @@ TODO  Continue here
        # Calculate moving average
        qdelay_fraction_avg = (1 - QDELAY_WEIGHT) * qdelay_fraction_avg +
           QDELAY_WEIGHT * qdelay_fraction_t
-       update_qdelay_fraction_hist(qdelay_fraction_t)
-       # Compute the average of the values in qdelay_fraction_hist
-       avg_t = average(qdelay_fraction_hist)
-       # R is an autocorrelation function of qdelay_fraction_hist,
-       #  with the mean (DC component) removed, at lag K
-       # The subtraction of the scalar avg_t from
-       #  qdelay_fraction_hist is performed element-wise
-       a_t = R(qdelay_fraction_hist-avg_t, 1) /
-             R(qdelay_fraction_hist-avg_t, 0)
-       # Calculate qdelay trend
-       qdelay_trend = min(1.0, max(0.0, a_t * qdelay_fraction_avg))
-       # Calculate a 'peak-hold' qdelay_trend; this gives a memory
-       #  of congestion in the past
-       qdelay_trend_mem = max(0.99 * qdelay_trend_mem, qdelay_trend)
       <CODE ENDS>
 
-   The qdelay fraction is sampled every 50 ms, and the last 20 samples
-   are stored in a vector (qdelay_fraction_hist).  This vector is used
-   in the computation of a qdelay trend that gives a value between 0.0
-   and 1.0 depending on the estimated congestion level.  The prediction
-   coefficient 'a_t' has positive values if qdelay shows an increasing
-   or decreasing trend; thus, an indication of congestion is obtained
-   before the qdelay target is reached.  As a side effect, if qdelay
-   decreases, it's taken as a sign of congestion; however, experiments
-   have shown that this is beneficial, as increasing or decreasing queue
-   delay is an indication that the transmit rate is very close to the
-   path capacity.
-
-   The autocorrelation function 'R' is defined as follows.  Let x be a
-   vector constituting N values, the biased autocorrelation function for
-   a given lag=k for the vector x is given by.
-
-                 n=N-k
-         R(x,k) = SUM x(n) * x(n + k)
-                 n=1
-
-   The prediction coefficient is further multiplied with
-   qdelay_fraction_avg to reduce sensitivity to increasing qdelay when
-   it is very small.  The 50 ms sampling is a simplification that could
-   have the effect that the same qdelay is sampled several times;
-   however, this does not pose any problem, as the vector is only used
-   to determine if the qdelay is increasing or decreasing.  The
-   qdelay_trend is utilized in the media rate control to indicate
-   incipient congestion and to determine when to exit from fast increase
-   mode. qdelay_trend_mem is used to enforce a less aggressive rate
-   increase after congestion events.  The function
-   update_qdelay_fraction_hist(..) removes the oldest element and adds
-   the latest qdelay_fraction element to the qdelay_fraction_hist
-   vector.
 
 #### Reaction to Packet Loss and ECN
 
@@ -768,12 +666,19 @@ TODO  Continue here
    bit less than is the case with TCP Reno, for example.  TCP is
    generally used to transmit whole files; the file is then like a
    source with an infinite bitrate until the whole file has been
-   transmitted.  SCReAM, on the other hand, has a source whose rate is
+   transmitted.  SCReAM, on the other hand, has a source which rate is
    limited to a value close to the available transmit rate and often
    below that value; the effect is that SCReAM has less opportunity to
    grab free capacity than a TCP-based file transfer.  To compensate for
    this, it is RECOMMENDED to let SCReAM reduce the congestion window
    less than what is the case with TCP when loss events occur.
+
+   Handling of ECN-CE differs depending on which mode SCReAM operates:
+   o Classic ECN : The CWND is scaled by a fixed value (BETA_ECN)    
+   o L4S :
+
+   TODO  Continue here
+
 
    An ECN event is detected if the n_ECN counter in the feedback report
    has increased since the previous received feedback.  Once an ECN
