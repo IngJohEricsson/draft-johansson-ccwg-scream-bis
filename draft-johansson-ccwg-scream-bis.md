@@ -37,13 +37,7 @@ informative:
    RFC8699:
    RFC8869:
    RFC8985:
-
-   OpenWebRTC:
-      target: http://www.openwebrtc.org
-      title: OpenWebRTC
-      author:
-        -
-          ins: Ericsson Research
+   RFC8257:
 
    Packet-conservation:
       title: Congestion Avoidance and Control
@@ -84,25 +78,6 @@ informative:
             ins: Ericsson Research
       target: https://github.com/EricssonResearch/scream
 
-   SCReAM-implementation:
-      title: OpenWebRTC specific GStreamer plugins
-      author:
-         -
-            ins: Ericsson Research
-      target: https://github.com/EricssonResearch/openwebrtc-gst-plugins
-
-   SCReAM-implementation-experience:
-      title: "Updates on SCReAM: An implementation experience"
-      author:
-         -
-            ins: Z. Sarker
-            name: Zaheduzzaman Sarker
-         -
-            ins: I. Johansson
-            name: Ingemar Johansson
-      target: https://www.ietf.org/proceedings/94/slides/slides-94-rmcat-8.pdf
-      date: November 2015
-
    TFWC:
       title: "Fairer TCP-Friendly Congestion Control Protocol for Multimedia Streaming Applications"
       author:
@@ -125,6 +100,7 @@ normative:
    RFC6298:
    RFC6817:
    RFC8174:
+   RFC8888:
 
 --- abstract
 
@@ -504,11 +480,29 @@ normative:
    TARGET_BITRATE_MAX:
    : Maximum target bitrate in bps.
 
-   RATE_PACE_MIN (50000 bps):
-   : Minimum pacing rate.
+   RATE_PACE_MIN (50000):
+   : Minimum pacing rate in bps.
 
    CWND_OVERHEAD (1.5):
-   : Indicates how much bytes in flight can exceed cwnd.
+   : Indicates how much bytes in flight is allowed to exceed cwnd.
+
+   L4S_AVG_G (1.0/16):
+   : EWMA factor for l4s_alpha
+
+   QDELAY_AVG_G (1.0/4):
+   : EWMA factor for qdelay_avg
+
+   POST_CONGESTION_DELAY (4.0):
+   : Determines how long (seconds) after a congestion event that the congestion window growth should be cautious.
+
+   MUL_INCREASE_FACTOR (0.02):
+   : Determines how much (as a fraction of cwnd) that the cwnd can increase per RTT.
+
+   LOW_CWND_SCALE_FACTOR (0.1):
+   : Scale factor applied to cwnd change when CWND is very small.
+
+   IS_L4S (false):
+   : Congestion control operates in L4S mode.
 
 #### State Variables
 
@@ -573,8 +567,31 @@ normative:
    : The estimated fraction of RTTs with lost packets detected.
 
    bytes_in_flight_ratio (0.0):
-   : Ratio between the bytes in flight and the congestion window
+   : Ratio between the bytes in flight and the congestion window.
 
+   cwnd_ratio (0.0):
+   : Ratio between MSS and cwnd.
+
+   l4s_alpha (0.0):
+   : Average fraction of marked packets per RTT.
+
+   l4s_active (false):
+   : Indicates that L4S is enabled and packets are indeed marked.
+
+   last_update_l4s_alpha_time (0):
+   : Last time l4s_alpha was updated (seconds).
+
+   last_update_qdelay_avg_time (0):
+   : Last time qdelay_avg was updated (seconds).
+
+   packets_delivered_this_rtt (0):
+   : Counter delivered packets.
+
+   packets_marked_this_rtt (0):
+   : Counter delivered and ECN-CE marked packets.
+
+   last_congestion_detected_time (0):
+   : Last time congestion event occured (seconds).
 ### Network Congestion Control
 
    This section explains the network congestion control, which performs
@@ -631,36 +648,54 @@ normative:
    o  The wall-clock timestamp corresponding to the received RTP packet
       with the highest sequence number.
 
-   It is recommended
+   It is recommended to use RFC8888 {{RFC8888}} for the feedback as it supports the feedback elements described above.
+
    When the sender receives RTCP feedback, the qdelay is calculated as
    outlined in {{RFC6817}}.  A qdelay sample is obtained for each received
    acknowledgement.  No smoothing of the qdelay is performed; however,
    some smoothing occurs anyway because the CWND computation is a low-
    pass filter function.  A number of variables are updated as
    illustrated by the pseudocode below; temporary variables are appended
-   with '_t'.  As mentioned in Section 6, calculation of the proper
-   congestion window and media bitrate may benefit from additional
-   optimizations to handle very high and very low bitrates, and from
-   additional damping to handle periodic packet bursts.  Some such
-   optimizations are implemented in {{SCReAM-CPP-implementation}}, but
-   they do not form part of the specification of SCReAM at this time.
+   with '_t'. Division operation is always floating point unless otherwise noted.
 
-     <CODE BEGINS>
-     update_variables(qdelay):
-       qdelay_fraction_t = qdelay / qdelay_target
-       # Calculate moving average
-       qdelay_fraction_avg = (1 - QDELAY_WEIGHT) * qdelay_fraction_avg +
-          QDELAY_WEIGHT * qdelay_fraction_t
-      <CODE ENDS>
+   ~~~~~~~~~~~
+    <CODE BEGINS>
+    packets_delivered_this_rtt += packets_acked
+    packets_marked_this_rtt += packets_acked_ce
+    if (now-last_update_l4s_alpha_time >= s_rtt)
+      # Note floating point division
+      fraction_marked_t = packets_marked_this_rtt/packets_delivered_this_rtt
+      l4s_alpha = L4S_AVG_G*fraction_marked_t + (1.0-L4S_AVG_G)*l4S_alpha
 
+      last_update_l4s_alpha_time = now
+      packets_delivered_this_rtt = 0
+      packets_marked_this_rtt = 0
+    end         
 
-#### Reaction to Packet Loss and ECN
+    if (now-last_update_qdelay_avg_time >= s_rtt)
+      # qdelay_avg is updated with a slow attack, fast decay EWMA filter
+      if (qdelay < qdelay_avg)
+        qdelay_avg = qdelay
+      else
+        qdelay_avg = QDELAY_AVG_G*qdelay + (1.0-QDELAY_AVG_G)*qdelay_avg
+      end     
+      last_update_qdelay_avg_time = now
+    end         
+    <CODE ENDS>
+  ~~~~~~~~~~~
 
-   A loss event is indicated if one or more RTP packets are declared
-   missing.  The loss detection is described in Section 4.1.2.4.  Once a
-   loss event is detected, further detected lost RTP packets SHOULD be
-   ignored for a full smoothed round-trip time; the intention is to
-   limit the congestion window decrease to at most once per round trip.
+#### Reaction to Delay, Packet Loss and ECN-CE
+   Congestion is detected based on three different indicators:
+
+   o Lost packets detected. The loss detection is described in Section 4.1.2.4.  
+
+   o ECN-CE marked packets detected.
+
+   o Estimated queue delay exceeds a threshold.
+
+   A congestion event occurs if any of the above indicators are true AND it is than one smoothed RTT (s_rtt) since the last congestion event. This ensures that the congestion window is reduced at most once per smoothed RTT.
+
+##### Lost packets
 
    The congestion window back-off due to loss events is deliberately a
    bit less than is the case with TCP Reno, for example.  TCP is
@@ -673,43 +708,113 @@ normative:
    this, it is RECOMMENDED to let SCReAM reduce the congestion window
    less than what is the case with TCP when loss events occur.
 
-   Handling of ECN-CE differs depending on which mode SCReAM operates:
-   o Classic ECN : The CWND is scaled by a fixed value (BETA_ECN)    
-   o L4S :
+##### ECN-CE and classic ECN
 
-   TODO  Continue here
+   In classic ECN mode the cwnd is scaled by a fixed value (BETA_ECN).
 
+   The congestion window back-off due to an ECN event MAY be smaller than if a loss event occurs. This is in line with the idea outlined in {{RFC8511}} to enable ECN marking thresholds lower than the corresponding packet drop thresholds.
 
-   An ECN event is detected if the n_ECN counter in the feedback report
-   has increased since the previous received feedback.  Once an ECN
-   event is detected, the n_ECN counter is ignored for a full smoothed
-   round-trip time; the intention is to limit the congestion window
-   decrease to at most once per round trip.  The congestion window back-
-   off due to an ECN event MAY be smaller than if a loss event occurs.
-   This is in line with the idea outlined in {{RFC8511}} to enable ECN
-   marking thresholds lower than the corresponding packet drop
-   thresholds.
+##### ECN-CE and L4S
+
+   The cwnd is scaled down in proportion to the fraction of marked packets per RTT.
+   The scale down proportion is given by l4s_alpha, which is an EWMA filtered version of the fraction of marked packets per RTT. This is inline with how DCTCP works {{RFC8257}}.
+   Additional methods are applied to make the congestion window reduction reasonably stable, especially when the congestion window is only a few MSS. In addition, because SCReAM can quite often be source limited, additional steps are taked to restore the congestion window to a proper value after a long period without congestion.
+
+##### Increased queue delay
+
+   SCReAM implements a delay based congestion control approach where it mimics L4S congestion marking when the averaged queue delay exceeds a target threshold. This threshold is set to qdelay_target/2 and the congestion backoff factor (l4s_alpha_v) increases linearly from 0 to 100% as qdelay_avg goes from  qdelay_target/2 to qdelay_target. The averaged qdelay (qdelay_avg) is used to avoid that the SCReAM congestion control over reacts to sudden delay spikes due to e.g. handover or link layer retransmissions. Furthermore, the delay based congestion control is inactivated when it is reasonably certain that L4S is active, i.e. L4S is enabled and congested nodes apply L4S marking of packets. The rationale is reduce negative effect of clockdrift that the delay based control can introduce whenever possible.  
 
 #### Congestion Window Update
+TODO continue here
+   The congestion window update contains two parts. One that reduces the congestion window when congestion events (listed above) occur, and one part that continously increase the congestion window.  
 
-   The update of the congestion window depends on if loss, ECN-marking,
+
+   The update of the congestion window reduction depends on if loss, ECN-marking,
    or neither of the two occurs.  The pseudocode below describes the
    actions for each case.
 
 ~~~~~~~~~~~
-     <CODE BEGINS>
-     on congestion event(qdelay):
-       # Either loss or ECN mark is detected
-       in_fast_increase = false
-       if (is loss)
-         # Loss is detected
-         cwnd = max(MIN_CWND, cwnd * BETA_LOSS)
-       else
-         # No loss, so it is then an ECN mark
-         cwnd = max(MIN_CWND, cwnd * BETA_ECN)
-       end
-       adjust_qdelay_target(qdelay) #compensating for competing flows
-       calculate_send_window(qdelay, qdelay_target)
+    <CODE BEGINS>
+      if (now - last_congestion_detected_time > s_rtt)
+        if (loss detected)
+          is_loss_t = true          
+        end   
+        if (packets marked)
+          is_ce_t = true
+        end   
+        if (qDelay > qdelay_target/2)
+          # It is expected that l4s_alpha is below a given value,
+          l4_alpha_lim_t = 2 / target_bitrate * MSS * 8 / s_rtt
+          if (l4s_alpha < l4_alpha_lim_t || !l4s_active)
+            # L4S does not seem to be active            
+            l4s_alpha_v_t = min(1.0, max(0.0,
+               (qdelay_avg - qdelay_target / 2) /
+               (qdelay_target / 2)));              
+            is_virtual_ce_t = true
+          end  
+        end
+      end
+
+      # Scale factors for cwnd update      
+
+      cwnd_scale_factor_t = (LOW_CWND_SCALE_FACTOR + (MUL_INCREASE_FACTOR  * cwnd) / MSS)
+
+      # Either loss, ECN mark or increased qdelay is detected
+      if (is_loss_t)
+        # Loss is detected
+        cwnd = cwnd * BETA_LOSS
+      end  
+      if (is_ce_t)
+        # ECN-CE detected
+        if (IS_L4S)
+          # L4S mode
+          backoff_t = l4s_alpha_v_t / 2
+          # Increase stability for very small cwnd
+          backOff *= min(1.0, cwndScaleFactor)
+          backOff *= max(0.8, 1.0f - cwndRatio * 2)
+
+          if (now - last_congestion_detected_time > 5)
+            # A long time since last congested because link throughput
+            # exceeds max video bitrate.
+            # There is a certain risk that CWND has increased way above
+            # bytes in flight, so we reduce it here to get it better on
+            # track and thus the congestion episode is shortened
+            cwnd = min(cwnd, max_bytes_in_flight_prev)
+            # Also, we back off a little extra if needed
+            # because alpha is quite likely very low
+            # This can in some cases be an over-reaction
+            # but as this function should kick in relatively seldom
+            # it should not be to too big concern
+            backoff_t = max(backoff_t, 0.25)
+
+            # In addition, bump up l4sAlpha to a more credible value
+            # This may over react but it is better than
+            # excessive queue delay
+            l4sAlpha = 0.25            
+          end
+          cwnd = (1.0f - backoff_t) * cwnd
+        else
+          # Classic ECN mode
+          cwnd = cwnd * BETA_ECN
+        end
+      end
+      if (is_virtual_ce_t)
+        backoff_t = l4s_alpha_v_t / 2
+        cwnd = (1.0 - backoff_t) * cwnd
+      end
+
+      if (is_loss_t || is_ce_t || is_virtual_ce_t)
+        last_congestion_detected_time = now
+      end  
+      post_congestion_scale_t = max(0.0, min(1.0,
+        (now - last_congestion_detected_time) / (POST_CONGESTION_DELAY )));
+
+
+      cwnd = max(MIN_CWND, cwnd)
+
+TODO CONTINUE HERE
+
+      calculate_send_window(qdelay, qdelay_target)
 
      # When no congestion event
      on acknowledgement(qdelay):
@@ -1186,78 +1291,6 @@ normative:
    depends on the available RTCP bandwidth.  The requirements on the
    feedback elements and the feedback interval are described below.
 
-### Requirements on Feedback Elements
-
-   The following feedback elements are REQUIRED for basic functionality
-   in SCReAM.
-
-   o  A list of received RTP packets.  This list SHOULD be sufficiently
-      long to cover all received RTP packets.  This list can be realized
-      with the Loss RLE (Run Length Encoding) Report Block in {{RFC3611}}.
-
-   o  A wall-clock timestamp corresponding to the received RTP packet
-      with the highest sequence number is required in order to compute
-      the qdelay.  This can be realized by means of the Packet Receipt
-      Times Report Block in {{RFC3611}}.  begin_seq MUST be set to the
-      highest received sequence number (which has possibly wrapped
-      around); end_seq MUST be set to begin_seq+1 modulo 65536.  The
-      timestamp clock MAY be set according to {{RFC3611}}, i.e., equal to
-      the RTP timestamp clock.  Detailed individual packet receive times
-      are not necessary, as SCReAM does currently not describe how they
-      can be used.
-
-   The basic feedback needed for SCReAM involves the use of the Loss RLE
-   Report Block and the Packet Receipt Times Report Block as shown in
-   {{feedback-msg}}.
-
-~~~~~~~~~~~ aasvg
- 0                   1                   2                   3
- 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|V=2|P|reserved |   PT=XR=207   |             length            |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|                              SSRC                             |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|     BT=2      | rsvd. |  T=0  |         block length          |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|                        SSRC of source                         |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|          begin_seq            |             end_seq           |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|          chunk 1              |             chunk 2           |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-:                              ...                              :
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|          chunk n-1            |             chunk n           |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|     BT=3      | rsvd. |  T=0  |         block length          |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|                        SSRC of source                         |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|          begin_seq            |             end_seq           |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|       Receipt time of packet begin_seq                        |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-~~~~~~~~~~~
-{: #feedback-msg title="Basic Feedback Message for SCReAM, Based on RFC 3611"}
-
-   In a typical use case, no more than four Loss RLE chunks are needed,
-   thus the feedback message will be 44 bytes.  It is obvious from
-   Figure 2 that there is a lot of redundant information in the feedback
-   message.  A more optimized feedback format, including the additional
-   feedback elements listed below, could reduce the feedback message
-   size a bit.
-
-   An additional feedback element that can improve the performance of
-   SCReAM is:
-
-   o  Accumulated number of ECN-CE-marked packets (n_ECN).  For
-      instance, this can be realized with the ECN Feedback Report Format
-      in {{RFC6679}}.  The given feedback report format is slightly
-      overkill, as SCReAM would do quite well with only a counter that
-      increments by one for each received packet with the ECN-CE
-      codepoint set.  The more bulky format could nevertheless be useful
-      for, e.g., ECN black-hole detection.
 
 ### Requirements on Feedback Intensity
 
@@ -1335,10 +1368,8 @@ normative:
 # Suggested Experiments
 
    SCReAM has been evaluated in a number of different ways, mostly in a
-   simulator.  The OpenWebRTC implementation work ({{OpenWebRTC}} and
-   {{SCReAM-implementation}}) involved extensive testing with artificial
-   bottlenecks with varying bandwidths and using two different video
-   coders (OpenH264 and VP9).
+   simulator.  
+   TODO : Mention of the multicam etc... SCReAM BW test tool...
 
    Preferably, further experiments will be done by means of
    implementation in real clients and web browsers.  RECOMMENDED
@@ -1387,16 +1418,4 @@ normative:
 # Acknowledgments
 
    We would like to thank the following people for their comments,
-   questions, and support during the work that led to this memo: Markus
-   Andersson, Bo Burman, Tomas Frankkila, Frederic Gabin, Laurits Hamm,
-   Hans Hannu, Nikolas Hermanns, Stefan Haakansson, Erlendur Karlsson,
-   Daniel Lindstroem, Mats Nordberg, Jonathan Samuelsson, Rickard
-   Sjoeberg, Robert Swain, Magnus Westerlund, and Stefan Aalund.  Many
-   additional thanks to RMCAT chairs Karen E. E. Nielsen and Mirja
-   Kuehlewind for patiently reading, suggesting improvements and also
-   for asking all the difficult but necessary questions.  Thanks to
-   Stefan Holmer, Xiaoqing Zhu, Safiqul Islam, and David Hayes for the
-   additional review of this document.  Thanks to Ralf Globisch for
-   taking time to try out SCReAM in his challenging low-bitrate use
-   cases, Robert Hedman for finding a few additional flaws in the
-   running code, and Gustavo Garcia and 'miseri' for code contributions.
+   questions, and support during the work that led to this memo:
