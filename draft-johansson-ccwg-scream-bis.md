@@ -504,6 +504,16 @@ normative:
    IS_L4S (false):
    : Congestion control operates in L4S mode.
 
+   VIRTUAL_RTT (0.025):
+   : Virtual RTT
+
+   PACKET_PACING_HEADROOM (1.5):
+   : Extra head room for packet pacing
+
+   BYTES_IN_FLIGHT_HEAD_ROOM (2.0):
+   : Extra headroom for bytes in flight
+
+
 #### State Variables
 
    The values within parentheses "()" indicate initial values.
@@ -524,6 +534,9 @@ normative:
 
    cwnd (MIN_CWND):
    : Congestion window.
+
+   cwnd_i (1):
+   : Congestion window inflection point.
 
    bytes_newly_acked (0):
    : The number of bytes that was acknowledged with the last received
@@ -592,6 +605,25 @@ normative:
 
    last_congestion_detected_time (0):
    : Last time congestion event occured (seconds).
+
+   last_cwnd_i_update_time (0):
+   : Last time cwnd_i was updated
+
+   bytes_newly_acked (0):
+   : Number of bytes newly ACKed, reset to 0 when congestion window is updated
+
+   bytes_newly_acked_ce (0):
+   : Number of bytes newly ACKed and CE marked, reset to 0 when congestion window is updated
+
+   pace_bitrate (1e6):
+   : Packet pacing rate
+
+   t_pace (1e-6):
+   : Pacing interval between packets
+
+   rel_framesize_high (1.0):
+   : High percentile for frame size, normalized by nominal frame size for the given target bitrate
+
 ### Network Congestion Control
 
    This section explains the network congestion control, which performs
@@ -657,13 +689,14 @@ normative:
    pass filter function.  A number of variables are updated as
    illustrated by the pseudocode below; temporary variables are appended
    with '_t'. Division operation is always floating point unless otherwise noted.
+   l4s_alpha is calculated based in number of packets delivered (and marked). This makes calculation of L4S alpha more accurate at very low bitrates, given that the tail RTP packet in a video frame is often smaller than MSS.
 
    ~~~~~~~~~~~
     <CODE BEGINS>
     packets_delivered_this_rtt += packets_acked
     packets_marked_this_rtt += packets_acked_ce
     if (now-last_update_l4s_alpha_time >= s_rtt)
-      # Note floating point division
+      # l4s_alpha is calculated from packets marked istf bytes marked
       fraction_marked_t = packets_marked_this_rtt/packets_delivered_this_rtt
       l4s_alpha = L4S_AVG_G*fraction_marked_t + (1.0-L4S_AVG_G)*l4S_alpha
 
@@ -728,13 +761,15 @@ normative:
 TODO continue here
    The congestion window update contains two parts. One that reduces the congestion window when congestion events (listed above) occur, and one part that continously increase the congestion window.  
 
+   The target bitrate is updated whenever the congestion window is updated.
 
-   The update of the congestion window reduction depends on if loss, ECN-marking,
-   or neither of the two occurs.  The pseudocode below describes the
-   actions for each case.
+   <b>
+   Actions when congestion detected
+   </b>
 
 ~~~~~~~~~~~
     <CODE BEGINS>
+
       if (now - last_congestion_detected_time > s_rtt)
         if (loss detected)
           is_loss_t = true          
@@ -755,9 +790,17 @@ TODO continue here
         end
       end
 
-      # Scale factors for cwnd update      
+      if (is_loss_t || is_ce_t || is_virtual_ce_t)
+        if (now - last_cwnd_i_update_time > 0.25)
+          last_cwnd_i_update_time = now
+          cwnd_i = cwnd
+        else  
+      end
 
-      cwnd_scale_factor_t = (LOW_CWND_SCALE_FACTOR + (MUL_INCREASE_FACTOR  * cwnd) / MSS)
+
+      # Scale factor for cwnd update      
+      cwnd_scale_factor_t =
+        (LOW_CWND_SCALE_FACTOR + (MUL_INCREASE_FACTOR  * cwnd) / MSS)
 
       # Either loss, ECN mark or increased qdelay is detected
       if (is_loss_t)
@@ -770,8 +813,8 @@ TODO continue here
           # L4S mode
           backoff_t = l4s_alpha_v_t / 2
           # Increase stability for very small cwnd
-          backOff *= min(1.0, cwndScaleFactor)
-          backOff *= max(0.8, 1.0f - cwndRatio * 2)
+          backOff *= min(1.0, cwnd_scale_factor)
+          backOff *= max(0.8, 1.0f - cwnd_ratio * 2)
 
           if (now - last_congestion_detected_time > 5)
             # A long time since last congested because link throughput
@@ -780,6 +823,7 @@ TODO continue here
             # bytes in flight, so we reduce it here to get it better on
             # track and thus the congestion episode is shortened
             cwnd = min(cwnd, max_bytes_in_flight_prev)
+
             # Also, we back off a little extra if needed
             # because alpha is quite likely very low
             # This can in some cases be an over-reaction
@@ -802,113 +846,80 @@ TODO continue here
         backoff_t = l4s_alpha_v_t / 2
         cwnd = (1.0 - backoff_t) * cwnd
       end
+      cwnd = max(MIN_CWND, cwnd)
 
       if (is_loss_t || is_ce_t || is_virtual_ce_t)
         last_congestion_detected_time = now
       end  
+
+    <CODE ENDS>
+~~~~~~~~~~~
+
+<b>
+Congestion window increase
+</b>
+
+~~~~~~~~~~~
+    <CODE BEGINS>
+
+      # Additional factor for cwnd update      
       post_congestion_scale_t = max(0.0, min(1.0,
         (now - last_congestion_detected_time) / (POST_CONGESTION_DELAY )));
 
 
-      cwnd = max(MIN_CWND, cwnd)
+      bytes_newly_acked_minus_ce_t = bytes_newly_acked-bytes_newly_acked_ce
 
-TODO CONTINUE HERE
+      increment_t = bytes_newly_acked_minus_ce_t*cwnd_ratio
+
+      # Reduce increment for small RTTs
+      tmp_t = min(1.0, s_rtt / VIRTUAL_RTT)
+      increment *= tmp_t * tmp_t
+
+      if (!is_l4s_active)
+        # The increment is scaled down for more cautious
+        # ramp-up around the last known congestion window
+        # when congestion last occured.
+        # This is only applied when L4S is inactive
+        scl_t = 1.0
+        scl_t = (cwnd - cwnd_i) / cwnd_i
+        scl_t *= 4;
+        scl_t = scl_t * scl_t;
+        scl_t = max(0.1, min(1.0, scl_t));
+        increment_t *= scl_t;
+      end      
+
+      # Slow down CWND increase when CWND is only a few MSS
+      # This goes hand in hand with that the down scaling is also
+      # slowed down then
+      float tmp_t = cwndScaleFactor;
+
+      # Further limit multiplicative increase when congestion occured
+      # recently
+      if (tmp_t > 1.0)
+        tmp_t = 1.0 + ((tmp_t - 1.0) * post_congestion_scale_t);
+      end
+      increment *= tmp_t;
+
+      # Increase CWND only if bytes in flight is large enough
+      # Quite a lot of slack is allowed here to avoid that bitrate locks to
+      #  low values.
+      max_allowed_t = MSS + max(max_bytes_in_flight,
+        max_bytes_in_flight_prev) * BYTES_IN_FLIGHT_HEAD_ROOM  
+      int cwnd_t = cwnd + increment_t
+      if (cwnd_t <= max_allowed_t)
+        cwnd = cwnd_t
+      end
 
       calculate_send_window(qdelay, qdelay_target)
 
-     # When no congestion event
-     on acknowledgement(qdelay):
-       update_bytes_newly_acked()
-       update_cwnd(bytes_newly_acked)
-       adjust_qdelay_target(qdelay) # compensating for competing flows
-       calculate_send_window(qdelay, qdelay_target)
-       check_to_resume_fast_increase()
-     <CODE ENDS>
-~~~~~~~~~~~
 
-   The methods are described in detail below.
+    <CODE ENDS>
+      ~~~~~~~~~~~
 
-   The congestion window update is based on qdelay, except for the
-   occurrence of loss events (one or more lost RTP packets in one RTT)
-   or ECN events, which were described earlier.
+TODO CONTINUE HERE
+TODO explain max_bytes_in_flight and max_bytes_in_flight_prev
 
-   Pseudocode for the update of the congestion window is found below.
 
-~~~~~~~~~~~
-<CODE BEGINS>
-   update_cwnd(bytes_newly_acked):
-     # In fast increase mode?
-     if (in_fast_increase)
-       if (qdelay_trend >= QDELAY_TREND_TH)
-         # Incipient congestion detected; exit fast increase mode
-         in_fast_increase = false
-       else
-         # No congestion yet; increase cwnd if it
-         #  is sufficiently used
-         # Additional slack of bytes_newly_acked is
-         #  added to ensure that CWND growth occurs
-         #  even when feedback is sparse
-         if (bytes_in_flight * 1.5 + bytes_newly_acked > cwnd)
-           cwnd = cwnd + bytes_newly_acked
-         end
-         return
-       end
-     end
-
-     # Not in fast increase mode
-     # off_target calculated as with LEDBAT
-     off_target_t = (qdelay_target - qdelay) / qdelay_target
-
-     gain_t = GAIN
-     # Adjust congestion window
-     cwnd_delta_t =
-       gain_t * off_target_t * bytes_newly_acked * MSS / cwnd
-     if (off_target_t > 0 &&
-         bytes_in_flight * 1.25 + bytes_newly_acked <= cwnd)
-       # No cwnd increase if window is underutilized
-       # Additional slack of bytes_newly_acked is
-       #  added to ensure that CWND growth occurs
-       #  even when feedback is sparse
-       cwnd_delta_t = 0;
-     end
-
-     # Apply delta
-     cwnd += cwnd_delta_t
-     # limit cwnd to the maximum number of bytes in flight
-     cwnd = min(cwnd, max_bytes_in_flight *
-                MAX_BYTES_IN_FLIGHT_HEAD_ROOM)
-     cwnd = max(cwnd, MIN_CWND)
-
-<CODE ENDS>
-~~~~~~~~~~~
-
-   CWND is updated differently depending on whether or not the
-   congestion control is in fast increase mode, as controlled by the
-   variable in_fast_increase.
-
-   When in fast increase mode, the congestion window is increased with
-   the number of newly acknowledged bytes as long as the window is
-   sufficiently used.  Sparse feedback can potentially limit congestion
-   window growth; therefore, additional slack is added, given by the
-   number of newly acknowledged bytes.
-
-   The congestion window growth when in_fast_increase is false is
-   dictated by the relation between qdelay and qdelay_target; congestion
-   window growth is limited if the window is not used sufficiently.
-
-   SCReAM calculates the GAIN in a similar way to what is specified in
-   {{RFC6817}}.  However, {{RFC6817}} specifies that the CWND increase is
-   limited by an additional function controlled by a constant
-   ALLOWED_INCREASE.  This additional limitation is removed in this
-   specification.
-
-   Further, the CWND is limited by max_bytes_in_flight and MIN_CWND.
-   The limitation of the congestion window by the maximum number of
-   bytes in flight over the last 5 seconds (max_bytes_in_flight) avoids
-   possible overestimation of the throughput after, for example, idle
-   periods.  An additional MAX_BYTES_IN_FLIGHT_HEAD_ROOM provides slack
-   to allow for a certain amount of variability in the media coder
-   output rate.
 
 #### Competing Flows Compensation
 
@@ -1067,17 +1078,14 @@ TODO CONTINUE HERE
    congestion window and the amount of bytes in flight according to the
    pseudocode below.
 
-~~~~~~~~~~~
-   <CODE BEGINS>
-   calculate_send_window(qdelay, qdelay_target)
-     # send window is computed differently depending on congestion level
-     if (qdelay <= qdelay_target)
-       send_wnd = cwnd + MSS - bytes_in_flight
-     else
-       send_wnd = cwnd - bytes_in_flight
-     end
-   <CODE ENDS>
-~~~~~~~~~~~
+   ~~~~~~~~~~~
+       <CODE BEGINS>
+
+       send_wnd = cwnd * CWND_OVERHEAD * rel_framesize_high - bytes_in_flight
+       
+       <CODE ENDS>
+   ~~~~~~~~~~~
+
 
    The send window is updated whenever an RTP packet is transmitted or
    an RTCP feedback messaged is received.
@@ -1094,7 +1102,8 @@ TODO CONTINUE HERE
 
 ~~~~~~~~~~~
       <CODE BEGINS>
-      pace_bitrate = max (RATE_PACE_MIN, cwnd * 8 / s_rtt)
+      pace_bitrate = max(RATE_PACE_MIN, target_bitrate) *
+        PACKET_PACING_HEADROOM
       t_pace = rtp_size * 8 / pace_bitrate
       <CODE ENDS>
 ~~~~~~~~~~~
