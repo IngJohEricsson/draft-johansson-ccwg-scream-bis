@@ -271,9 +271,7 @@ normative:
       the max video bitrate is 5 Mbps and the capacity is 10 Mbps, then
       the network queue will become empty.
 
-   It is sufficient that any of the two conditions above is fulfilled to
-   make the base delay update properly.  Furthermore,
-   {{LEDBAT-delay-impact}} describes an issue with short-lived competing
+It is sufficient that any of the two conditions above is fulfilled to make the base delay update properly.  Furthermore, {{LEDBAT-delay-impact}} describes an issue with short-lived competing
    flows.  In SCReAM, these short-lived flows will cause the self-
    clocking to slow down, thereby building up the RTP queue; in turn,
    this results in a reduced media video bitrate.  Thus, SCReAM slows
@@ -282,17 +280,18 @@ normative:
    of LEDBAT in SCReAM is quite simple; however, there are a few steps
    in order to make the concept work with conversational media:
 
-   o  Addition of a media rate control function.
+   *  Addition of a media rate control function.
 
-   o  Congestion window validation techniques. The congestion window is used as a basis for the target bitrate calculation. For that reason, various actions are taken to avoid that the congestion window grows too much beyond the bytes in flight. Additional contraints are applied when in congested state and when the max target bitrate is reached.    
+   *  Congestion window validation techniques. The congestion window is used as a basis for the target bitrate calculation. For that reason, various actions are taken to avoid that the congestion window grows too much beyond the bytes in flight. Additional contraints are applied when in congested state and when the max target bitrate is reached.    
 
-   o  Use of inflection points in the congestion window calculation to achieve
+   *  Use of inflection points in the congestion window calculation to achieve
       reduced delay jitter (when L4S is not active).
 
-   o  Adjustment of qdelay target for better performance when competing
+   *  Adjustment of qdelay target for better performance when competing
       with other loss-based congestion-controlled flows.
 
-   The above-mentioned features will be described in more detail in
+
+The above-mentioned features will be described in more detail in
    Sections 3.1 to 3.3.  The full details are described in Section 4.
 
                     +---------------------------+
@@ -327,15 +326,14 @@ normative:
                                   |     UDP    |
                                   |   socket   |
                                   +------------+
-~~~~~~~~~~~
-{: #func-view title="SCReAM Sender Functional View"}
 
-   The SCReAM algorithm consists of three main parts: network congestion
-   control, sender transmission control, and media rate control.  All of
+
+
+The SCReAM algorithm consists of three main parts: network congestion control, sender transmission control, and media rate control.  All of
    these parts reside at the sender side.  Figure 1 shows the functional
    overview of a SCReAM sender.  The receiver-side algorithm is very
    simple in comparison, as it only generates feedback containing
-   acknowledgements of received RTP packets and an ECN count.
+   acknowledgements of received RTP packets and indication of ECN bits.
 
 ## Network Congestion Control
 
@@ -360,13 +358,13 @@ normative:
    The congestion window seeks to increase by at least one segment per RTT and this increase regardless congestion occurs or not.
    Congestion window reduction is triggered by:
 
-   o Packet loss is detected : The congestion window is reduced by a predetermined fraction
+   * Packet loss is detected : The congestion window is reduced by a predetermined fraction
 
-   o Estimated queue delay exceeds a given threshold : The congestion window is reduced given by how much the delay exceeds the threshold
+   * Estimated queue delay exceeds a given threshold : The congestion window is reduced given by how much the delay exceeds the threshold
 
-   o Classic ECN marking detected : The congestion window is reduced by a predetermined fraction
+   * Classic ECN marking detected : The congestion window is reduced by a predetermined fraction
 
-   o L4S ECN marking detected : The congestion window is reduced in proportion to the fraction of packets that are marked (scalable congestion control)
+   * L4S ECN marking detected : The congestion window is reduced in proportion to the fraction of packets that are marked (scalable congestion control)
 
 ## Sender Transmission Control
 
@@ -449,7 +447,7 @@ normative:
    are deduced from experiments.
 
    QDELAY_TARGET_LO (0.1 s):
-   : Target value for the minimum qdelay.
+    Target value for the minimum qdelay.
 
    QDELAY_TARGET_HI (0.4 s):
    : Target value for the maximum qdelay.  This parameter provides an
@@ -460,58 +458,58 @@ normative:
      rate control and congestion control loops sluggish.
 
    MIN_CWND (3000 bytes):
-   : Minimum congestion window.
+    Minimum congestion window.
 
    MAX_BYTES_IN_FLIGHT_HEAD_ROOM (1.1):
-   : Headroom for the limitation of CWND.
+    Headroom for the limitation of CWND.
 
    BETA_LOSS (0.7):
-   : CWND scale factor due to loss event.
+    CWND scale factor due to loss event.
 
    BETA_ECN (0.8):
-   : CWND scale factor due to ECN event.
+    CWND scale factor due to ECN event.
 
    MSS (1000 byte):
-   : Maximum segment size = Max RTP packet size.
+    Maximum segment size = Max RTP packet size.
 
    TARGET_BITRATE_MIN:
-   : Minimum target bitrate in bps (bits per second).
+    Minimum target bitrate in bps (bits per second).
 
    TARGET_BITRATE_MAX:
-   : Maximum target bitrate in bps.
+    Maximum target bitrate in bps.
 
    RATE_PACE_MIN (50000):
-   : Minimum pacing rate in bps.
+    Minimum pacing rate in bps.
 
    CWND_OVERHEAD (1.5):
-   : Indicates how much bytes in flight is allowed to exceed cwnd.
+    Indicates how much bytes in flight is allowed to exceed cwnd.
 
    L4S_AVG_G (1.0/16):
-   : EWMA factor for l4s_alpha
+    EWMA factor for l4s_alpha
 
    QDELAY_AVG_G (1.0/4):
-   : EWMA factor for qdelay_avg
+    EWMA factor for qdelay_avg
 
    POST_CONGESTION_DELAY (4.0):
-   : Determines how long (seconds) after a congestion event that the congestion window growth should be cautious.
+    Determines how long (seconds) after a congestion event that the congestion window growth should be cautious.
 
    MUL_INCREASE_FACTOR (0.02):
-   : Determines how much (as a fraction of cwnd) that the cwnd can increase per RTT.
+   Determines how much (as a fraction of cwnd) that the cwnd can increase per RTT.
 
    LOW_CWND_SCALE_FACTOR (0.1):
-   : Scale factor applied to cwnd change when CWND is very small.
+    Scale factor applied to cwnd change when CWND is very small.
 
    IS_L4S (false):
-   : Congestion control operates in L4S mode.
+    Congestion control operates in L4S mode.
 
    VIRTUAL_RTT (0.025):
-   : Virtual RTT
+    Virtual RTT
 
    PACKET_PACING_HEADROOM (1.5):
-   : Extra head room for packet pacing
+    Extra head room for packet pacing
 
    BYTES_IN_FLIGHT_HEAD_ROOM (2.0):
-   : Extra headroom for bytes in flight
+    Extra headroom for bytes in flight
 
 
 #### State Variables
@@ -519,132 +517,123 @@ normative:
    The values within parentheses "()" indicate initial values.
 
    qdelay_target (QDELAY_TARGET_LO):
-   : qdelay target, a variable qdelay target is introduced to manage
+    qdelay target, a variable qdelay target is introduced to manage
        cases where a fixed qdelay target would otherwise starve the RMCAT
        flow under such circumstances (e.g., FTP competes for the bandwidth
        over the same bottleneck).  The qdelay target is allowed to vary
        between QDELAY_TARGET_LO and QDELAY_TARGET_HI.
 
    qdelay_fraction_avg (0.0):
-   : Fractional qdelay filtered by the Exponentially Weighted Moving
+   Fractional qdelay filtered by the Exponentially Weighted Moving
        Average (EWMA).
 
    qdelay_norm_hist[100] ({0,..,0}):
-   : Vector of the last 100 normalized qdelay samples.
+    Vector of the last 100 normalized qdelay samples.
 
    cwnd (MIN_CWND):
-   : Congestion window.
+    Congestion window.
 
    cwnd_i (1):
-   : Congestion window inflection point.
+    Congestion window inflection point.
 
    bytes_newly_acked (0):
-   : The number of bytes that was acknowledged with the last received
+    The number of bytes that was acknowledged with the last received
        acknowledgement, i.e., bytes acknowledged since the last CWND
        update.
 
    max_bytes_in_flight (0):
-   : The maximum number of bytes in flight in the last round trip.
+    The maximum number of bytes in flight in the last round trip.
 
    max_bytes_in_flight_prev (0):
-   : The maximum number of bytes in flight in previous round trip.
+    The maximum number of bytes in flight in previous round trip.
 
    send_wnd (0):
-   : Upper limit to how many bytes can currently be transmitted.
+    Upper limit to how many bytes can currently be transmitted.
        Updated when cwnd is updated and when RTP packet is transmitted.
 
    target_bitrate (0 bps):
-   : Media target bitrate.
-
-   rate_transmit (0.0 bps):
-   : Measured transmit bitrate.
-
-   rate_ack (0.0 bps):
-   : Measured throughput based on received acknowledgements.
+    Media target bitrate.
 
    rate_media (0.0 bps):
-   : Measured bitrate from the media encoder.
-
-   rate_media_median (0.0 bps):
-   : Median value of rate_media, computed over more than 10 s.
+    Measured bitrate from the media encoder.
 
    s_rtt (0.0s):
-   : Smoothed RTT (in seconds), computed with a similar method to that
+    Smoothed RTT (in seconds), computed with a similar method to that
        described in {{RFC6298}}.
 
    rtp_queue_size (0 bits):
-   : Sum of the sizes of RTP packets in queue.
+    Sum of the sizes of RTP packets in queue.
 
    rtp_size (0 byte):
-   : Size of the last transmitted RTP packet.
+    Size of the last transmitted RTP packet.
 
    loss_event_rate (0.0):
-   : The estimated fraction of RTTs with lost packets detected.
+    The estimated fraction of RTTs with lost packets detected.
 
    bytes_in_flight_ratio (0.0):
-   : Ratio between the bytes in flight and the congestion window.
+    Ratio between the bytes in flight and the congestion window.
 
    cwnd_ratio (0.0):
-   : Ratio between MSS and cwnd.
+    Ratio between MSS and cwnd.
 
    l4s_alpha (0.0):
-   : Average fraction of marked packets per RTT.
+    Average fraction of marked packets per RTT.
 
    l4s_active (false):
-   : Indicates that L4S is enabled and packets are indeed marked.
+    Indicates that L4S is enabled and packets are indeed marked.
 
    last_update_l4s_alpha_time (0):
-   : Last time l4s_alpha was updated (seconds).
+    Last time l4s_alpha was updated (seconds).
 
    last_update_qdelay_avg_time (0):
-   : Last time qdelay_avg was updated (seconds).
+    Last time qdelay_avg was updated (seconds).
 
    packets_delivered_this_rtt (0):
-   : Counter delivered packets.
+    Counter for delivered packets.
 
    packets_marked_this_rtt (0):
-   : Counter delivered and ECN-CE marked packets.
+    Counter delivered and ECN-CE marked packets.
 
    last_congestion_detected_time (0):
-   : Last time congestion event occured (seconds).
+    Last time congestion event occured (seconds).
 
    last_cwnd_i_update_time (0):
-   : Last time cwnd_i was updated
+    Last time cwnd_i was updated
 
    bytes_newly_acked (0):
-   : Number of bytes newly ACKed, reset to 0 when congestion window is updated
+    Number of bytes newly ACKed, reset to 0 when congestion window is updated
 
    bytes_newly_acked_ce (0):
-   : Number of bytes newly ACKed and CE marked, reset to 0 when congestion
+    Number of bytes newly ACKed and CE marked, reset to 0 when congestion
      window is updated
 
    pace_bitrate (1e6):
-   : Packet pacing rate
+    Packet pacing rate
 
    t_pace (1e-6):
-   : Pacing interval between packets
+    Pacing interval between packets
 
    rel_framesize_high (1.0):
-   : High percentile for frame size, normalized by nominal frame size for
+    High percentile of frame size, normalized by nominal frame size for
      the given target bitrate
 
    frame_period (0.02):
-   : The frame period.
+    The frame period.
 
 ### Network Congestion Control
 
    This section explains the network congestion control, which performs
    two main functions:
 
-   o  Computation of congestion window at the sender: This gives an
+   * Computation of congestion window at the sender: This gives an
       upper limit to the number of bytes in flight.
 
-   o  Calculation of send window at the sender: RTP packets are
+   * Calculation of send window at the sender: RTP packets are
       transmitted if allowed by the relation between the number of bytes
       in flight and the congestion window.  This is controlled by the
       send window.
 
-   SCReAM is a window-based and byte-oriented congestion control
+SCReAM is a window-based and byte-oriented congestion control
    protocol, where the number of bytes transmitted is inferred from the
    size of the transmitted RTP packets.  Thus, a list of transmitted RTP
    packets and their respective transmission times (wall-clock time)
@@ -683,12 +672,12 @@ normative:
    The feedback from the receiver is assumed to consist of the following
    elements.
 
-   o A list of received RTP packets' sequence numbers. With an indication if packets are ECN-CE marked.
+   * A list of received RTP packets' sequence numbers. With an indication if packets are ECN-CE marked.
 
-   o The wall-clock timestamp corresponding to the received RTP packet
+   * The wall-clock timestamp corresponding to the received RTP packet
       with the highest sequence number.
 
-   It is recommended to use RFC8888 {{RFC8888}} for the feedback as it supports the feedback elements described above.
+It is recommended to use RFC8888 {{RFC8888}} for the feedback as it supports the feedback elements described above.
 
    When the sender receives RTCP feedback, the qdelay is calculated as
    outlined in {{RFC6817}}.  A qdelay sample is obtained for each received
@@ -728,13 +717,13 @@ normative:
 #### Reaction to Delay, Packet Loss and ECN-CE
    Congestion is detected based on three different indicators:
 
-   o Lost packets detected. The loss detection is described in Section 4.1.2.4.  
+   * Lost packets detected. The loss detection is described in Section 4.1.2.4.  
 
-   o ECN-CE marked packets detected.
+   * ECN-CE marked packets detected.
 
-   o Estimated queue delay exceeds a threshold.
+   * Estimated queue delay exceeds a threshold.
 
-   A congestion event occurs if any of the above indicators are true AND it is than one smoothed RTT (s_rtt) since the last congestion event. This ensures that the congestion window is reduced at most once per smoothed RTT.
+A congestion event occurs if any of the above indicators are true AND it is than one smoothed RTT (s_rtt) since the last congestion event. This ensures that the congestion window is reduced at most once per smoothed RTT.
 
 ##### Lost packets
 
@@ -1057,7 +1046,7 @@ Congestion window increase
    the congestion window.  There are, however, two reasons why this
    strict rule will not work optimally:
 
-   o  Bitrate variations: Media sources such as video encoders generally
+*  Bitrate variations: Media sources such as video encoders generally
       produce frames whose size always vary to a larger or smaller
       extent.  The RTP queue absorbs the natural variations in frame
       sizes.  However, the RTP queue should be as short as possible to
@@ -1073,7 +1062,7 @@ Congestion window increase
       amount of data in flight.  The final effect is that the media
       bitrate increases very slowly or not at all.
 
-   o  Reverse (feedback) path congestion: Especially in transport over
+*  Reverse (feedback) path congestion: Especially in transport over
       buffer-bloated networks, the one-way delay in the reverse
       direction can jump due to congestion.  The effect is that the
       acknowledgements are delayed, and the self-clocking is temporarily
@@ -1081,7 +1070,7 @@ Congestion window increase
       The CWND_OVERHEAD allows for some degree of reverse path congestion as
       the bytes in flight is allowed to exceed cwnd.
 
-   The send window is given by the relation between the adjusted
+The send window is given by the relation between the adjusted
    congestion window and the amount of bytes in flight according to the
    pseudocode below.
 
@@ -1125,8 +1114,7 @@ Congestion window increase
 #### Stream Prioritization
 
    The SCReAM algorithm makes a distinction between network
-   congestion control and media rate control.  This is easily extended
-   to many streams -- RTP packets from two or more RTP queues are
+   congestion control and media rate control.  This is easily extended  to many streams. RTP packets from two or more RTP queues are
    scheduled at the rate permitted by the network congestion control.
 
    The scheduling can be done by means of a few different scheduling
@@ -1160,14 +1148,14 @@ Congestion window increase
    The code above however needs some modifications to work fine in
    a number of scenarios
 
-   o L4S is inactive, i.e L4S is either not enabled or congested bottlenecks
+   * L4S is inactive, i.e L4S is either not enabled or congested bottlenecks
      do not L4S mark packets
 
-   o Frame sizes vary
+   * Frame sizes vary
 
-   o cwnd is very small, just a few MSS or smaller
+   * cwnd is very small, just a few MSS or smaller
 
-   The complete pseudo code for adjustment of the target bitrate is shown below
+The complete pseudo code for adjustment of the target bitrate is shown below
 
    ~~~~~~~~~~~
         <CODE BEGINS>
@@ -1263,12 +1251,11 @@ Congestion window increase
 
    Feedback should also forcibly be transmitted in any of these cases:
 
-   o More than N packets received since last RTCP feedback has been transmitted
+   * More than N packets received since last RTCP feedback has been transmitted
 
-   o An RTP packet with marker bit set is received
+   * An RTP packet with marker bit set is received
 
-   The transmission interval is not critical.  So, in the case of multi-
-   stream handling between two hosts, the feedback for two or more
+The transmission interval is not critical.  So, in the case of multi-stream handling between two hosts, the feedback for two or more
    synchronization sources (SSRCs) can be bundled to save UDP/IP
    overhead.  However, the final realized feedback interval SHOULD not
    exceed 2*fb_int in such cases, meaning that a scheduled feedback
@@ -1285,39 +1272,19 @@ Congestion window increase
 
    This section covers a few discussion points.
 
-   o  Clock drift: SCReAM can suffer from the same issues with clock
-      drift as is the case with LEDBAT {{RFC6817}}.  However, Appendix A.2
-      in {{RFC6817}} describes ways to mitigate issues with clock drift.
-      A clockdrift compensation method is also implemented in {{SCReAM-CPP-implementation}}.
+* Clock drift: SCReAM can suffer from the same issues with clock drift as is the case with LEDBAT {{RFC6817}}.  However, Appendix A.2 in {{RFC6817}} describes ways to mitigate issues with clock drift. A clockdrift compensation method is also implemented in {{SCReAM-CPP-implementation}}.
 
-   o  The target bitrate given by SCReAM is the bitrate including the
-      RTP and Forward Error Correction (FEC) overhead.  The media
-      encoder SHOULD take this overhead into account when the media
-      bitrate is set.  This means that the media coder bitrate SHOULD be
-      computed as:
-
+* The target bitrate given by SCReAM is the bitrate including the RTP and Forward Error Correction (FEC) overhead. The media encoder SHOULD take this overhead into account when the media bitrate is set.  This means that the media coder bitrate SHOULD be computed as:
       media_rate = target_bitrate - rtp_plus_fec_overhead_bitrate
+It is not necessary to make a 100% perfect compensation for the overhead, as the SCReAM algorithm will inherently compensate for moderate errors.  Under-compensating for the overhead has the effect of increasing jitter, while overcompensating will cause the bottleneck link to become underutilized.
 
-      It is not necessary to make a 100% perfect compensation for the
-      overhead, as the SCReAM algorithm will inherently compensate for
-      moderate errors.  Under-compensating for the overhead has the
-      effect of increasing jitter, while overcompensating will cause the
-      bottleneck link to become underutilized.
+* The link utilization with SCReAM can be lower than 100%. There are
+    several possible reasons to this:
 
-    o The link utilization with SCReAM can be lower than 100%. There are several
-      possible reasons to this:
+  - Large variations in frame sizes: Large variations in frame size makes SCReAM      push down the target_bitrate to give sufficient headroom and avoid queue buildup in the network. It is in general recommended to operate video coders in low latency mode and enable GDR (Gradual Decoding Refresh) if possible to minimize frame  
+  - Link layer properties: Media transport in 5G in uplink typically requires to transmit a scheduling request (SR) to get persmission to transmit data. Because transmission of video is frame based, there is a high likelihood that the channel becomes idle between frames (especially with L4S), in which case a new SR/grant exchange is needed. This potentially means that uplink transmission slots are unused with a lower link utilization as a result.
 
-      o Large variations in frame sizes:
-
-      o Frame periodicity:
-
-      o Link layer properties: Media transport in 5G in uplink typically requires 
-        to transmit a scheduling request to
-
-    o Packet pacing is recommened, it is however possible to operate SCReAM
-      packet pacing enabled. The code in {{SCReAM-CPP-implementation}} implements
-      additonal mechanisms to achieve a high link utilization when packet pacing is
-      disabled.
+* Packet pacing is recommened, it is however possible to operate SCReAM packet pacing enabled. The code in {{SCReAM-CPP-implementation}} implements additonal mechanisms to achieve a high link utilization when packet pacing is disabled.
 
 # Suggested Experiments
 
