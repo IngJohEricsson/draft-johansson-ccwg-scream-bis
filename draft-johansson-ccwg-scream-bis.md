@@ -529,8 +529,8 @@ normative:
    : Fractional qdelay filtered by the Exponentially Weighted Moving
        Average (EWMA).
 
-   qdelay_fraction_hist\[20] (\{0,..,0\}):
-   : Vector of the last 20 fractional qdelay samples.
+   qdelay_norm_hist[100] ({0,..,0}):
+   : Vector of the last 100 normalized qdelay samples.
 
    cwnd (MIN_CWND):
    : Congestion window.
@@ -544,8 +544,10 @@ normative:
        update.
 
    max_bytes_in_flight (0):
-   : The maximum number of bytes in flight over a sliding time window,
-       i.e., transmitted but not yet acknowledged bytes.
+   : The maximum number of bytes in flight in the last round trip.
+
+   max_bytes_in_flight_prev (0):
+   : The maximum number of bytes in flight in previous round trip.
 
    send_wnd (0):
    : Upper limit to how many bytes can currently be transmitted.
@@ -613,7 +615,8 @@ normative:
    : Number of bytes newly ACKed, reset to 0 when congestion window is updated
 
    bytes_newly_acked_ce (0):
-   : Number of bytes newly ACKed and CE marked, reset to 0 when congestion window is updated
+   : Number of bytes newly ACKed and CE marked, reset to 0 when congestion
+     window is updated
 
    pace_bitrate (1e6):
    : Packet pacing rate
@@ -622,7 +625,11 @@ normative:
    : Pacing interval between packets
 
    rel_framesize_high (1.0):
-   : High percentile for frame size, normalized by nominal frame size for the given target bitrate
+   : High percentile for frame size, normalized by nominal frame size for
+     the given target bitrate
+
+   frame_period (0.02):
+   : The frame period.
 
 ### Network Congestion Control
 
@@ -657,7 +664,8 @@ normative:
    SN-3 was lost -- the size of RTP packet with sequence number SN-3
    will still be considered in the computation of bytes_in_flight.
 
-   bytes_in_flight_ratio is calculated as the ratio between bytes_flight and cwnd. This value should be computed at the beginning of the ACK processing.
+   bytes_in_flight_ratio is calculated as the ratio between bytes_flight and cwnd.
+   This value should be computed at the beginning of the ACK processing.
 
    cwnd_ratio is computed as the relation between MSS and cwnd.
 
@@ -675,9 +683,9 @@ normative:
    The feedback from the receiver is assumed to consist of the following
    elements.
 
-   o  A list of received RTP packets' sequence numbers. With an indication if packets are ECN-CE marked.
+   o A list of received RTP packets' sequence numbers. With an indication if packets are ECN-CE marked.
 
-   o  The wall-clock timestamp corresponding to the received RTP packet
+   o The wall-clock timestamp corresponding to the received RTP packet
       with the highest sequence number.
 
    It is recommended to use RFC8888 {{RFC8888}} for the feedback as it supports the feedback elements described above.
@@ -758,7 +766,7 @@ normative:
    SCReAM implements a delay based congestion control approach where it mimics L4S congestion marking when the averaged queue delay exceeds a target threshold. This threshold is set to qdelay_target/2 and the congestion backoff factor (l4s_alpha_v) increases linearly from 0 to 100% as qdelay_avg goes from  qdelay_target/2 to qdelay_target. The averaged qdelay (qdelay_avg) is used to avoid that the SCReAM congestion control over reacts to sudden delay spikes due to e.g. handover or link layer retransmissions. Furthermore, the delay based congestion control is inactivated when it is reasonably certain that L4S is active, i.e. L4S is enabled and congested nodes apply L4S marking of packets. The rationale is reduce negative effect of clockdrift that the delay based control can introduce whenever possible.  
 
 #### Congestion Window Update
-TODO continue here
+
    The congestion window update contains two parts. One that reduces the congestion window when congestion events (listed above) occur, and one part that continously increase the congestion window.  
 
    The target bitrate is updated whenever the congestion window is updated.
@@ -767,7 +775,7 @@ TODO continue here
    Actions when congestion detected
    </b>
 
-~~~~~~~~~~~
+   ~~~~~~~~~~~
     <CODE BEGINS>
 
       if (now - last_congestion_detected_time > s_rtt)
@@ -855,12 +863,15 @@ TODO continue here
     <CODE ENDS>
 ~~~~~~~~~~~
 
+  The variable max_bytes_in_flight_prev indicates the maximum bytes in flights
+  in the previous round trip.
+
 <b>
 Congestion window increase
 </b>
 
 ~~~~~~~~~~~
-    <CODE BEGINS>
+ <CODE BEGINS>
 
       # Additional factor for cwnd update      
       post_congestion_scale_t = max(0.0, min(1.0,
@@ -882,23 +893,24 @@ Congestion window increase
         # This is only applied when L4S is inactive
         scl_t = 1.0
         scl_t = (cwnd - cwnd_i) / cwnd_i
-        scl_t *= 4;
-        scl_t = scl_t * scl_t;
-        scl_t = max(0.1, min(1.0, scl_t));
-        increment_t *= scl_t;
+        scl_t *= 4
+        scl_t = scl_t * scl_t
+        scl_t = max(0.1, min(1.0, scl_t))
+        increment_t *= scl_t
       end      
 
       # Slow down CWND increase when CWND is only a few MSS
       # This goes hand in hand with that the down scaling is also
-      # slowed down then
-      float tmp_t = cwndScaleFactor;
+      # slowed down then. Cwnd increase can be as slow as
+      # LOW_CWND_SCALE_FACTOR*MSS per RTT
+      float tmp_t = cwnd_scale_factor_t
 
       # Further limit multiplicative increase when congestion occured
       # recently
       if (tmp_t > 1.0)
         tmp_t = 1.0 + ((tmp_t - 1.0) * post_congestion_scale_t);
       end
-      increment *= tmp_t;
+      increment *= tmp_t
 
       # Increase CWND only if bytes in flight is large enough
       # Quite a lot of slack is allowed here to avoid that bitrate locks to
@@ -910,16 +922,16 @@ Congestion window increase
         cwnd = cwnd_t
       end
 
-      calculate_send_window(qdelay, qdelay_target)
+      <CODE ENDS>
+  ~~~~~~~~~~~
 
+   The variable max_bytes_in_flight indicates the max bytes in flight in the
+   current round trip.
 
-    <CODE ENDS>
-      ~~~~~~~~~~~
-
-TODO CONTINUE HERE
-TODO explain max_bytes_in_flight and max_bytes_in_flight_prev
-
-
+   The cwnd can potentially exceed the bytes in flight. This can be of particular
+   concern in cases when the target_bitrate has reached TARGET_BITRATE_MAX.
+   The cwnd is therefore restricted based on a history of the
+   last max_bytes_in_flight values. See {{SCReAM-CPP-implementation}} for details.
 
 #### Competing Flows Compensation
 
@@ -932,8 +944,9 @@ TODO explain max_bytes_in_flight and max_bytes_in_flight_prev
    qdelay_target when loss-based flows are detected, as shown in the
    pseudocode below.
 
-~~~~~~~~~~~
-     <CODE BEGINS>
+   ~~~~~~~~~~~
+    <CODE BEGINS>
+
      adjust_qdelay_target(qdelay)
        qdelay_norm_t = qdelay / QDELAY_TARGET_LOW
        update_qdelay_norm_history(qdelay_norm_t)
@@ -969,8 +982,9 @@ TODO explain max_bytes_in_flight and max_bytes_in_flight_prev
        # Apply limits
        qdelay_target = min(QDELAY_TARGET_HI, qdelay_target)
        qdelay_target = max(QDELAY_TARGET_LO, qdelay_target)
-     <CODE ENDS>
-~~~~~~~~~~~
+
+       <CODE ENDS>
+   ~~~~~~~~~~~
 
    Two temporary variables are calculated. qdelay_norm_avg_t is the
    long-term average queue delay, qdelay_norm_var_t is the long-term
@@ -1064,15 +1078,8 @@ TODO explain max_bytes_in_flight and max_bytes_in_flight_prev
       direction can jump due to congestion.  The effect is that the
       acknowledgements are delayed, and the self-clocking is temporarily
       halted, even though the forward path is not congested.
-
-   The send window is adjusted depending on qdelay, its relation to the
-   qdelay target, and the relation between the congestion window and the
-   number of bytes in flight.  A strict rule is applied when qdelay is
-   higher than qdelay_target, to avoid further queue buildup in the
-   network.  For cases when qdelay is lower than the qdelay_target, a
-   more relaxed rule is applied.  This allows the bitrate to increase
-   quickly when no congestion is detected while still being able to
-   exhibit stable behavior in congested situations.
+      The CWND_OVERHEAD allows for some degree of reverse path congestion as
+      the bytes in flight is allowed to exceed cwnd.
 
    The send window is given by the relation between the adjusted
    congestion window and the amount of bytes in flight according to the
@@ -1081,10 +1088,11 @@ TODO explain max_bytes_in_flight and max_bytes_in_flight_prev
    ~~~~~~~~~~~
        <CODE BEGINS>
 
-       send_wnd = cwnd * CWND_OVERHEAD * rel_framesize_high - bytes_in_flight
-       
+       send_wnd = cwnd * CWND_OVERHEAD * rel_framesize_high -   
+         bytes_in_flight
+
        <CODE ENDS>
-   ~~~~~~~~~~~
+  ~~~~~~~~~~~
 
 
    The send window is updated whenever an RTP packet is transmitted or
@@ -1100,28 +1108,23 @@ TODO explain max_bytes_in_flight and max_bytes_in_flight_prev
    transmissions is greater than or equal to t_pace, where t_pace is
    given by the equations below :
 
-~~~~~~~~~~~
+   ~~~~~~~~~~~
       <CODE BEGINS>
+
       pace_bitrate = max(RATE_PACE_MIN, target_bitrate) *
         PACKET_PACING_HEADROOM
       t_pace = rtp_size * 8 / pace_bitrate
+
       <CODE ENDS>
-~~~~~~~~~~~
+  ~~~~~~~~~~~
 
    rtp_size is the size of the last transmitted RTP packet, and s_rtt is
    the smoothed round trip time.  RATE_PACE_MIN is the minimum pacing
    rate.
 
-#### Resuming Fast Increase Mode
-
-   Fast increase mode can resume in order to speed up the bitrate
-   increase if congestion abates.  The condition to resume fast increase
-   mode (in_fast_increase = true) is that qdelay_trend is less than
-   QDELAY_TREND_LO for T_RESUME_FAST_INCREASE seconds or more.
-
 #### Stream Prioritization
 
-   The SCReAM algorithm makes a good distinction between network
+   The SCReAM algorithm makes a distinction between network
    congestion control and media rate control.  This is easily extended
    to many streams -- RTP packets from two or more RTP queues are
    scheduled at the rate permitted by the network congestion control.
@@ -1137,169 +1140,101 @@ TODO explain max_bytes_in_flight and max_bytes_in_flight_prev
    This principle can be extended to weighted scheduling, where the
    credit allocated to unscheduled queues depends on the relative
    weights.  The latter is also implemented in
-   {{SCReAM-CPP-implementation}}.
+   {{SCReAM-CPP-implementation}} in which case the target bitrate for
+   the streams are also scaled relative to the scheduling priority.
 
 ### Media Rate Control
 
-   The media rate control algorithm is executed at regular intervals,
-   indicated by RATE_ADJUSTMENT_INTERVAL, with the exception of a prompt
-   reaction to loss events.  The media rate control operates based on
-   the size of the RTP packet send queue and observed loss events.  In
-   addition, qdelay_trend is also considered in the media rate control
-   in order to reduce the amount of induced network jitter.
+   The media rate control algorithm is executed whenever the congestion window
+   is updated and updates the target bitrate. The target bitrate is essentiatlly
+   based on the congestion window and the (smoothed) RTT according to
+
+         target_bitrate = 8 * cwnd / s_rtt
 
    The role of the media rate control is to strike a reasonable balance
    between a low amount of queuing in the RTP queue(s) and a sufficient
-   amount of data to send in order to keep the data path busy.  Setting
-   the media rate control too cautiously leads to possible
-   underutilization of network capacity; this can cause the flow to
-   become starved out by other more opportunistic traffic.  On the other
-   hand, setting it too aggressively leads to increased jitter.
+   amount of data to send in order to keep the data path busy. Because the
+   congestion window is updated based on loss, ECN-CE and delay,
+   so does the target rate also update.  
 
-   The target_bitrate is adjusted depending on the congestion state.
-   The target bitrate can vary between a minimum value
-   (TARGET_BITRATE_MIN) and a maximum value (TARGET_BITRATE_MAX).
-   TARGET_BITRATE_MIN SHOULD be set to a low enough value to prevent RTP
-   packets from becoming queued up when the network throughput is
-   reduced.  The sender SHOULD also be equipped with a mechanism that
-   discards RTP packets when the network throughput becomes very low and
-   RTP packets are excessively delayed.
+   The code above however needs some modifications to work fine in
+   a number of scenarios
 
-   For the overall bitrate adjustment, two network throughput estimates
-   are computed :
+   o L4S is inactive, i.e L4S is either not enabled or congested bottlenecks
+     do not L4S mark packets
 
-   o  rate_transmit: The measured transmit bitrate.
+   o Frame sizes vary
 
-   o  rate_ack: The ACKed bitrate, i.e., the volume of ACKed bits per
-      second.
+   o cwnd is very small, just a few MSS or smaller
 
-   Both estimates are updated every 200 ms.
+   The complete pseudo code for adjustment of the target bitrate is shown below
 
-   The current throughput, current_rate, is computed as the maximum
-   value of rate_transmit and rate_ack.  The rationale behind the use of
-   rate_ack in addition to rate_transmit is that rate_transmit is
-   affected also by the amount of data that is available to transmit,
-   thus a lack of data to transmit can be seen as reduced throughput
-   that can cause an unnecessary rate reduction.  To overcome this
-   shortcoming, rate_ack is used as well.  This gives a more stable
-   throughput estimate.
+   ~~~~~~~~~~~
+        <CODE BEGINS>
 
-   The rate change behavior depends on whether a loss or ECN event has
-   occurred and whether the congestion control is in fast increase mode.
+        tmp_t = 1.0
 
-~~~~~~~~~~~
-   <CODE BEGINS>
-   # The target_bitrate is updated at a regular interval according
-   # to RATE_ADJUST_INTERVAL
+        # limit bitrate if bytes in flight exceeds is close to or
+        # exceeds cwnd.
+        # Only applied when L4S is inactive
+        if (!l4s_active && bytes_in_flight_ratio > BYTES_IN_FLIGHT_LIMIT)
+          tmp_t /= min(BYTES_IN_FLIGHT_LIMIT_COMPENSATION,
+            bytesInFlightRatio / BYTES_IN_FLIGHT_LIMIT)
+        end  
 
-   on loss:
-      # Loss event detected
-      target_bitrate = max(BETA_R * target_bitrate,
-                           TARGET_BITRATE_MIN)
-      exit
-   on ecn_mark:
-      # ECN event detected
-      target_bitrate = max(BETA_ECN * target_bitrate,
-                           TARGET_BITRATE_MIN)
-      exit
+        # Scale down rate slighty when the congestion window is very small
+        # compared to MSS
+        tmp_t *= 1.0 - min(0.8, max(0.0, cwnd_ratio - 0.1))
 
-   ramp_up_speed_t = min(RAMP_UP_SPEED, target_bitrate / 2.0)
-   scale_t = (target_bitrate - target_bitrate_last_max) /
-        target_bitrate_last_max
-   scale_t = max(0.2, min(1.0, (scale_t * 4)^2))
-   # min scale_t value 0.2, as the bitrate should be allowed to
-   #  increase slowly. This prevents locking the rate to
-   #  target_bitrate_last_max
-   if (in_fast_increase = true)
-      increment_t = ramp_up_speed_t * RATE_ADJUST_INTERVAL
-      increment_t *= scale_t
-      target_bitrate += increment_t
-   else
-      current_rate_t = max(rate_transmit, rate_ack)
-      # Compute a bitrate change
-      delta_rate_t = current_rate_t * (1.0 - PRE_CONGESTION_GUARD *
-           queue_delay_trend) - TX_QUEUE_SIZE_FACTOR * rtp_queue_size
-      # Limit a positive increase if close to target_bitrate_last_max
-      if (delta_rate_t > 0)
-        delta_rate_t *= scale_t
-        delta_rate_t =
-          min(delta_rate_t, ramp_up_speed_t * RATE_ADJUST_INTERVAL)
-      end
-      target_bitrate += delta_rate_t
-      # Force a slight reduction in bitrate if RTP queue
-      #  builds up
-      rtp_queue_delay_t = rtp_queue_size / current_rate_t
-      if (rtp_queue_delay_t > RTP_QDELAY_TH)
-        target_bitrate *= TARGET_RATE_SCALE_RTP_QDELAY
-      end
-   end
+        # Scale down rate slighty when the congestion window is very small
+        # compared to MSS
+        tmp_t /= rel_framesize_high
 
-   rate_media_limit_t =
-      max(current_rate_t, max(rate_media, rtp_rate_median))
-   rate_media_limit_t *= (2.0 - qdelay_trend_mem)
-   target_bitrate = min(target_bitrate, rate_media_limit_t)
-   target_bitrate = min(TARGET_BITRATE_MAX,
-      max(TARGET_BITRATE_MIN, target_bitrate))
-   <CODE ENDS>
-~~~~~~~~~~~
+        # Calculate target bitrate and limit to min and max allowed values
+        target_bitrate = tmp_t * 8 * cwnd / s_rtt
+        target_bitrate = min(TARGET_BITRATE_MAX,
+          max(TARGET_BITRATE_MIN,target_bitrate))
 
-   In case of a loss event, the target_bitrate is updated and the rate
-   change procedure is exited.  Otherwise, the rate change procedure
-   continues.  The rationale behind the rate reduction due to loss is
-   that a congestion window reduction will take effect, and a rate
-   reduction proactively prevents RTP packets from being queued up when
-   the transmit rate decreases due to the reduced congestion window.  A
-   similar rate reduction happens when ECN events are detected.
+        <CODE ENDS>
+    ~~~~~~~~~~~
 
-   The rate update frequency is limited by RATE_ADJUST_INTERVAL, unless
-   a loss event occurs.  The value is based on experimentation with
-   real-life limitations in video coders taken into account
-   {{SCReAM-CPP-implementation}}.  A too short interval is shown to make
-   the rate control loop in video coders more unstable; a too long
-   interval makes the overall congestion control sluggish.
+   The variable rel_framesize_high is based on calculation of the high
+   percentile of the frame sizes. The calculation is based on a histogram of
+   the frame sizes relative to the expected frame size given the target bitrate
+   and frame period. The calculation of rel_framesize_high is done for every
+   new video frame and is outlined roughly with the pseudo code below.
+   For more detailed code, see {{SCReAM-CPP-implementation}}.
 
-   When in fast increase mode (in_fast_increase = true), the bitrate
-   increase is given by the desired ramp-up speed (RAMP_UP_SPEED).  The
-   ramp-up speed is limited when the target bitrate is low to avoid rate
-   oscillation at low bottleneck bitrates.  The setting of RAMP_UP_SPEED
-   depends on preferences.  A high setting such as 1000 kbps/s makes it
-   possible to quickly get high-quality media; however, this is at the
-   expense of increased jitter, which can manifest itself as choppy
-   video rendering, for example.
+   ~~~~~~~~~~~
+        <CODE BEGINS>
 
-   When in_fast_increase is false, the bitrate increase is given by the
-   current bitrate and is also controlled by the estimated RTP queue and
-   the qdelay trend, thus it is sufficient that an increased congestion
-   level is sensed by the network congestion control to limit the
-   bitrate.  The target_bitrate_last_max is updated when congestion is
-   detected.
+        # frame_size is that frame size for the last encoded frame
+        tmp_t = frame_size / (target_bitrate * frame_period / 8)
 
-   Finally, the target_bitrate is within the defined min and max values.
+        if (tmp_t > 1.0)
+          # Insert sample into histogram
+          insert_into_histogram(tmp_t)
+          # Get high percentile
+          rel_framesize_high = get_histogram_high_percentile()
+        end  
 
-   The aware reader may notice the dependency on the qdelay in the
-   computation of the target bitrate; this manifests itself in the use
-   of the qdelay_trend.  As these parameters are used also in the
-   network congestion control, one may suspect some odd interaction
-   between the media rate control and the network congestion control.
-   This is in fact the case if the parameter PRE_CONGESTION_GUARD is set
-   to a high value.  The use of qdelay_trend in the media rate control
-   is solely to reduce jitter; the dependency can be removed by setting
-   PRE_CONGESTION_GUARD=0.  The effect is a somewhat larger rate
-   increase after congestion, at the expense of increased jitter in
-   congested situations.
+        <CODE ENDS>
+        ~~~~~~~~~~~
+
+   A 75%-ile is used in {{SCReAM-CPP-implementation}}, the histogram can be made
+   leaky such that old samples are gradually forgotten.
+
 
 ## SCReAM Receiver
 
    The simple task of the SCReAM receiver is to feed back
-   acknowledgements of received packets and total ECN count to the
-   SCReAM sender.  In addition, the receive time of the RTP packet with
-   the highest sequence number is echoed back.  Upon reception of each
+   acknowledgements with with time stamp and ECN bits indication
+   for received packets to the SCReAM sender.  Upon reception of each
    RTP packet, the receiver MUST maintain enough information to send the
    aforementioned values to the SCReAM sender via an RTCP transport-
    layer feedback message.  The frequency of the feedback message
    depends on the available RTCP bandwidth.  The requirements on the
    feedback elements and the feedback interval are described below.
-
 
 ### Requirements on Feedback Intensity
 
@@ -1307,8 +1242,8 @@ TODO explain max_bytes_in_flight and max_bytes_in_flight_prev
    that a SCReAM implementation follows the guidelines below.
 
    The feedback interval depends on the media bitrate.  At low bitrates,
-   it is sufficient with a feedback interval of 100 to 400 ms; while at
-   high bitrates, a feedback interval of roughly 20 ms is preferred.  At
+   it is sufficient with a feedback every frame; while at
+   high bitrates, a feedback interval of roughly 5ms ms is preferred.  At
    very high bitrates, even shorter feedback intervals MAY be needed in
    order to keep the self-clocking in SCReAM working well.  One
    indication that feedback is too sparse is that the SCReAM
@@ -1319,13 +1254,18 @@ TODO explain max_bytes_in_flight and max_bytes_in_flight_prev
    that can be useful for the computation of the desired RTCP bandwidth.
    The following equation expresses the feedback rate:
 
-      rate_fb = min(50, max(2.5, rate_media / 10000))
+      # Assume 100 byte RTCP packets
+      rate_fb = 0.02 * [average received rate] / (100.0 * 8.0);
+      rate_fb = min(1000, max(10, rate_fb))
 
-   rate_media is the RTP media bitrate expressed in bps; rate_fb is the
-   feedback rate expressed in packets/s.  Converting to feedback
-   interval, we get:
+      # Calculate feedback intervals
+      fb_int = 1.0/rate_fb
 
-      fb_int = 1.0 / min(50, max(2.5, rate_media / 10000))
+   Feedback should also forcibly be transmitted in any of these cases:
+
+   o More than N packets received since last RTCP feedback has been transmitted
+
+   o An RTP packet with marker bit set is received
 
    The transmission interval is not critical.  So, in the case of multi-
    stream handling between two hosts, the feedback for two or more
@@ -1348,23 +1288,13 @@ TODO explain max_bytes_in_flight and max_bytes_in_flight_prev
    o  Clock drift: SCReAM can suffer from the same issues with clock
       drift as is the case with LEDBAT {{RFC6817}}.  However, Appendix A.2
       in {{RFC6817}} describes ways to mitigate issues with clock drift.
-
-   o  Support for alternate ECN semantics: This specification adopts the
-      proposal in {{RFC8511}} to reduce the congestion window less
-      when ECN-based congestion events are detected.  Future work on Low
-      Loss, Low Latency for Scalable throughput (L4S) may lead to
-      updates in a future document that describes SCReAM support for
-      L4S.
-
-   o  A new transport-layer feedback message (as specified in RFC 4585)
-      could be standardized if the use of the already existing RTCP
-      extensions as described in Section 4.2 is not deemed sufficient.
+      A clockdrift compensation method is also implemented in {{SCReAM-CPP-implementation}}.
 
    o  The target bitrate given by SCReAM is the bitrate including the
       RTP and Forward Error Correction (FEC) overhead.  The media
       encoder SHOULD take this overhead into account when the media
       bitrate is set.  This means that the media coder bitrate SHOULD be
-      computed as
+      computed as:
 
       media_rate = target_bitrate - rtp_plus_fec_overhead_bitrate
 
@@ -1374,39 +1304,26 @@ TODO explain max_bytes_in_flight and max_bytes_in_flight_prev
       effect of increasing jitter, while overcompensating will cause the
       bottleneck link to become underutilized.
 
+    o The link utilization with SCReAM can be lower than 100%. There are several
+      possible reasons to this:
+
+      o Large variations in frame sizes:
+
+      o Frame periodicity:
+
+      o Link layer properties: Media transport in 5G in uplink typically requires 
+        to transmit a scheduling request to
+
+    o Packet pacing is recommened, it is however possible to operate SCReAM
+      packet pacing enabled. The code in {{SCReAM-CPP-implementation}} implements
+      additonal mechanisms to achieve a high link utilization when packet pacing is
+      disabled.
+
 # Suggested Experiments
 
    SCReAM has been evaluated in a number of different ways, mostly in a
-   simulator.  
-   TODO : Mention of the multicam etc... SCReAM BW test tool...
-
-   Preferably, further experiments will be done by means of
-   implementation in real clients and web browsers.  RECOMMENDED
-   experiments are:
-
-   o  Trials with various access technologies: EDGE/3G/4G, Wi-Fi, DSL.
-      Some experiments have already been carried out with LTE access;
-      see {{SCReAM-CPP-implementation}} and
-      {{SCReAM-implementation-experience}}.
-
-   o  Trials with different kinds of media: Audio, video, slideshow
-      content.  Evaluation of multi-stream handling in SCReAM.
-
-   o  Evaluation of functionality of the compensation mechanism when
-      there are competing flows: Evaluate how SCReAM performs with
-      competing TCP-like traffic and to what extent the compensation for
-      competing flows causes self-inflicted congestion.
-
-   o  Determine proper parameters: A set of default parameters are given
-      that makes SCReAM work over a reasonably large operation range.
-      However, for very low or very high bitrates, it may be necessary
-      to use different values for the RAMP_UP_SPEED, for instance.
-
-   o  Experimentation with further improvements to the congestion window
-      and media bitrate calculation.  {{SCReAM-CPP-implementation}}
-      implements some optimizations, not described in this memo, that
-      improve performance slightly.  Further experiments are likely to
-      lead to more optimizations of the algorithm.
+   simulator.
+   T.B.D
 
 # IANA Considerations
 
