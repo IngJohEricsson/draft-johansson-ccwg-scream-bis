@@ -118,7 +118,7 @@ The algorithm in this memo differs greatly against the previous version of SCReA
 
 * L4S support added. The L4S algoritm has many similarities with the DCTCP and Prague congestion control but has a few extra modifications to make it work well with peridic sources such as video.
 
-* The delay based congestion control is changed to implement a pseudo-L4S approach, this simplifies the delay based congestion control
+* The delay based congestion control is changed to implement a pseudo-L4S approach, this simplifies the delay based congestion control.
 
 * The fast increase mode is removed. The congestion window additive increase is replaced with an adaptive multiplicative increase to increase convergence speed.
 
@@ -523,7 +523,7 @@ Actions when congestion detected
         if (packets marked)
           is_ce_t = true
         end   
-        if (qDelay > qdelay_target/2)
+        if (qdelay > qdelay_target/2)
           # It is expected that l4s_alpha is below a given value,
           l4_alpha_lim_t = 2 / target_bitrate * MSS * 8 / s_rtt
           if (l4s_alpha < l4_alpha_lim_t || !l4s_active)
@@ -559,8 +559,8 @@ Actions when congestion detected
           # L4S mode
           backoff_t = l4s_alpha_v_t / 2
           # Increase stability for very small cwnd
-          backOff *= min(1.0, cwnd_scale_factor_t)
-          backOff *= max(0.8, 1.0f - cwnd_ratio * 2)
+          backOff_t *= min(1.0, cwnd_scale_factor_t)
+          backOff_t *= max(0.8, 1.0f - cwnd_ratio * 2)
 
           if (now - last_congestion_detected_time > 5)
             # A long time since last congested because link throughput
