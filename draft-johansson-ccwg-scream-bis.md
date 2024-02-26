@@ -448,7 +448,6 @@ It is recommended to use RFC8888 {{RFC8888}} for the feedback as it supports the
 
 When the sender receives RTCP feedback, the qdelay is calculated as outlined in {{RFC6817}}. A qdelay sample is obtained for each received acknowledgement. A number of variables are updated as illustrated by the pseudocode below; temporary variables are appended with '_t'. Division operation is always floating point unless otherwise noted. l4s_alpha is calculated based in number of packets delivered (and marked). This makes calculation of L4S alpha more accurate at very low bitrates, given that the tail RTP packet in a video frame is often smaller than MSS.
 
-   ~~~~~~~~~~~
     <CODE BEGINS>
     packets_delivered_this_rtt += packets_acked
     packets_marked_this_rtt += packets_acked_ce
@@ -472,7 +471,6 @@ When the sender receives RTCP feedback, the qdelay is calculated as outlined in 
       last_update_qdelay_avg_time = now
     end         
     <CODE ENDS>
-  ~~~~~~~~~~~
 
 #### Reaction to Delay, Packet Loss and ECN-CE
    Congestion is detected based on three different indicators:
@@ -509,11 +507,8 @@ The congestion window update contains two parts. One that reduces the congestion
 
 The target bitrate is updated whenever the congestion window is updated.
 
-<b>
 Actions when congestion detected
-</b>
 
-   ~~~~~~~~~~~
     <CODE BEGINS>
 
       if (now - last_congestion_detected_time >= s_rtt)
@@ -599,18 +594,15 @@ Actions when congestion detected
       end  
 
     <CODE ENDS>
-~~~~~~~~~~~
 
 The variable max_bytes_in_flight_prev indicates the maximum bytes in flights in the previous round trip. The reason to this is that bytes in flight can spike when congestion occures, max_bytes_in_flight_prev thus ensures better that an uncongested bytes in flight is used.
 
 The cwnd_scale_factor_t scales the congestion window decrease upon congestion as well as the increase. In a normal addititive increase setting this would be 1.0/MSS. However to increase stability especially when witth L4S when cwnd is very small, the cwnd_scale_factor_t can be as small as low as LOW_CWND_SCALE_FACTOR / MSS. The result is then that the congestion window increase can be as small as LOW_CWND_SCALE_FACTOR MSS per RTT. Because the same restriction is applied to both decrease and increase of the congestion window, the net effect is zero. The cwnd_scale_factor_t is increased with larger cwnd to allow for a multiplicative increase and thus a faster convergence when link capacity increases.
 
-<b>
 Congestion window increase
-</b>
 
-~~~~~~~~~~~
- <CODE BEGINS>
+
+     <CODE BEGINS>
 
       # Additional factor for cwnd update      
       post_congestion_scale_t = max(0.0, min(1.0,
@@ -662,7 +654,6 @@ Congestion window increase
       end
 
       <CODE ENDS>
-  ~~~~~~~~~~~
 
 The variable max_bytes_in_flight indicates the max bytes in flight in the current round trip.
 
@@ -690,14 +681,12 @@ The basic design principle behind packet transmission in SCReAM is to allow tran
 
 The send window is given by the relation between the adjusted congestion window and the amount of bytes in flight according to the pseudocode below. The implementation allows the RTP queue to be small even when the frame sizes vary. The effect is that bytes in flight be 'around' the cwnd rather than limited by the cwnd when the link is congested.
 
-   ~~~~~~~~~~~
        <CODE BEGINS>
 
        send_wnd = cwnd * CWND_OVERHEAD * rel_framesize_high -   
          bytes_in_flight
 
        <CODE ENDS>
-  ~~~~~~~~~~~
 
 
 The send window is updated whenever an RTP packet is transmitted or an RTCP feedback messaged is received.
@@ -706,7 +695,6 @@ The send window is updated whenever an RTP packet is transmitted or an RTCP feed
 
 Packet pacing is used in order to mitigate coalescing, i.e., when packets are transmitted in bursts, with the risks of increased jitter and potentially increased packet loss. Packet pacing is also recommended to be used with L4S and also mitigates possible issues with queue overflow due to key-frame generation in video coders. The time interval between consecutive packet transmissions is greater than or equal to t_pace, where t_pace is given by the equations below :
 
-   ~~~~~~~~~~~
       <CODE BEGINS>
 
       pace_bitrate = max(RATE_PACE_MIN, target_bitrate) *
@@ -714,7 +702,6 @@ Packet pacing is used in order to mitigate coalescing, i.e., when packets are tr
       t_pace = rtp_size * 8 / pace_bitrate
 
       <CODE ENDS>
-  ~~~~~~~~~~~
 
 rtp_size is the size of the last transmitted RTP packet, and s_rtt is the smoothed round trip time. RATE_PACE_MIN is the minimum pacing rate.
 
@@ -742,7 +729,6 @@ The code above however needs some modifications to work fine in a number of scen
 
 The complete pseudo code for adjustment of the target bitrate is shown below
 
-   ~~~~~~~~~~~
         <CODE BEGINS>
 
         tmp_t = 1.0
@@ -770,7 +756,6 @@ The complete pseudo code for adjustment of the target bitrate is shown below
           max(TARGET_BITRATE_MIN,target_bitrate))
 
         <CODE ENDS>
-    ~~~~~~~~~~~
 
 The variable rel_framesize_high is based on calculation of the high percentile of the
 frame sizes. The calculation is based on a histogram of the frame sizes relative to
@@ -778,7 +763,6 @@ the expected frame size given the target bitrate and frame period. The calculati
 rel_framesize_high is done for every new video frame and is outlined roughly with
 the pseudo code below. For more detailed code, see {{SCReAM-CPP-implementation}}.
 
-   ~~~~~~~~~~~
         <CODE BEGINS>
 
         # frame_size is that frame size for the last encoded frame
@@ -792,7 +776,6 @@ the pseudo code below. For more detailed code, see {{SCReAM-CPP-implementation}}
         end  
 
         <CODE ENDS>
-        ~~~~~~~~~~~
 
 A 75%-ile is used in {{SCReAM-CPP-implementation}}, the histogram can be made leaky such that old samples are gradually forgotten.
 
@@ -804,7 +787,6 @@ A few additional functional blocks in SCReAM are descrived below
 
 It is likely that a flow using the SCReAM algorithm will have to share congested bottlenecks with other flows that use a more aggressive congestion control algorithm (for example, large FTP flows using loss-based congestion control). The worst condition occurs when the bottleneck queues are of tail-drop type with a large buffer size. SCReAM takes care of such situations by adjusting the qdelay_target when loss-based flows are detected, as shown in the pseudocode below.
 
-      ~~~~~~~~~~~
        <CODE BEGINS>
 
         adjust_qdelay_target(qdelay)
@@ -844,7 +826,6 @@ It is likely that a flow using the SCReAM algorithm will have to share congested
           qdelay_target = max(QDELAY_TARGET_LO, qdelay_target)
 
           <CODE ENDS>
-      ~~~~~~~~~~~
 
 Two temporary variables are calculated. qdelay_norm_avg_t is the long-term average queue delay, qdelay_norm_var_t is the long-term variance of the queue delay. A high qdelay_norm_var_t indicates that the queue delay changes; this can be an indication that bottleneck bandwidth is reduced or that a competing flow has just entered. Thus, it indicates that it is not safe to adjust the queue delay target.
 
