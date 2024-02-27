@@ -29,9 +29,7 @@ author:
 
 informative:
    RFC2119:
-   RFC6679:
    RFC7478:
-   RFC7661:
    RFC8298:
    RFC8511:
    RFC8699:
@@ -94,7 +92,6 @@ informative:
 
 normative:
    RFC3550:
-   RFC3611:
    RFC4585:
    RFC5506:
    RFC6298:
@@ -110,7 +107,15 @@ This memo describes a rate adaptation algorithm for conversational media service
 
 # Introduction {#introduction}
 
-Congestion in the Internet occurs when the transmitted bitrate is higher than the available capacity over a given transmission path. Applications that are deployed in the Internet have to employ congestion control to achieve robust performance and to avoid congestion collapse in the Internet. Interactive real-time communication imposes a lot of requirements on the transport; therefore, a robust, efficient rate adaptation for all access types is an important part of interactive real-time communications, as the transmission channel bandwidth can vary over time. Wireless access such as LTE, which is an integral part of the current Internet, increases the importance of rate adaptation as the channel bandwidth of a default LTE bearer {{QoS-3GPP}} can change considerably in a very short time frame. Thus, a rate adaptation solution for interactive real-time media, such as WebRTC {{RFC7478}}, should be both quick and be able to operate over a large range in channel capacity. This memo describes Self-Clocked Rate Adaptation for Multimedia (SCReAM), a solution that implements congestion control for RTP streams {{RFC3550}}. While SCReAM was originally devised for WebRTC, it can also be used for other applications where congestion control of RTP streams is necessary. SCReAM is based on the self-clocking principle of TCP and uses techniques similar to what is used in the rate adaptation algorithm based on Low Extra Delay Background Transport (LEDBAT) {{RFC6817}}. SCReAM is not entirely self-clocked as it augments self-clocking with pacing and a minimum send rate. SCReAM can take advantage of Explicit Congestion Notification (ECN) and Low Latency Low Loss and Scalablle throughput (L4S) in cases where ECN or L4S is supported by the network and the hosts. However, ECN or L4S is not required for the basic congestion control functionality in SCReAM.
+Congestion in the Internet occurs when the transmitted bitrate is higher than the available capacity over a given transmission path. Applications that are deployed in the Internet have to employ congestion control to achieve robust performance and to avoid congestion collapse in the Internet.
+
+Interactive real-time communication imposes a lot of requirements on the transport; therefore, a robust, efficient rate adaptation for all access types is an important part of interactive real-time communications, as the transmission channel bandwidth can vary over time.
+
+Wireless access such as 4G and 5G, which is an integral part of the current Internet, increases the importance of rate adaptation as the channel bandwidth of a default LTE bearer {{QoS-3GPP}} can change considerably in a very short time frame. Thus, a rate adaptation solution for interactive real-time media, such as WebRTC {{RFC7478}}, should be both quick and be able to operate over a large range in channel capacity.
+
+This memo describes Self-Clocked Rate Adaptation for Multimedia (SCReAM), a solution that implements congestion control for RTP streams {{RFC3550}}. While SCReAM was originally devised for WebRTC, it can also be used for other applications where congestion control of RTP streams is necessary. SCReAM is based on the self-clocking principle of TCP and uses techniques similar to what is used in the rate adaptation algorithm based on Low Extra Delay Background Transport (LEDBAT) {{RFC6817}}.
+
+SCReAM is not entirely self-clocked as it augments self-clocking with pacing and a minimum send rate. SCReAM can take advantage of Explicit Congestion Notification (ECN) and Low Latency Low Loss and Scalablle throughput (L4S) in cases where ECN or L4S is supported by the network and the hosts. However, ECN or L4S is not required for the basic congestion control functionality in SCReAM.
 
 This specification replaces the previous experimental version {{RFC8298}}. There are many and fairly significant changes to the SCREAM algorithm.
 
@@ -267,159 +272,109 @@ Constants and state variables are listed in this section. Temporary variables ar
 
 The RECOMMENDED values, within parentheses "()", for the constants  are deduced from experiments.
 
-QDELAY_TARGET_LO (0.1):
-Target value for the minimum qdelay [s].
+* QDELAY_TARGET_LO (0.1): Target value for the minimum qdelay [s].
 
-QDELAY_TARGET_HI (0.4):
-Target value for the maximum qdelay [s]. This parameter provides an upper limit to how much the target qdelay (qdelay_target) can be increased in order to cope with competing loss-based flows. However, the target qdelay does not have to be initialized to this high value, as it would increase end-to-end delay and also make the rate control and congestion control loops sluggish.
+* QDELAY_TARGET_HI (0.4): Target value for the maximum qdelay [s]. This parameter provides an upper limit to how much the target qdelay (qdelay_target) can be increased in order to cope with competing loss-based flows. However, the target qdelay does not have to be initialized to this high value, as it would increase end-to-end delay and also make the rate control and congestion control loops sluggish.
 
-MIN_CWND (3000):
-Minimum congestion window [byte].
+* MIN_CWND (3000): Minimum congestion window [byte].
 
-MAX_BYTES_IN_FLIGHT_HEAD_ROOM (1.1):
-Headroom for the limitation of CWND.
+* MAX_BYTES_IN_FLIGHT_HEAD_ROOM (1.1): Headroom for the limitation of CWND.
 
-BETA_LOSS (0.7):
-CWND scale factor due to loss event.
+* BETA_LOSS (0.7): CWND scale factor due to loss event.
 
-BETA_ECN (0.8):
-CWND scale factor due to ECN event.
+* BETA_ECN (0.8): CWND scale factor due to ECN event.
 
-MSS (1000 byte):
-Maximum segment size = Max RTP packet size.
+* MSS (1000 byte): Maximum segment size = Max RTP packet size.
 
-TARGET_BITRATE_MIN:
-Minimum target bitrate in [bps] (bits per second).
+* TARGET_BITRATE_MIN: Minimum target bitrate in [bps] (bits per second).
 
-TARGET_BITRATE_MAX:
-Maximum target bitrate in [bps].
+* TARGET_BITRATE_MAX: Maximum target bitrate in [bps].
 
-RATE_PACE_MIN (50000):
-Minimum pacing rate in [bps].
+* RATE_PACE_MIN (50000): Minimum pacing rate in [bps].
 
-CWND_OVERHEAD (1.5):
-Indicates how much bytes in flight is allowed to exceed cwnd.
+* CWND_OVERHEAD (1.5): Indicates how much bytes in flight is allowed to exceed cwnd.
 
-L4S_AVG_G (1.0/16):
-EWMA factor for l4s_alpha
+* L4S_AVG_G (1.0/16): EWMA factor for l4s_alpha
 
-QDELAY_AVG_G (1.0/4):
-EWMA factor for qdelay_avg
+* QDELAY_AVG_G (1.0/4): EWMA factor for qdelay_avg
 
-POST_CONGESTION_DELAY (4.0):
-Determines how long (seconds) after a congestion event that the congestion window growth should be cautious.
+* POST_CONGESTION_DELAY (4.0): Determines how long (seconds) after a congestion event that the congestion window growth should be cautious.
 
-MUL_INCREASE_FACTOR (0.02):
-Determines how much (as a fraction of cwnd) that the cwnd can increase per RTT.
+* MUL_INCREASE_FACTOR (0.02): Determines how much (as a fraction of cwnd) that the cwnd can increase per RTT.
 
-LOW_CWND_SCALE_FACTOR (0.1):
-Scale factor applied to cwnd change when CWND is very small.
+* LOW_CWND_SCALE_FACTOR (0.1): Scale factor applied to cwnd change when CWND is very small.
 
-IS_L4S (false):
-Congestion control operates in L4S mode.
+* IS_L4S (false): Congestion control operates in L4S mode.
 
-VIRTUAL_RTT (0.025):
-Virtual RTT [s]
+* VIRTUAL_RTT (0.025): Virtual RTT [s]
 
-PACKET_PACING_HEADROOM (1.5):
-Extra head room for packet pacing
+* PACKET_PACING_HEADROOM (1.5): Extra head room for packet pacing.
 
-BYTES_IN_FLIGHT_HEAD_ROOM (2.0):
-Extra headroom for bytes in flight
+* BYTES_IN_FLIGHT_HEAD_ROOM (2.0): Extra headroom for bytes in flight.
 
 #### State Variables
 
 The values within parentheses "()" indicate initial values.
 
-qdelay_target (QDELAY_TARGET_LO):
-qdelay target [s], a variable qdelay target is introduced to manage cases where a fixed qdelay target would otherwise starve the RMCAT flow under such circumstances (e.g., FTP competes for the bandwidth over the same bottleneck). The qdelay target is allowed to vary between QDELAY_TARGET_LO and QDELAY_TARGET_HI.
+* qdelay_target (QDELAY_TARGET_LO): qdelay target [s], a variable qdelay target is introduced to manage cases where a fixed qdelay target would otherwise starve the RMCAT flow under such circumstances (e.g., FTP competes for the bandwidth over the same bottleneck). The qdelay target is allowed to vary between QDELAY_TARGET_LO and QDELAY_TARGET_HI.
 
-qdelay_fraction_avg (0.0):
-Fractional qdelay filtered by the Exponentially Weighted Moving Average (EWMA).
+* qdelay_fraction_avg (0.0): Fractional qdelay filtered by the Exponentially Weighted Moving Average (EWMA).
 
-qdelay_norm_hist[100] ({0,..,0}):
-Vector of the last 100 normalized qdelay samples.
+* qdelay_norm_hist[100] ({0,..,0}): Vector of the last 100 normalized qdelay samples.
 
-cwnd (MIN_CWND):
-Congestion window.
+* cwnd (MIN_CWND): Congestion window.
 
-cwnd_i (1):
-Congestion window inflection point.
+* cwnd_i (1): Congestion window inflection point.
 
-bytes_newly_acked (0):
-The number of bytes that was acknowledged with the last received acknowledgement, i.e., bytes acknowledged since the last CWND update.
+* bytes_newly_acked (0): The number of bytes that was acknowledged with the last received acknowledgement, i.e., bytes acknowledged since the last CWND update.
 
-max_bytes_in_flight (0):
-The maximum number of bytes in flight in the last round trip.
+* max_bytes_in_flight (0): The maximum number of bytes in flight in the last round trip.
 
-max_bytes_in_flight_prev (0):
-The maximum number of bytes in flight in previous round trip.
+* max_bytes_in_flight_prev (0): The maximum number of bytes in flight in previous round trip.
 
-send_wnd (0):
-Upper limit to how many bytes can currently be transmitted. Updated when cwnd is updated and when RTP packet is transmitted.
+* send_wnd (0): Upper limit to how many bytes can currently be transmitted. Updated when cwnd is updated and when RTP packet is transmitted.
 
-target_bitrate (0):
-Media target bitrate [bps].
+* target_bitrate (0): Media target bitrate [bps].
 
-rate_media (0.0):
-Measured bitrate [bps] from the media encoder.
+* rate_media (0.0): Measured bitrate [bps] from the media encoder.
 
-s_rtt (0.0):
-Smoothed RTT [s], computed with a similar method to that described in {{RFC6298}}.
+* s_rtt (0.0): Smoothed RTT [s], computed with a similar method to that described in {{RFC6298}}.
 
-rtp_size (0):
-Size [byte] of the last transmitted RTP packet.
+* rtp_size (0): Size [byte] of the last transmitted RTP packet.
 
-loss_event_rate (0.0):
-The estimated fraction of RTTs with lost packets detected.
+* loss_event_rate (0.0): The estimated fraction of RTTs with lost packets detected.
 
-bytes_in_flight_ratio (0.0):
-Ratio between the bytes in flight and the congestion window.
+* bytes_in_flight_ratio (0.0): Ratio between the bytes in flight and the congestion window.
 
-cwnd_ratio (0.0):
-Ratio between MSS and cwnd.
+* cwnd_ratio (0.0): Ratio between MSS and cwnd.
 
-l4s_alpha (0.0):
-Average fraction of marked packets per RTT.
+* l4s_alpha (0.0): Average fraction of marked packets per RTT.
 
-l4s_active (false):
-Indicates that L4S is enabled and packets are indeed marked.
+* l4s_active (false): Indicates that L4S is enabled and packets are indeed marked.
 
-last_update_l4s_alpha_time (0):
-Last time l4s_alpha was updated [s].
+* last_update_l4s_alpha_time (0): Last time l4s_alpha was updated [s].
 
-last_update_qdelay_avg_time (0):
-Last time qdelay_avg was updated [s].
+* last_update_qdelay_avg_time (0): Last time qdelay_avg was updated [s].
 
-packets_delivered_this_rtt (0):
-Counter for delivered packets.
+* packets_delivered_this_rtt (0): Counter for delivered packets.
 
-packets_marked_this_rtt (0):
-Counter delivered and ECN-CE marked packets.
+* packets_marked_this_rtt (0): Counter delivered and ECN-CE marked packets.
 
-last_congestion_detected_time (0):
-Last time congestion event occured [s].
+* last_congestion_detected_time (0): Last time congestion event occured [s].
 
-last_cwnd_i_update_time (0):
-Last time cwnd_i was updated [s].
+* last_cwnd_i_update_time (0): Last time cwnd_i was updated [s].
 
-bytes_newly_acked (0):
-Number of bytes newly ACKed, reset to 0 when congestion window is updated [byte].
+* bytes_newly_acked (0): Number of bytes newly ACKed, reset to 0 when congestion window is updated [byte].
 
-bytes_newly_acked_ce (0):
-Number of bytes newly ACKed and CE marked, reset to 0 when congestion window is updated [byte].
+* bytes_newly_acked_ce (0): Number of bytes newly ACKed and CE marked, reset to 0 when congestion window is updated [byte].
 
-pace_bitrate (1e6):
-Packet pacing rate [bps].
+* pace_bitrate (1e6): Packet pacing rate [bps].
 
-t_pace (1e-6):
-Pacing interval between packets [s].
+* t_pace (1e-6): Pacing interval between packets [s].
 
-rel_framesize_high (1.0):
-High percentile of frame size, normalized by nominal frame size for the given target bitrate
+* rel_framesize_high (1.0): High percentile of frame size, normalized by nominal frame size for the given target bitrate
 
-frame_period (0.02):
-The frame period [s].
+* frame_period (0.02): The frame period [s].
 
 ### Network Congestion Control
 
@@ -453,7 +408,8 @@ When the sender receives RTCP feedback, the qdelay is calculated as outlined in 
     packets_marked_this_rtt += packets_acked_ce
     if (now - last_update_l4s_alpha_time >= s_rtt)
       # l4s_alpha is calculated from packets marked istf bytes marked
-      fraction_marked_t = packets_marked_this_rtt/packets_delivered_this_rtt
+      fraction_marked_t = packets_marked_this_rtt/
+                          packets_delivered_this_rtt
       l4s_alpha = L4S_AVG_G*fraction_marked_t + (1.0-L4S_AVG_G)*l4S_alpha
 
       last_update_l4s_alpha_time = now
@@ -606,10 +562,10 @@ Congestion window increase
 
       # Additional factor for cwnd update      
       post_congestion_scale_t = max(0.0, min(1.0,
-        (now - last_congestion_detected_time) / (POST_CONGESTION_DELAY )));
+        (now - last_congestion_detected_time) / POST_CONGESTION_DELAY))
 
-
-      bytes_newly_acked_minus_ce_t = bytes_newly_acked-bytes_newly_acked_ce
+      bytes_newly_acked_minus_ce_t = bytes_newly_acked-
+                                     bytes_newly_acked_ce
 
       increment_t = bytes_newly_acked_minus_ce_t*cwnd_ratio
 
@@ -644,8 +600,8 @@ Congestion window increase
       increment *= tmp_t
 
       # Increase CWND only if bytes in flight is large enough
-      # Quite a lot of slack is allowed here to avoid that bitrate locks to
-      #  low values.
+      # Quite a lot of slack is allowed here to avoid that bitrate
+      # locks to low values.
       max_allowed_t = MSS + max(max_bytes_in_flight,
         max_bytes_in_flight_prev) * BYTES_IN_FLIGHT_HEAD_ROOM  
       int cwnd_t = cwnd + increment_t
@@ -742,15 +698,15 @@ The complete pseudo code for adjustment of the target bitrate is shown below
             bytesInFlightRatio / BYTES_IN_FLIGHT_LIMIT)
         end  
 
-        # Scale down rate slighty when the congestion window is very small
-        # compared to MSS
+        # Scale down rate slighty when the congestion window is very
+        # small compared to MSS
         tmp_t *= 1.0 - min(0.8, max(0.0, cwnd_ratio - 0.1))
 
-        # Scale down rate slighty when the congestion window is very small
-        # compared to MSS
+        # Scale down rate when frame sizes vary much
         tmp_t /= rel_framesize_high
 
-        # Calculate target bitrate and limit to min and max allowed values
+        # Calculate target bitrate and limit to min and max allowed
+        # values
         target_bitrate = tmp_t * 8 * cwnd / s_rtt
         target_bitrate = min(TARGET_BITRATE_MAX,
           max(TARGET_BITRATE_MIN,target_bitrate))
@@ -809,10 +765,10 @@ It is likely that a flow using the SCReAM algorithm will have to share congested
               qdelay_target = new_target_t
             else
               # Check if target delay can be reduced; this helps prevent
-              #  the target delay from being locked to high values forever
+              # the target delay from being locked to high values forever
               if (new_target_t < QDELAY_TARGET_LO)
                 # Decrease target delay quickly, as measured queuing
-                #  delay is lower than target
+                # delay is lower than target
                 qdelay_target = max(qdelay_target * 0.5, new_target_t)
               else
                 # Decrease target delay slowly
