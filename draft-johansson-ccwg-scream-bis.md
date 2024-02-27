@@ -222,9 +222,9 @@ The network congestion control sets an upper limit on how much data can be in th
 
 The SCReAM congestion control method uses techniques similar to LEDBAT {{RFC6817}} to measure the qdelay. As is the case with LEDBAT, it is not necessary to use synchronized clocks in the sender and receiver in order to compute the qdelay. However, it is necessary that they use the same clock frequency, or that the clock frequency at the receiver can be inferred reliably by the sender. Failure to meet this requirement leads to malfunction in the SCReAM congestion control algorithm due to incorrect estimation of the network queue delay. Use of {{RFC8888}} as feedback ensures that the same time base is used in sender and receiver.
 
-The SCReAM sender calculates the congestion window based on the feedback from the SCReAM receiver. The feedback is timestamp and ECN echo for individual RTP packets.
+The SCReAM sender calculates the congestion window based on the feedback from the SCReAM receiver. The feedback is timestamp and ECN echo for individual RTP packets. 
 
-The congestion window seeks to increase by at least one segment per RTT and this increase regardless congestion occurs or not, the congestion window increase is restriced or relaxed based on the congestion window and the time elapsed since last congestion event.
+The congestion window seeks to increase by at least one segment per RTT and this increase regardless congestion occurs or not, the congestion window increase is restriced or relaxed based on the current value of the congestion window and the time elapsed since last congestion event. The congestion window update is increased by one MSS (maximum know RTP packet size) per RTT with some variation based on congestion window size and time elapsed since the last congestion event. Multiplicative increase allows the congestion to increase by a fraction of cwnd when congestion has not occured for a while. The congestion window is thus an adaptive multiplicative increase that is mainly additive increase when steady state is reached but allows a faster convergence to a higher link speed.
 
 Congestion window reduction is triggered by:
 
@@ -254,8 +254,6 @@ A SCReAM sender implements media rate control and an RTP queue for each media ty
 frames are temporarily stored for transmission. Figure 1 shows the details when a single media source (or stream) is used. A transmission scheduler (not shown in the figure) is added to support multiple streams. The transmission scheduler can enforce differing priorities between the streams and act like a coupled congestion controller for multiple flows. Support for multiple streams is implemented in {{SCReAM-CPP-implementation}}.
 
 Media frames are encoded and forwarded to the RTP queue (1) in Figure 1. The RTP packets are picked from the RTP queue (4), for multiple flows from each RTP queue based on some defined priority order or simply in a round-robin fashion, by the sender transmission controller.
-
-The network congestion control computes a congestion window. The congestion window update is increased by one MSS (maximum know RTP packet size) per RTT with some variation based on congestion window size and time elapsed since the last congestion event. Multiplicative increase allows the congestion to increase by a fraction of cwnd when congestion has not occured for a while. The congestion window is thus an adaptive multiplicative increase that is mainly additive increase when steady state is reached but allows a faster convergence to a higher link speed.
 
 The sender transmission controller (in case of multiple flows a transmission scheduler) sends the RTP packets to the UDP socket (5). In the general case, all media SHOULD go through the sender transmission controller and is limited so that the number of bytes in flight is less than the congestion window albeit with a slack to avoid that packets are unnecessarily delayed in the RTP queue.
 
