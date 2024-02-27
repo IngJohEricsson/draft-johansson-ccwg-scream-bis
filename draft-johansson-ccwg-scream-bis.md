@@ -242,7 +242,11 @@ The sender transmission control limits the output of data, given by the relation
 
 ## Media Rate Control
 
-The media rate control serves to adjust the media bitrate to ramp up quickly enough to get a fair share of the system resources when link throughput increases. The reaction to reduced throughput MUST be prompt in order to avoid getting too much data queued in the RTP packet queue(s) in the sender. The media rate is calculated based on the congestion window and RTT. For the case that multiple streams are enabled, the media rate among the streams is distrubuted according to the relative priorities. In cases where the sender's frame queues increase rapidly, such as in the case of a Radio Access Type (RAT) handover, the SCReAM sender MAY implement additional actions, such as discarding of encoded media frames or frame skipping in order to ensure that the RTP queues are drained quickly. Frame skipping results in the frame rate being temporarily reduced. Which method to use is a design choice and is outside the scope of this algorithm description.
+The media rate control serves to adjust the media bitrate to ramp up quickly enough to get a fair share of the system resources when link throughput increases.
+
+The reaction to reduced throughput must be prompt in order to avoid getting too much data queued in the RTP packet queue(s) in the sender. The media rate is calculated based on the congestion window and RTT. For the case that multiple streams are enabled, the media rate among the streams is distrubuted according to relative priorities.
+
+In cases where the sender's frame queues increase rapidly, such as in the case of a Radio Access Type (RAT) handover, the SCReAM sender MAY implement additional actions, such as discarding of encoded media frames or frame skipping in order to ensure that the RTP queues are drained quickly. Frame skipping results in the frame rate being temporarily reduced. Which method to use is a design choice and is outside the scope of this algorithm description.
 
 # Detailed Description of SCReAM
 
