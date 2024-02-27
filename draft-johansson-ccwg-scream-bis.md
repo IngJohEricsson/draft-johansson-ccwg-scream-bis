@@ -127,11 +127,11 @@ The algorithm in this memo differs greatly against the previous version of SCReA
 
 * The fast increase mode is removed. The congestion window additive increase is replaced with an adaptive multiplicative increase to enhance convergence speed.
 
-* The algorithm is more rate based than self-clocked. The calculated congestion window is used mainly to calculated proper media bitrates. Bytes in flight is however allowed to exceeed the congestion window.
+* The algorithm is more rate based than self-clocked. The calculated congestion window is used mainly to calculate proper media bitrates. Bytes in flight is however allowed to exceeed the congestion window.
 
 * The media bitrate calculation is dramatically changed and simplified.
 
-* Additional compensation is added to make SCReAM handle cases such as large changing frame sizes
+* Additional compensation is added to make SCReAM handle cases such as large changing frame sizes.
 
 
 ## Wireless (LTE and 5G) Access Properties
@@ -228,11 +228,9 @@ The congestion window seeks to increase by at least one segment per RTT and this
 
 Congestion window reduction is triggered by:
 
-* Packet loss is detected : The congestion window is reduced by a predetermined fraction.
+* Packet loss or Classic ECN marking is detected : The congestion window is reduced by a predetermined fraction.
 
 * Estimated queue delay exceeds a given threshold : The congestion window is reduced given by how much the delay exceeds the threshold.
-
-* Classic ECN marking detected : The congestion window is reduced by a predetermined fraction.
 
 * L4S ECN marking detected : The congestion window is reduced in proportion to the fraction of packets that are marked (scalable congestion control).
 
