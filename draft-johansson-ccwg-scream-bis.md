@@ -180,38 +180,7 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 
 # Overview of SCReAM Algorithm
 
-                    +---------------------------+
-                    |        Media encoder      |
-                    +---------------------------+
-                        ^                  |
-                        |                  |(1)
-                        |(3)              RTP
-                        |                  V
-                        |            +-----------+
-                   +---------+       |           |
-                   | Media   |       |   Queue   |
-                   | rate    |       |           |
-                   | control |       |RTP packets|
-                   +---------+       |           |
-                        ^            +-----------+
-                        |                  |
-                        | (2)              |(4)
-                        |                 RTP
-                        |                  |
-                        |                  v
-              +------------+       +--------------+
-              |  Network   |  (7)  |    Sender    |
-          +-->| congestion |------>| Transmission |
-          |   |  control   |       |   Control    |
-          |   +------------+       +--------------+
-          |                                |
-          +-------------RTCP----------+    |(5)
-              (6)                     |   RTP
-                                      |    v
-                                  +------------+
-                                  |     UDP    |
-                                  |   socket   |
-                                  +------------+
+
 
 
 
@@ -254,7 +223,43 @@ This section describes the sender-side algorithm in more detail. It is split bet
 A SCReAM sender implements media rate control and an RTP queue for each media type or source, where RTP packets containing encoded media
 frames are temporarily stored for transmission. Figure 1 shows the details when a single media source (or stream) is used. A transmission scheduler (not shown in the figure) is added to support multiple streams. The transmission scheduler can enforce differing priorities between the streams and act like a coupled congestion controller for multiple flows. Support for multiple streams is implemented in {{SCReAM-CPP-implementation}}.
 
-Media frames are encoded and forwarded to the RTP queue (1) in Figure 1. The RTP packets are picked from the RTP queue (4), for multiple flows from each RTP queue based on some defined priority order or simply in a round-robin fashion, by the sender transmission controller.
+~~~aasvg
+                    +---------------------------+
+                    |        Media encoder      |
+                    +---------------------------+
+                        ^                  |
+                        |                  |(1)
+                        |(3)              RTP
+                        |                  V
+                        |            +-----------+
+                   +---------+       |           |
+                   | Media   |       |   Queue   |
+                   | rate    |       |           |
+                   | control |       |RTP packets|
+                   +---------+       |           |
+                        ^            +-----------+
+                        |                  |
+                        | (2)              |(4)
+                        |                 RTP
+                        |                  |
+                        |                  v
+              +------------+       +--------------+
+              |  Network   |  (7)  |    Sender    |
+          +-->| congestion |------>| Transmission |
+          |   |  control   |       |   Control    |
+          |   +------------+       +--------------+
+          |                                |
+          +-------------RTCP----------+    |(5)
+              (6)                     |   RTP
+                                      |    v
+                                  +------------+
+                                  |     UDP    |
+                                  |   socket   |
+                                  +------------+
+~~~
+{: #fig-sender-view title="SCReAM Sender Functional View"}
+
+Media frames are encoded and forwarded to the RTP queue (1) in {{fig-sender-view}}. The RTP packets are picked from the RTP queue (4), for multiple flows from each RTP queue based on some defined priority order or simply in a round-robin fashion, by the sender transmission controller.
 
 The network congestion control computes a congestion window. The congestion window update is increased by one MSS (maximum know RTP packet size) per RTT with some variation based on congestion window size and time elapsed since the last congestion event. Multiplicative increase allows the congestion to increase by a fraction of cwnd when congestion has not occured for a while. The congestion window is thus an adaptive multiplicative increase that is mainly additive increase when steady state is reached but allows a faster convergence to a higher link speed.
 
