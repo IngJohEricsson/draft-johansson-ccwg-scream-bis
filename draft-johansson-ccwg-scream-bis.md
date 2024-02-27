@@ -127,11 +127,11 @@ The algorithm in this memo differs greatly against the previous version of SCReA
 
 * The fast increase mode is removed. The congestion window additive increase is replaced with an adaptive multiplicative increase to enhance convergence speed.
 
-* The algorithm is more rate based than self-clocked. The calculated congestion window is used mainly to calculated proper media bitrates. Bytes in flight is however allowed to exceeed the congestion window.
+* The algorithm is more rate based than self-clocked. The calculated congestion window is used mainly to calculate proper media bitrates. Bytes in flight is however allowed to exceeed the congestion window.
 
 * The media bitrate calculation is dramatically changed and simplified.
 
-* Additional compensation is added to make SCReAM handle cases such as large changing frame sizes
+* Additional compensation is added to make SCReAM handle cases such as large changing frame sizes.
 
 
 ## Wireless (LTE and 5G) Access Properties
@@ -194,15 +194,13 @@ The SCReAM sender calculates the congestion window based on the feedback from th
 
 In SCReAM, the receiver of the media echoes a list of received RTP packets and the timestamp of the RTP packet with the highest sequence number back to the sender in feedback packets. The sender keeps a list of transmitted packets, their respective sizes, and the time they were transmitted. This information is used to determine the number of bytes that can be transmitted at any given time instant. A congestion window puts an upper limit on how many bytes can be in flight, i.e., transmitted but not yet acknowledged.
 
-The congestion window seeks to increase by at least one segment per RTT and this increase regardless congestion occurs or not, the congestion window increase is restriced or relaxed based on the congestion window and the time elapsed since last congestion event.
+The congestion window seeks to increase by at least one segment per RTT and this increase regardless congestion occurs or not, the congestion window increase is restriced or relaxed based on the current value of the congestion window and the time elapsed since last congestion event. The congestion window update is increased by one MSS (maximum know RTP packet size) per RTT with some variation based on congestion window size and time elapsed since the last congestion event. Multiplicative increase allows the congestion to increase by a fraction of cwnd when congestion has not occured for a while. The congestion window is thus an adaptive multiplicative increase that is mainly additive increase when steady state is reached but allows a faster convergence to a higher link speed.
 
 Congestion window reduction is triggered by:
 
-* Packet loss is detected : The congestion window is reduced by a predetermined fraction.
+* Packet loss or Classic ECN marking is detected : The congestion window is reduced by a predetermined fraction.
 
 * Estimated queue delay exceeds a given threshold : The congestion window is reduced given by how much the delay exceeds the threshold.
-
-* Classic ECN marking detected : The congestion window is reduced by a predetermined fraction.
 
 * L4S ECN marking detected : The congestion window is reduced in proportion to the fraction of packets that are marked (scalable congestion control).
 
@@ -212,7 +210,11 @@ The sender transmission control limits the output of data, given by the relation
 
 ## Media Rate Control
 
-The media rate control serves to adjust the media bitrate to ramp up quickly enough to get a fair share of the system resources when link throughput increases. The reaction to reduced throughput MUST be prompt in order to avoid getting too much data queued in the RTP packet queue(s) in the sender. The media rate is calculated based on the congestion window and RTT. For the case that multiple streams are enabled, the media rate among the streams is distrubuted according to the relative priorities. In cases where the sender's frame queues increase rapidly, such as in the case of a Radio Access Type (RAT) handover, the SCReAM sender MAY implement additional actions, such as discarding of encoded media frames or frame skipping in order to ensure that the RTP queues are drained quickly. Frame skipping results in the frame rate being temporarily reduced. Which method to use is a design choice and is outside the scope of this algorithm description.
+The media rate control serves to adjust the media bitrate to ramp up quickly enough to get a fair share of the system resources when link throughput increases.
+
+The reaction to reduced throughput must be prompt in order to avoid getting too much data queued in the RTP packet queue(s) in the sender. The media rate is calculated based on the congestion window and RTT. For the case that multiple streams are enabled, the media rate among the streams is distrubuted according to relative priorities.
+
+In cases where the sender's frame queues increase rapidly, such as in the case of a Radio Access Type (RAT) handover, the SCReAM sender MAY implement additional actions, such as discarding of encoded media frames or frame skipping in order to ensure that the RTP queues are drained quickly. Frame skipping results in the frame rate being temporarily reduced. Which method to use is a design choice and is outside the scope of this algorithm description.
 
 # Detailed Description of SCReAM
 
@@ -260,8 +262,6 @@ frames are temporarily stored for transmission. Figure 1 shows the details when 
 {: #fig-sender-view title="SCReAM Sender Functional View"}
 
 Media frames are encoded and forwarded to the RTP queue (1) in {{fig-sender-view}}. The RTP packets are picked from the RTP queue (4), for multiple flows from each RTP queue based on some defined priority order or simply in a round-robin fashion, by the sender transmission controller.
-
-The network congestion control computes a congestion window. The congestion window update is increased by one MSS (maximum know RTP packet size) per RTT with some variation based on congestion window size and time elapsed since the last congestion event. Multiplicative increase allows the congestion to increase by a fraction of cwnd when congestion has not occured for a while. The congestion window is thus an adaptive multiplicative increase that is mainly additive increase when steady state is reached but allows a faster convergence to a higher link speed.
 
 The sender transmission controller (in case of multiple flows a transmission scheduler) sends the RTP packets to the UDP socket (5). In the general case, all media SHOULD go through the sender transmission controller and is limited so that the number of bytes in flight is less than the congestion window albeit with a slack to avoid that packets are unnecessarily delayed in the RTP queue.
 
