@@ -150,15 +150,9 @@ Self-clocked congestion control algorithms provide a benefit over their rate-bas
 
 A rate-based congestion control algorithm typically adjusts the rate based on delay and loss. The congestion detection needs to be done with a certain time lag to avoid overreaction to spurious congestion events such as delay spikes. Despite the fact that there are two or more congestion indications, the outcome is that there is still only one mechanism to adjust the sending rate. This makes it difficult to reach the goals of high throughput and prompt reaction to congestion.
 
-# Requirements Language
-
-The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in BCP 14 {{RFC2119}} {{RFC8174}} when, and only when, they appear in all capitals, as shown here.
-
-# Overview of SCReAM Algorithm
+## Comaprison with LEDBAT and TFWC in TCP
 
 The core SCReAM algorithm has similarities to the concepts of self-clocking used in TCP-friendly window-based congestion control {{TFWC}} and follows the packet conservation principle. The packet conservation principle is described as a key factor behind the protection of networks from congestion {{Packet-conservation}}.
-
-In SCReAM, the receiver of the media echoes a list of received RTP packets and the timestamp of the RTP packet with the highest sequence number back to the sender in feedback packets. The sender keeps a list of transmitted packets, their respective sizes, and the time they were transmitted. This information is used to determine the number of bytes that can be transmitted at any given time instant. A congestion window puts an upper limit on how many bytes can be in flight, i.e., transmitted but not yet acknowledged.
 
 The congestion window is determined in a way similar to LEDBAT {{RFC6817}}. LEDBAT is a congestion control algorithm that uses send and receive timestamps to estimate the queuing delay (from now on denoted "qdelay") along the transmission path. This information is used to adjust the congestion window. The general problem described in the paper is that the base delay is offset by LEDBAT's own queue buildup. The big difference with using LEDBAT in the SCReAM context lies in the facts that the source is rate limited and that the RTP queue must be kept short (preferably empty). In addition, the output from a video encoder is rarely constant bitrate; static content (talking heads, for instance) gives almost zero video bitrate. This yields two useful properties when LEDBAT is used with SCReAM; they help to avoid the issues described in {{LEDBAT-delay-impact}}:
 
@@ -176,41 +170,17 @@ It is sufficient that any of the two conditions above is fulfilled to make the b
 
 * Adjustment of qdelay target for better performance when competing with other loss-based congestion-controlled flows.
 
-
 The above-mentioned features will be described in more detail in Sections 3.1 to 3.3. The full details are described in Section 4.
 
-                    +---------------------------+
-                    |        Media encoder      |
-                    +---------------------------+
-                        ^                  |
-                        |                  |(1)
-                        |(3)              RTP
-                        |                  V
-                        |            +-----------+
-                   +---------+       |           |
-                   | Media   |       |   Queue   |
-                   | rate    |       |           |
-                   | control |       |RTP packets|
-                   +---------+       |           |
-                        ^            +-----------+
-                        |                  |
-                        | (2)              |(4)
-                        |                 RTP
-                        |                  |
-                        |                  v
-              +------------+       +--------------+
-              |  Network   |  (7)  |    Sender    |
-          +-->| congestion |------>| Transmission |
-          |   |  control   |       |   Control    |
-          |   +------------+       +--------------+
-          |                                |
-          +-------------RTCP----------+    |(5)
-              (6)                     |   RTP
-                                      |    v
-                                  +------------+
-                                  |     UDP    |
-                                  |   socket   |
-                                  +------------+
+The SCReAM congestion control method uses techniques similar to LEDBAT {{RFC6817}} to measure the qdelay. As is the case with LEDBAT, it is not necessary to use synchronized clocks in the sender and receiver in order to compute the qdelay. However, it is necessary that they use the same clock frequency, or that the clock frequency at the receiver can be inferred reliably by the sender. Failure to meet this requirement leads to malfunction in the SCReAM congestion control algorithm due to incorrect estimation of the network queue delay. Use of {{RFC8888}} as feedback ensures that the same time base is used in sender and receiver.
+
+# Requirements Language
+
+The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in BCP 14 {{RFC2119}} {{RFC8174}} when, and only when, they appear in all capitals, as shown here.
+
+# Overview of SCReAM Algorithm
+
+
 
 
 
@@ -220,9 +190,9 @@ The SCReAM algorithm consists of three main parts: network congestion control, s
 
 The network congestion control sets an upper limit on how much data can be in the network (bytes in flight); this limit is called CWND (congestion window) and is used in the sender transmission control.
 
-The SCReAM congestion control method uses techniques similar to LEDBAT {{RFC6817}} to measure the qdelay. As is the case with LEDBAT, it is not necessary to use synchronized clocks in the sender and receiver in order to compute the qdelay. However, it is necessary that they use the same clock frequency, or that the clock frequency at the receiver can be inferred reliably by the sender. Failure to meet this requirement leads to malfunction in the SCReAM congestion control algorithm due to incorrect estimation of the network queue delay. Use of {{RFC8888}} as feedback ensures that the same time base is used in sender and receiver.
+The SCReAM sender calculates the congestion window based on the feedback from the SCReAM receiver. The feedback is timestamp and ECN echo for individual RTP packets.
 
-The SCReAM sender calculates the congestion window based on the feedback from the SCReAM receiver. The feedback is timestamp and ECN echo for individual RTP packets. 
+In SCReAM, the receiver of the media echoes a list of received RTP packets and the timestamp of the RTP packet with the highest sequence number back to the sender in feedback packets. The sender keeps a list of transmitted packets, their respective sizes, and the time they were transmitted. This information is used to determine the number of bytes that can be transmitted at any given time instant. A congestion window puts an upper limit on how many bytes can be in flight, i.e., transmitted but not yet acknowledged.
 
 The congestion window seeks to increase by at least one segment per RTT and this increase regardless congestion occurs or not, the congestion window increase is restriced or relaxed based on the current value of the congestion window and the time elapsed since last congestion event. The congestion window update is increased by one MSS (maximum know RTP packet size) per RTT with some variation based on congestion window size and time elapsed since the last congestion event. Multiplicative increase allows the congestion to increase by a fraction of cwnd when congestion has not occured for a while. The congestion window is thus an adaptive multiplicative increase that is mainly additive increase when steady state is reached but allows a faster convergence to a higher link speed.
 
@@ -255,7 +225,43 @@ This section describes the sender-side algorithm in more detail. It is split bet
 A SCReAM sender implements media rate control and an RTP queue for each media type or source, where RTP packets containing encoded media
 frames are temporarily stored for transmission. Figure 1 shows the details when a single media source (or stream) is used. A transmission scheduler (not shown in the figure) is added to support multiple streams. The transmission scheduler can enforce differing priorities between the streams and act like a coupled congestion controller for multiple flows. Support for multiple streams is implemented in {{SCReAM-CPP-implementation}}.
 
-Media frames are encoded and forwarded to the RTP queue (1) in Figure 1. The RTP packets are picked from the RTP queue (4), for multiple flows from each RTP queue based on some defined priority order or simply in a round-robin fashion, by the sender transmission controller.
+~~~aasvg
+                    +---------------------------+
+                    |        Media encoder      |
+                    +---------------------------+
+                        ^                  |
+                        |                  |(1)
+                        |(3)              RTP
+                        |                  V
+                        |            +-----------+
+                   +---------+       |           |
+                   | Media   |       |   Queue   |
+                   | rate    |       |           |
+                   | control |       |RTP packets|
+                   +---------+       |           |
+                        ^            +-----------+
+                        |                  |
+                        | (2)              |(4)
+                        |                 RTP
+                        |                  |
+                        |                  v
+              +------------+       +--------------+
+              |  Network   |  (7)  |    Sender    |
+          +-->| congestion |------>| Transmission |
+          |   |  control   |       |   Control    |
+          |   +------------+       +--------------+
+          |                                |
+          +-------------RTCP----------+    |(5)
+              (6)                     |   RTP
+                                      |    v
+                                  +------------+
+                                  |     UDP    |
+                                  |   socket   |
+                                  +------------+
+~~~
+{: #fig-sender-view title="SCReAM Sender Functional View"}
+
+Media frames are encoded and forwarded to the RTP queue (1) in {{fig-sender-view}}. The RTP packets are picked from the RTP queue (4), for multiple flows from each RTP queue based on some defined priority order or simply in a round-robin fashion, by the sender transmission controller.
 
 The sender transmission controller (in case of multiple flows a transmission scheduler) sends the RTP packets to the UDP socket (5). In the general case, all media SHOULD go through the sender transmission controller and is limited so that the number of bytes in flight is less than the congestion window albeit with a slack to avoid that packets are unnecessarily delayed in the RTP queue.
 
