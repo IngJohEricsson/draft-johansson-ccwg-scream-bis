@@ -5,12 +5,12 @@
 CCWG                                                        I. Johansson
 Internet-Draft                                             M. Westerlund
 Obsoletes: 8298 (if approved)                                   Ericsson
-Intended status: Experimental                           27 February 2024
-Expires: 30 August 2024
+Intended status: Experimental                           29 February 2024
+Expires: 1 September 2024
 
 
               Self-Clocked Rate Adaptation for Multimedia
-                 draft-johansson-ccwg-scream-bis-latest
+                 draft-johansson-ccwg-rfc8298bis-scream
 
 Abstract
 
@@ -23,14 +23,15 @@ Abstract
    system simulator and is shown to achieve both low latency and high
    video throughput in these scenarios.  This specification obsoletes
    RFC 8298.  The algorithm supports handling of multiple media streams,
-   typical use cases are streaming for remote control and 3D VR googles.
+   typical use cases are streaming for remote control, AR and 3D VR
+   googles.
 
 About This Document
 
    This note is to be removed before publishing as an RFC.
 
    Status information for this document may be found at
-   https://datatracker.ietf.org/doc/draft-johansson-ccwg-scream-bis/.
+   https://datatracker.ietf.org/doc/draft-johansson-ccwg-rfc8298bis/.
 
    Discussion of this document takes place on the Congestion Control
    Working Group (ccwg) Working Group mailing list
@@ -46,24 +47,28 @@ Status of This Memo
    This Internet-Draft is submitted in full conformance with the
    provisions of BCP 78 and BCP 79.
 
+
+
+
+
+
+
+Johansson & Westerlund  Expires 1 September 2024                [Page 1]
+
+Internet-Draft                   SCREAM                    February 2024
+
+
    Internet-Drafts are working documents of the Internet Engineering
    Task Force (IETF).  Note that other groups may also distribute
    working documents as Internet-Drafts.  The list of current Internet-
    Drafts is at https://datatracker.ietf.org/drafts/current/.
-
-
-
-Johansson & Westerlund   Expires 30 August 2024                 [Page 1]
-
-Internet-Draft                   SCREAM                    February 2024
-
 
    Internet-Drafts are draft documents valid for a maximum of six months
    and may be updated, replaced, or obsoleted by other documents at any
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 30 August 2024.
+   This Internet-Draft will expire on 1 September 2024.
 
 Copyright Notice
 
@@ -84,14 +89,15 @@ Table of Contents
    1.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . .   3
      1.1.  Wireless (LTE and 5G) Access Properties . . . . . . . . .   4
      1.2.  Why is it a self-clocked algorithm? . . . . . . . . . . .   5
-   2.  Requirements Language . . . . . . . . . . . . . . . . . . . .   5
-   3.  Overview of SCReAM Algorithm  . . . . . . . . . . . . . . . .   5
-     3.1.  Network Congestion Control  . . . . . . . . . . . . . . .   8
-     3.2.  Sender Transmission Control . . . . . . . . . . . . . . .   9
+     1.3.  Comparison with LEDBAT and TFWC in TCP  . . . . . . . . .   5
+   2.  Requirements Language . . . . . . . . . . . . . . . . . . . .   7
+   3.  Overview of SCReAM Algorithm  . . . . . . . . . . . . . . . .   7
+     3.1.  Network Congestion Control  . . . . . . . . . . . . . . .   7
+     3.2.  Sender Transmission Control . . . . . . . . . . . . . . .   8
      3.3.  Media Rate Control  . . . . . . . . . . . . . . . . . . .   9
    4.  Detailed Description of SCReAM  . . . . . . . . . . . . . . .   9
      4.1.  SCReAM Sender . . . . . . . . . . . . . . . . . . . . . .   9
-       4.1.1.  Constants and Parameter Values  . . . . . . . . . . .  11
+       4.1.1.  Constants and variables . . . . . . . . . . . . . . .  11
        4.1.2.  Network Congestion Control  . . . . . . . . . . . . .  14
        4.1.3.  Media Rate Control  . . . . . . . . . . . . . . . . .  24
        4.1.4.  Additional functions  . . . . . . . . . . . . . . . .  26
@@ -100,19 +106,20 @@ Table of Contents
    5.  Discussion  . . . . . . . . . . . . . . . . . . . . . . . . .  30
    6.  Suggested Experiments . . . . . . . . . . . . . . . . . . . .  31
    7.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .  31
-   8.  Security Considerations . . . . . . . . . . . . . . . . . . .  31
-   9.  References  . . . . . . . . . . . . . . . . . . . . . . . . .  32
-     9.1.  Normative References  . . . . . . . . . . . . . . . . . .  32
-     9.2.  Informative References  . . . . . . . . . . . . . . . . .  32
-   Appendix A.  Acknowledgments  . . . . . . . . . . . . . . . . . .  34
-   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  34
 
 
 
-Johansson & Westerlund   Expires 30 August 2024                 [Page 2]
+Johansson & Westerlund  Expires 1 September 2024                [Page 2]
 
 Internet-Draft                   SCREAM                    February 2024
 
+
+   8.  Security Considerations . . . . . . . . . . . . . . . . . . .  32
+   9.  References  . . . . . . . . . . . . . . . . . . . . . . . . .  32
+     9.1.  Normative References  . . . . . . . . . . . . . . . . . .  32
+     9.2.  Informative References  . . . . . . . . . . . . . . . . .  33
+   Appendix A.  Acknowledgments  . . . . . . . . . . . . . . . . . .  34
+   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  34
 
 1.  Introduction
 
@@ -128,7 +135,7 @@ Internet-Draft                   SCREAM                    February 2024
    communications, as the transmission channel bandwidth can vary over
    time.
 
-   Wireless access such as 4G and 5G, which is an integral part of the
+   Wireless access such as LTE and 5G, which is an integral part of the
    current Internet, increases the importance of rate adaptation as the
    channel bandwidth of a default LTE bearer [QoS-3GPP] can change
    considerably in a very short time frame.  Thus, a rate adaptation
@@ -148,7 +155,7 @@ Internet-Draft                   SCREAM                    February 2024
    SCReAM is not entirely self-clocked as it augments self-clocking with
    pacing and a minimum send rate.  SCReAM can take advantage of
    Explicit Congestion Notification (ECN) and Low Latency Low Loss and
-   Scalablle throughput (L4S) in cases where ECN or L4S is supported by
+   Scalable throughput (L4S) in cases where ECN or L4S is supported by
    the network and the hosts.  However, ECN or L4S is not required for
    the basic congestion control functionality in SCReAM.
 
@@ -156,19 +163,15 @@ Internet-Draft                   SCREAM                    February 2024
    [RFC8298].  There are many and fairly significant changes to the
    SCREAM algorithm.
 
-   The algorithm in this memo differs greatly against the previous
-   version of SCReAM.  The main differences are:
 
 
-
-
-
-
-
-Johansson & Westerlund   Expires 30 August 2024                 [Page 3]
+Johansson & Westerlund  Expires 1 September 2024                [Page 3]
 
 Internet-Draft                   SCREAM                    February 2024
 
+
+   The algorithm in this memo differs greatly against the previous
+   version of SCReAM.  The main differences are:
 
    *  L4S support added.  The L4S algoritm has many similarities with
       the DCTCP and Prague congestion control but has a few extra
@@ -184,7 +187,7 @@ Internet-Draft                   SCREAM                    February 2024
       enhance convergence speed.
 
    *  The algorithm is more rate based than self-clocked.  The
-      calculated congestion window is used mainly to calculated proper
+      calculated congestion window is used mainly to calculate proper
       media bitrates.  Bytes in flight is however allowed to exceeed the
       congestion window.
 
@@ -192,7 +195,7 @@ Internet-Draft                   SCREAM                    February 2024
       simplified.
 
    *  Additional compensation is added to make SCReAM handle cases such
-      as large changing frame sizes
+      as large changing frame sizes.
 
 1.1.  Wireless (LTE and 5G) Access Properties
 
@@ -215,17 +218,17 @@ Internet-Draft                   SCREAM                    February 2024
    there are generally few other flows competing for the same
    bottleneck.  Each user gets its own variable throughput bottleneck,
    where the throughput depends on factors like channel quality, network
-   load, and historical throughput.  The bottom line is, if the
-   throughput drops, the sender has no other option than to reduce the
-   bitrate.  Once the radio scheduler has reduced the resource
 
 
 
-Johansson & Westerlund   Expires 30 August 2024                 [Page 4]
+Johansson & Westerlund  Expires 1 September 2024                [Page 4]
 
 Internet-Draft                   SCREAM                    February 2024
 
 
+   load, and historical throughput.  The bottom line is, if the
+   throughput drops, the sender has no other option than to reduce the
+   bitrate.  Once the radio scheduler has reduced the resource
    allocation for a bearer, a flow in that bearer aims to reduce the
    sending rate quite quickly (within one RTT) in order to avoid
    excessive queuing delay or packet loss.
@@ -245,9 +248,10 @@ Internet-Draft                   SCREAM                    February 2024
       operates on a shorter time scale (1 RTT).  The benefits of self-
       clocking are also elaborated upon in [TFWC].  The self-clocking
       however acts more like an emergency break as bytes in flight can
-      exceed the congesion window to a certain degree.  The rationale is
-      to be able to transmit large video frames and avoid that they are
-      unnecessarily queued up on the sender side.
+      exceed the congesion window only to a certain degree.  The
+      rationale is to be able to transmit large video frames and avoid
+      that they are unnecessarily queued up on the sender side, but
+      still prevent a bootleneck queue
 
    A rate-based congestion control algorithm typically adjusts the rate
    based on delay and loss.  The congestion detection needs to be done
@@ -257,15 +261,7 @@ Internet-Draft                   SCREAM                    February 2024
    one mechanism to adjust the sending rate.  This makes it difficult to
    reach the goals of high throughput and prompt reaction to congestion.
 
-2.  Requirements Language
-
-   The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
-   "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and
-   "OPTIONAL" in this document are to be interpreted as described in BCP
-   14 [RFC2119] [RFC8174] when, and only when, they appear in all
-   capitals, as shown here.
-
-3.  Overview of SCReAM Algorithm
+1.3.  Comparison with LEDBAT and TFWC in TCP
 
    The core SCReAM algorithm has similarities to the concepts of self-
    clocking used in TCP-friendly window-based congestion control [TFWC]
@@ -273,29 +269,19 @@ Internet-Draft                   SCREAM                    February 2024
    conservation principle is described as a key factor behind the
    protection of networks from congestion [Packet-conservation].
 
-
-
-
-
-Johansson & Westerlund   Expires 30 August 2024                 [Page 5]
-
-Internet-Draft                   SCREAM                    February 2024
-
-
-   In SCReAM, the receiver of the media echoes a list of received RTP
-   packets and the timestamp of the RTP packet with the highest sequence
-   number back to the sender in feedback packets.  The sender keeps a
-   list of transmitted packets, their respective sizes, and the time
-   they were transmitted.  This information is used to determine the
-   number of bytes that can be transmitted at any given time instant.  A
-   congestion window puts an upper limit on how many bytes can be in
-   flight, i.e., transmitted but not yet acknowledged.
-
    The congestion window is determined in a way similar to LEDBAT
    [RFC6817].  LEDBAT is a congestion control algorithm that uses send
    and receive timestamps to estimate the queuing delay (from now on
    denoted "qdelay") along the transmission path.  This information is
    used to adjust the congestion window.  The general problem described
+
+
+
+Johansson & Westerlund  Expires 1 September 2024                [Page 5]
+
+Internet-Draft                   SCREAM                    February 2024
+
+
    in the paper is that the base delay is offset by LEDBAT's own queue
    buildup.  The big difference with using LEDBAT in the SCReAM context
    lies in the facts that the source is rate limited and that the RTP
@@ -326,18 +312,6 @@ Internet-Draft                   SCREAM                    February 2024
 
    *  Addition of a media rate control function.
 
-
-
-
-
-
-
-
-Johansson & Westerlund   Expires 30 August 2024                 [Page 6]
-
-Internet-Draft                   SCREAM                    February 2024
-
-
    *  Congestion window validation techniques.  The congestion window is
       used as a basis for the target bitrate calculation.  For that
       reason, various actions are taken to avoid that the congestion
@@ -352,47 +326,38 @@ Internet-Draft                   SCREAM                    February 2024
       with other loss-based congestion-controlled flows.
 
    The above-mentioned features will be described in more detail in
-   Sections 3.1 to 3.3.  The full details are described in Section 4.
-
-                   +---------------------------+
-                   |        Media encoder      |
-                   +---------------------------+
-                       ^                  |
-                       |                  |(1)
-                       |(3)              RTP
-                       |                  V
-                       |            +-----------+
-                  +---------+       |           |
-                  | Media   |       |   Queue   |
-                  | rate    |       |           |
-                  | control |       |RTP packets|
-                  +---------+       |           |
-                       ^            +-----------+
-                       |                  |
-                       | (2)              |(4)
-                       |                 RTP
-                       |                  |
-                       |                  v
-             +------------+       +--------------+
-             |  Network   |  (7)  |    Sender    |
-         +-->| congestion |------>| Transmission |
-         |   |  control   |       |   Control    |
-         |   +------------+       +--------------+
-         |                                |
-         +-------------RTCP----------+    |(5)
-             (6)                     |   RTP
-                                     |    v
-                                 +------------+
-                                 |     UDP    |
-                                 |   socket   |
-                                 +------------+
+   Section Section 4.
 
 
 
-Johansson & Westerlund   Expires 30 August 2024                 [Page 7]
+
+
+
+Johansson & Westerlund  Expires 1 September 2024                [Page 6]
 
 Internet-Draft                   SCREAM                    February 2024
 
+
+   The SCReAM congestion control method uses techniques similar to
+   LEDBAT [RFC6817] to measure the qdelay.  As is the case with LEDBAT,
+   it is not necessary to use synchronized clocks in the sender and
+   receiver in order to compute the qdelay.  However, it is necessary
+   that they use the same clock frequency, or that the clock frequency
+   at the receiver can be inferred reliably by the sender.  Failure to
+   meet this requirement leads to malfunction in the SCReAM congestion
+   control algorithm due to incorrect estimation of the network queue
+   delay.  Use of [RFC8888] as feedback ensures that the same time base
+   is used in sender and receiver.
+
+2.  Requirements Language
+
+   The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+   "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and
+   "OPTIONAL" in this document are to be interpreted as described in BCP
+   14 [RFC2119] [RFC8174] when, and only when, they appear in all
+   capitals, as shown here.
+
+3.  Overview of SCReAM Algorithm
 
    The SCReAM algorithm consists of three main parts: network congestion
    control, sender transmission control, and media rate control.  All of
@@ -407,48 +372,53 @@ Internet-Draft                   SCREAM                    February 2024
    can be in the network (bytes in flight); this limit is called CWND
    (congestion window) and is used in the sender transmission control.
 
-   The SCReAM congestion control method uses techniques similar to
-   LEDBAT [RFC6817] to measure the qdelay.  As is the case with LEDBAT,
-   it is not necessary to use synchronized clocks in the sender and
-   receiver in order to compute the qdelay.  However, it is necessary
-   that they use the same clock frequency, or that the clock frequency
-   at the receiver can be inferred reliably by the sender.  Failure to
-   meet this requirement leads to malfunction in the SCReAM congestion
-   control algorithm due to incorrect estimation of the network queue
-   delay.  Use of [RFC8888] as feedback ensures that the same time base
-   is used in sender and receiver.
-
    The SCReAM sender calculates the congestion window based on the
    feedback from the SCReAM receiver.  The feedback is timestamp and ECN
    echo for individual RTP packets.
 
+   In SCReAM, the receiver of the media echoes a list of received RTP
+   packets and the timestamp of the RTP packet with the highest sequence
+   number back to the sender in feedback packets.  The sender keeps a
+   list of transmitted packets, their respective sizes, and the time
+   they were transmitted.  This information is used to determine the
+   number of bytes that can be transmitted at any given time instant.  A
+   congestion window puts an upper limit on how many bytes can be in
+   flight, i.e., transmitted but not yet acknowledged.  The congestion
+   window is however not an absolute limit as a slack is given to
+   efficiently transmit large video frames.
+
+
+
+Johansson & Westerlund  Expires 1 September 2024                [Page 7]
+
+Internet-Draft                   SCREAM                    February 2024
+
+
    The congestion window seeks to increase by at least one segment per
    RTT and this increase regardless congestion occurs or not, the
    congestion window increase is restriced or relaxed based on the
-   congestion window and the time elapsed since last congestion event.
+   current value of the congestion window and the time elapsed since
+   last congestion event.  The congestion window update is increased by
+   one MSS (maximum known RTP packet size) per RTT with some variation
+   based on congestion window size and time elapsed since the last
+   congestion event.  Multiplicative increase allows the congestion to
+   increase by a fraction of cwnd when congestion has not occured for a
+   while.  The congestion window is thus an adaptive multiplicative
+   increase that is mainly additive increase when steady state is
+   reached but allows a faster convergence to a higher link speed.
 
    Congestion window reduction is triggered by:
 
-   *  Packet loss is detected : The congestion window is reduced by a
-      predetermined fraction.
+   *  Packet loss or Classic ECN marking is detected : The congestion
+      window is reduced by a predetermined fraction.
 
    *  Estimated queue delay exceeds a given threshold : The congestion
       window is reduced given by how much the delay exceeds the
       threshold.
 
-   *  Classic ECN marking detected : The congestion window is reduced by
-      a predetermined fraction.
-
    *  L4S ECN marking detected : The congestion window is reduced in
       proportion to the fraction of packets that are marked (scalable
       congestion control).
-
-
-
-Johansson & Westerlund   Expires 30 August 2024                 [Page 8]
-
-Internet-Draft                   SCREAM                    February 2024
-
 
 3.2.  Sender Transmission Control
 
@@ -470,23 +440,36 @@ Internet-Draft                   SCREAM                    February 2024
    rate than the target bitrate, this makes it possible to transmit
    occasionally larger video frames in a timely manner.
 
+
+
+
+
+
+Johansson & Westerlund  Expires 1 September 2024                [Page 8]
+
+Internet-Draft                   SCREAM                    February 2024
+
+
 3.3.  Media Rate Control
 
    The media rate control serves to adjust the media bitrate to ramp up
    quickly enough to get a fair share of the system resources when link
-   throughput increases.  The reaction to reduced throughput MUST be
-   prompt in order to avoid getting too much data queued in the RTP
-   packet queue(s) in the sender.  The media rate is calculated based on
-   the congestion window and RTT.  For the case that multiple streams
-   are enabled, the media rate among the streams is distrubuted
-   according to the relative priorities.  In cases where the sender's
-   frame queues increase rapidly, such as in the case of a Radio Access
-   Type (RAT) handover, the SCReAM sender MAY implement additional
-   actions, such as discarding of encoded media frames or frame skipping
-   in order to ensure that the RTP queues are drained quickly.  Frame
-   skipping results in the frame rate being temporarily reduced.  Which
-   method to use is a design choice and is outside the scope of this
-   algorithm description.
+   throughput increases.
+
+   The reaction to reduced throughput must be prompt in order to avoid
+   getting too much data queued in the RTP packet queue(s) in the
+   sender.  The media rate is calculated based on the congestion window
+   and RTT.  For the case that multiple streams are enabled, the media
+   rate among the streams is distrubuted according to relative
+   priorities.
+
+   In cases where the sender's frame queues increase rapidly, such as in
+   the case of a Radio Access Type (RAT) handover, the SCReAM sender MAY
+   implement additional actions, such as discarding of encoded media
+   frames or frame skipping in order to ensure that the RTP queues are
+   drained quickly.  Frame skipping results in the frame rate being
+   temporarily reduced.  Which method to use is a design choice and is
+   outside the scope of this algorithm description.
 
 4.  Detailed Description of SCReAM
 
@@ -495,16 +478,6 @@ Internet-Draft                   SCREAM                    February 2024
    This section describes the sender-side algorithm in more detail.  It
    is split between the network congestion control, sender transmission
    control, and media rate control.
-
-
-
-
-
-
-Johansson & Westerlund   Expires 30 August 2024                 [Page 9]
-
-Internet-Draft                   SCREAM                    February 2024
-
 
    A SCReAM sender implements media rate control and an RTP queue for
    each media type or source, where RTP packets containing encoded media
@@ -516,21 +489,63 @@ Internet-Draft                   SCREAM                    February 2024
    controller for multiple flows.  Support for multiple streams is
    implemented in [SCReAM-CPP-implementation].
 
+
+
+
+
+
+
+
+
+
+
+
+
+Johansson & Westerlund  Expires 1 September 2024                [Page 9]
+
+Internet-Draft                   SCREAM                    February 2024
+
+
+                       +---------------------------+
+                       |        Media encoder      |
+                       +---------------------------+
+                           ^                  |
+                           |                  |(1)
+                           |(3)              RTP
+                           |                  V
+                           |            +-----------+
+                      +---------+       |           |
+                      | Media   |       |   Queue   |
+                      | rate    |       |           |
+                      | control |       |RTP packets|
+                      +---------+       |           |
+                           ^            +-----------+
+                           |                  |
+                           | (2)              |(4)
+                           |                 RTP
+                           |                  |
+                           |                  v
+                 +------------+       +--------------+
+                 |  Network   |  (7)  |    Sender    |
+             +-->| congestion |------>| Transmission |
+             |   |  control   |       |   Control    |
+             |   +------------+       +--------------+
+             |                                |
+             +-------------RTCP----------+    |(5)
+                 (6)                     |   RTP
+                                         |    v
+                                     +------------+
+                                     |     UDP    |
+                                     |   socket   |
+                                     +------------+
+
+                  Figure 1: SCReAM Sender Functional View
+
    Media frames are encoded and forwarded to the RTP queue (1) in
    Figure 1.  The RTP packets are picked from the RTP queue (4), for
    multiple flows from each RTP queue based on some defined priority
    order or simply in a round-robin fashion, by the sender transmission
    controller.
-
-   The network congestion control computes a congestion window.  The
-   congestion window update is increased by one MSS (maximum know RTP
-   packet size) per RTT with some variation based on congestion window
-   size and time elapsed since the last congestion event.
-   Multiplicative increase allows the congestion to increase by a
-   fraction of cwnd when congestion has not occured for a while.  The
-   congestion window is thus an adaptive multiplicative increase that is
-   mainly additive increase when steady state is reached but allows a
-   faster convergence to a higher link speed.
 
    The sender transmission controller (in case of multiple flows a
    transmission scheduler) sends the RTP packets to the UDP socket (5).
@@ -538,6 +553,14 @@ Internet-Draft                   SCREAM                    February 2024
    transmission controller and is limited so that the number of bytes in
    flight is less than the congestion window albeit with a slack to
    avoid that packets are unnecessarily delayed in the RTP queue.
+
+
+
+
+Johansson & Westerlund  Expires 1 September 2024               [Page 10]
+
+Internet-Draft                   SCREAM                    February 2024
+
 
    RTCP packets are received (6) and the information about the bytes in
    flight and congestion window is exchanged between the network
@@ -550,19 +573,7 @@ Internet-Draft                   SCREAM                    February 2024
    rate control more stable when the congestion window is very small or
    when L4S is not active.  This is described more in detail below.
 
-
-
-
-
-
-
-
-Johansson & Westerlund   Expires 30 August 2024                [Page 10]
-
-Internet-Draft                   SCREAM                    February 2024
-
-
-4.1.1.  Constants and Parameter Values
+4.1.1.  Constants and variables
 
    Constants and state variables are listed in this section.  Temporary
    variables are not listed; instead, they are appended with '_t' in the
@@ -599,6 +610,14 @@ Internet-Draft                   SCREAM                    February 2024
 
    *  TARGET_BITRATE_MAX: Maximum target bitrate in [bps].
 
+
+
+
+Johansson & Westerlund  Expires 1 September 2024               [Page 11]
+
+Internet-Draft                   SCREAM                    February 2024
+
+
    *  RATE_PACE_MIN (50000): Minimum pacing rate in [bps].
 
    *  CWND_OVERHEAD (1.5): Indicates how much bytes in flight is allowed
@@ -607,16 +626,6 @@ Internet-Draft                   SCREAM                    February 2024
    *  L4S_AVG_G (1.0/16): EWMA factor for l4s_alpha
 
    *  QDELAY_AVG_G (1.0/4): EWMA factor for qdelay_avg
-
-
-
-
-
-
-Johansson & Westerlund   Expires 30 August 2024                [Page 11]
-
-Internet-Draft                   SCREAM                    February 2024
-
 
    *  POST_CONGESTION_DELAY (4.0): Determines how long (seconds) after a
       congestion event that the congestion window growth should be
@@ -658,21 +667,19 @@ Internet-Draft                   SCREAM                    February 2024
 
    *  cwnd_i (1): Congestion window inflection point.
 
+
+
+Johansson & Westerlund  Expires 1 September 2024               [Page 12]
+
+Internet-Draft                   SCREAM                    February 2024
+
+
    *  bytes_newly_acked (0): The number of bytes that was acknowledged
       with the last received acknowledgement, i.e., bytes acknowledged
       since the last CWND update.
 
    *  max_bytes_in_flight (0): The maximum number of bytes in flight in
       the last round trip.
-
-
-
-
-
-Johansson & Westerlund   Expires 30 August 2024                [Page 12]
-
-Internet-Draft                   SCREAM                    February 2024
-
 
    *  max_bytes_in_flight_prev (0): The maximum number of bytes in
       flight in previous round trip.
@@ -714,6 +721,15 @@ Internet-Draft                   SCREAM                    February 2024
    *  packets_marked_this_rtt (0): Counter delivered and ECN-CE marked
       packets.
 
+
+
+
+
+Johansson & Westerlund  Expires 1 September 2024               [Page 13]
+
+Internet-Draft                   SCREAM                    February 2024
+
+
    *  last_congestion_detected_time (0): Last time congestion event
       occured [s].
 
@@ -721,14 +737,6 @@ Internet-Draft                   SCREAM                    February 2024
 
    *  bytes_newly_acked (0): Number of bytes newly ACKed, reset to 0
       when congestion window is updated [byte].
-
-
-
-
-Johansson & Westerlund   Expires 30 August 2024                [Page 13]
-
-Internet-Draft                   SCREAM                    February 2024
-
 
    *  bytes_newly_acked_ce (0): Number of bytes newly ACKed and CE
       marked, reset to 0 when congestion window is updated [byte].
@@ -770,21 +778,18 @@ Internet-Draft                   SCREAM                    February 2024
    an RTP packet with sequence number SN is transmitted and the last
    acknowledgement indicates SN-5 as the highest received sequence
    number, then bytes_in_flight is computed as the sum of the size of
+
+
+
+Johansson & Westerlund  Expires 1 September 2024               [Page 14]
+
+Internet-Draft                   SCREAM                    February 2024
+
+
    RTP packets with sequence number SN-4, SN-3, SN-2, SN-1, and SN.  It
    does not matter if, for instance, the packet with sequence number
    SN-3 was lost -- the size of RTP packet with sequence number SN-3
    will still be considered in the computation of bytes_in_flight.
-
-
-
-
-
-
-
-Johansson & Westerlund   Expires 30 August 2024                [Page 14]
-
-Internet-Draft                   SCREAM                    February 2024
-
 
    bytes_in_flight_ratio is calculated as the ratio between bytes_flight
    and cwnd.  This value should be computed at the beginning of the ACK
@@ -832,12 +837,7 @@ Internet-Draft                   SCREAM                    February 2024
 
 
 
-
-
-
-
-
-Johansson & Westerlund   Expires 30 August 2024                [Page 15]
+Johansson & Westerlund  Expires 1 September 2024               [Page 15]
 
 Internet-Draft                   SCREAM                    February 2024
 
@@ -893,7 +893,7 @@ Internet-Draft                   SCREAM                    February 2024
 
 
 
-Johansson & Westerlund   Expires 30 August 2024                [Page 16]
+Johansson & Westerlund  Expires 1 September 2024               [Page 16]
 
 Internet-Draft                   SCREAM                    February 2024
 
@@ -929,7 +929,7 @@ Internet-Draft                   SCREAM                    February 2024
    methods are applied to make the congestion window reduction
    reasonably stable, especially when the congestion window is only a
    few MSS.  In addition, because SCReAM can quite often be source
-   limited, additional steps are taked to restore the congestion window
+   limited, additional steps are taken to restore the congestion window
    to a proper value after a long period without congestion.
 
 4.1.2.1.4.  Increased queue delay
@@ -949,7 +949,7 @@ Internet-Draft                   SCREAM                    February 2024
 
 
 
-Johansson & Westerlund   Expires 30 August 2024                [Page 17]
+Johansson & Westerlund  Expires 1 September 2024               [Page 17]
 
 Internet-Draft                   SCREAM                    February 2024
 
@@ -992,7 +992,7 @@ Internet-Draft                   SCREAM                    February 2024
        if (now - last_cwnd_i_update_time > 0.25)
          last_cwnd_i_update_time = now
          cwnd_i = cwnd
-       else
+       end
      end
 
 
@@ -1005,7 +1005,7 @@ Internet-Draft                   SCREAM                    February 2024
 
 
 
-Johansson & Westerlund   Expires 30 August 2024                [Page 18]
+Johansson & Westerlund  Expires 1 September 2024               [Page 18]
 
 Internet-Draft                   SCREAM                    February 2024
 
@@ -1017,10 +1017,10 @@ Internet-Draft                   SCREAM                    February 2024
        # ECN-CE detected
        if (IS_L4S)
          # L4S mode
-         backoff_t = l4s_alpha_v_t / 2
+         backoff_t = l4s_alpha / 2
          # Increase stability for very small cwnd
          backOff_t *= min(1.0, cwnd_scale_factor_t)
-         backOff_t *= max(0.8, 1.0f - cwnd_ratio * 2)
+         backOff_t *= max(0.8, 1.0 - cwnd_ratio * 2)
 
          if (now - last_congestion_detected_time > 5)
            # A long time since last congested because link throughput
@@ -1042,7 +1042,7 @@ Internet-Draft                   SCREAM                    February 2024
            # excessive queue delay
            l4sAlpha = 0.25
          end
-         cwnd = (1.0f - backoff_t) * cwnd
+         cwnd = (1.0 - backoff_t) * cwnd
        else
          # Classic ECN mode
          cwnd = cwnd * BETA_ECN
@@ -1061,20 +1061,20 @@ Internet-Draft                   SCREAM                    February 2024
 
 
 
-Johansson & Westerlund   Expires 30 August 2024                [Page 19]
+Johansson & Westerlund  Expires 1 September 2024               [Page 19]
 
 Internet-Draft                   SCREAM                    February 2024
 
 
    The variable max_bytes_in_flight_prev indicates the maximum bytes in
    flights in the previous round trip.  The reason to this is that bytes
-   in flight can spike when congestion occures, max_bytes_in_flight_prev
+   in flight can spike when congestion occurs, max_bytes_in_flight_prev
    thus ensures better that an uncongested bytes in flight is used.
 
    The cwnd_scale_factor_t scales the congestion window decrease upon
    congestion as well as the increase.  In a normal addititive increase
    setting this would be 1.0/MSS.  However to increase stability
-   especially when witth L4S when cwnd is very small, the
+   especially when with L4S when cwnd is very small, the
    cwnd_scale_factor_t can be as small as low as LOW_CWND_SCALE_FACTOR /
    MSS.  The result is then that the congestion window increase can be
    as small as LOW_CWND_SCALE_FACTOR MSS per RTT.  Because the same
@@ -1090,6 +1090,7 @@ Internet-Draft                   SCREAM                    February 2024
      post_congestion_scale_t = max(0.0, min(1.0,
        (now - last_congestion_detected_time) / POST_CONGESTION_DELAY))
 
+     # Calculate bytes acked that are not CE marked
      bytes_newly_acked_minus_ce_t = bytes_newly_acked-
                                     bytes_newly_acked_ce
 
@@ -1113,21 +1114,21 @@ Internet-Draft                   SCREAM                    February 2024
      end
 
      # Slow down CWND increase when CWND is only a few MSS
-     # This goes hand in hand with that the down scaling is also
 
 
 
-Johansson & Westerlund   Expires 30 August 2024                [Page 20]
+Johansson & Westerlund  Expires 1 September 2024               [Page 20]
 
 Internet-Draft                   SCREAM                    February 2024
 
 
+     # This goes hand in hand with that the down scaling is also
      # slowed down then. Cwnd increase can be as slow as
      # LOW_CWND_SCALE_FACTOR*MSS per RTT
      float tmp_t = cwnd_scale_factor_t
 
      # Further limit multiplicative increase when congestion occured
-     # recently
+     # recently.
      if (tmp_t > 1.0)
        tmp_t = 1.0 + ((tmp_t - 1.0) * post_congestion_scale_t);
      end
@@ -1172,8 +1173,7 @@ Internet-Draft                   SCREAM                    February 2024
 
 
 
-
-Johansson & Westerlund   Expires 30 August 2024                [Page 21]
+Johansson & Westerlund  Expires 1 September 2024               [Page 21]
 
 Internet-Draft                   SCREAM                    February 2024
 
@@ -1229,7 +1229,7 @@ Internet-Draft                   SCREAM                    February 2024
 
 
 
-Johansson & Westerlund   Expires 30 August 2024                [Page 22]
+Johansson & Westerlund  Expires 1 September 2024               [Page 22]
 
 Internet-Draft                   SCREAM                    February 2024
 
@@ -1244,10 +1244,11 @@ Internet-Draft                   SCREAM                    February 2024
 
    The send window is given by the relation between the adjusted
    congestion window and the amount of bytes in flight according to the
-   pseudocode below.  The implementation allows the RTP queue to be
-   small even when the frame sizes vary.  The effect is that bytes in
-   flight be 'around' the cwnd rather than limited by the cwnd when the
-   link is congested.
+   pseudocode below.  The multiplication of cwnd with CWND_OVERHEAD and
+   rel_framesize_high has the effect that bytes in flight is 'around'
+   the cwnd rather than limited by the cwnd when the link is congested.
+   The implementation allows the RTP queue to be small even when the
+   frame sizes vary and thus increased e2e delay can be avoided.
 
    <CODE BEGINS>
       send_wnd = cwnd * CWND_OVERHEAD * rel_framesize_high -
@@ -1284,8 +1285,7 @@ Internet-Draft                   SCREAM                    February 2024
 
 
 
-
-Johansson & Westerlund   Expires 30 August 2024                [Page 23]
+Johansson & Westerlund  Expires 1 September 2024               [Page 23]
 
 Internet-Draft                   SCREAM                    February 2024
 
@@ -1341,7 +1341,7 @@ Internet-Draft                   SCREAM                    February 2024
 
 
 
-Johansson & Westerlund   Expires 30 August 2024                [Page 24]
+Johansson & Westerlund  Expires 1 September 2024               [Page 24]
 
 Internet-Draft                   SCREAM                    February 2024
 
@@ -1397,7 +1397,7 @@ Internet-Draft                   SCREAM                    February 2024
 
 
 
-Johansson & Westerlund   Expires 30 August 2024                [Page 25]
+Johansson & Westerlund  Expires 1 September 2024               [Page 25]
 
 Internet-Draft                   SCREAM                    February 2024
 
@@ -1453,7 +1453,7 @@ Internet-Draft                   SCREAM                    February 2024
 
 
 
-Johansson & Westerlund   Expires 30 August 2024                [Page 26]
+Johansson & Westerlund  Expires 1 September 2024               [Page 26]
 
 Internet-Draft                   SCREAM                    February 2024
 
@@ -1509,7 +1509,7 @@ Internet-Draft                   SCREAM                    February 2024
 
 
 
-Johansson & Westerlund   Expires 30 August 2024                [Page 27]
+Johansson & Westerlund  Expires 1 September 2024               [Page 27]
 
 Internet-Draft                   SCREAM                    February 2024
 
@@ -1565,7 +1565,7 @@ Internet-Draft                   SCREAM                    February 2024
 
 
 
-Johansson & Westerlund   Expires 30 August 2024                [Page 28]
+Johansson & Westerlund  Expires 1 September 2024               [Page 28]
 
 Internet-Draft                   SCREAM                    February 2024
 
@@ -1621,7 +1621,7 @@ Internet-Draft                   SCREAM                    February 2024
 
 
 
-Johansson & Westerlund   Expires 30 August 2024                [Page 29]
+Johansson & Westerlund  Expires 1 September 2024               [Page 29]
 
 Internet-Draft                   SCREAM                    February 2024
 
@@ -1677,7 +1677,7 @@ Internet-Draft                   SCREAM                    February 2024
 
 
 
-Johansson & Westerlund   Expires 30 August 2024                [Page 30]
+Johansson & Westerlund  Expires 1 September 2024               [Page 30]
 
 Internet-Draft                   SCREAM                    February 2024
 
@@ -1716,11 +1716,27 @@ Internet-Draft                   SCREAM                    February 2024
 6.  Suggested Experiments
 
    SCReAM has been evaluated in a number of different way in simulators
-   and in live 4G and 5G networks.  T.B.D
+   and in live 4G and 5G networks.  Some evaluations with L4S is shown
+   in [SCReAM-evaluation-L4S].
 
 7.  IANA Considerations
 
    This document does not require any IANA actions.
+
+
+
+
+
+
+
+
+
+
+
+Johansson & Westerlund  Expires 1 September 2024               [Page 31]
+
+Internet-Draft                   SCREAM                    February 2024
+
 
 8.  Security Considerations
 
@@ -1730,14 +1746,6 @@ Internet-Draft                   SCREAM                    February 2024
    malicious middlebox can drop RTCP feedback packets and thus cause the
    self-clocking in SCReAM to stall.  However, this attack is mitigated
    by the minimum send rate maintained by SCReAM when no feedback is
-
-
-
-Johansson & Westerlund   Expires 30 August 2024                [Page 31]
-
-Internet-Draft                   SCREAM                    February 2024
-
-
    received.
 
 9.  References
@@ -1779,20 +1787,19 @@ Internet-Draft                   SCREAM                    February 2024
               RFC 8888, DOI 10.17487/RFC8888, January 2021,
               <https://www.rfc-editor.org/info/rfc8888>.
 
+
+
+Johansson & Westerlund  Expires 1 September 2024               [Page 32]
+
+Internet-Draft                   SCREAM                    February 2024
+
+
 9.2.  Informative References
 
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
               Requirement Levels", BCP 14, RFC 2119,
               DOI 10.17487/RFC2119, March 1997,
               <https://www.rfc-editor.org/info/rfc2119>.
-
-
-
-
-Johansson & Westerlund   Expires 30 August 2024                [Page 32]
-
-Internet-Draft                   SCREAM                    February 2024
-
 
    [RFC7478]  Holmberg, C., Hakansson, S., and G. Eriksson, "Web Real-
               Time Communication Use Cases and Requirements", RFC 7478,
@@ -1833,22 +1840,22 @@ Internet-Draft                   SCREAM                    February 2024
               DOI 10.1145/52325.52356, August 1988,
               <https://doi.org/10.1145/52325.52356>.
 
+
+
+
+
+
+Johansson & Westerlund  Expires 1 September 2024               [Page 33]
+
+Internet-Draft                   SCREAM                    February 2024
+
+
    [LEDBAT-delay-impact]
               Ros, D. and M. Welzl, "Assessing LEDBAT's Delay Impact",
               IEEE Communications Letters, Vol. 17, No. 5,,
               DOI 10.1109/LCOMM.2013.040213.130137, May 2013,
               <http://home.ifi.uio.no/michawe/research/publications/
               ledbat-impact-letters.pdf>.
-
-
-
-
-
-
-Johansson & Westerlund   Expires 30 August 2024                [Page 33]
-
-Internet-Draft                   SCREAM                    February 2024
-
 
    [QoS-3GPP] "Policy and charging control architecture", 3GPP TS
               23.203, July 2017,
@@ -1859,6 +1866,11 @@ Internet-Draft                   SCREAM                    February 2024
               control algorithm", n.d.,
               <https://github.com/EricssonResearch/scream>.
 
+   [SCReAM-evaluation-L4S]
+              Ericsson Research, "SCReAM - evaluations with L4S", n.d.,
+              <https://github.com/EricssonResearch/scream/blob/master/
+              L4S-Results.pdf?raw=true>.
+
    [TFWC]     Choi, S. and M. Handley, "Fairer TCP-Friendly Congestion
               Control Protocol for Multimedia Streaming Applications",
               DOI 10.1145/1364654.1364717, December 2007, <http://www-
@@ -1867,7 +1879,8 @@ Internet-Draft                   SCREAM                    February 2024
 Appendix A.  Acknowledgments
 
    We would like to thank the following people for their comments,
-   questions, and support during the work that led to this memo:
+   questions, and support during the work that led to this memo: Mirja
+   Kuehlewind
 
 Authors' Addresses
 
@@ -1888,17 +1901,4 @@ Authors' Addresses
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-Johansson & Westerlund   Expires 30 August 2024                [Page 34]
+Johansson & Westerlund  Expires 1 September 2024               [Page 34]

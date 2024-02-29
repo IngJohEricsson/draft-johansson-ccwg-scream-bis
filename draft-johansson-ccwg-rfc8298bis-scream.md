@@ -385,7 +385,7 @@ The values within parentheses "()" indicate initial values.
 
 * frame_period (0.02): The frame period [s].
 
-### Network Congestion Control {#network-cc}
+### Network Congestion Control {#network-cc-2}
 
 This section explains the network congestion control, which performs
 two main functions:
@@ -677,7 +677,7 @@ The SCReAM algorithm makes a distinction between network congestion control and 
 
 The scheduling can be done by means of a few different scheduling regimes. For example, the method for coupled congestion control specified in {{RFC8699}} can be used. One implementation of SCReAM {{SCReAM-CPP-implementation}} uses credit-based scheduling. In credit-based scheduling, credit is accumulated by queues as they wait for service and is spent while the queues are being serviced. For instance, if one queue is allowed to transmit 1000 bytes, then a credit of 1000 bytes is allocated to the other unscheduled queues. This principle can be extended to weighted scheduling, where the credit allocated to unscheduled queues depends on the relative weights. The latter is also implemented in {{SCReAM-CPP-implementation}} in which case the target bitrate for the streams are also scaled relative to the scheduling priority.
 
-### Media Rate Control {#media-rate-control}
+### Media Rate Control {#media-rate-control-2}
 
 The media rate control algorithm is executed whenever the congestion window is updated and updates the target bitrate. The target bitrate is essentiatlly based on the congestion window and the (smoothed) RTT according to
 
