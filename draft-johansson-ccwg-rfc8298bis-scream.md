@@ -412,7 +412,7 @@ It is recommended to use RFC8888 {{RFC8888}} for the feedback as it supports the
 
 When the sender receives RTCP feedback, the qdelay is calculated as outlined in {{RFC6817}}. A qdelay sample is obtained for each received acknowledgement. A number of variables are updated as illustrated by the pseudocode below; temporary variables are appended with '_t'. Division operation is always floating point unless otherwise noted. l4s_alpha is calculated based in number of packets delivered (and marked). This makes calculation of L4S alpha more accurate at very low bitrates, given that the tail RTP packet in a video frame is often smaller than MSS.
 
-    <CODE BEGINS>
+~~~
     packets_delivered_this_rtt += packets_acked
     packets_marked_this_rtt += packets_acked_ce
     if (now - last_update_l4s_alpha_time >= s_rtt)
@@ -424,7 +424,7 @@ When the sender receives RTCP feedback, the qdelay is calculated as outlined in 
       last_update_l4s_alpha_time = now
       packets_delivered_this_rtt = 0
       packets_marked_this_rtt = 0
-    end         
+    end
 
     if (now - last_update_qdelay_avg_time >= s_rtt)
       # qdelay_avg is updated with a slow attack, fast decay EWMA filter
@@ -432,10 +432,10 @@ When the sender receives RTCP feedback, the qdelay is calculated as outlined in 
         qdelay_avg = qdelay
       else
         qdelay_avg = QDELAY_AVG_G*qdelay + (1.0-QDELAY_AVG_G)*qdelay_avg
-      end     
+      end
       last_update_qdelay_avg_time = now
-    end         
-    <CODE ENDS>
+    end
+~~~
 
 #### Reaction to Delay, Packet Loss and ECN-CE {#reaction-delay-loss-ce}
    Congestion is detected based on three different indicators:
@@ -477,7 +477,7 @@ Actions when congestion detected
 ~~~
       if (now - last_congestion_detected_time >= s_rtt)
         if (loss detected)
-          is_loss_t = true    
+          is_loss_t = true
         end
         if (packets marked)
           is_ce_t = true
@@ -539,7 +539,7 @@ Actions when congestion detected
             # In addition, bump up l4sAlpha to a more credible value
             # This may over react but it is better than
             # excessive queue delay
-            l4sAlpha = 0.25         
+            l4sAlpha = 0.25
           end
           cwnd = (1.0 - backoff_t) * cwnd
         else
@@ -565,7 +565,7 @@ The cwnd_scale_factor_t scales the congestion window decrease upon congestion as
 Congestion window increase
 
 ~~~
-      # Additional factor for cwnd update     
+      # Additional factor for cwnd update
       post_congestion_scale_t = max(0.0, min(1.0,
         (now - last_congestion_detected_time) / POST_CONGESTION_DELAY))
 
@@ -590,7 +590,7 @@ Congestion window increase
         scl_t = scl_t * scl_t
         scl_t = max(0.1, min(1.0, scl_t))
         increment_t *= scl_t
-      end   
+      end
 
       # Slow down CWND increase when CWND is only a few MSS
       # This goes hand in hand with that the down scaling is also
