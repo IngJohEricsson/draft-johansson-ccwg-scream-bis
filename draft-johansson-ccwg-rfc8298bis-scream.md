@@ -474,25 +474,24 @@ The target bitrate is updated whenever the congestion window is updated.
 
 Actions when congestion detected
 
-    <CODE BEGINS>
-
+~~~
       if (now - last_congestion_detected_time >= s_rtt)
         if (loss detected)
-          is_loss_t = true          
-        end   
+          is_loss_t = true    
+        end
         if (packets marked)
           is_ce_t = true
-        end   
+        end
         if (qdelay > qdelay_target/2)
           # It is expected that l4s_alpha is below a given value,
           l4_alpha_lim_t = 2 / target_bitrate * MSS * 8 / s_rtt
           if (l4s_alpha < l4_alpha_lim_t || !l4s_active)
-            # L4S does not seem to be active            
+            # L4S does not seem to be active
             l4s_alpha_v_t = min(1.0, max(0.0,
                (qdelay_avg - qdelay_target / 2) /
-               (qdelay_target / 2)));              
+               (qdelay_target / 2)));
             is_virtual_ce_t = true
-          end  
+          end
         end
       end
 
@@ -500,11 +499,11 @@ Actions when congestion detected
         if (now - last_cwnd_i_update_time > 0.25)
           last_cwnd_i_update_time = now
           cwnd_i = cwnd
-        end  
+        end
       end
 
 
-      # Scale factor for cwnd update      
+      # Scale factor for cwnd update
       cwnd_scale_factor_t =
         (LOW_CWND_SCALE_FACTOR + (MUL_INCREASE_FACTOR  * cwnd) / MSS)
 
@@ -512,7 +511,7 @@ Actions when congestion detected
       if (is_loss_t)
         # Loss is detected
         cwnd = cwnd * BETA_LOSS
-      end  
+      end
       if (is_ce_t)
         # ECN-CE detected
         if (IS_L4S)
@@ -540,7 +539,7 @@ Actions when congestion detected
             # In addition, bump up l4sAlpha to a more credible value
             # This may over react but it is better than
             # excessive queue delay
-            l4sAlpha = 0.25            
+            l4sAlpha = 0.25         
           end
           cwnd = (1.0 - backoff_t) * cwnd
         else
@@ -556,9 +555,8 @@ Actions when congestion detected
 
       if (is_loss_t || is_ce_t || is_virtual_ce_t)
         last_congestion_detected_time = now
-      end  
-
-    <CODE ENDS>
+      end
+~~~
 
 The variable max_bytes_in_flight_prev indicates the maximum bytes in flights in the previous round trip. The reason to this is that bytes in flight can spike when congestion occurs, max_bytes_in_flight_prev thus ensures better that an uncongested bytes in flight is used.
 
@@ -566,9 +564,8 @@ The cwnd_scale_factor_t scales the congestion window decrease upon congestion as
 
 Congestion window increase
 
-     <CODE BEGINS>
-
-      # Additional factor for cwnd update      
+~~~
+      # Additional factor for cwnd update     
       post_congestion_scale_t = max(0.0, min(1.0,
         (now - last_congestion_detected_time) / POST_CONGESTION_DELAY))
 
@@ -593,7 +590,7 @@ Congestion window increase
         scl_t = scl_t * scl_t
         scl_t = max(0.1, min(1.0, scl_t))
         increment_t *= scl_t
-      end      
+      end   
 
       # Slow down CWND increase when CWND is only a few MSS
       # This goes hand in hand with that the down scaling is also
@@ -612,13 +609,12 @@ Congestion window increase
       # Quite a lot of slack is allowed here to avoid that bitrate
       # locks to low values.
       max_allowed_t = MSS + max(max_bytes_in_flight,
-        max_bytes_in_flight_prev) * BYTES_IN_FLIGHT_HEAD_ROOM  
+        max_bytes_in_flight_prev) * BYTES_IN_FLIGHT_HEAD_ROOM
       int cwnd_t = cwnd + increment_t
       if (cwnd_t <= max_allowed_t)
         cwnd = cwnd_t
       end
-
-      <CODE ENDS>
+~~~
 
 The variable max_bytes_in_flight indicates the max bytes in flight in the current round trip.
 
@@ -647,13 +643,10 @@ The basic design principle behind packet transmission in SCReAM is to allow tran
 The send window is given by the relation between the adjusted congestion window and the amount of bytes in flight according to the pseudocode below. The multiplication of cwnd with CWND_OVERHEAD and rel_framesize_high has the effect that bytes in flight is 'around' the cwnd rather than limited by the cwnd when the link is congested.
 The implementation allows the RTP queue to be small even when the frame sizes vary and thus increased e2e delay can be avoided.
 
-       <CODE BEGINS>
-
-       send_wnd = cwnd * CWND_OVERHEAD * rel_framesize_high -   
+~~~
+       send_wnd = cwnd * CWND_OVERHEAD * rel_framesize_high -
          bytes_in_flight
-
-       <CODE ENDS>
-
+~~~
 
 The send window is updated whenever an RTP packet is transmitted or an RTCP feedback messaged is received.
 
@@ -661,13 +654,11 @@ The send window is updated whenever an RTP packet is transmitted or an RTCP feed
 
 Packet pacing is used in order to mitigate coalescing, i.e., when packets are transmitted in bursts, with the risks of increased jitter and potentially increased packet loss. Packet pacing is also recommended to be used with L4S and also mitigates possible issues with queue overflow due to key-frame generation in video coders. The time interval between consecutive packet transmissions is greater than or equal to t_pace, where t_pace is given by the equations below :
 
-      <CODE BEGINS>
-
+~~~
       pace_bitrate = max(RATE_PACE_MIN, target_bitrate) *
         PACKET_PACING_HEADROOM
       t_pace = rtp_size * 8 / pace_bitrate
-
-      <CODE ENDS>
+~~~
 
 rtp_size is the size of the last transmitted RTP packet, and s_rtt is the smoothed round trip time. RATE_PACE_MIN is the minimum pacing rate.
 
@@ -681,7 +672,9 @@ The scheduling can be done by means of a few different scheduling regimes. For e
 
 The media rate control algorithm is executed whenever the congestion window is updated and updates the target bitrate. The target bitrate is essentiatlly based on the congestion window and the (smoothed) RTT according to
 
+~~~
          target_bitrate = 8 * cwnd / s_rtt
+~~~
 
 The role of the media rate control is to strike a reasonable balance between a low amount of queuing in the RTP queue(s) and a sufficient amount of data to send in order to keep the data path busy. Because the congestion window is updated based on loss, ECN-CE and delay, so does the target rate also update.
 
@@ -695,8 +688,7 @@ The code above however needs some modifications to work fine in a number of scen
 
 The complete pseudo code for adjustment of the target bitrate is shown below
 
-        <CODE BEGINS>
-
+~~~
         tmp_t = 1.0
 
         # limit bitrate if bytes in flight exceeds is close to or
@@ -706,7 +698,7 @@ The complete pseudo code for adjustment of the target bitrate is shown below
         if (!l4s_active && bytes_in_flight_ratio > BYTES_IN_FLIGHT_LIMIT)
           tmp_t /= min(BYTES_IN_FLIGHT_LIMIT_COMPENSATION,
             bytesInFlightRatio / BYTES_IN_FLIGHT_LIMIT)
-        end  
+        end
 
         # Scale down rate slighty when the congestion window is very
         # small compared to MSS
@@ -720,13 +712,11 @@ The complete pseudo code for adjustment of the target bitrate is shown below
         target_bitrate = tmp_t * 8 * cwnd / s_rtt
         target_bitrate = min(TARGET_BITRATE_MAX,
           max(TARGET_BITRATE_MIN,target_bitrate))
-
-        <CODE ENDS>
+~~~
 
 The variable rel_framesize_high is based on calculation of the high percentile of the frame sizes. The calculation is based on a histogram of the frame sizes relative to the expected frame size given the target bitrate and frame period. The calculation of rel_framesize_high is done for every new video frame and is outlined roughly with the pseudo code below. For more detailed code, see {{SCReAM-CPP-implementation}}.
 
-        <CODE BEGINS>
-
+~~~
         # frame_size is that frame size for the last encoded frame
         tmp_t = frame_size / (target_bitrate * frame_period / 8)
 
@@ -735,9 +725,8 @@ The variable rel_framesize_high is based on calculation of the high percentile o
           insert_into_histogram(tmp_t)
           # Get high percentile
           rel_framesize_high = get_histogram_high_percentile()
-        end  
-
-        <CODE ENDS>
+        end
+~~~
 
 A 75%-ile is used in {{SCReAM-CPP-implementation}}, the histogram can be made leaky such that old samples are gradually forgotten.
 
@@ -749,8 +738,7 @@ A few additional functional blocks in SCReAM are descrived below
 
 It is likely that a flow using the SCReAM algorithm will have to share congested bottlenecks with other flows that use a more aggressive congestion control algorithm (for example, large FTP flows using loss-based congestion control). The worst condition occurs when the bottleneck queues are of tail-drop type with a large buffer size. SCReAM takes care of such situations by adjusting the qdelay_target when loss-based flows are detected, as shown in the pseudocode below.
 
-       <CODE BEGINS>
-
+~~~
         adjust_qdelay_target(qdelay)
           qdelay_norm_t = qdelay / QDELAY_TARGET_LOW
           update_qdelay_norm_history(qdelay_norm_t)
@@ -786,8 +774,7 @@ It is likely that a flow using the SCReAM algorithm will have to share congested
           # Apply limits
           qdelay_target = min(QDELAY_TARGET_HI, qdelay_target)
           qdelay_target = max(QDELAY_TARGET_LO, qdelay_target)
-
-          <CODE ENDS>
+~~~
 
 Two temporary variables are calculated. qdelay_norm_avg_t is the long-term average queue delay, qdelay_norm_var_t is the long-term variance of the queue delay. A high qdelay_norm_var_t indicates that the queue delay changes; this can be an indication that bottleneck bandwidth is reduced or that a competing flow has just entered. Thus, it indicates that it is not safe to adjust the queue delay target.
 
@@ -817,12 +804,14 @@ The feedback interval depends on the media bitrate. At low bitrates, it is suffi
 
 The numbers above can be formulated as a feedback interval function that can be useful for the computation of the desired RTCP bandwidth. The following equation expresses the feedback rate:
 
+~~~
       # Assume 100 byte RTCP packets
       rate_fb = 0.02 * [average received rate] / (100.0 * 8.0);
       rate_fb = min(1000, max(10, rate_fb))
 
       # Calculate feedback intervals
       fb_int = 1.0/rate_fb
+~~~
 
 Feedback should also forcibly be transmitted in any of these cases:
 
