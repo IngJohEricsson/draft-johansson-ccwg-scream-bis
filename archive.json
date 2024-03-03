@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2024-02-29T01:06:03.113231+00:00",
+  "timestamp": "2024-03-03T01:10:09.273328+00:00",
   "repo": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
   "labels": [
     {
@@ -57,7 +57,7 @@
       "url": "https://github.com/IngJohEricsson/draft-johansson-ccwg-scream-bis/issues/1",
       "state": "OPEN",
       "author": "mirjak",
-      "authorAssociation": "CONTRIBUTOR",
+      "authorAssociation": "COLLABORATOR",
       "assignees": [],
       "labels": [],
       "body": "You only write in the intro that there are significant change but don't give anywhere a summary of what the changes are. For implementor that want to update that specific information would be highly valuable. For this reason bis documents often has a section title \"Changes from RFCXXXX\" which gives a bullet list of change (and potentially pointers to the specific parts in the doc). I think it would be very useful to have such a section in this doc as well.",
@@ -67,7 +67,7 @@
       "comments": [
         {
           "author": "mirjak",
-          "authorAssociation": "CONTRIBUTOR",
+          "authorAssociation": "COLLABORATOR",
           "body": "I was looking at the wrong version. The editor's copy (https://ingjohericsson.github.io/draft-johansson-ccwg-scream-bis/draft-johansson-ccwg-scream-bis.html) does not seem to be up-to-date. I see now that you have already a list which is great! I guess you can or can't add an own section heading. Also I still recommend to add reference to the respective sections (if possible).",
           "createdAt": "2024-02-27T11:25:47Z",
           "updatedAt": "2024-02-27T11:25:47Z"
@@ -81,7 +81,7 @@
         },
         {
           "author": "mirjak",
-          "authorAssociation": "CONTRIBUTOR",
+          "authorAssociation": "COLLABORATOR",
           "body": "You use {#xxx} to define an anchor and then {{xxx}} to refer to it, e.g.\r\n\r\n```\r\n# section 1 {#sec1}\r\n\r\nSee {{sec1}} for further information.\r\n```",
           "createdAt": "2024-02-28T11:12:55Z",
           "updatedAt": "2024-02-28T11:12:55Z"
@@ -95,7 +95,7 @@
       "url": "https://github.com/IngJohEricsson/draft-johansson-ccwg-scream-bis/issues/2",
       "state": "OPEN",
       "author": "mirjak",
-      "authorAssociation": "CONTRIBUTOR",
+      "authorAssociation": "COLLABORATOR",
       "assignees": [],
       "labels": [],
       "body": "The usual naming for a bis draft would be draft-johansson-ccwg-rfc8298bis. If you want to have scream in the name, I recommend using draft-johansson-ccwg-rfc8298bis-scream.",
@@ -119,7 +119,7 @@
       "url": "https://github.com/IngJohEricsson/draft-johansson-ccwg-scream-bis/issues/3",
       "state": "OPEN",
       "author": "mirjak",
-      "authorAssociation": "CONTRIBUTOR",
+      "authorAssociation": "COLLABORATOR",
       "assignees": [],
       "labels": [],
       "body": "Does it still make sense to talk about LTE in the draft? I guess we could say it more generally like \"mobile networks, like e.g. LTE\" or something? I actually wonder if section 1.1. is still needed at all?",
@@ -129,7 +129,7 @@
       "comments": [
         {
           "author": "mirjak",
-          "authorAssociation": "CONTRIBUTOR",
+          "authorAssociation": "COLLABORATOR",
           "body": "I see now that is this also mostly addressed. I guess we could talk even less about 3GPP but the current text is fine as well.",
           "createdAt": "2024-02-27T11:27:13Z",
           "updatedAt": "2024-02-27T11:27:13Z"
@@ -150,7 +150,7 @@
       "url": "https://github.com/IngJohEricsson/draft-johansson-ccwg-scream-bis/issues/4",
       "state": "OPEN",
       "author": "mirjak",
-      "authorAssociation": "CONTRIBUTOR",
+      "authorAssociation": "COLLABORATOR",
       "assignees": [],
       "labels": [],
       "body": "With the v3 xml you can now use artwork for equations e.g. like this\r\n\r\n~~~ math\r\n\\frac{a}{a}\r\n~~~\r\n{: artwork-align=\"center\" }\r\n\r\nI believe this is align with tex. Maybe see the cubic bis doc for more examples:\r\n\r\nhttps://github.com/NTAP/rfc8312bis/blob/main/draft-ietf-tcpm-rfc8312bis.md?plain=1",
@@ -174,7 +174,7 @@
       "url": "https://github.com/IngJohEricsson/draft-johansson-ccwg-scream-bis/issues/5",
       "state": "OPEN",
       "author": "mirjak",
-      "authorAssociation": "CONTRIBUTOR",
+      "authorAssociation": "COLLABORATOR",
       "assignees": [],
       "labels": [],
       "body": "Removal of fast increase, making it more rate-based, and the general change of the the delay-based approach, maybe we should actually call this also differently. It's definitely not only a bis where you try to fix some issues. It's really more a redesign. If you still want to obsolete the old scream draft, I propose to call this algorithm SCREAMv2.",
@@ -198,7 +198,7 @@
       "url": "https://github.com/IngJohEricsson/draft-johansson-ccwg-scream-bis/issues/6",
       "state": "CLOSED",
       "author": "mirjak",
-      "authorAssociation": "CONTRIBUTOR",
+      "authorAssociation": "COLLABORATOR",
       "assignees": [],
       "labels": [],
       "body": "In Section 3.1. (network congestion control):\r\n\r\n> The congestion window seeks to increase by at least one segment per RTT and this increase regardless congestion occurs or not, the congestion window increase is restriced or relaxed based on the congestion window and the time elapsed since last congestion event.\r\n\r\nI don't think I understand this. Especially what does it mean that \"the congestion window increase is restriced or relaxed based on the congestion window...\"?",
@@ -216,7 +216,7 @@
       "url": "https://github.com/IngJohEricsson/draft-johansson-ccwg-scream-bis/pull/7",
       "state": "MERGED",
       "author": "mirjak",
-      "authorAssociation": "CONTRIBUTOR",
+      "authorAssociation": "COLLABORATOR",
       "assignees": [],
       "labels": [],
       "body": "Just a proposal to move some text around to make the structure more clear from my point of view",
@@ -271,7 +271,7 @@
       "url": "https://github.com/IngJohEricsson/draft-johansson-ccwg-scream-bis/pull/8",
       "state": "MERGED",
       "author": "mirjak",
-      "authorAssociation": "CONTRIBUTOR",
+      "authorAssociation": "COLLABORATOR",
       "assignees": [],
       "labels": [],
       "body": "",
@@ -313,7 +313,7 @@
       "url": "https://github.com/IngJohEricsson/draft-johansson-ccwg-scream-bis/pull/9",
       "state": "MERGED",
       "author": "mirjak",
-      "authorAssociation": "CONTRIBUTOR",
+      "authorAssociation": "COLLABORATOR",
       "assignees": [],
       "labels": [],
       "body": "",
@@ -355,7 +355,7 @@
       "url": "https://github.com/IngJohEricsson/draft-johansson-ccwg-scream-bis/pull/10",
       "state": "MERGED",
       "author": "mirjak",
-      "authorAssociation": "CONTRIBUTOR",
+      "authorAssociation": "COLLABORATOR",
       "assignees": [],
       "labels": [],
       "body": "fixes #6",
