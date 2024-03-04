@@ -5,8 +5,8 @@
 CCWG                                                        I. Johansson
 Internet-Draft                                             M. Westerlund
 Obsoletes: 8298 (if approved)                                   Ericsson
-Intended status: Experimental                               1 March 2024
-Expires: 2 September 2024
+Intended status: Experimental                               4 March 2024
+Expires: 5 September 2024
 
 
               Self-Clocked Rate Adaptation for Multimedia
@@ -58,7 +58,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 2 September 2024.
+   This Internet-Draft will expire on 5 September 2024.
 
 Copyright Notice
 
@@ -94,12 +94,11 @@ Table of Contents
      4.2.  SCReAM Receiver
        4.2.1.  Requirements on Feedback Intensity
    5.  Discussion
-   6.  Suggested Experiments
-   7.  IANA Considerations
-   8.  Security Considerations
-   9.  References
-     9.1.  Normative References
-     9.2.  Informative References
+   6.  IANA Considerations
+   7.  Security Considerations
+   8.  References
+     8.1.  Normative References
+     8.2.  Informative References
    Appendix A.  Acknowledgments
    Authors' Addresses
 
@@ -1385,17 +1384,11 @@ Table of Contents
       [RFC3550] RR (Receiver Reports) can possibly be another solution
       to achieve better robustness with less overhead.
 
-6.  Suggested Experiments
-
-   SCReAM has been evaluated in a number of different way in simulators
-   and in live 4G and 5G networks.  Some evaluations with L4S is shown
-   in [SCReAM-evaluation-L4S].
-
-7.  IANA Considerations
+6.  IANA Considerations
 
    This document does not require any IANA actions.
 
-8.  Security Considerations
+7.  Security Considerations
 
    The feedback can be vulnerable to attacks similar to those that can
    affect TCP.  It is therefore RECOMMENDED that the RTCP feedback is at
@@ -1405,9 +1398,9 @@ Table of Contents
    by the minimum send rate maintained by SCReAM when no feedback is
    received.
 
-9.  References
+8.  References
 
-9.1.  Normative References
+8.1.  Normative References
 
    [RFC3550]  Schulzrinne, H., Casner, S., Frederick, R., and V.
               Jacobson, "RTP: A Transport Protocol for Real-Time
@@ -1444,7 +1437,7 @@ Table of Contents
               RFC 8888, DOI 10.17487/RFC8888, January 2021,
               <https://www.rfc-editor.org/info/rfc8888>.
 
-9.2.  Informative References
+8.2.  Informative References
 
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
               Requirement Levels", BCP 14, RFC 2119,
