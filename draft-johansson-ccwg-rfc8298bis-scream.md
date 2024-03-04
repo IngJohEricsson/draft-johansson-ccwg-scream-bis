@@ -845,10 +845,6 @@ It is not necessary to make a 100% perfect compensation for the overhead, as the
 
 * RFC8888 Feedback issues: RTCP feedback packets can be lost, this means that the loss detection in SCReAM may trigger even though packets arrive safely on the receiver side. {{SCReAM-CPP-implementation} solves this by using overlapping RTCP feedback, i.e RTCP feedback is transmitted no more seldom than every 16th packet, and where each RTCP feedback spans the last 64 received packets. This however creates unnecessary overhead. {{RFC3550}} RR (Receiver Reports) can possibly be another solution to achieve better robustness with less overhead.
 
-# Suggested Experiments {#experiments}
-
-SCReAM has been evaluated in a number of different way in simulators and in live 4G and 5G networks. Some evaluations with L4S is shown in {{SCReAM-evaluation-L4S}}.
-
 # IANA Considerations {#iana}
 
 This document does not require any IANA actions.
