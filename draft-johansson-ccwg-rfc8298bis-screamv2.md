@@ -837,7 +837,7 @@ It is not necessary to make a 100% perfect compensation for the overhead, as the
 
 * Packet pacing is recommended, it is however possible to operate SCReAMv2 with packet pacing disabled. The code in {{SCReAM-CPP-implementation}} implements additonal mechanisms to achieve a high link utilization when packet pacing is disabled.
 
-* RFC8888 Feedback issues: RTCP feedback packets can be lost, this means that the loss detection in SCReAMv2 may trigger even though packets arrive safely on the receiver side. {{SCReAM-CPP-implementation} solves this by using overlapping RTCP feedback, i.e RTCP feedback is transmitted no more seldom than every 16th packet, and where each RTCP feedback spans the last 64 received packets. This however creates unnecessary overhead. {{RFC3550}} RR (Receiver Reports) can possibly be another solution to achieve better robustness with less overhead.
+* RFC8888 Feedback issues: RTCP feedback packets can be lost, this means that the loss detection in SCReAMv2 may trigger even though packets arrive safely on the receiver side. {{SCReAM-CPP-implementation}} solves this by using overlapping RTCP feedback, i.e RTCP feedback is transmitted no more seldom than every 16th packet, and where each RTCP feedback spans the last 64 received packets. This however creates unnecessary overhead. {{RFC3550}} RR (Receiver Reports) can possibly be another solution to achieve better robustness with less overhead.
 
 # IANA Considerations {#iana}
 
