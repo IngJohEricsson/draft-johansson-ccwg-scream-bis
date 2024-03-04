@@ -20,7 +20,7 @@ author:
       ins: I. Johansson
       name: Ingemar Johansson
       org: Ericsson
-      email: ingemar.johansson@ericsson.com
+      email: ingemar.s.johansson@ericsson.com
   -
       ins:  M. Westerlund
       name: Magnus Westerlund
