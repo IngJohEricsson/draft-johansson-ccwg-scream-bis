@@ -1,7 +1,7 @@
 ---
-docname: draft-johansson-ccwg-rfc8298bis-scream-latest
+docname: draft-johansson-ccwg-rfc8298bis-screamv2-latest
 title: Self-Clocked Rate Adaptation for Multimedia
-abbrev: SCREAM
+abbrev: SCReAMv2
 obsoletes: 8298
 cat: exp
 ipr: trust200902
@@ -120,11 +120,11 @@ Interactive real-time communication imposes a lot of requirements on the transpo
 
 Wireless access such as LTE and 5G, which is an integral part of the current Internet, increases the importance of rate adaptation as the channel bandwidth of a default LTE bearer {{QoS-3GPP}} can change considerably in a very short time frame. Thus, a rate adaptation solution for interactive real-time media, such as WebRTC {{RFC7478}}, should be both quick and be able to operate over a large range in channel capacity.
 
-This memo describes Self-Clocked Rate Adaptation for Multimedia (SCReAM), a solution that implements congestion control for RTP streams {{RFC3550}}. While SCReAM was originally devised for WebRTC, it can also be used for other applications where congestion control of RTP streams is necessary. SCReAM is based on the self-clocking principle of TCP and uses techniques similar to what is used in the rate adaptation algorithm based on Low Extra Delay Background Transport (LEDBAT) {{RFC6817}}.
+This memo describes Self-Clocked Rate Adaptation for Multimedia version 2 (SCReAMv2), an update to SCReAM congestion control for RTP streams {{RFC3550}}. While SCReAM was originally devised for WebRTC, SCReAM as well as SCReAMv2 can also be used for other applications where congestion control of RTP streams is necessary. SCReAM is based on the self-clocking principle of TCP and uses techniques similar to what is used in the rate adaptation algorithm based on Low Extra Delay Background Transport (LEDBAT) {{RFC6817}}.
 
-SCReAM is not entirely self-clocked as it augments self-clocking with pacing and a minimum send rate. SCReAM can take advantage of Explicit Congestion Notification (ECN) and Low Latency Low Loss and Scalable throughput (L4S) in cases where ECN or L4S is supported by the network and the hosts. However, ECN or L4S is not required for the basic congestion control functionality in SCReAM.
+SCReAMv2 is not entirely self-clocked as it augments self-clocking with pacing and a minimum send rate. Further, SCReAMv2 can take advantage of Explicit Congestion Notification (ECN) and Low Latency Low Loss and Scalable throughput (L4S) in cases where ECN or L4S is supported by the network and the hosts. However, ECN or L4S is not required for the basic congestion control functionality in SCReAMv2.
 
-This specification replaces the previous experimental version {{RFC8298}}. There are many and fairly significant changes to the SCREAM algorithm.
+This specification replaces the previous experimental version {{RFC8298}} of SCReAM with SCReAMv2. There are many and fairly significant changes to the original SCReAM algorithm.
 
 The algorithm in this memo differs greatly against the previous version of SCReAM. The main differences are:
 
@@ -138,7 +138,7 @@ The algorithm in this memo differs greatly against the previous version of SCReA
 
 * The media bitrate calculation is dramatically changed and simplified.
 
-* Additional compensation is added to make SCReAM handle cases such as large changing frame sizes.
+* Additional compensation is added to make SCReAMv2 handle cases such as large changing frame sizes.
 
 
 ## Wireless (LTE and 5G) Access Properties {#lte-5g}
@@ -159,7 +159,7 @@ A rate-based congestion control algorithm typically adjusts the rate based on de
 
 ## Comparison with LEDBAT and TFWC in TCP {#ledbat-tfwc}
 
-The core SCReAM algorithm has similarities to the concepts of self-clocking used in TCP-friendly window-based congestion control {{TFWC}} and follows the packet conservation principle. The packet conservation principle is described as a key factor behind the protection of networks from congestion {{Packet-conservation}}.
+The core SCReAM algorithm, which is still similar in SCReAMv2, has similarities to the concepts of self-clocking used in TCP-friendly window-based congestion control {{TFWC}} and follows the packet conservation principle. The packet conservation principle is described as a key factor behind the protection of networks from congestion {{Packet-conservation}}.
 
 The congestion window is determined in a way similar to LEDBAT {{RFC6817}}. LEDBAT is a congestion control algorithm that uses send and receive timestamps to estimate the queuing delay (from now on denoted "qdelay") along the transmission path. This information is used to adjust the congestion window. The general problem described in the paper is that the base delay is offset by LEDBAT's own queue buildup. The big difference with using LEDBAT in the SCReAM context lies in the facts that the source is rate limited and that the RTP queue must be kept short (preferably empty). In addition, the output from a video encoder is rarely constant bitrate; static content (talking heads, for instance) gives almost zero video bitrate. This yields two useful properties when LEDBAT is used with SCReAM; they help to avoid the issues described in {{LEDBAT-delay-impact}}:
 
@@ -179,24 +179,24 @@ It is sufficient that any of the two conditions above is fulfilled to make the b
 
 The above-mentioned features will be described in more detail in Section  {{scream-detailed-description}}.
 
-The SCReAM congestion control method uses techniques similar to LEDBAT {{RFC6817}} to measure the qdelay. As is the case with LEDBAT, it is not necessary to use synchronized clocks in the sender and receiver in order to compute the qdelay. However, it is necessary that they use the same clock frequency, or that the clock frequency at the receiver can be inferred reliably by the sender. Failure to meet this requirement leads to malfunction in the SCReAM congestion control algorithm due to incorrect estimation of the network queue delay. Use of {{RFC8888}} as feedback ensures that the same time base is used in sender and receiver.
+The SCReAM/SCReAMv2 congestion control method uses techniques similar to LEDBAT {{RFC6817}} to measure the qdelay. As is the case with LEDBAT, it is not necessary to use synchronized clocks in the sender and receiver in order to compute the qdelay. However, it is necessary that they use the same clock frequency, or that the clock frequency at the receiver can be inferred reliably by the sender. Failure to meet this requirement leads to malfunction in the SCReAM/SCReAMv2 congestion control algorithm due to incorrect estimation of the network queue delay. Use of {{RFC8888}} as feedback ensures that the same time base is used in sender and receiver.
 
 # Requirements Language {#requirements}
 
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in BCP 14 {{RFC2119}} {{RFC8174}} when, and only when, they appear in all capitals, as shown here.
 
-# Overview of SCReAM Algorithm {#scream-overview}
+# Overview of SCReAMv2 Algorithm {#scream-overview}
 
 
-The SCReAM algorithm consists of three main parts: network congestion control, sender transmission control, and media rate control. All of these parts reside at the sender side. Figure 1 shows the functional overview of a SCReAM sender. The receiver-side algorithm is very simple in comparison, as it only generates feedback containing acknowledgements of received RTP packets and indication of ECN bits.
+SCReAMv2 still consists of three main parts: network congestion control, sender transmission control, and media rate control. All of these parts reside at the sender side. Figure 1 shows the functional overview of a SCReAMv2 sender. The receiver-side algorithm is very simple in comparison, as it only generates feedback containing acknowledgements of received RTP packets and indication of ECN bits.
 
 ## Network Congestion Control {#network-cc}
 
 The network congestion control sets an upper limit on how much data can be in the network (bytes in flight); this limit is called CWND (congestion window) and is used in the sender transmission control.
 
-The SCReAM sender calculates the congestion window based on the feedback from the SCReAM receiver. The feedback is timestamp and ECN echo for individual RTP packets.
+The sender calculates the congestion window based on the feedback from the RTP receiver. The feedback is timestamp and ECN echo for individual RTP packets.
 
-In SCReAM, the receiver of the media echoes a list of received RTP packets and the timestamp of the RTP packet with the highest sequence number back to the sender in feedback packets. The sender keeps a list of transmitted packets, their respective sizes, and the time they were transmitted. This information is used to determine the number of bytes that can be transmitted at any given time instant. A congestion window puts an upper limit on how many bytes can be in flight, i.e., transmitted but not yet acknowledged. The congestion window is however not an absolute limit as a slack is given to efficiently transmit large video frames.
+The receiver of the media echoes a list of received RTP packets and the timestamp of the RTP packet with the highest sequence number back to the sender in feedback packets. The sender keeps a list of transmitted packets, their respective sizes, and the time they were transmitted. This information is used to determine the number of bytes that can be transmitted at any given time instant. A congestion window puts an upper limit on how many bytes can be in flight, i.e., transmitted but not yet acknowledged. The congestion window is however not an absolute limit as a slack is given to efficiently transmit large video frames.
 
 The congestion window seeks to increase by at least one segment per RTT and this increase regardless congestion occurs or not, the congestion window increase is restriced or relaxed based on the current value of the congestion window and the time elapsed since last congestion event. The congestion window update is increased by one MSS (maximum known RTP packet size) per RTT with some variation based on congestion window size and time elapsed since the last congestion event. Multiplicative increase allows the congestion to increase by a fraction of cwnd when congestion has not occured for a while. The congestion window is thus an adaptive multiplicative increase that is mainly additive increase when steady state is reached but allows a faster convergence to a higher link speed.
 
@@ -218,15 +218,13 @@ The media rate control serves to adjust the media bitrate to ramp up quickly eno
 
 The reaction to reduced throughput must be prompt in order to avoid getting too much data queued in the RTP packet queue(s) in the sender. The media rate is calculated based on the congestion window and RTT. For the case that multiple streams are enabled, the media rate among the streams is distrubuted according to relative priorities.
 
-In cases where the sender's frame queues increase rapidly, such as in the case of a Radio Access Type (RAT) handover, the SCReAM sender MAY implement additional actions, such as discarding of encoded media frames or frame skipping in order to ensure that the RTP queues are drained quickly. Frame skipping results in the frame rate being temporarily reduced. Which method to use is a design choice and is outside the scope of this algorithm description.
+In cases where the sender's frame queues increase rapidly, such as in the case of a Radio Access Type (RAT) handover, the SCReAMv2 sender MAY implement additional actions, such as discarding of encoded media frames or frame skipping in order to ensure that the RTP queues are drained quickly. Frame skipping results in the frame rate being temporarily reduced. Which method to use is a design choice and is outside the scope of this algorithm description.
 
-# Detailed Description of SCReAM {#scream-detailed-description}
-
-## SCReAM Sender {#scream-sender}
+# Detailed Description of SCReAMv2 sender algorithm {#scream-detailed-description}
 
 This section describes the sender-side algorithm in more detail. It is split between the network congestion control, sender transmission control, and media rate control.
 
-A SCReAM sender implements media rate control and an RTP queue for each media type or source, where RTP packets containing encoded media frames are temporarily stored for transmission. Figure 1 shows the details when a single media source (or stream) is used. A transmission scheduler (not shown in the figure) is added to support multiple streams. The transmission scheduler can enforce differing priorities between the streams and act like a coupled congestion controller for multiple flows. Support for multiple streams is implemented in {{SCReAM-CPP-implementation}}.
+The sender implements media rate control and an RTP queue for each media type or source, where RTP packets containing encoded media frames are temporarily stored for transmission. Figure 1 shows the details when a single media source (or stream) is used. A transmission scheduler (not shown in the figure) is added to support multiple streams. The transmission scheduler can enforce differing priorities between the streams and act like a coupled congestion controller for multiple flows. Support for multiple streams is implemented in {{SCReAM-CPP-implementation}}.
 
 ~~~aasvg
                     +---------------------------+
@@ -262,7 +260,7 @@ A SCReAM sender implements media rate control and an RTP queue for each media ty
                                   |   socket   |
                                   +------------+
 ~~~
-{: #fig-sender-view title="SCReAM Sender Functional View"}
+{: #fig-sender-view title="Sender Functional View"}
 
 Media frames are encoded and forwarded to the RTP queue (1) in {{fig-sender-view}}. The RTP packets are picked from the RTP queue (4), for multiple flows from each RTP queue based on some defined priority order or simply in a round-robin fashion, by the sender transmission controller.
 
@@ -272,12 +270,12 @@ RTCP packets are received (6) and the information about the bytes in flight and 
 
 The congestion window and the estimated RTT is communicated to the media rate control (2) to compute the appropriate target bitrate. The target bitrate is updated whenever the congestion window is updated. Additional parameters are also communicated to make the rate control more stable when the congestion window is very small or when L4S is not active. This is described more in detail below.
 
-### Constants and variables {#constants-variables}
+## Constants and variables {#constants-variables}
 
 Constants and state variables are listed in this section. Temporary variables are not listed; instead, they are appended with '_t' in the
    pseudocode to indicate their local scope.
 
-#### Constants {#constants}
+### Constants {#constants}
 
 The RECOMMENDED values, within parentheses "()", for the constants  are deduced from experiments.
 
@@ -321,7 +319,7 @@ The RECOMMENDED values, within parentheses "()", for the constants  are deduced 
 
 * BYTES_IN_FLIGHT_HEAD_ROOM (2.0): Extra headroom for bytes in flight.
 
-#### State Variables {#state-variables}
+### State Variables {#state-variables}
 
 The values within parentheses "()" indicate initial values.
 
@@ -385,7 +383,7 @@ The values within parentheses "()" indicate initial values.
 
 * frame_period (0.02): The frame period [s].
 
-### Network Congestion Control {#network-cc-2}
+## Network Congestion Control {#network-cc-2}
 
 This section explains the network congestion control, which performs
 two main functions:
@@ -394,7 +392,7 @@ two main functions:
 
 * Calculation of send window at the sender: RTP packets are transmitted if allowed by the relation between the number of bytes in flight and the congestion window. This is controlled by the send window.
 
-SCReAM is a window-based and byte-oriented congestion control protocol, where the number of bytes transmitted is inferred from the size of the transmitted RTP packets. Thus, a list of transmitted RTP packets and their respective transmission times (wall-clock time) MUST be kept for further calculation.
+SCReAMv2 is a window-based and byte-oriented congestion control protocol, where the number of bytes transmitted is inferred from the size of the transmitted RTP packets. Thus, a list of transmitted RTP packets and their respective transmission times (wall-clock time) MUST be kept for further calculation.
 
 The number of bytes in flight (bytes_in_flight) is computed as the sum of the sizes of the RTP packets ranging from the RTP packet most recently transmitted, down to but not including the acknowledged packet with the highest sequence number. This can be translated to the difference between the highest transmitted byte sequence number and the highest acknowledged byte sequence number. As an example: If an RTP packet with sequence number SN is transmitted and the last acknowledgement indicates SN-5 as the highest received sequence number, then bytes_in_flight is computed as the sum of the size of RTP packets with sequence number SN-4, SN-3, SN-2, SN-1, and SN. It does not matter if, for instance, the packet with sequence number SN-3 was lost -- the size of RTP packet with sequence number SN-3 will still be considered in the computation of bytes_in_flight.
 
@@ -437,7 +435,7 @@ When the sender receives RTCP feedback, the qdelay is calculated as outlined in 
     end
 ~~~
 
-#### Reaction to Delay, Packet Loss and ECN-CE {#reaction-delay-loss-ce}
+### Reaction to Delay, Packet Loss and ECN-CE {#reaction-delay-loss-ce}
    Congestion is detected based on three different indicators:
 
    * Lost packets detected. The loss detection is described in Section 4.1.2.4.
@@ -448,25 +446,25 @@ When the sender receives RTCP feedback, the qdelay is calculated as outlined in 
 
 A congestion event occurs if any of the above indicators are true AND it is than one smoothed RTT (s_rtt) since the last congestion event. This ensures that the congestion window is reduced at most once per smoothed RTT.
 
-##### Lost packets  {#reaction-loss}
+#### Lost packets  {#reaction-loss}
 
-The congestion window back-off due to loss events is deliberately a bit less than is the case with TCP Reno, for example. TCP is generally used to transmit whole files; the file is then like a source with an infinite bitrate until the whole file has been transmitted. SCReAM, on the other hand, has a source which rate is limited to a value close to the available transmit rate and often below that value; the effect is that SCReAM has less opportunity to grab free capacity than a TCP-based file transfer. To compensate for this, it is RECOMMENDED to let SCReAM reduce the congestion window less than what is the case with TCP when loss events occur.
+The congestion window back-off due to loss events is deliberately a bit less than is the case with TCP Reno, for example. TCP is generally used to transmit whole files; the file is then like a source with an infinite bitrate until the whole file has been transmitted. SCReAMv2, on the other hand, has a source which rate is limited to a value close to the available transmit rate and often below that value; the effect is that SCReAMv2 has less opportunity to grab free capacity than a TCP-based file transfer. To compensate for this, it is RECOMMENDED to let SCReAMv2 reduce the congestion window less than what is the case with TCP when loss events occur.
 
-##### ECN-CE and classic ECN  {#reaction-ecn-ce}
+#### ECN-CE and classic ECN  {#reaction-ecn-ce}
 
 In classic ECN mode the cwnd is scaled by a fixed value (BETA_ECN).
 
 The congestion window back-off due to an ECN event MAY be smaller than if a loss event occurs. This is in line with the idea outlined in {{RFC8511}} to enable ECN marking thresholds lower than the corresponding packet drop thresholds.
 
-##### ECN-CE and L4S {#reaction-l4s-ce}
+#### ECN-CE and L4S {#reaction-l4s-ce}
 
-The cwnd is scaled down in proportion to the fraction of marked packets per RTT. The scale down proportion is given by l4s_alpha, which is an EWMA filtered version of the fraction of marked packets per RTT. This is inline with how DCTCP works {{RFC8257}}. Additional methods are applied to make the congestion window reduction reasonably stable, especially when the congestion window is only a few MSS. In addition, because SCReAM can quite often be source limited, additional steps are taken to restore the congestion window to a proper value after a long period without congestion.
+The cwnd is scaled down in proportion to the fraction of marked packets per RTT. The scale down proportion is given by l4s_alpha, which is an EWMA filtered version of the fraction of marked packets per RTT. This is inline with how DCTCP works {{RFC8257}}. Additional methods are applied to make the congestion window reduction reasonably stable, especially when the congestion window is only a few MSS. In addition, because SCReAMv2 can quite often be source limited, additional steps are taken to restore the congestion window to a proper value after a long period without congestion.
 
-##### Increased queue delay {#reaction-delay}
+#### Increased queue delay {#reaction-delay}
 
-SCReAM implements a delay based congestion control approach where it mimics L4S congestion marking when the averaged queue delay exceeds a target threshold. This threshold is set to qdelay_target/2 and the congestion backoff factor (l4s_alpha_v) increases linearly from 0 to 100% as qdelay_avg goes from  qdelay_target/2 to qdelay_target. The averaged qdelay (qdelay_avg) is used to avoid that the SCReAM congestion control over-reacts to scheduling jitter, sudden delay spikes due to e.g. handover or link layer retransmissions. Furthermore, the delay based congestion control is inactivated when it is reasonably certain that L4S is active, i.e. L4S is enabled and congested nodes apply L4S marking of packets. The rationale is reduce negative effect of clockdrift that the delay based control can introduce whenever possible.
+SCReAMv2 implements a delay based congestion control approach where it mimics L4S congestion marking when the averaged queue delay exceeds a target threshold. This threshold is set to qdelay_target/2 and the congestion backoff factor (l4s_alpha_v) increases linearly from 0 to 100% as qdelay_avg goes from  qdelay_target/2 to qdelay_target. The averaged qdelay (qdelay_avg) is used to avoid that the SCReAMv2 congestion control over-reacts to scheduling jitter, sudden delay spikes due to e.g. handover or link layer retransmissions. Furthermore, the delay based congestion control is inactivated when it is reasonably certain that L4S is active, i.e. L4S is enabled and congested nodes apply L4S marking of packets. The rationale is reduce negative effect of clockdrift that the delay based control can introduce whenever possible.
 
-#### Congestion Window Update {#cwnd-update}
+### Congestion Window Update {#cwnd-update}
 
 The congestion window update contains two parts. One that reduces the congestion window when congestion events (listed above) occur, and one part that continously increases the congestion window.
 
@@ -618,29 +616,29 @@ Congestion window increase
 
 The variable max_bytes_in_flight indicates the max bytes in flight in the current round trip.
 
-The multiplicative increase is restricted directly after a congestion event and the restriction is gradually relaxed as the time since last congested increased. The restriction makes the congestion window growth to be no faster than additive increase when congestion continusly occurs. For L4S operation this means that the SCReAM algorithm will adhere to the 2 marked packets per RTT equilibrium at steady state congestion.
+The multiplicative increase is restricted directly after a congestion event and the restriction is gradually relaxed as the time since last congested increased. The restriction makes the congestion window growth to be no faster than additive increase when congestion continusly occurs. For L4S operation this means that the SCReAMv2 algorithm will adhere to the 2 marked packets per RTT equilibrium at steady state congestion.
 
-It is particularly important that the congestion window reflects the transmitted bitrate especially in L4S mode operation. An inflated cwnd takes extra RTTs to bring down to a correct value upon congestion and thus causes unnecessary queue buildup. At the same time the congestion window must be allowed to be large enough to avoid that the SCReAM algorithm begins to limit itself, given that the target bitrate is calculated based on the cwnd. Two mechanisms are used to manage this:
+It is particularly important that the congestion window reflects the transmitted bitrate especially in L4S mode operation. An inflated cwnd takes extra RTTs to bring down to a correct value upon congestion and thus causes unnecessary queue buildup. At the same time the congestion window must be allowed to be large enough to avoid that the SCReAMv2 algorithm begins to limit itself, given that the target bitrate is calculated based on the cwnd. Two mechanisms are used to manage this:
 
-* Restore correct value of cwnd upon congestion. This is done if is a prolonged time since the link was congested. A typical example is that SCReAM has been rate limited, i.e the target bitrate has reached the TARGET_BITRATE_MAX.
+* Restore correct value of cwnd upon congestion. This is done if is a prolonged time since the link was congested. A typical example is that SCReAMv2 has been rate limited, i.e the target bitrate has reached the TARGET_BITRATE_MAX.
 
 * Limit cwnd when the target_bitrate has reached TARGET_BITRATE_MAX. The cwnd is restricted based on a history of the last max_bytes_in_flight values. See {{SCReAM-CPP-implementation}} for details.
 
 The two mechanisms complement one another.
 
-#### Lost Packet Detection {#detect-loss}
+### Lost Packet Detection {#detect-loss}
 
 Lost packet detection is based on the received sequence number list. A reordering window SHOULD be applied to prevent packet reordering from triggering loss events. The reordering window is specified as a time unit, similar to the ideas behind Recent ACKnowledgement (RACK) {{RFC8985}}. The computation of the reordering window is made possible by means of a lost flag in the list of transmitted RTP packets. This flag is set if the received sequence number list indicates that the given RTP packet is missing. If later feedback indicates that a previously lost marked packet was indeed received, then the reordering window is updated to reflect the reordering delay. The reordering window is given by the difference in time between the event that the packet was marked as lost and the event that it was indicated as successfully received. Loss is detected if a given RTP packet is not acknowledged within a time window (indicated by the reordering window) after an RTP packet with a higher sequence number was acknowledged.
 
-#### Send Window Calculation {#send-window}
+### Send Window Calculation {#send-window}
 
-The basic design principle behind packet transmission in SCReAM is to allow transmission only if the number of bytes in flight is less than the congestion window. There are, however, two reasons why this strict rule will not work optimally:
+The basic design principle behind packet transmission in SCReAM was to allow transmission only if the number of bytes in flight is less than the congestion window. There are, however, two reasons why this strict rule will not work optimally:
 
 *  Bitrate variations: Media sources such as video encoders generally produce frames whose size always vary to a larger or smaller extent. The RTP queue absorbs the natural variations in frame sizes. However, the RTP queue should be as short as possible to prevent the end-to-end delay from increasing. A strict 'send only when bytes in flight is less than the congestion window' rule can cause the RTP queue to grow simply because the send window is limited. The consequence is that the congestion window will not increase, or will increase very slowly, because the congestion window is only allowed to increase when there is a sufficient amount of data in flight. The final effect is that the media bitrate increases very slowly or not at all.
 
 *  Reverse (feedback) path congestion: Especially in transport over buffer-bloated networks, the one-way delay in the reverse direction can jump due to congestion. The effect is that the acknowledgements are delayed, and the self-clocking is temporarily halted, even though the forward path is not congested. The CWND_OVERHEAD allows for some degree of reverse path congestion as the bytes in flight is allowed to exceed cwnd.
 
-The send window is given by the relation between the adjusted congestion window and the amount of bytes in flight according to the pseudocode below. The multiplication of cwnd with CWND_OVERHEAD and rel_framesize_high has the effect that bytes in flight is 'around' the cwnd rather than limited by the cwnd when the link is congested.
+In SCReAMv2, the send window is given by the relation between the adjusted congestion window and the amount of bytes in flight according to the pseudocode below. The multiplication of cwnd with CWND_OVERHEAD and rel_framesize_high has the effect that bytes in flight is 'around' the cwnd rather than limited by the cwnd when the link is congested.
 The implementation allows the RTP queue to be small even when the frame sizes vary and thus increased e2e delay can be avoided.
 
 ~~~
@@ -650,7 +648,7 @@ The implementation allows the RTP queue to be small even when the frame sizes va
 
 The send window is updated whenever an RTP packet is transmitted or an RTCP feedback messaged is received.
 
-#### Packet Pacing {#packet-pacing}
+### Packet Pacing {#packet-pacing}
 
 Packet pacing is used in order to mitigate coalescing, i.e., when packets are transmitted in bursts, with the risks of increased jitter and potentially increased packet loss. Packet pacing is also recommended to be used with L4S and also mitigates possible issues with queue overflow due to key-frame generation in video coders. The time interval between consecutive packet transmissions is greater than or equal to t_pace, where t_pace is given by the equations below :
 
@@ -662,13 +660,13 @@ Packet pacing is used in order to mitigate coalescing, i.e., when packets are tr
 
 rtp_size is the size of the last transmitted RTP packet, and s_rtt is the smoothed round trip time. RATE_PACE_MIN is the minimum pacing rate.
 
-#### Stream Prioritization {#stream-prioritization}
+### Stream Prioritization {#stream-prioritization}
 
 The SCReAM algorithm makes a distinction between network congestion control and media rate control. This is easily extended to many streams. RTP packets from two or more RTP queues are scheduled at the rate permitted by the network congestion control.
 
-The scheduling can be done by means of a few different scheduling regimes. For example, the method for coupled congestion control specified in {{RFC8699}} can be used. One implementation of SCReAM {{SCReAM-CPP-implementation}} uses credit-based scheduling. In credit-based scheduling, credit is accumulated by queues as they wait for service and is spent while the queues are being serviced. For instance, if one queue is allowed to transmit 1000 bytes, then a credit of 1000 bytes is allocated to the other unscheduled queues. This principle can be extended to weighted scheduling, where the credit allocated to unscheduled queues depends on the relative weights. The latter is also implemented in {{SCReAM-CPP-implementation}} in which case the target bitrate for the streams are also scaled relative to the scheduling priority.
+The scheduling can be done by means of a few different scheduling regimes. For example, the method for coupled congestion control specified in {{RFC8699}} can be used. One implementation of SCReAM and SCReAMv2 {{SCReAM-CPP-implementation}} uses credit-based scheduling. In credit-based scheduling, credit is accumulated by queues as they wait for service and is spent while the queues are being serviced. For instance, if one queue is allowed to transmit 1000 bytes, then a credit of 1000 bytes is allocated to the other unscheduled queues. This principle can be extended to weighted scheduling, where the credit allocated to unscheduled queues depends on the relative weights. The latter is also implemented in {{SCReAM-CPP-implementation}} in which case the target bitrate for the streams are also scaled relative to the scheduling priority.
 
-### Media Rate Control {#media-rate-control-2}
+## Media Rate Control {#media-rate-control-2}
 
 The media rate control algorithm is executed whenever the congestion window is updated and updates the target bitrate. The target bitrate is essentiatlly based on the congestion window and the (smoothed) RTT according to
 
@@ -730,13 +728,9 @@ The variable rel_framesize_high is based on calculation of the high percentile o
 
 A 75%-ile is used in {{SCReAM-CPP-implementation}}, the histogram can be made leaky such that old samples are gradually forgotten.
 
-### Additional functions {#additional-functions}
+## Competing Flows Compensation {#competing-flows-compensation}
 
-A few additional functional blocks in SCReAM are descrived below
-
-#### Competing Flows Compensation {#competing-flows-compensation}
-
-It is likely that a flow using the SCReAM algorithm will have to share congested bottlenecks with other flows that use a more aggressive congestion control algorithm (for example, large FTP flows using loss-based congestion control). The worst condition occurs when the bottleneck queues are of tail-drop type with a large buffer size. SCReAM takes care of such situations by adjusting the qdelay_target when loss-based flows are detected, as shown in the pseudocode below.
+It is likely that a flow will have to share congested bottlenecks with other flows that use a more aggressive congestion control algorithm (for example, large FTP flows using loss-based congestion control). The worst condition occurs when the bottleneck queues are of tail-drop type with a large buffer size. SCReAMv2 takes care of such situations by adjusting the qdelay_target when loss-based flows are detected, as shown in the pseudocode below.
 
 ~~~
         adjust_qdelay_target(qdelay)
@@ -782,25 +776,25 @@ A low qdelay_norm_var_t indicates that the queue delay is relatively stable. The
 
 The queue delay target is allowed to be increased if either the loss event rate is above a given threshold or qdelay_norm_var_t is low. Both these conditions indicate that a competing flow may be present. In all other cases, the queue delay target is decreased.
 
-The function that adjusts the qdelay_target is simple and could produce false positives and false negatives. The case that self-inflicted congestion by the SCReAM algorithm may be falsely interpreted as the presence of competing loss-based FTP flows is a false positive. The opposite case -- where the algorithm fails to detect the presence of a competing FTP flow -- is a false negative.
+The function that adjusts the qdelay_target is simple and could produce false positives and false negatives. The case that self-inflicted congestion by the SCReAMv2 algorithm may be falsely interpreted as the presence of competing loss-based FTP flows is a false positive. The opposite case -- where the algorithm fails to detect the presence of a competing FTP flow -- is a false negative.
 
 Extensive simulations have shown that the algorithm performs well in LTE test cases and that it also performs well in simple bandwidth-limited bottleneck test cases with competing FTP flows. However, the potential failure of the algorithm cannot be completely ruled out. A false positive (i.e., when self-inflicted congestion is mistakenly identified as competing flows) is especially problematic when it leads to increasing the target queue delay, which can cause the end-to-end delay to increase dramatically.
 
 If it is deemed unlikely that competing flows occur over the same bottleneck, the algorithm described in this section MAY be turned off. One such case is QoS-enabled bearers in 3GPP-based access such as LTE. However, when sending over the Internet, often the network conditions are not known for sure, so in general it is not possible to make safe assumptions on how a network is used and whether or not competing flows share the same bottleneck. Therefore, turning this algorithm off must be considered with caution, as it can lead to basically zero throughput if competing with loss-based traffic.
 
-#### Handling of systematic errors in video coders {#coder-errors}
+## Handling of systematic errors in video coders {#coder-errors}
 
-Some video encoders are prone to systematically generate an output bitrate that is systematically larger or smaller than the target bitrate. SCReAM can handle some deviation inherently but for larger devation it becomes necessary to compensate for this. The algorithm for this is detailed in {{SCReAM-CPP-implementation}}.
+Some video encoders are prone to systematically generate an output bitrate that is systematically larger or smaller than the target bitrate. SCReAMv2 can handle some deviation inherently but for larger devation it becomes necessary to compensate for this. The algorithm for this is detailed in {{SCReAM-CPP-implementation}}.
 
-## SCReAM Receiver {#scream-receiver}
+ToDo: A future draft version will describe this in more detail as it has been fully integarted into SCReAMv2.
 
-The simple task of the SCReAM receiver is to feed back acknowledgements with with time stamp and ECN bits indication for received packets to the SCReAM sender. Upon reception of each RTP packet, the receiver MUST maintain enough information to send the aforementioned values to the SCReAM sender via an RTCP transport- layer feedback message. The frequency of the feedback message depends on the available RTCP bandwidth. The requirements on the feedback elements and the feedback interval are described below.
+#  Receiver Requirements on Feedback Intensity {#scream-receiver}
 
-### Requirements on Feedback Intensity {#feedback-intensity}
+The simple task of the receiver is to feed back acknowledgements with with time stamp and ECN bits indication for received packets to the sender. Upon reception of each RTP packet, the receiver MUST maintain enough information to send the aforementioned values to the sender via an RTCP transport- layer feedback message. The frequency of the feedback message depends on the available RTCP bandwidth. The requirements on the feedback elements and the feedback interval are described below.
 
-SCReAM benefits from relatively frequent feedback. It is RECOMMENDED that a SCReAM implementation follows the guidelines below.
+SCReAMv2 benefits from relatively frequent feedback. It is RECOMMENDED that a SCReAMv2 implementation follows the guidelines below.
 
-The feedback interval depends on the media bitrate. At low bitrates, it is sufficient with a feedback every frame; while at high bitrates, a feedback interval of roughly 5ms ms is preferred. At very high bitrates, even shorter feedback intervals MAY be needed in order to keep the self-clocking in SCReAM working well. One indication that feedback is too sparse is that the SCReAM implementation cannot reach high bitrates, even in uncongested links. More frequent feedback might solve this issue.
+The feedback interval depends on the media bitrate. At low bitrates, it is sufficient with a feedback every frame; while at high bitrates, a feedback interval of roughly 5ms ms is preferred. At very high bitrates, even shorter feedback intervals MAY be needed in order to keep the self-clocking in SCReAMv2 working well. One indication that feedback is too sparse is that the SCReAMv2 implementation cannot reach high bitrates, even in uncongested links. More frequent feedback might solve this issue.
 
 The numbers above can be formulated as a feedback interval function that can be useful for the computation of the desired RTCP bandwidth. The following equation expresses the feedback rate:
 
@@ -821,29 +815,29 @@ Feedback should also forcibly be transmitted in any of these cases:
 
 The transmission interval is not critical. So, in the case of multi-stream handling between two hosts, the feedback for two or more synchronization sources (SSRCs) can be bundled to save UDP/IP overhead. However, the final realized feedback interval SHOULD notexceed 2*fb_int in such cases, meaning that a scheduled feedback transmission event should not be delayed more than fb_int.
 
-SCReAM works with AVPF regular mode; immediate or early mode is not required by SCReAM but can nonetheless be useful for RTCP messages not directly related to SCReAM, such as those specified in {{RFC4585}}. It is RECOMMENDED to use reduced-size RTCP {{RFC5506}}, where regular full compound RTCP transmission is controlled by trr-int as described in {{RFC4585}}.
+SCReAMv2 works with AVPF regular mode; immediate or early mode is not required by SCReAMv2 but can nonetheless be useful for RTCP messages not directly related to SCReAMv2, such as those specified in {{RFC4585}}. It is RECOMMENDED to use reduced-size RTCP {{RFC5506}}, where regular full compound RTCP transmission is controlled by trr-int as described in {{RFC4585}}.
 
 # Discussion {#discussion}
 
 This section covers a few discussion points.
 
-* Clock drift: SCReAM can suffer from the same issues with clock drift as is the case with LEDBAT {{RFC6817}}. However, Appendix A.2 in {{RFC6817}} describes ways to mitigate issues with clock drift. A clockdrift compensation method is also implemented in {{SCReAM-CPP-implementation}}.
+* Clock drift: SCReAM/SCReAMv2 can suffer from the same issues with clock drift as is the case with LEDBAT {{RFC6817}}. However, Appendix A.2 in {{RFC6817}} describes ways to mitigate issues with clock drift. A clockdrift compensation method is also implemented in {{SCReAM-CPP-implementation}}.
 
 * Clock skipping: The sender or receiver clock can occasionally skip. Handling of this is implemented in {{SCReAM-CPP-implementation}}.
 
-* The target bitrate given by SCReAM is the bitrate including the RTP and Forward Error Correction (FEC) overhead. The media encoder SHOULD take this overhead into account when the media bitrate is set. This means that the media coder bitrate SHOULD be computed as:
+* The target bitrate given by SCReAMv2 is the bitrate including the RTP and Forward Error Correction (FEC) overhead. The media encoder SHOULD take this overhead into account when the media bitrate is set. This means that the media coder bitrate SHOULD be computed as:
       media_rate = target_bitrate - rtp_plus_fec_overhead_bitrate
 It is not necessary to make a 100% perfect compensation for the overhead, as the SCReAM algorithm will inherently compensate for moderate errors. Under-compensating for the overhead has the effect of increasing jitter, while overcompensating will cause the bottleneck link to become underutilized.
 
-* The link utilization with SCReAM can be lower than 100%. There are several possible reasons to this:
+* The link utilization with SCReAMv2 can be lower than 100%. There are several possible reasons to this:
 
-  - Large variations in frame sizes: Large variations in frame size makes SCReAM push down the target_bitrate to give sufficient headroom and avoid queue buildup in the network. It is in general recommended to operate video coders in low latency mode and enable GDR (Gradual Decoding Refresh) if possible to minimize frame size variations.
+  - Large variations in frame sizes: Large variations in frame size makes SCReAMv2 push down the target_bitrate to give sufficient headroom and avoid queue buildup in the network. It is in general recommended to operate video coders in low latency mode and enable GDR (Gradual Decoding Refresh) if possible to minimize frame size variations.
 
   - Link layer properties: Media transport in 5G in uplink typically requires to transmit a scheduling request (SR) to get persmission to transmit data. Because transmission of video is frame based, there is a high likelihood that the channel becomes idle between frames (especially with L4S), in which case a new SR/grant exchange is needed. This potentially means that uplink transmission slots are unused with a lower link utilization as a result.
 
-* Packet pacing is recommened, it is however possible to operate SCReAM with packet pacing disabled. The code in {{SCReAM-CPP-implementation}} implements additonal mechanisms to achieve a high link utilization when packet pacing is disabled.
+* Packet pacing is recommened, it is however possible to operate SCReAMv2 with packet pacing disabled. The code in {{SCReAM-CPP-implementation}} implements additonal mechanisms to achieve a high link utilization when packet pacing is disabled.
 
-* RFC8888 Feedback issues: RTCP feedback packets can be lost, this means that the loss detection in SCReAM may trigger even though packets arrive safely on the receiver side. {{SCReAM-CPP-implementation} solves this by using overlapping RTCP feedback, i.e RTCP feedback is transmitted no more seldom than every 16th packet, and where each RTCP feedback spans the last 64 received packets. This however creates unnecessary overhead. {{RFC3550}} RR (Receiver Reports) can possibly be another solution to achieve better robustness with less overhead.
+* RFC8888 Feedback issues: RTCP feedback packets can be lost, this means that the loss detection in SCReAMv2 may trigger even though packets arrive safely on the receiver side. {{SCReAM-CPP-implementation} solves this by using overlapping RTCP feedback, i.e RTCP feedback is transmitted no more seldom than every 16th packet, and where each RTCP feedback spans the last 64 received packets. This however creates unnecessary overhead. {{RFC3550}} RR (Receiver Reports) can possibly be another solution to achieve better robustness with less overhead.
 
 # IANA Considerations {#iana}
 
@@ -851,7 +845,7 @@ This document does not require any IANA actions.
 
 # Security Considerations {#security-considerations}
 
-The feedback can be vulnerable to attacks similar to those that can affect TCP. It is therefore RECOMMENDED that the RTCP feedback is at least integrity protected. Furthermore, as SCReAM is self-clocked, a malicious middlebox can drop RTCP feedback packets and thus cause the self-clocking in SCReAM to stall. However, this attack is mitigated by the minimum send rate maintained by SCReAM when no feedback is received.
+The feedback can be vulnerable to attacks similar to those that can affect TCP. It is therefore RECOMMENDED that the RTCP feedback is at least integrity protected. Furthermore, as SCReAM/SCReAMv2 is self-clocked, a malicious middlebox can drop RTCP feedback packets and thus cause the self-clocking to stall. However, this attack is mitigated by the minimum send rate maintained by SCReAM/SCReAMv2 when no feedback is received.
 
 --- back
 
