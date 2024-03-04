@@ -230,9 +230,9 @@ The sender implements media rate control and an RTP queue for each media type or
                     +---------------------------+
                     |        Media encoder      |
                     +---------------------------+
-                        ^                  |
-                        |                  |(1)
-                        |(3)              RTP
+                        ^                  |(1)
+                        |                 RTP
+                        |(3)               |
                         |                  V
                         |            +-----------+
                    +---------+       |           |
@@ -251,9 +251,9 @@ The sender implements media rate control and an RTP queue for each media type or
           +-->| congestion |------>| Transmission |
           |   |  control   |       |   Control    |
           |   +------------+       +--------------+
-          |                                |
-          +-------------RTCP----------+    |(5)
-              (6)                     |   RTP
+          |                                |(5)
+          +-------------RTCP----------+   RTP
+              (6)                     |    |
                                       |    v
                                   +------------+
                                   |     UDP    |
