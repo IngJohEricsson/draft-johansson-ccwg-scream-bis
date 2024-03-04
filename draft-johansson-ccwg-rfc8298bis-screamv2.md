@@ -786,7 +786,7 @@ If it is deemed unlikely that competing flows occur over the same bottleneck, th
 
 Some video encoders are prone to systematically generate an output bitrate that is systematically larger or smaller than the target bitrate. SCReAMv2 can handle some deviation inherently but for larger devation it becomes necessary to compensate for this. The algorithm for this is detailed in {{SCReAM-CPP-implementation}}.
 
-ToDo: A future draft version will describe this in more detail as it has been fully integarted into SCReAMv2.
+ToDo: A future draft version will describe this in more detail as it has been fully integrated into SCReAMv2.
 
 #  Receiver Requirements on Feedback Intensity {#scream-receiver}
 
@@ -835,7 +835,7 @@ It is not necessary to make a 100% perfect compensation for the overhead, as the
 
   - Link layer properties: Media transport in 5G in uplink typically requires to transmit a scheduling request (SR) to get persmission to transmit data. Because transmission of video is frame based, there is a high likelihood that the channel becomes idle between frames (especially with L4S), in which case a new SR/grant exchange is needed. This potentially means that uplink transmission slots are unused with a lower link utilization as a result.
 
-* Packet pacing is recommened, it is however possible to operate SCReAMv2 with packet pacing disabled. The code in {{SCReAM-CPP-implementation}} implements additonal mechanisms to achieve a high link utilization when packet pacing is disabled.
+* Packet pacing is recommended, it is however possible to operate SCReAMv2 with packet pacing disabled. The code in {{SCReAM-CPP-implementation}} implements additonal mechanisms to achieve a high link utilization when packet pacing is disabled.
 
 * RFC8888 Feedback issues: RTCP feedback packets can be lost, this means that the loss detection in SCReAMv2 may trigger even though packets arrive safely on the receiver side. {{SCReAM-CPP-implementation} solves this by using overlapping RTCP feedback, i.e RTCP feedback is transmitted no more seldom than every 16th packet, and where each RTCP feedback spans the last 64 received packets. This however creates unnecessary overhead. {{RFC3550}} RR (Receiver Reports) can possibly be another solution to achieve better robustness with less overhead.
 
