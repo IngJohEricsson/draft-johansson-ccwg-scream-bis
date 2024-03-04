@@ -1270,7 +1270,7 @@ Table of Contents
    algorithm for this is detailed in [SCReAM-CPP-implementation].
 
    ToDo: A future draft version will describe this in more detail as it
-   has been fully integarted into SCReAMv2.
+   has been fully integrated into SCReAMv2.
 
 5.  Receiver Requirements on Feedback Intensity
 
@@ -1373,7 +1373,7 @@ Table of Contents
          that uplink transmission slots are unused with a lower link
          utilization as a result.
 
-   *  Packet pacing is recommened, it is however possible to operate
+   *  Packet pacing is recommended, it is however possible to operate
       SCReAMv2 with packet pacing disabled.  The code in
       [SCReAM-CPP-implementation] implements additonal mechanisms to
       achieve a high link utilization when packet pacing is disabled.

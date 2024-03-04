@@ -2130,7 +2130,7 @@ The implementation allows the RTP queue to be small even when the frame sizes va
 <a href="#section-4.5" class="section-number selfRef">4.5. </a><a href="#name-handling-of-systematic-erro" class="section-name selfRef">Handling of systematic errors in video coders</a>
         </h3>
 <p id="section-4.5-1">Some video encoders are prone to systematically generate an output bitrate that is systematically larger or smaller than the target bitrate. SCReAMv2 can handle some deviation inherently but for larger devation it becomes necessary to compensate for this. The algorithm for this is detailed in <span>[<a href="#SCReAM-CPP-implementation" class="cite xref">SCReAM-CPP-implementation</a>]</span>.<a href="#section-4.5-1" class="pilcrow">¶</a></p>
-<p id="section-4.5-2">ToDo: A future draft version will describe this in more detail as it has been fully integarted into SCReAMv2.<a href="#section-4.5-2" class="pilcrow">¶</a></p>
+<p id="section-4.5-2">ToDo: A future draft version will describe this in more detail as it has been fully integrated into SCReAMv2.<a href="#section-4.5-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
@@ -2197,7 +2197,7 @@ It is not necessary to make a 100% perfect compensation for the overhead, as the
           </ul>
 </li>
         <li class="normal" id="section-6-2.5">
-          <p id="section-6-2.5.1">Packet pacing is recommened, it is however possible to operate SCReAMv2 with packet pacing disabled. The code in <span>[<a href="#SCReAM-CPP-implementation" class="cite xref">SCReAM-CPP-implementation</a>]</span> implements additonal mechanisms to achieve a high link utilization when packet pacing is disabled.<a href="#section-6-2.5.1" class="pilcrow">¶</a></p>
+          <p id="section-6-2.5.1">Packet pacing is recommended, it is however possible to operate SCReAMv2 with packet pacing disabled. The code in <span>[<a href="#SCReAM-CPP-implementation" class="cite xref">SCReAM-CPP-implementation</a>]</span> implements additonal mechanisms to achieve a high link utilization when packet pacing is disabled.<a href="#section-6-2.5.1" class="pilcrow">¶</a></p>
 </li>
         <li class="normal" id="section-6-2.6">
           <p id="section-6-2.6.1">RFC8888 Feedback issues: RTCP feedback packets can be lost, this means that the loss detection in SCReAMv2 may trigger even though packets arrive safely on the receiver side. <span>[<a href="#SCReAM-CPP-implementation" class="cite xref">SCReAM-CPP-implementation</a>]</span> solves this by using overlapping RTCP feedback, i.e RTCP feedback is transmitted no more seldom than every 16th packet, and where each RTCP feedback spans the last 64 received packets. This however creates unnecessary overhead. <span>[<a href="#RFC3550" class="cite xref">RFC3550</a>]</span> RR (Receiver Reports) can possibly be another solution to achieve better robustness with less overhead.<a href="#section-6-2.6.1" class="pilcrow">¶</a></p>
