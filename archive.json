@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2024-03-03T01:10:09.273328+00:00",
+  "timestamp": "2024-03-05T01:06:26.909814+00:00",
   "repo": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
   "labels": [
     {
@@ -389,6 +389,62 @@
           "comments": []
         }
       ]
+    },
+    {
+      "number": 11,
+      "id": "PR_kwDOK7AJUs5onqUY",
+      "title": "Remove experimentation section for now",
+      "url": "https://github.com/IngJohEricsson/draft-johansson-ccwg-scream-bis/pull/11",
+      "state": "MERGED",
+      "author": "mirjak",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2024-03-04T17:44:21Z",
+      "updatedAt": "2024-03-04T17:46:40Z",
+      "baseRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
+      "baseRefName": "main",
+      "baseRefOid": "0e6e30e326d585ead97cead47cee61b0c97288d1",
+      "headRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
+      "headRefName": "mirjak-patch-1",
+      "headRefOid": "ce502aa615c44beb8f3cedf766811029d9046272",
+      "closedAt": "2024-03-04T17:46:40Z",
+      "mergedAt": "2024-03-04T17:46:40Z",
+      "mergedBy": "mirjak",
+      "mergeCommit": {
+        "oid": "75e3c3d4a5211d5055560fe687334545b82b5be1"
+      },
+      "comments": [],
+      "reviews": []
+    },
+    {
+      "number": 12,
+      "id": "PR_kwDOK7AJUs5on1Kr",
+      "title": "rename to SCReAMv2",
+      "url": "https://github.com/IngJohEricsson/draft-johansson-ccwg-scream-bis/pull/12",
+      "state": "MERGED",
+      "author": "mirjak",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "This PR renames to SCReAMv2, add one note on future work, and restructures a little bit to reduce the section level.",
+      "createdAt": "2024-03-04T18:12:42Z",
+      "updatedAt": "2024-03-04T18:16:03Z",
+      "baseRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
+      "baseRefName": "main",
+      "baseRefOid": "75e3c3d4a5211d5055560fe687334545b82b5be1",
+      "headRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
+      "headRefName": "mirjak-patch-2",
+      "headRefOid": "2ccf2a155f468e65e8931bf90d710f0969332627",
+      "closedAt": "2024-03-04T18:16:03Z",
+      "mergedAt": "2024-03-04T18:16:03Z",
+      "mergedBy": "IngJohEricsson",
+      "mergeCommit": {
+        "oid": "a193df5e9b163235c1ac37d4abbb368c69a2f257"
+      },
+      "comments": [],
+      "reviews": []
     }
   ]
 }
