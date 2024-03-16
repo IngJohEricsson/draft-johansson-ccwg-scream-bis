@@ -5,8 +5,8 @@
 CCWG                                                        I. Johansson
 Internet-Draft                                             M. Westerlund
 Obsoletes: 8298 (if approved)                                   Ericsson
-Intended status: Experimental                               4 March 2024
-Expires: 5 September 2024
+Intended status: Experimental                              16 March 2024
+Expires: 17 September 2024
 
 
               Self-Clocked Rate Adaptation for Multimedia
@@ -58,7 +58,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 5 September 2024.
+   This Internet-Draft will expire on 17 September 2024.
 
 Copyright Notice
 
@@ -426,38 +426,38 @@ Table of Contents
    controller for multiple flows.  Support for multiple streams is
    implemented in [SCReAM-CPP-implementation].
 
-                       +---------------------------+
-                       |        Media encoder      |
-                       +---------------------------+
-                           ^                  |(1)
-                           |                 RTP
-                           |(3)               |
-                           |                  V
-                           |            +-----------+
-                      +---------+       |           |
-                      | Media   |       |   Queue   |
-                      | rate    |       |           |
-                      | control |       |RTP packets|
-                      +---------+       |           |
-                           ^            +-----------+
-                           |                  |
-                           | (2)              |(4)
-                           |                 RTP
-                           |                  |
-                           |                  v
-                 +------------+       +--------------+
-                 |  Network   |  (7)  |    Sender    |
-             +-->| congestion |------>| Transmission |
-             |   |  control   |       |   Control    |
-             |   +------------+       +--------------+
-             |                                |(5)
-             +-------------RTCP----------+   RTP
-                 (6)                     |    |
-                                         |    v
-                                     +------------+
-                                     |     UDP    |
-                                     |   socket   |
-                                     +------------+
+             +---------------------------+
+             |        Media encoder      |
+             +---------------------------+
+                 ^                  |(1)
+                 |                 RTP
+                 |(3)               |
+                 |                  V
+                 |            +-----------+
+            +---------+       |           |
+            | Media   |       |   Queue   |
+            | rate    |       |           |
+            | control |       |RTP packets|
+            +---------+       |           |
+                 ^            +-----------+
+                 |                  |
+                 | (2)              |(4)
+                 |                 RTP
+                 |                  |
+                 |                  v
+       +------------+       +--------------+
+       |  Network   |  (7)  |    Sender    |
+   +-->| congestion |------>| Transmission |
+   |   |  control   |       |   Control    |
+   |   +------------+       +--------------+
+   |                                |(5)
+   +-------------RTCP----------+   RTP
+       (6)                     |    |
+                               |    v
+                           +------------+
+                           |     UDP    |
+                           |   socket   |
+                           +------------+
 
                       Figure 1: Sender Functional View
 
@@ -712,28 +712,28 @@ Table of Contents
    low bitrates, given that the tail RTP packet in a video frame is
    often smaller than MSS.
 
-    packets_delivered_this_rtt += packets_acked
-    packets_marked_this_rtt += packets_acked_ce
-    if (now - last_update_l4s_alpha_time >= s_rtt)
-      # l4s_alpha is calculated from packets marked istf bytes marked
-      fraction_marked_t = packets_marked_this_rtt/
-                          packets_delivered_this_rtt
-      l4s_alpha = L4S_AVG_G*fraction_marked_t + (1.0-L4S_AVG_G)*l4S_alpha
+   packets_delivered_this_rtt += packets_acked
+   packets_marked_this_rtt += packets_acked_ce
+   if (now - last_update_l4s_alpha_time >= s_rtt)
+     # l4s_alpha is calculated from packets marked istf bytes marked
+     fraction_marked_t = packets_marked_this_rtt/
+                         packets_delivered_this_rtt
+     l4s_alpha = L4S_AVG_G*fraction_marked_t + (1.0-L4S_AVG_G)*l4S_alpha
 
-      last_update_l4s_alpha_time = now
-      packets_delivered_this_rtt = 0
-      packets_marked_this_rtt = 0
-    end
+     last_update_l4s_alpha_time = now
+     packets_delivered_this_rtt = 0
+     packets_marked_this_rtt = 0
+   end
 
-    if (now - last_update_qdelay_avg_time >= s_rtt)
-      # qdelay_avg is updated with a slow attack, fast decay EWMA filter
-      if (qdelay < qdelay_avg)
-        qdelay_avg = qdelay
-      else
-        qdelay_avg = QDELAY_AVG_G*qdelay + (1.0-QDELAY_AVG_G)*qdelay_avg
-      end
-      last_update_qdelay_avg_time = now
-    end
+   if (now - last_update_qdelay_avg_time >= s_rtt)
+     # qdelay_avg is updated with a slow attack, fast decay EWMA filter
+     if (qdelay < qdelay_avg)
+       qdelay_avg = qdelay
+     else
+       qdelay_avg = QDELAY_AVG_G*qdelay + (1.0-QDELAY_AVG_G)*qdelay_avg
+     end
+     last_update_qdelay_avg_time = now
+   end
 
 4.2.1.  Reaction to Delay, Packet Loss and ECN-CE
 
@@ -812,87 +812,87 @@ Table of Contents
 
    Actions when congestion detected
 
-       if (now - last_congestion_detected_time >= s_rtt)
-         if (loss detected)
-           is_loss_t = true
-         end
-         if (packets marked)
-           is_ce_t = true
-         end
-         if (qdelay > qdelay_target/2)
-           # It is expected that l4s_alpha is below a given value,
-           l4_alpha_lim_t = 2 / target_bitrate * MSS * 8 / s_rtt
-           if (l4s_alpha < l4_alpha_lim_t || !l4s_active)
-             # L4S does not seem to be active
-             l4s_alpha_v_t = min(1.0, max(0.0,
-                (qdelay_avg - qdelay_target / 2) /
-                (qdelay_target / 2)));
-             is_virtual_ce_t = true
-           end
-         end
+   if (now - last_congestion_detected_time >= s_rtt)
+     if (loss detected)
+       is_loss_t = true
+     end
+     if (packets marked)
+       is_ce_t = true
+     end
+     if (qdelay > qdelay_target/2)
+       # It is expected that l4s_alpha is below a given value,
+       l4_alpha_lim_t = 2 / target_bitrate * MSS * 8 / s_rtt
+       if (l4s_alpha < l4_alpha_lim_t || !l4s_active)
+         # L4S does not seem to be active
+         l4s_alpha_v_t = min(1.0, max(0.0,
+            (qdelay_avg - qdelay_target / 2) /
+            (qdelay_target / 2)));
+         is_virtual_ce_t = true
        end
+     end
+   end
 
-       if (is_loss_t || is_ce_t || is_virtual_ce_t)
-         if (now - last_cwnd_i_update_time > 0.25)
-           last_cwnd_i_update_time = now
-           cwnd_i = cwnd
-         end
+   if (is_loss_t || is_ce_t || is_virtual_ce_t)
+     if (now - last_cwnd_i_update_time > 0.25)
+       last_cwnd_i_update_time = now
+       cwnd_i = cwnd
+     end
+   end
+
+
+   # Scale factor for cwnd update
+   cwnd_scale_factor_t =
+     (LOW_CWND_SCALE_FACTOR + (MUL_INCREASE_FACTOR  * cwnd) / MSS)
+
+   # Either loss, ECN mark or increased qdelay is detected
+   if (is_loss_t)
+     # Loss is detected
+     cwnd = cwnd * BETA_LOSS
+   end
+   if (is_ce_t)
+     # ECN-CE detected
+     if (IS_L4S)
+       # L4S mode
+       backoff_t = l4s_alpha / 2
+       # Increase stability for very small cwnd
+       backOff_t *= min(1.0, cwnd_scale_factor_t)
+       backOff_t *= max(0.8, 1.0 - cwnd_ratio * 2)
+
+       if (now - last_congestion_detected_time > 5)
+         # A long time since last congested because link throughput
+         # exceeds max video bitrate.
+         # There is a certain risk that CWND has increased way above
+         # bytes in flight, so we reduce it here to get it better on
+         # track and thus the congestion episode is shortened
+         cwnd = min(cwnd, max_bytes_in_flight_prev)
+
+         # Also, we back off a little extra if needed
+         # because alpha is quite likely very low
+         # This can in some cases be an over-reaction
+         # but as this function should kick in relatively seldom
+         # it should not be to too big concern
+         backoff_t = max(backoff_t, 0.25)
+
+         # In addition, bump up l4sAlpha to a more credible value
+         # This may over react but it is better than
+         # excessive queue delay
+         l4sAlpha = 0.25
        end
+       cwnd = (1.0 - backoff_t) * cwnd
+     else
+       # Classic ECN mode
+       cwnd = cwnd * BETA_ECN
+     end
+   end
+   if (is_virtual_ce_t)
+     backoff_t = l4s_alpha_v_t / 2
+     cwnd = (1.0 - backoff_t) * cwnd
+   end
+   cwnd = max(MIN_CWND, cwnd)
 
-
-       # Scale factor for cwnd update
-       cwnd_scale_factor_t =
-         (LOW_CWND_SCALE_FACTOR + (MUL_INCREASE_FACTOR  * cwnd) / MSS)
-
-       # Either loss, ECN mark or increased qdelay is detected
-       if (is_loss_t)
-         # Loss is detected
-         cwnd = cwnd * BETA_LOSS
-       end
-       if (is_ce_t)
-         # ECN-CE detected
-         if (IS_L4S)
-           # L4S mode
-           backoff_t = l4s_alpha / 2
-           # Increase stability for very small cwnd
-           backOff_t *= min(1.0, cwnd_scale_factor_t)
-           backOff_t *= max(0.8, 1.0 - cwnd_ratio * 2)
-
-           if (now - last_congestion_detected_time > 5)
-             # A long time since last congested because link throughput
-             # exceeds max video bitrate.
-             # There is a certain risk that CWND has increased way above
-             # bytes in flight, so we reduce it here to get it better on
-             # track and thus the congestion episode is shortened
-             cwnd = min(cwnd, max_bytes_in_flight_prev)
-
-             # Also, we back off a little extra if needed
-             # because alpha is quite likely very low
-             # This can in some cases be an over-reaction
-             # but as this function should kick in relatively seldom
-             # it should not be to too big concern
-             backoff_t = max(backoff_t, 0.25)
-
-             # In addition, bump up l4sAlpha to a more credible value
-             # This may over react but it is better than
-             # excessive queue delay
-             l4sAlpha = 0.25
-           end
-           cwnd = (1.0 - backoff_t) * cwnd
-         else
-           # Classic ECN mode
-           cwnd = cwnd * BETA_ECN
-         end
-       end
-       if (is_virtual_ce_t)
-         backoff_t = l4s_alpha_v_t / 2
-         cwnd = (1.0 - backoff_t) * cwnd
-       end
-       cwnd = max(MIN_CWND, cwnd)
-
-       if (is_loss_t || is_ce_t || is_virtual_ce_t)
-         last_congestion_detected_time = now
-       end
+   if (is_loss_t || is_ce_t || is_virtual_ce_t)
+     last_congestion_detected_time = now
+   end
 
    The variable max_bytes_in_flight_prev indicates the maximum bytes in
    flights in the previous round trip.  The reason to this is that bytes
@@ -913,55 +913,55 @@ Table of Contents
 
    Congestion window increase
 
-       # Additional factor for cwnd update
-       post_congestion_scale_t = max(0.0, min(1.0,
-         (now - last_congestion_detected_time) / POST_CONGESTION_DELAY))
+   # Additional factor for cwnd update
+   post_congestion_scale_t = max(0.0, min(1.0,
+     (now - last_congestion_detected_time) / POST_CONGESTION_DELAY))
 
-       # Calculate bytes acked that are not CE marked
-       bytes_newly_acked_minus_ce_t = bytes_newly_acked-
-                                      bytes_newly_acked_ce
+   # Calculate bytes acked that are not CE marked
+   bytes_newly_acked_minus_ce_t = bytes_newly_acked-
+                                  bytes_newly_acked_ce
 
-       increment_t = bytes_newly_acked_minus_ce_t*cwnd_ratio
+   increment_t = bytes_newly_acked_minus_ce_t*cwnd_ratio
 
-       # Reduce increment for small RTTs
-       tmp_t = min(1.0, s_rtt / VIRTUAL_RTT)
-       increment *= tmp_t * tmp_t
+   # Reduce increment for small RTTs
+   tmp_t = min(1.0, s_rtt / VIRTUAL_RTT)
+   increment *= tmp_t * tmp_t
 
-       if (!is_l4s_active)
-         # The increment is scaled down for more cautious
-         # ramp-up around the last known congestion window
-         # when congestion last occured.
-         # This is only applied when L4S is inactive
-         scl_t = 1.0
-         scl_t = (cwnd - cwnd_i) / cwnd_i
-         scl_t *= 4
-         scl_t = scl_t * scl_t
-         scl_t = max(0.1, min(1.0, scl_t))
-         increment_t *= scl_t
-       end
+   if (!is_l4s_active)
+     # The increment is scaled down for more cautious
+     # ramp-up around the last known congestion window
+     # when congestion last occured.
+     # This is only applied when L4S is inactive
+     scl_t = 1.0
+     scl_t = (cwnd - cwnd_i) / cwnd_i
+     scl_t *= 4
+     scl_t = scl_t * scl_t
+     scl_t = max(0.1, min(1.0, scl_t))
+     increment_t *= scl_t
+   end
 
-       # Slow down CWND increase when CWND is only a few MSS
-       # This goes hand in hand with that the down scaling is also
-       # slowed down then. Cwnd increase can be as slow as
-       # LOW_CWND_SCALE_FACTOR*MSS per RTT
-       float tmp_t = cwnd_scale_factor_t
+   # Slow down CWND increase when CWND is only a few MSS
+   # This goes hand in hand with that the down scaling is also
+   # slowed down then. Cwnd increase can be as slow as
+   # LOW_CWND_SCALE_FACTOR*MSS per RTT
+   float tmp_t = cwnd_scale_factor_t
 
-       # Further limit multiplicative increase when congestion occured
-       # recently.
-       if (tmp_t > 1.0)
-         tmp_t = 1.0 + ((tmp_t - 1.0) * post_congestion_scale_t);
-       end
-       increment *= tmp_t
+   # Further limit multiplicative increase when congestion occured
+   # recently.
+   if (tmp_t > 1.0)
+     tmp_t = 1.0 + ((tmp_t - 1.0) * post_congestion_scale_t);
+   end
+   increment *= tmp_t
 
-       # Increase CWND only if bytes in flight is large enough
-       # Quite a lot of slack is allowed here to avoid that bitrate
-       # locks to low values.
-       max_allowed_t = MSS + max(max_bytes_in_flight,
-         max_bytes_in_flight_prev) * BYTES_IN_FLIGHT_HEAD_ROOM
-       int cwnd_t = cwnd + increment_t
-       if (cwnd_t <= max_allowed_t)
-         cwnd = cwnd_t
-       end
+   # Increase CWND only if bytes in flight is large enough
+   # Quite a lot of slack is allowed here to avoid that bitrate
+   # locks to low values.
+   max_allowed_t = MSS + max(max_bytes_in_flight,
+     max_bytes_in_flight_prev) * BYTES_IN_FLIGHT_HEAD_ROOM
+   int cwnd_t = cwnd + increment_t
+   if (cwnd_t <= max_allowed_t)
+     cwnd = cwnd_t
+   end
 
    The variable max_bytes_in_flight indicates the max bytes in flight in
    the current round trip.
@@ -1051,8 +1051,8 @@ Table of Contents
    small even when the frame sizes vary and thus increased e2e delay can
    be avoided.
 
-          send_wnd = cwnd * CWND_OVERHEAD * rel_framesize_high -
-            bytes_in_flight
+   send_wnd = cwnd * CWND_OVERHEAD * rel_framesize_high -
+              bytes_in_flight
 
    The send window is updated whenever an RTP packet is transmitted or
    an RTCP feedback messaged is received.
@@ -1068,9 +1068,9 @@ Table of Contents
    than or equal to t_pace, where t_pace is given by the equations below
    :
 
-         pace_bitrate = max(RATE_PACE_MIN, target_bitrate) *
-           PACKET_PACING_HEADROOM
-         t_pace = rtp_size * 8 / pace_bitrate
+   pace_bitrate = max(RATE_PACE_MIN, target_bitrate) *
+                  PACKET_PACING_HEADROOM
+   t_pace = rtp_size * 8 / pace_bitrate
 
    rtp_size is the size of the last transmitted RTP packet, and s_rtt is
    the smoothed round trip time.  RATE_PACE_MIN is the minimum pacing
@@ -1104,7 +1104,7 @@ Table of Contents
    is essentiatlly based on the congestion window and the (smoothed) RTT
    according to
 
-            target_bitrate = 8 * cwnd / s_rtt
+   target_bitrate = 8 * cwnd / s_rtt
 
    The role of the media rate control is to strike a reasonable balance
    between a low amount of queuing in the RTP queue(s) and a sufficient
@@ -1125,29 +1125,29 @@ Table of Contents
    The complete pseudo code for adjustment of the target bitrate is
    shown below
 
-        tmp_t = 1.0
+   tmp_t = 1.0
 
-        # limit bitrate if bytes in flight exceeds is close to or
-        # exceeds cwnd. This helps to avoid large rate fluctiations and
-        # variations in RTT
-        # Only applied when L4S is inactive
-        if (!l4s_active && bytes_in_flight_ratio > BYTES_IN_FLIGHT_LIMIT)
-          tmp_t /= min(BYTES_IN_FLIGHT_LIMIT_COMPENSATION,
-            bytesInFlightRatio / BYTES_IN_FLIGHT_LIMIT)
-        end
+   # limit bitrate if bytes in flight exceeds is close to or
+   # exceeds cwnd. This helps to avoid large rate fluctiations and
+   # variations in RTT
+   # Only applied when L4S is inactive
+   if (!l4s_active && bytes_in_flight_ratio > BYTES_IN_FLIGHT_LIMIT)
+     tmp_t /= min(BYTES_IN_FLIGHT_LIMIT_COMPENSATION,
+       bytesInFlightRatio / BYTES_IN_FLIGHT_LIMIT)
+   end
 
-        # Scale down rate slighty when the congestion window is very
-        # small compared to MSS
-        tmp_t *= 1.0 - min(0.8, max(0.0, cwnd_ratio - 0.1))
+   # Scale down rate slighty when the congestion window is very
+   # small compared to MSS
+   tmp_t *= 1.0 - min(0.8, max(0.0, cwnd_ratio - 0.1))
 
-        # Scale down rate when frame sizes vary much
-        tmp_t /= rel_framesize_high
+   # Scale down rate when frame sizes vary much
+   tmp_t /= rel_framesize_high
 
-        # Calculate target bitrate and limit to min and max allowed
-        # values
-        target_bitrate = tmp_t * 8 * cwnd / s_rtt
-        target_bitrate = min(TARGET_BITRATE_MAX,
-          max(TARGET_BITRATE_MIN,target_bitrate))
+   # Calculate target bitrate and limit to min and max allowed
+   # values
+   target_bitrate = tmp_t * 8 * cwnd / s_rtt
+   target_bitrate = min(TARGET_BITRATE_MAX,
+     max(TARGET_BITRATE_MIN,target_bitrate))
 
    The variable rel_framesize_high is based on calculation of the high
    percentile of the frame sizes.  The calculation is based on a
@@ -1157,15 +1157,15 @@ Table of Contents
    roughly with the pseudo code below.  For more detailed code, see
    [SCReAM-CPP-implementation].
 
-           # frame_size is that frame size for the last encoded frame
-           tmp_t = frame_size / (target_bitrate * frame_period / 8)
+   # frame_size is that frame size for the last encoded frame
+   tmp_t = frame_size / (target_bitrate * frame_period / 8)
 
-           if (tmp_t > 1.0)
-             # Insert sample into histogram
-             insert_into_histogram(tmp_t)
-             # Get high percentile
-             rel_framesize_high = get_histogram_high_percentile()
-           end
+   if (tmp_t > 1.0)
+     # Insert sample into histogram
+     insert_into_histogram(tmp_t)
+     # Get high percentile
+     rel_framesize_high = get_histogram_high_percentile()
+   end
 
    A 75%-ile is used in [SCReAM-CPP-implementation], the histogram can
    be made leaky such that old samples are gradually forgotten.
@@ -1180,41 +1180,41 @@ Table of Contents
    such situations by adjusting the qdelay_target when loss-based flows
    are detected, as shown in the pseudocode below.
 
-        adjust_qdelay_target(qdelay)
-          qdelay_norm_t = qdelay / QDELAY_TARGET_LOW
-          update_qdelay_norm_history(qdelay_norm_t)
-          # Compute variance
-          qdelay_norm_var_t = VARIANCE(qdelay_norm_history(200))
-          # Compensation for competing traffic
-          # Compute average
-          qdelay_norm_avg_t = AVERAGE(qdelay_norm_history(50))
-          # Compute upper limit to target delay
-          new_target_t = qdelay_norm_avg_t + sqrt(qdelay_norm_var_t)
-          new_target_t *= QDELAY_TARGET_LO
-          if (loss_event_rate > 0.002)
-            # Packet losses detected
-            qdelay_target = 1.5 * new_target_t
-          else
-            if (qdelay_norm_var_t < 0.2)
-              # Reasonably safe to set target qdelay
-              qdelay_target = new_target_t
-            else
-              # Check if target delay can be reduced; this helps prevent
-              # the target delay from being locked to high values forever
-              if (new_target_t < QDELAY_TARGET_LO)
-                # Decrease target delay quickly, as measured queuing
-                # delay is lower than target
-                qdelay_target = max(qdelay_target * 0.5, new_target_t)
-              else
-                # Decrease target delay slowly
-                qdelay_target *= 0.9
-              end
-            end
-          end
+   adjust_qdelay_target(qdelay)
+     qdelay_norm_t = qdelay / QDELAY_TARGET_LOW
+     update_qdelay_norm_history(qdelay_norm_t)
+     # Compute variance
+     qdelay_norm_var_t = VARIANCE(qdelay_norm_history(200))
+     # Compensation for competing traffic
+     # Compute average
+     qdelay_norm_avg_t = AVERAGE(qdelay_norm_history(50))
+     # Compute upper limit to target delay
+     new_target_t = qdelay_norm_avg_t + sqrt(qdelay_norm_var_t)
+     new_target_t *= QDELAY_TARGET_LO
+     if (loss_event_rate > 0.002)
+       # Packet losses detected
+       qdelay_target = 1.5 * new_target_t
+     else
+       if (qdelay_norm_var_t < 0.2)
+         # Reasonably safe to set target qdelay
+         qdelay_target = new_target_t
+       else
+         # Check if target delay can be reduced; this helps prevent
+         # the target delay from being locked to high values forever
+         if (new_target_t < QDELAY_TARGET_LO)
+           # Decrease target delay quickly, as measured queuing
+           # delay is lower than target
+           qdelay_target = max(qdelay_target * 0.5, new_target_t)
+         else
+           # Decrease target delay slowly
+           qdelay_target *= 0.9
+         end
+       end
+     end
 
-          # Apply limits
-          qdelay_target = min(QDELAY_TARGET_HI, qdelay_target)
-          qdelay_target = max(QDELAY_TARGET_LO, qdelay_target)
+     # Apply limits
+     qdelay_target = min(QDELAY_TARGET_HI, qdelay_target)
+     qdelay_target = max(QDELAY_TARGET_LO, qdelay_target)
 
    Two temporary variables are calculated. qdelay_norm_avg_t is the
    long-term average queue delay, qdelay_norm_var_t is the long-term
@@ -1300,12 +1300,12 @@ Table of Contents
    that can be useful for the computation of the desired RTCP bandwidth.
    The following equation expresses the feedback rate:
 
-         # Assume 100 byte RTCP packets
-         rate_fb = 0.02 * [average received rate] / (100.0 * 8.0);
-         rate_fb = min(1000, max(10, rate_fb))
+   # Assume 100 byte RTCP packets
+   rate_fb = 0.02 * [average received rate] / (100.0 * 8.0);
+   rate_fb = min(1000, max(10, rate_fb))
 
-         # Calculate feedback intervals
-         fb_int = 1.0/rate_fb
+   # Calculate feedback intervals
+   fb_int = 1.0/rate_fb
 
    Feedback should also forcibly be transmitted in any of these cases:
 
