@@ -1,0 +1,450 @@
+{
+  "magic": "E!vIA5L86J2I",
+  "timestamp": "2024-06-13T01:15:26.021891+00:00",
+  "repo": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
+  "labels": [
+    {
+      "name": "bug",
+      "description": "Something isn't working",
+      "color": "d73a4a"
+    },
+    {
+      "name": "documentation",
+      "description": "Improvements or additions to documentation",
+      "color": "0075ca"
+    },
+    {
+      "name": "duplicate",
+      "description": "This issue or pull request already exists",
+      "color": "cfd3d7"
+    },
+    {
+      "name": "enhancement",
+      "description": "New feature or request",
+      "color": "a2eeef"
+    },
+    {
+      "name": "good first issue",
+      "description": "Good for newcomers",
+      "color": "7057ff"
+    },
+    {
+      "name": "help wanted",
+      "description": "Extra attention is needed",
+      "color": "008672"
+    },
+    {
+      "name": "invalid",
+      "description": "This doesn't seem right",
+      "color": "e4e669"
+    },
+    {
+      "name": "question",
+      "description": "Further information is requested",
+      "color": "d876e3"
+    },
+    {
+      "name": "wontfix",
+      "description": "This will not be worked on",
+      "color": "ffffff"
+    }
+  ],
+  "issues": [
+    {
+      "number": 1,
+      "id": "I_kwDOK7AJUs6Ahnmp",
+      "title": "Add section on Changes from RFCXXXX",
+      "url": "https://github.com/IngJohEricsson/draft-johansson-ccwg-scream-bis/issues/1",
+      "state": "OPEN",
+      "author": "mirjak",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "You only write in the intro that there are significant change but don't give anywhere a summary of what the changes are. For implementor that want to update that specific information would be highly valuable. For this reason bis documents often has a section title \"Changes from RFCXXXX\" which gives a bullet list of change (and potentially pointers to the specific parts in the doc). I think it would be very useful to have such a section in this doc as well.",
+      "createdAt": "2024-02-27T11:00:53Z",
+      "updatedAt": "2024-02-28T11:12:56Z",
+      "closedAt": null,
+      "comments": [
+        {
+          "author": "mirjak",
+          "authorAssociation": "COLLABORATOR",
+          "body": "I was looking at the wrong version. The editor's copy (https://ingjohericsson.github.io/draft-johansson-ccwg-scream-bis/draft-johansson-ccwg-scream-bis.html) does not seem to be up-to-date. I see now that you have already a list which is great! I guess you can or can't add an own section heading. Also I still recommend to add reference to the respective sections (if possible).",
+          "createdAt": "2024-02-27T11:25:47Z",
+          "updatedAt": "2024-02-27T11:25:47Z"
+        },
+        {
+          "author": "IngJohEricsson",
+          "authorAssociation": "OWNER",
+          "body": "I have not yet figured out how to add references in markdown",
+          "createdAt": "2024-02-28T10:19:40Z",
+          "updatedAt": "2024-02-28T10:19:40Z"
+        },
+        {
+          "author": "mirjak",
+          "authorAssociation": "COLLABORATOR",
+          "body": "You use {#xxx} to define an anchor and then {{xxx}} to refer to it, e.g.\r\n\r\n```\r\n# section 1 {#sec1}\r\n\r\nSee {{sec1}} for further information.\r\n```",
+          "createdAt": "2024-02-28T11:12:55Z",
+          "updatedAt": "2024-02-28T11:12:55Z"
+        }
+      ]
+    },
+    {
+      "number": 2,
+      "id": "I_kwDOK7AJUs6AhpJV",
+      "title": "Draft name should be draft-johansson-ccwg-rfc8298bis",
+      "url": "https://github.com/IngJohEricsson/draft-johansson-ccwg-scream-bis/issues/2",
+      "state": "OPEN",
+      "author": "mirjak",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "The usual naming for a bis draft would be draft-johansson-ccwg-rfc8298bis. If you want to have scream in the name, I recommend using draft-johansson-ccwg-rfc8298bis-scream.",
+      "createdAt": "2024-02-27T11:03:49Z",
+      "updatedAt": "2024-02-28T10:18:31Z",
+      "closedAt": null,
+      "comments": [
+        {
+          "author": "IngJohEricsson",
+          "authorAssociation": "OWNER",
+          "body": "OK. That should then be changed",
+          "createdAt": "2024-02-28T10:18:30Z",
+          "updatedAt": "2024-02-28T10:18:30Z"
+        }
+      ]
+    },
+    {
+      "number": 3,
+      "id": "I_kwDOK7AJUs6AhqLe",
+      "title": "LTE is soo yesterday ;-)",
+      "url": "https://github.com/IngJohEricsson/draft-johansson-ccwg-scream-bis/issues/3",
+      "state": "OPEN",
+      "author": "mirjak",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Does it still make sense to talk about LTE in the draft? I guess we could say it more generally like \"mobile networks, like e.g. LTE\" or something? I actually wonder if section 1.1. is still needed at all?",
+      "createdAt": "2024-02-27T11:06:07Z",
+      "updatedAt": "2024-02-28T10:18:04Z",
+      "closedAt": null,
+      "comments": [
+        {
+          "author": "mirjak",
+          "authorAssociation": "COLLABORATOR",
+          "body": "I see now that is this also mostly addressed. I guess we could talk even less about 3GPP but the current text is fine as well.",
+          "createdAt": "2024-02-27T11:27:13Z",
+          "updatedAt": "2024-02-27T11:27:13Z"
+        },
+        {
+          "author": "IngJohEricsson",
+          "authorAssociation": "OWNER",
+          "body": "You are probably right. On the other hand I (we) have tried it mainly with 3GPP access (4G and 5G), with only limited testing in WiFi home networks.  ",
+          "createdAt": "2024-02-28T10:18:03Z",
+          "updatedAt": "2024-02-28T10:18:03Z"
+        }
+      ]
+    },
+    {
+      "number": 4,
+      "id": "I_kwDOK7AJUs6AhtVm",
+      "title": "Using artwork for equations",
+      "url": "https://github.com/IngJohEricsson/draft-johansson-ccwg-scream-bis/issues/4",
+      "state": "OPEN",
+      "author": "mirjak",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "With the v3 xml you can now use artwork for equations e.g. like this\r\n\r\n~~~ math\r\n\\frac{a}{a}\r\n~~~\r\n{: artwork-align=\"center\" }\r\n\r\nI believe this is align with tex. Maybe see the cubic bis doc for more examples:\r\n\r\nhttps://github.com/NTAP/rfc8312bis/blob/main/draft-ietf-tcpm-rfc8312bis.md?plain=1",
+      "createdAt": "2024-02-27T11:13:09Z",
+      "updatedAt": "2024-02-28T10:16:00Z",
+      "closedAt": null,
+      "comments": [
+        {
+          "author": "IngJohEricsson",
+          "authorAssociation": "OWNER",
+          "body": "OK. thanks!",
+          "createdAt": "2024-02-28T10:15:59Z",
+          "updatedAt": "2024-02-28T10:15:59Z"
+        }
+      ]
+    },
+    {
+      "number": 5,
+      "id": "I_kwDOK7AJUs6Ah2N3",
+      "title": "Rename the algorithm to SCREAMv2?",
+      "url": "https://github.com/IngJohEricsson/draft-johansson-ccwg-scream-bis/issues/5",
+      "state": "OPEN",
+      "author": "mirjak",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Removal of fast increase, making it more rate-based, and the general change of the the delay-based approach, maybe we should actually call this also differently. It's definitely not only a bis where you try to fix some issues. It's really more a redesign. If you still want to obsolete the old scream draft, I propose to call this algorithm SCREAMv2.",
+      "createdAt": "2024-02-27T11:32:22Z",
+      "updatedAt": "2024-02-28T10:15:21Z",
+      "closedAt": null,
+      "comments": [
+        {
+          "author": "IngJohEricsson",
+          "authorAssociation": "OWNER",
+          "body": "Yes, it is actually a major redesign. In the github code it named ScreamV2Tx.cpp. I don't have a very strong opinion, which is the preferred, seen from an IETF perspective ?\r\n",
+          "createdAt": "2024-02-28T10:15:20Z",
+          "updatedAt": "2024-02-28T10:15:20Z"
+        }
+      ]
+    },
+    {
+      "number": 6,
+      "id": "I_kwDOK7AJUs6Ah5J5",
+      "title": "Explain increase function in overview slightly better",
+      "url": "https://github.com/IngJohEricsson/draft-johansson-ccwg-scream-bis/issues/6",
+      "state": "CLOSED",
+      "author": "mirjak",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "In Section 3.1. (network congestion control):\r\n\r\n> The congestion window seeks to increase by at least one segment per RTT and this increase regardless congestion occurs or not, the congestion window increase is restriced or relaxed based on the congestion window and the time elapsed since last congestion event.\r\n\r\nI don't think I understand this. Especially what does it mean that \"the congestion window increase is restriced or relaxed based on the congestion window...\"?",
+      "createdAt": "2024-02-27T11:37:51Z",
+      "updatedAt": "2024-02-27T13:00:45Z",
+      "closedAt": "2024-02-27T13:00:45Z",
+      "comments": []
+    }
+  ],
+  "pulls": [
+    {
+      "number": 7,
+      "id": "PR_kwDOK7AJUs5oCJPy",
+      "title": "Restructure overview and comparison with Ledbat a bit",
+      "url": "https://github.com/IngJohEricsson/draft-johansson-ccwg-scream-bis/pull/7",
+      "state": "MERGED",
+      "author": "mirjak",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Just a proposal to move some text around to make the structure more clear from my point of view",
+      "createdAt": "2024-02-27T11:41:50Z",
+      "updatedAt": "2024-02-28T13:53:45Z",
+      "baseRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
+      "baseRefName": "main",
+      "baseRefOid": "a747104a4bd27b47593a977b351e6b7563c79927",
+      "headRepository": "mirjak/draft-johansson-ccwg-scream-bis",
+      "headRefName": "patch-1",
+      "headRefOid": "0d4c95071141b03c804a9ad3a295041bac35358f",
+      "closedAt": "2024-02-28T13:53:45Z",
+      "mergedAt": "2024-02-28T13:53:45Z",
+      "mergedBy": "IngJohEricsson",
+      "mergeCommit": {
+        "oid": "26f8fe7eafc6179c67237407bdbd05b09cfb16c0"
+      },
+      "comments": [],
+      "reviews": [
+        {
+          "id": "PRR_kwDOK7AJUs5xdAcY",
+          "commit": {
+            "abbreviatedOid": "2eb4406"
+          },
+          "author": "IngJohEricsson",
+          "authorAssociation": "OWNER",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2024-02-27T12:58:25Z",
+          "updatedAt": "2024-02-27T12:58:25Z",
+          "comments": []
+        },
+        {
+          "id": "PRR_kwDOK7AJUs5xdA8k",
+          "commit": {
+            "abbreviatedOid": "2eb4406"
+          },
+          "author": "IngJohEricsson",
+          "authorAssociation": "OWNER",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2024-02-27T12:58:54Z",
+          "updatedAt": "2024-02-27T12:58:54Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 8,
+      "id": "PR_kwDOK7AJUs5oCLir",
+      "title": "small editorial change and two nits",
+      "url": "https://github.com/IngJohEricsson/draft-johansson-ccwg-scream-bis/pull/8",
+      "state": "MERGED",
+      "author": "mirjak",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2024-02-27T11:47:52Z",
+      "updatedAt": "2024-02-27T13:01:12Z",
+      "baseRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
+      "baseRefName": "main",
+      "baseRefOid": "737d1c549241866721ab978f95988273ab28d563",
+      "headRepository": "mirjak/draft-johansson-ccwg-scream-bis",
+      "headRefName": "patch-2",
+      "headRefOid": "d94f863b0258f26dd88e1fbffdc4f797b9bd27e2",
+      "closedAt": "2024-02-27T13:01:12Z",
+      "mergedAt": "2024-02-27T13:01:12Z",
+      "mergedBy": "IngJohEricsson",
+      "mergeCommit": {
+        "oid": "a747104a4bd27b47593a977b351e6b7563c79927"
+      },
+      "comments": [],
+      "reviews": [
+        {
+          "id": "PRR_kwDOK7AJUs5xc_ct",
+          "commit": {
+            "abbreviatedOid": "d94f863"
+          },
+          "author": "IngJohEricsson",
+          "authorAssociation": "OWNER",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2024-02-27T12:56:41Z",
+          "updatedAt": "2024-02-27T12:56:41Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 9,
+      "id": "PR_kwDOK7AJUs5oCfmu",
+      "title": "More editorial small edits and a wrong MUST",
+      "url": "https://github.com/IngJohEricsson/draft-johansson-ccwg-scream-bis/pull/9",
+      "state": "MERGED",
+      "author": "mirjak",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2024-02-27T12:34:13Z",
+      "updatedAt": "2024-02-27T13:01:02Z",
+      "baseRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
+      "baseRefName": "main",
+      "baseRefOid": "737d1c549241866721ab978f95988273ab28d563",
+      "headRepository": "mirjak/draft-johansson-ccwg-scream-bis",
+      "headRefName": "patch-3",
+      "headRefOid": "2f6c8f0b3c6edcef02dc2126f159067d2e8f1ae1",
+      "closedAt": "2024-02-27T13:01:02Z",
+      "mergedAt": "2024-02-27T13:01:02Z",
+      "mergedBy": "IngJohEricsson",
+      "mergeCommit": {
+        "oid": "da279237a4ce00f9a294e1192ea49e9dcfc273b0"
+      },
+      "comments": [],
+      "reviews": [
+        {
+          "id": "PRR_kwDOK7AJUs5xc_Ci",
+          "commit": {
+            "abbreviatedOid": "2f6c8f0"
+          },
+          "author": "IngJohEricsson",
+          "authorAssociation": "OWNER",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2024-02-27T12:55:52Z",
+          "updatedAt": "2024-02-27T12:55:52Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 10,
+      "id": "PR_kwDOK7AJUs5oCkr4",
+      "title": "Move text to the cc section",
+      "url": "https://github.com/IngJohEricsson/draft-johansson-ccwg-scream-bis/pull/10",
+      "state": "MERGED",
+      "author": "mirjak",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "fixes #6",
+      "createdAt": "2024-02-27T12:46:03Z",
+      "updatedAt": "2024-02-27T13:00:44Z",
+      "baseRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
+      "baseRefName": "main",
+      "baseRefOid": "737d1c549241866721ab978f95988273ab28d563",
+      "headRepository": "mirjak/draft-johansson-ccwg-scream-bis",
+      "headRefName": "patch-4",
+      "headRefOid": "1bf94fc038c455928c89573e121439df7144b8b8",
+      "closedAt": "2024-02-27T13:00:44Z",
+      "mergedAt": "2024-02-27T13:00:44Z",
+      "mergedBy": "IngJohEricsson",
+      "mergeCommit": {
+        "oid": "1f791c43e9a9bc6a2e4af2607fc98b85f33d5693"
+      },
+      "comments": [],
+      "reviews": [
+        {
+          "id": "PRR_kwDOK7AJUs5xc-gB",
+          "commit": {
+            "abbreviatedOid": "1bf94fc"
+          },
+          "author": "IngJohEricsson",
+          "authorAssociation": "OWNER",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2024-02-27T12:55:14Z",
+          "updatedAt": "2024-02-27T12:55:14Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 11,
+      "id": "PR_kwDOK7AJUs5onqUY",
+      "title": "Remove experimentation section for now",
+      "url": "https://github.com/IngJohEricsson/draft-johansson-ccwg-scream-bis/pull/11",
+      "state": "MERGED",
+      "author": "mirjak",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2024-03-04T17:44:21Z",
+      "updatedAt": "2024-03-04T17:46:40Z",
+      "baseRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
+      "baseRefName": "main",
+      "baseRefOid": "0e6e30e326d585ead97cead47cee61b0c97288d1",
+      "headRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
+      "headRefName": "mirjak-patch-1",
+      "headRefOid": "ce502aa615c44beb8f3cedf766811029d9046272",
+      "closedAt": "2024-03-04T17:46:40Z",
+      "mergedAt": "2024-03-04T17:46:40Z",
+      "mergedBy": "mirjak",
+      "mergeCommit": {
+        "oid": "75e3c3d4a5211d5055560fe687334545b82b5be1"
+      },
+      "comments": [],
+      "reviews": []
+    },
+    {
+      "number": 12,
+      "id": "PR_kwDOK7AJUs5on1Kr",
+      "title": "rename to SCReAMv2",
+      "url": "https://github.com/IngJohEricsson/draft-johansson-ccwg-scream-bis/pull/12",
+      "state": "MERGED",
+      "author": "mirjak",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "This PR renames to SCReAMv2, add one note on future work, and restructures a little bit to reduce the section level.",
+      "createdAt": "2024-03-04T18:12:42Z",
+      "updatedAt": "2024-03-04T18:16:03Z",
+      "baseRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
+      "baseRefName": "main",
+      "baseRefOid": "75e3c3d4a5211d5055560fe687334545b82b5be1",
+      "headRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
+      "headRefName": "mirjak-patch-2",
+      "headRefOid": "2ccf2a155f468e65e8931bf90d710f0969332627",
+      "closedAt": "2024-03-04T18:16:03Z",
+      "mergedAt": "2024-03-04T18:16:03Z",
+      "mergedBy": "IngJohEricsson",
+      "mergeCommit": {
+        "oid": "a193df5e9b163235c1ac37d4abbb368c69a2f257"
+      },
+      "comments": [],
+      "reviews": []
+    }
+  ]
+}
