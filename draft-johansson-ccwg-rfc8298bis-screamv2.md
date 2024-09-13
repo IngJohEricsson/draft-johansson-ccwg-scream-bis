@@ -152,9 +152,9 @@ Unlike wireline bottlenecks with large statistical multiplexing, it is typically
 
 Self-clocked congestion control algorithms provide a benefit over their rate-based counterparts in that the former consists of two adaptation mechanisms:
 
-* A reference window computation that evolves over a longer timescale (several RTTs) especially when the reference window evolution is dictated by estimated delay (to minimize vulnerability to, e.g., short-term delay variations). The term reference window is used instead of reference window, as the reference window does not set an absolute limit on the bytes in flight.
+* A reference window computation that evolves over a longer timescale (several RTTs) especially when the reference window evolution is dictated by estimated delay (to minimize vulnerability to, e.g., short-term delay variations). The term reference window is used instead of congestion window, as the reference window does not set an absolute limit on the bytes in flight.
 
-* A fine-grained congestion control given by the self-clocking; it operates on a shorter time scale (1 RTT). The benefits of self-clocking are also elaborated upon in {{TFWC}}. The self-clocking however acts more like an emergency break as bytes in flight can exceed the congesion window only to a certain degree. The rationale is to be able to transmit large video frames and avoid that they are unnecessarily queued up on the sender side, but still prevent a bootleneck queue
+* A fine-grained congestion control given by the self-clocking; it operates on a shorter time scale (1 RTT). The benefits of self-clocking are also elaborated upon in {{TFWC}}. The self-clocking however acts more like an emergency break as bytes in flight can exceed the reference window only to a certain degree. The rationale is to be able to transmit large video frames and avoid that they are unnecessarily queued up on the sender side, but still prevent a large network queue.
 
 A rate-based congestion control algorithm typically adjusts the rate based on delay and loss. The congestion detection needs to be done with a certain time lag to avoid overreaction to spurious congestion events such as delay spikes. Despite the fact that there are two or more congestion indications, the outcome is that there is still only one mechanism to adjust the sending rate. This makes it difficult to reach the goals of high throughput and prompt reaction to congestion.
 
@@ -174,7 +174,7 @@ It is sufficient that any of the two conditions above is fulfilled to make the b
 
 * Reference window validation techniques. The reference window is used as a basis for the target bitrate calculation. For that reason, various actions are taken to avoid that the reference window grows too much beyond the bytes in flight. Additional contraints are applied when in congested state and when the max target bitrate is reached.
 
-* Use of inflection points in the reference window calculation to achieve reduced delay jitter (when L4S is not active).
+* Use of inflection points in the reference window calculation to achieve reduced delay jitter.
 
 * Adjustment of qdelay target for better performance when competing with other loss-based congestion-controlled flows.
 
@@ -202,7 +202,7 @@ The sender calculates the reference window based on the feedback from the RTP re
 
 The receiver of the media echoes a list of received RTP packets and the timestamp of the RTP packet with the highest sequence number back to the sender in feedback packets. The sender keeps a list of transmitted packets, their respective sizes, and the time they were transmitted. This information is used to determine the number of bytes that can be transmitted at any given time instant. A reference window puts an upper limit on how many bytes can be in flight, i.e., transmitted but not yet acknowledged. The reference window is however not an absolute limit as a slack is given to efficiently transmit large video frames.
 
-The reference window seeks to increase by at least one segment per RTT and this increase regardless congestion occurs or not, the reference window increase is restriced or relaxed based on the current value of the reference window and the time elapsed since last congestion event. The reference window update is increased by one MSS (maximum known RTP packet size) per RTT with some variation based on reference window size and time elapsed since the last congestion event. Multiplicative increase allows the congestion to increase by a fraction of ref_wnd when congestion has not occured for a while. The reference window is thus an adaptive multiplicative increase that is mainly additive increase when steady state is reached but allows a faster convergence to a higher link speed.
+The reference window seeks to increase by one segment per RTT and this increase regardless congestion occurs or not, the reference window increase is restriced or relaxed based on the current value of the reference window relative to a previous max value and the time elapsed since last congestion event. The reference window update is increased by one MSS (maximum known RTP packet size) per RTT with some variation based on reference window size and time elapsed since the last congestion event. Multiplicative increase allows the congestion to increase by a fraction of ref_wnd when congestion has not occured for a while. The reference window is thus an adaptive multiplicative increase that is mainly additive increase when steady state is reached but allows a faster convergence to a higher link speed.
 
 Reference window reduction is triggered by:
 
@@ -282,7 +282,7 @@ Constants and state variables are listed in this section. Temporary variables ar
 
 The RECOMMENDED values, within parentheses "()", for the constants are deduced from experiments.
 
-* QDELAY_TARGET_LO (0.1): Target value for the minimum qdelay [s].
+* QDELAY_TARGET_LO (0.06): Target value for the minimum qdelay [s].
 
 * QDELAY_TARGET_HI (0.4): Target value for the maximum qdelay [s]. This parameter provides an upper limit to how much the target qdelay (qdelay_target) can be increased in order to cope with competing loss-based flows. However, the target qdelay does not have to be initialized to this high value, as it would increase end-to-end delay and also make the rate control and congestion control loops sluggish.
 
@@ -312,8 +312,6 @@ The RECOMMENDED values, within parentheses "()", for the constants are deduced f
 
 * MUL_INCREASE_FACTOR (0.02): Determines how much (as a fraction of ref_wnd) that the ref_wnd can increase per RTT.
 
-* LOW_REF_WND_SCALE_FACTOR (0.1): Scale factor applied to ref_wnd change when ref_wnd is very small.
-
 * IS_L4S (false): Congestion control operates in L4S mode.
 
 * VIRTUAL_RTT (0.025): Virtual RTT [s]
@@ -329,8 +327,6 @@ The values within parentheses "()" indicate initial values.
 * qdelay_target (QDELAY_TARGET_LO): qdelay target [s], a variable qdelay target is introduced to manage cases where a fixed qdelay target would otherwise starve the RMCAT flow under such circumstances (e.g., FTP competes for the bandwidth over the same bottleneck). The qdelay target is allowed to vary between QDELAY_TARGET_LO and QDELAY_TARGET_HI.
 
 * qdelay_fraction_avg (0.0): Fractional qdelay filtered by the Exponentially Weighted Moving Average (EWMA).
-
-* qdelay_norm_hist[100] ({0,..,0}): Vector of the last 100 normalized qdelay samples.
 
 * ref_wnd (MIN_REF_WND): Reference window.
 
@@ -414,7 +410,7 @@ It is recommended to use RFC8888 {{RFC8888}} for the feedback as it supports the
 
 When the sender receives RTCP feedback, the qdelay is calculated as outlined in {{RFC6817}}. A qdelay sample is obtained for each received acknowledgement. A number of variables are updated as illustrated by the pseudocode below; temporary variables are appended with '_t'. Division operation is always floating point unless otherwise noted. l4s_alpha is calculated based in number of packets delivered (and marked). This makes calculation of L4S alpha more accurate at very low bitrates, given that the tail RTP packet in a video frame is often smaller than MSS.
 
-The smoothed RTT (s_rtt) is computed in a way similar to {{RFC6298}}. However, to improve latency with L4S, it is necessary to track the actual unsmoothed rtt better when the link is fully congested (100% marked packets). Thus, the s_rtt is set to the actual rtt whenever the fraction_marked has been 100% for two consecutive updates. 
+The smoothed RTT (s_rtt) is computed in a way similar to {{RFC6298}}.  
 
 ~~~
 packets_delivered_this_rtt += packets_acked
@@ -425,11 +421,6 @@ if (now - last_update_l4s_alpha_time >= min(0.01,s_rtt)
   fraction_marked_t = packets_marked_this_rtt/
                       packets_delivered_this_rtt
 
-  if (fraction_marked_t == 1.0 && last_fraction_marked)
-    # Quite likely queue build-up in the network, update s_rtt
-    # to current rtt to improve media rate control performance
-    s_rtt = max(s_rtt,min(0.2,rtt))
-  end
   l4s_alpha = L4S_AVG_G*fraction_marked_t + (1.0-L4S_AVG_G)*l4S_alpha
 
   last_update_l4s_alpha_time = now
@@ -476,7 +467,7 @@ The ref_wnd is scaled down in proportion to the fraction of marked packets per R
 
 #### Increased queue delay {#reaction-delay}
 
-SCReAMv2 implements a delay based congestion control approach where it mimics L4S congestion marking when the averaged queue delay exceeds a target threshold. This threshold is set to qdelay_target/2 and the congestion backoff factor (l4s_alpha_v) increases linearly from 0 to 100% as qdelay_avg goes from qdelay_target/2 to qdelay_target. The averaged qdelay (qdelay_avg) is used to avoid that the SCReAMv2 congestion control over-reacts to scheduling jitter, sudden delay spikes due to e.g. handover or link layer retransmissions. Furthermore, the delay based congestion control is inactivated when it is reasonably certain that L4S is active, i.e. L4S is enabled and congested nodes apply L4S marking of packets. The rationale is reduce negative effect of clockdrift that the delay based control can introduce whenever possible.
+SCReAMv2 implements a delay based congestion control approach where it mimics L4S congestion marking when the averaged queue delay exceeds a target threshold. This threshold is set to qdelay_target/2 and the congestion backoff factor (l4s_alpha_v) increases linearly from 0 to 100% as qdelay_avg goes from qdelay_target/2 to qdelay_target. The averaged qdelay (qdelay_avg) is used to avoid that the SCReAMv2 congestion control over-reacts to scheduling jitter, sudden delay spikes due to e.g. handover or link layer retransmissions. Furthermore, the delay based congestion control is inactivated when it is reasonably certain that L4S is active, i.e. L4S is enabled and congested nodes apply L4S marking of packets. This reduces negative effects of clockdrift, that the delay based control can introduce, whenever possible.
 
 ### Reference Window Update {#ref-wnd-update}
 
@@ -510,15 +501,14 @@ end
 
 if (is_loss_t || is_ce_t || is_virtual_ce_t)
   if (now - last_ref_wnd_i_update_time > 0.25)
+    # Update ref_wnd_i
+    # Additional median filtering over more congestion epochs
+    # may improve accuracy of ref_wnd_i
     last_ref_wnd_i_update_time = now
     ref_wnd_i = ref_wnd
   end
 end
 
-
-# Scale factor for ref_wnd update
-ref_wnd_scale_factor_t =
-  (LOW_REF_WND_SCALE_FACTOR + (MUL_INCREASE_FACTOR  * ref_wnd) / MSS)
 
 # Either loss, ECN mark or increased qdelay is detected
 if (is_loss_t)
@@ -530,8 +520,8 @@ if (is_ce_t)
   if (IS_L4S)
     # L4S mode
     backoff_t = l4s_alpha / 2
+
     # Increase stability for very small ref_wnd
-    backOff_t *= min(1.0, ref_wnd_scale_factor_t)
     backOff_t *= max(0.8, 1.0 - ref_wnd_ratio * 2)
 
     if (now - last_congestion_detected_time > 5)
@@ -573,14 +563,17 @@ end
 
 The variable max_bytes_in_flight_prev indicates the maximum bytes in flights in the previous round trip. The reason to this is that bytes in flight can spike when congestion occurs, max_bytes_in_flight_prev thus ensures better that an uncongested bytes in flight is used.
 
-The ref_wnd_scale_factor_t scales the reference window decrease upon congestion as well as the increase. In a normal addititive increase setting this would be 1.0/MSS. However to increase stability especially when with L4S when ref_wnd is very small, the ref_wnd_scale_factor_t can be as small as low as LOW_REF_WND_SCALE_FACTOR / MSS. The result is then that the reference window increase can be as small as LOW_REF_WND_SCALE_FACTOR MSS per RTT. Because the same restriction is applied to both decrease and increase of the reference window, the net effect is zero. The ref_wnd_scale_factor_t is increased with larger ref_wnd to allow for a multiplicative increase and thus a faster convergence when link capacity increases.
 
 Reference window increase
 
 ~~~
-# Additional factor for ref_wnd update
+# Delay factor for multiplicative reference window increase after congestion 
 post_congestion_scale_t = max(0.0, min(1.0,
   (now - last_congestion_detected_time) / POST_CONGESTION_DELAY))
+
+# Scale factor for ref_wnd update
+ref_wnd_scale_factor_t = 1.0 + (MUL_INCREASE_FACTOR  * ref_wnd) / MSS)
+
 
 # Calculate bytes acked that are not CE marked
 bytes_newly_acked_minus_ce_t = bytes_newly_acked-
@@ -590,31 +583,33 @@ increment_t = bytes_newly_acked_minus_ce_t*ref_wnd_ratio
 
 # Reduce increment for small RTTs
 tmp_t = min(1.0, s_rtt / VIRTUAL_RTT)
-increment *= tmp_t * tmp_t
+increment_t *= tmp_t * tmp_t
 
-if (!is_l4s_active)
-  # The increment is scaled down for more cautious
-  # ramp-up around the last known reference window
-  # when congestion last occured.
-  # This is only applied when L4S is inactive
-  scl_t = 1.0
-  scl_t = (ref_wnd - ref_wnd_i) / ref_wnd_i
-  scl_t *= 4
-  scl_t = scl_t * scl_t
-  scl_t = max(0.1, min(1.0, scl_t))
-  increment_t *= scl_t
+# Apply limit to reference window growth when close to last
+# known max value before congestion 
+scl_t = (ref_wnd-ref_wnd_i) / ref_wnd_i
+scl_t *= 4   
+scl_low_limit_t = 0.1
+if (is_l4s_active)
+  # Restrict limit to small reference windows. The limitation
+  # is gradually lifted and completely removed when
+  # ref_wnd > 50MSS
+  scl_low_limit_t = max(0.1, min(1.0, 0.02 / ref_wnd_ratio));  
 end
 
+scl_t = scl_t * scl_t
+scl_t = max(scl_low_limit_t, min(1.0, scl_t))
+increment_t *= scl_t
+
 # Slow down ref_wnd increase when ref_wnd is only a few MSS
-# This goes hand in hand with that the down scaling is also
-# slowed down then. The ref_wnd increase can be as slow as
+# The ref_wnd increase can be as slow as
 # LOW_REF_WND_SCALE_FACTOR*MSS per RTT
 float tmp_t = ref_wnd_scale_factor_t
 
 # Further limit multiplicative increase when congestion occured
 # recently.
 if (tmp_t > 1.0)
-  tmp_t = 1.0 + ((tmp_t - 1.0) * post_congestion_scale_t);
+  tmp_t = 1.0 + (tmp_t - 1.0) * post_congestion_scale_t * scl_t;
 end
 increment *= tmp_t
 
@@ -629,9 +624,15 @@ if (ref_wnd_t <= max_allowed_t)
 end
 ~~~
 
+The ref_wnd_scale_factor_t scales the reference window increase. The ref_wnd_scale_factor_t is increased with larger ref_wnd to allow for a multiplicative increase and thus a faster convergence when link capacity increases.
+
 The variable max_bytes_in_flight indicates the max bytes in flight in the current round trip.
 
-The multiplicative increase is restricted directly after a congestion event and the restriction is gradually relaxed as the time since last congested increased. The restriction makes the reference window growth to be no faster than additive increase when congestion continusly occurs. For L4S operation this means that the SCReAMv2 algorithm will adhere to the 2 marked packets per RTT equilibrium at steady state congestion.
+The multiplicative increase is restricted directly after a congestion event and the restriction is gradually relaxed as the time since last congested increased. The restriction makes the reference window growth to be no faster than additive increase when congestion continusly occurs.
+  For L4S operation this means that the SCReAMv2 algorithm will
+  adhere to the 2 marked packets per RTT equilibrium at steady state congestion, with the exception of the case below. 
+
+The reference window increase is restricted to values as small as 0.1MSS/RTT when the reference window is close to the last known max value (ref_wnd_i). This increases stability and reduces periodic overshoot. This restriction is applied in full only for small reference windows when in L4S operation.  
 
 It is particularly important that the reference window reflects the transmitted bitrate especially in L4S mode operation. An inflated ref_wnd takes extra RTTs to bring down to a correct value upon congestion and thus causes unnecessary queue buildup. At the same time the reference window must be allowed to be large enough to avoid that the SCReAMv2 algorithm begins to limit itself, given that the target bitrate is calculated based on the ref_wnd. Two mechanisms are used to manage this:
 
@@ -663,6 +664,23 @@ send_wnd = ref_wnd * REF_WND_OVERHEAD * rel_framesize_high -
 
 The send window is updated whenever an RTP packet is transmitted or an RTCP feedback messaged is received.
 
+The variable rel_framesize_high is based on calculation of the high percentile of the frame sizes. The calculation is based on a histogram of the frame sizes relative to the expected frame size given the target bitrate and frame period. The calculation of rel_framesize_high is done for every new video frame and is outlined roughly with the pseudo code below. For more detailed code, see {{SCReAM-CPP-implementation}}.
+
+~~~
+# frame_size is that frame size for the last encoded frame
+tmp_t = frame_size / (target_bitrate * frame_period / 8)
+
+if (tmp_t > 1.0)
+  # Insert sample into histogram
+  insert_into_histogram(tmp_t)
+  # Get high percentile
+  rel_framesize_high = get_histogram_high_percentile()
+end
+~~~
+
+A 75%-ile is used in {{SCReAM-CPP-implementation}}, the histogram can be made leaky such that old samples are gradually forgotten.
+
+
 ### Packet Pacing {#packet-pacing}
 
 Packet pacing is used in order to mitigate coalescing, i.e., when packets are transmitted in bursts, with the risks of increased jitter and potentially increased packet loss. Packet pacing is also recommended to be used with L4S and also mitigates possible issues with queue overflow due to key-frame generation in video coders. The time interval between consecutive packet transmissions is greater than or equal to t_pace, where t_pace is given by the equations below :
@@ -679,7 +697,7 @@ rtp_size is the size of the last transmitted RTP packet, and s_rtt is the smooth
 
 The SCReAM algorithm makes a distinction between network congestion control and media rate control. This is easily extended to many streams. RTP packets from two or more RTP queues are scheduled at the rate permitted by the network congestion control.
 
-The scheduling can be done by means of a few different scheduling regimes. For example, the method for coupled congestion control specified in {{RFC8699}} can be used. One implementation of SCReAM and SCReAMv2 {{SCReAM-CPP-implementation}} uses credit-based scheduling. In credit-based scheduling, credit is accumulated by queues as they wait for service and is spent while the queues are being serviced. For instance, if one queue is allowed to transmit 1000 bytes, then a credit of 1000 bytes is allocated to the other unscheduled queues. This principle can be extended to weighted scheduling, where the credit allocated to unscheduled queues depends on the relative weights. The latter is also implemented in {{SCReAM-CPP-implementation}} in which case the target bitrate for the streams are also scaled relative to the scheduling priority.
+The scheduling can be done by means of a few different scheduling regimes. For example, the method for coupled congestion control specified in {{RFC8699}} can be used. One implementation of SCReAMv2 {{SCReAM-CPP-implementation}} uses credit-based scheduling. In credit-based scheduling, credit is accumulated by queues as they wait for service and is spent while the queues are being serviced. For instance, if one queue is allowed to transmit 1000 bytes, then a credit of 1000 bytes is allocated to the other unscheduled queues. This principle can be extended to weighted scheduling, where the credit allocated to unscheduled queues depends on the relative weights. The latter is also implemented in {{SCReAM-CPP-implementation}} in which case the target bitrate for the streams are also scaled relative to the scheduling priority.
 
 ## Media Rate Control {#media-rate-control-2}
 
@@ -694,8 +712,6 @@ The role of the media rate control is to strike a reasonable balance between a l
 The code above however needs some modifications to work fine in a number of scenarios
 
 * L4S is inactive, i.e L4S is either not enabled or congested bottlenecks do not L4S mark packets
-
-* Frame sizes vary
 
 * ref_wnd is very small, just a few MSS or smaller
 
@@ -717,9 +733,6 @@ end
 # small compared to MSS
 tmp_t *= 1.0 - min(0.8, max(0.0, ref_wnd_ratio - 0.1))
 
-# Scale down rate when frame sizes vary much
-tmp_t /= rel_framesize_high
-
 # Calculate target bitrate and limit to min and max allowed
 # values
 target_bitrate = tmp_t * 8 * ref_wnd / s_rtt
@@ -727,21 +740,6 @@ target_bitrate = min(TARGET_BITRATE_MAX,
   max(TARGET_BITRATE_MIN,target_bitrate))
 ~~~
 
-The variable rel_framesize_high is based on calculation of the high percentile of the frame sizes. The calculation is based on a histogram of the frame sizes relative to the expected frame size given the target bitrate and frame period. The calculation of rel_framesize_high is done for every new video frame and is outlined roughly with the pseudo code below. For more detailed code, see {{SCReAM-CPP-implementation}}.
-
-~~~
-# frame_size is that frame size for the last encoded frame
-tmp_t = frame_size / (target_bitrate * frame_period / 8)
-
-if (tmp_t > 1.0)
-  # Insert sample into histogram
-  insert_into_histogram(tmp_t)
-  # Get high percentile
-  rel_framesize_high = get_histogram_high_percentile()
-end
-~~~
-
-A 75%-ile is used in {{SCReAM-CPP-implementation}}, the histogram can be made leaky such that old samples are gradually forgotten.
 
 ## Competing Flows Compensation {#competing-flows-compensation}
 
@@ -795,7 +793,7 @@ The function that adjusts the qdelay_target is simple and could produce false po
 
 Extensive simulations have shown that the algorithm performs well in LTE and 5G test cases and that it also performs well in simple bandwidth-limited bottleneck test cases with competing FTP flows. However, the potential failure of the algorithm cannot be completely ruled out. A false positive (i.e., when self-inflicted congestion is mistakenly identified as competing flows) is especially problematic when it leads to increasing the target queue delay, which can cause the end-to-end delay to increase dramatically.
 
-If it is deemed unlikely that competing flows occur over the same bottleneck, the algorithm described in this section MAY be turned off. One such case is QoS-enabled bearers in 3GPP-based access such as LTE. However, when sending over the Internet, often the network conditions are not known for sure, so in general it is not possible to make safe assumptions on how a network is used and whether or not competing flows share the same bottleneck. Therefore, turning this algorithm off must be considered with caution, as it can lead to basically zero throughput if competing with loss-based traffic.
+If it is deemed unlikely that competing flows occur over the same bottleneck, the algorithm described in this section MAY be turned off. One such case is QoS-enabled bearers in 3GPP-based access such as LTE and 5G. However, when sending over the Internet, often the network conditions are not known for sure, so in general it is not possible to make safe assumptions on how a network is used and whether or not competing flows share the same bottleneck. Therefore, turning this algorithm off must be considered with caution, as it can lead to basically zero throughput if competing with loss-based traffic.
 
 ## Handling of systematic errors in video coders {#coder-errors}
 
@@ -809,7 +807,7 @@ The simple task of the receiver is to feed back acknowledgements with with time 
 
 SCReAMv2 benefits from relatively frequent feedback. It is RECOMMENDED that a SCReAMv2 implementation follows the guidelines below.
 
-The feedback interval depends on the media bitrate. At low bitrates, it is sufficient with a feedback every frame; while at high bitrates, a feedback interval of roughly 5ms ms is preferred. At very high bitrates, even shorter feedback intervals MAY be needed in order to keep the self-clocking in SCReAMv2 working well. One indication that feedback is too sparse is that the SCReAMv2 implementation cannot reach high bitrates, even in uncongested links. More frequent feedback might solve this issue.
+The feedback interval depends on the media bitrate. At low bitrates, it is sufficient with a feedback every frame; while at high bitrates, a feedback interval of roughly 5ms is preferred. At very high bitrates, even shorter feedback intervals MAY be needed in order to keep the self-clocking in SCReAMv2 working well. One indication that feedback is too sparse is that the SCReAMv2 implementation cannot reach high bitrates, even in uncongested links. More frequent feedback might solve this issue.
 
 The numbers above can be formulated as a feedback interval function that can be useful for the computation of the desired RTCP bandwidth. The following equation expresses the feedback rate:
 
@@ -828,7 +826,7 @@ Feedback should also forcibly be transmitted in any of these cases:
 
 * An RTP packet with marker bit set is received
 
-The transmission interval is not critical. So, in the case of multi-stream handling between two hosts, the feedback for two or more synchronization sources (SSRCs) can be bundled to save UDP/IP overhead. However, the final realized feedback interval SHOULD notexceed 2*fb_int in such cases, meaning that a scheduled feedback transmission event should not be delayed more than fb_int.
+The transmission interval is not critical. So, in the case of multi-stream handling between two hosts, the feedback for two or more synchronization sources (SSRCs) can be bundled to save UDP/IP overhead. However, the final realized feedback interval SHOULD not exceed 2*fb_int in such cases, meaning that a scheduled feedback transmission event should not be delayed more than fb_int.
 
 SCReAMv2 works with AVPF regular mode; immediate or early mode is not required by SCReAMv2 but can nonetheless be useful for RTCP messages not directly related to SCReAMv2, such as those specified in {{RFC4585}}. It is RECOMMENDED to use reduced-size RTCP {{RFC5506}}, where regular full compound RTCP transmission is controlled by trr-int as described in {{RFC4585}}.
 
@@ -836,7 +834,7 @@ SCReAMv2 works with AVPF regular mode; immediate or early mode is not required b
 
 This section covers a few discussion points.
 
-* Clock drift: SCReAM/SCReAMv2 can suffer from the same issues with clock drift as is the case with LEDBAT {{RFC6817}}. However, Appendix A.2 in {{RFC6817}} describes ways to mitigate issues with clock drift. A clockdrift compensation method is also implemented in {{SCReAM-CPP-implementation}}.
+* Clock drift: SCReAM/SCReAMv2 can suffer from the same issues with clock drift as is the case with LEDBAT {{RFC6817}}. However, Appendix A.2 in {{RFC6817}} describes ways to mitigate issues with clock drift. A clockdrift compensation method is also implemented in {{SCReAM-CPP-implementation}}. Furthermore, the SCReAM implementation resets base delay history when it is determined that clock drift becomes too large. This is achieved by reducing the target bitrate for a few RTTs.  
 
 * Clock skipping: The sender or receiver clock can occasionally skip. Handling of this is implemented in {{SCReAM-CPP-implementation}}.
 
@@ -852,7 +850,7 @@ This section covers a few discussion points.
 
 * Packet pacing is recommended, it is however possible to operate SCReAMv2 with packet pacing disabled. The code in {{SCReAM-CPP-implementation}} implements additonal mechanisms to achieve a high link utilization when packet pacing is disabled.
 
-* RFC8888 Feedback issues: RTCP feedback packets can be lost, this means that the loss detection in SCReAMv2 may trigger even though packets arrive safely on the receiver side. {{SCReAM-CPP-implementation}} solves this by using overlapping RTCP feedback, i.e RTCP feedback is transmitted no more seldom than every 16th packet, and where each RTCP feedback spans the last 64 received packets. This however creates unnecessary overhead. {{RFC3550}} RR (Receiver Reports) can possibly be another solution to achieve better robustness with less overhead.
+* RFC8888 Feedback issues: RTCP feedback packets can be lost, this means that the loss detection in SCReAMv2 may trigger even though packets arrive safely on the receiver side. {{SCReAM-CPP-implementation}} solves this by using overlapping RTCP feedback, i.e RTCP feedback is transmitted no more seldom than every 16th packet, and where each RTCP feedback spans the last 32 received packets. This however creates unnecessary overhead. {{RFC3550}} RR (Receiver Reports) can possibly be another solution to achieve better robustness with less overhead.
 
 # IANA Considerations {#iana}
 
