@@ -146,7 +146,7 @@ The algorithm in this memo differs greatly against the previous version of SCReA
 
 {{RFC8869}} describes the complications that can be observed in wireless environments. Wireless access such as LTE and 5G typically cannot guarantee a given bandwidth; this is true especially for default bearers. The network throughput can vary considerably, for instance, in cases where the wireless terminal is moving around. Even though 5G can support bitrates well above 100Mbps, there are cases when the available bitrate can be much lower; examples are situations with high network load and poor coverage. An additional complication is that the network throughput can drop for short time intervals (e.g., at handover); these short glitches are initially very difficult to distinguish from more permanent reductions in throughput.
 
-Unlike wireline bottlenecks with large statistical multiplexing, it is typically not possible to try to maintain a given bitrate when congestion is detected with the hope that other flows will yield. This is because there are generally few other flows competing for the same bottleneck. Each user gets its own variable throughput bottleneck, where the throughput depends on factors like channel quality, network load, and historical throughput. The bottom line is, if the throughput drops, the sender has no other option than to reduce the bitrate. Once the radio scheduler has reduced the resource allocation for a bearer, a flow in that bearer aims to reduce the sending rate quite quickly (within one RTT) in order to avoid excessive queuing delay or packet loss. This has the consenquence that L4S capable 5G radio bearers will build a queue unless these are prioritized over other bearers. This differs from e.g DualQ {{RFC9332}}, which prioritizes L4S traffic in a weighted scheduler and achives fairness with additional marking for the L4S flows. 
+Unlike wireline bottlenecks with large statistical multiplexing, it is typically not possible to try to maintain a given bitrate when congestion is detected with the hope that other flows will yield. This is because there are generally few other flows competing for the same bottleneck. Each user gets its own variable throughput bottleneck, where the throughput depends on factors like channel quality, network load, and historical throughput. The bottom line is, if the throughput drops, the sender has no other option than to reduce the bitrate. Once the radio scheduler has reduced the resource allocation for a bearer, a flow in that bearer aims to reduce the sending rate quite quickly (within one RTT) in order to avoid excessive queuing delay or packet loss. This has the consenquence that L4S capable 5G radio bearers will build a queue unless these are prioritized over other bearers. This differs from e.g DualQ {{RFC9332}}, which prioritizes L4S traffic in a weighted scheduler and achives fairness with additional marking for the L4S flows.
 
 ## Why is it a self-clocked algorithm? {#why-selfclock}
 
@@ -410,7 +410,7 @@ It is recommended to use RFC8888 {{RFC8888}} for the feedback as it supports the
 
 When the sender receives RTCP feedback, the qdelay is calculated as outlined in {{RFC6817}}. A qdelay sample is obtained for each received acknowledgement. A number of variables are updated as illustrated by the pseudocode below; temporary variables are appended with '_t'. Division operation is always floating point unless otherwise noted. l4s_alpha is calculated based in number of packets delivered (and marked). This makes calculation of L4S alpha more accurate at very low bitrates, given that the tail RTP packet in a video frame is often smaller than MSS.
 
-The smoothed RTT (s_rtt) is computed in a way similar to {{RFC6298}}.  
+The smoothed RTT (s_rtt) is computed in a way similar to {{RFC6298}}.
 
 ~~~
 packets_delivered_this_rtt += packets_acked
@@ -426,7 +426,7 @@ if (now - last_update_l4s_alpha_time >= min(0.01,s_rtt)
   last_update_l4s_alpha_time = now
   packets_delivered_this_rtt = 0
   packets_marked_this_rtt = 0
-  last_fraction_marked = fraction_marked_t 
+  last_fraction_marked = fraction_marked_t
 end
 
 if (now - last_update_qdelay_avg_time >= s_rtt)
@@ -567,7 +567,7 @@ The variable max_bytes_in_flight_prev indicates the maximum bytes in flights in 
 Reference window increase
 
 ~~~
-# Delay factor for multiplicative reference window increase after congestion 
+# Delay factor for multiplicative reference window increase after congestion
 post_congestion_scale_t = max(0.0, min(1.0,
   (now - last_congestion_detected_time) / POST_CONGESTION_DELAY))
 
@@ -586,15 +586,15 @@ tmp_t = min(1.0, s_rtt / VIRTUAL_RTT)
 increment_t *= tmp_t * tmp_t
 
 # Apply limit to reference window growth when close to last
-# known max value before congestion 
+# known max value before congestion
 scl_t = (ref_wnd-ref_wnd_i) / ref_wnd_i
-scl_t *= 4   
+scl_t *= 4
 scl_low_limit_t = 0.1
 if (is_l4s_active)
   # Restrict limit to small reference windows. The limitation
   # is gradually lifted and completely removed when
   # ref_wnd > 50MSS
-  scl_low_limit_t = max(0.1, min(1.0, 0.02 / ref_wnd_ratio));  
+  scl_low_limit_t = max(0.1, min(1.0, 0.02 / ref_wnd_ratio));
 end
 
 scl_t = scl_t * scl_t
@@ -630,9 +630,9 @@ The variable max_bytes_in_flight indicates the max bytes in flight in the curren
 
 The multiplicative increase is restricted directly after a congestion event and the restriction is gradually relaxed as the time since last congested increased. The restriction makes the reference window growth to be no faster than additive increase when congestion continusly occurs.
   For L4S operation this means that the SCReAMv2 algorithm will
-  adhere to the 2 marked packets per RTT equilibrium at steady state congestion, with the exception of the case below. 
+  adhere to the 2 marked packets per RTT equilibrium at steady state congestion, with the exception of the case below.
 
-The reference window increase is restricted to values as small as 0.1MSS/RTT when the reference window is close to the last known max value (ref_wnd_i). This increases stability and reduces periodic overshoot. This restriction is applied in full only for small reference windows when in L4S operation.  
+The reference window increase is restricted to values as small as 0.1MSS/RTT when the reference window is close to the last known max value (ref_wnd_i). This increases stability and reduces periodic overshoot. This restriction is applied in full only for small reference windows when in L4S operation.
 
 It is particularly important that the reference window reflects the transmitted bitrate especially in L4S mode operation. An inflated ref_wnd takes extra RTTs to bring down to a correct value upon congestion and thus causes unnecessary queue buildup. At the same time the reference window must be allowed to be large enough to avoid that the SCReAMv2 algorithm begins to limit itself, given that the target bitrate is calculated based on the ref_wnd. Two mechanisms are used to manage this:
 
@@ -834,7 +834,7 @@ SCReAMv2 works with AVPF regular mode; immediate or early mode is not required b
 
 This section covers a few discussion points.
 
-* Clock drift: SCReAM/SCReAMv2 can suffer from the same issues with clock drift as is the case with LEDBAT {{RFC6817}}. However, Appendix A.2 in {{RFC6817}} describes ways to mitigate issues with clock drift. A clockdrift compensation method is also implemented in {{SCReAM-CPP-implementation}}. Furthermore, the SCReAM implementation resets base delay history when it is determined that clock drift becomes too large. This is achieved by reducing the target bitrate for a few RTTs.  
+* Clock drift: SCReAM/SCReAMv2 can suffer from the same issues with clock drift as is the case with LEDBAT {{RFC6817}}. However, Appendix A.2 in {{RFC6817}} describes ways to mitigate issues with clock drift. A clockdrift compensation method is also implemented in {{SCReAM-CPP-implementation}}. Furthermore, the SCReAM implementation resets base delay history when it is determined that clock drift becomes too large. This is achieved by reducing the target bitrate for a few RTTs.
 
 * Clock skipping: The sender or receiver clock can occasionally skip. Handling of this is implemented in {{SCReAM-CPP-implementation}}.
 
