@@ -709,13 +709,14 @@ end
 ~~~
 
 ### Reaction to Delay, Packet Loss and ECN-CE {#reaction-delay-loss-ce}
-   Congestion is detected based on three different indicators:
 
-   * Lost packets detected. The loss detection is described in Section 4.1.2.4.
+Congestion is detected based on three different indicators:
 
-   * ECN-CE marked packets detected.
+ * Lost packets detected. The loss detection is described in Section 4.1.2.4.
 
-   * Estimated queue delay exceeds a threshold.
+ * ECN-CE marked packets detected.
+
+ * Estimated queue delay exceeds a threshold.
 
 A congestion event occurs if any of the above indicators are true AND it is at
 least min(VIRTUAL_RTT,s_rtt) since the last congestion event. This ensures that
@@ -868,7 +869,10 @@ uncongested bytes in flight is used.
 
 Reference window increase
 
-~~~ # Delay factor for multiplicative reference window increase after congestion
+~~~
+# Delay factor for multiplicative reference window increase
+# after congestion
+
 post_congestion_scale_t = max(0.0, min(1.0, (now -
 last_congestion_detected_time) / POST_CONGESTION_DELAY))
 
