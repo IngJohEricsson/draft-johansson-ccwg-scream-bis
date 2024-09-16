@@ -5,8 +5,8 @@
 CCWG                                                        I. Johansson
 Internet-Draft                                             M. Westerlund
 Obsoletes: 8298 (if approved)                                   Ericsson
-Intended status: Experimental                          13 September 2024
-Expires: 17 March 2025
+Intended status: Experimental                          16 September 2024
+Expires: 20 March 2025
 
 
               Self-Clocked Rate Adaptation for Multimedia
@@ -58,7 +58,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 17 March 2025.
+   This Internet-Draft will expire on 20 March 2025.
 
 Copyright Notice
 
@@ -92,20 +92,27 @@ Table of Contents
      4.2.  Network Congestion Control
        4.2.1.  Reaction to Delay, Packet Loss and ECN-CE
        4.2.2.  Reference Window Update
-       4.2.3.  Lost Packet Detection
-       4.2.4.  Send Window Calculation
-       4.2.5.  Packet Pacing
-       4.2.6.  Stream Prioritization
-     4.3.  Media Rate Control
-     4.4.  Competing Flows Compensation
-     4.5.  Handling of systematic errors in video coders
-   5.  Receiver Requirements on Feedback Intensity
-   6.  Discussion
-   7.  IANA Considerations
-   8.  Security Considerations
-   9.  References
-     9.1.  Normative References
-     9.2.  Informative References
+   5.  Scale factor for ref_wnd update
+   6.  Calculate bytes acked that are not CE marked
+   7.  Reduce increment for small RTTs
+   8.  Apply limit to reference window growth when close to last
+   9.  Slow down ref_wnd increase when ref_wnd is only a few MSS
+   10. Further limit multiplicative increase when congestion occured
+   11. Increase ref_wnd only if bytes in flight is large enough
+     11.1.  Lost Packet Detection
+       11.1.1.  Send Window Calculation
+       11.1.2.  Packet Pacing
+       11.1.3.  Stream Prioritization
+     11.2.  Media Rate Control
+     11.3.  Competing Flows Compensation
+     11.4.  Handling of systematic errors in video coders
+   12. Receiver Requirements on Feedback Intensity
+   13. Discussion
+   14. IANA Considerations
+   15. Security Considerations
+   16. References
+     16.1.  Normative References
+     16.2.  Informative References
    Appendix A.  Acknowledgments
    Authors' Addresses
 
@@ -915,61 +922,54 @@ Table of Contents
 
    Reference window increase
 
-# Delay factor for multiplicative reference window increase after congestion
-post_congestion_scale_t = max(0.0, min(1.0,
-  (now - last_congestion_detected_time) / POST_CONGESTION_DELAY))
+   ~~~ # Delay factor for multiplicative reference window increase after
+   congestion post_congestion_scale_t = max(0.0, min(1.0, (now -
+   last_congestion_detected_time) / POST_CONGESTION_DELAY))
 
-# Scale factor for ref_wnd update
-ref_wnd_scale_factor_t = 1.0 + (MUL_INCREASE_FACTOR  * ref_wnd) / MSS)
+5.  Scale factor for ref_wnd update
 
+   ref_wnd_scale_factor_t = 1.0 + (MUL_INCREASE_FACTOR * ref_wnd) / MSS)
 
-# Calculate bytes acked that are not CE marked
-bytes_newly_acked_minus_ce_t = bytes_newly_acked-
-                               bytes_newly_acked_ce
+6.  Calculate bytes acked that are not CE marked
 
-increment_t = bytes_newly_acked_minus_ce_t*ref_wnd_ratio
+   bytes_newly_acked_minus_ce_t = bytes_newly_acked-
+   bytes_newly_acked_ce
 
-# Reduce increment for small RTTs
-tmp_t = min(1.0, s_rtt / VIRTUAL_RTT)
-increment_t *= tmp_t * tmp_t
+   increment_t = bytes_newly_acked_minus_ce_t*ref_wnd_ratio
 
-# Apply limit to reference window growth when close to last
-# known max value before congestion
-scl_t = (ref_wnd-ref_wnd_i) / ref_wnd_i
-scl_t *= 4
-scl_low_limit_t = 0.1
-if (is_l4s_active)
-  # Restrict limit to small reference windows. The limitation
-  # is gradually lifted and completely removed when
-  # ref_wnd > 50MSS
-  scl_low_limit_t = max(0.1, min(1.0, 0.02 / ref_wnd_ratio));
-end
+7.  Reduce increment for small RTTs
 
-scl_t = scl_t * scl_t
-scl_t = max(scl_low_limit_t, min(1.0, scl_t))
-increment_t *= scl_t
+   tmp_t = min(1.0, s_rtt / VIRTUAL_RTT) increment_t *= tmp_t * tmp_t
 
-# Slow down ref_wnd increase when ref_wnd is only a few MSS
-# The ref_wnd increase can be as slow as
-# LOW_REF_WND_SCALE_FACTOR*MSS per RTT
-float tmp_t = ref_wnd_scale_factor_t
+8.  Apply limit to reference window growth when close to last
 
-# Further limit multiplicative increase when congestion occured
-# recently.
-if (tmp_t > 1.0)
-  tmp_t = 1.0 + (tmp_t - 1.0) * post_congestion_scale_t * scl_t;
-end
-increment *= tmp_t
+   # known max value before congestion scl_t = (ref_wnd-ref_wnd_i) /
+   ref_wnd_i scl_t *= 4 scl_low_limit_t = 0.1 if (is_l4s_active) #
+   Restrict limit to small reference windows.  The limitation # is
+   gradually lifted and completely removed when # ref_wnd > 50MSS
+   scl_low_limit_t = max(0.1, min(1.0, 0.02 / ref_wnd_ratio)); end
 
-# Increase ref_wnd only if bytes in flight is large enough
-# Quite a lot of slack is allowed here to avoid that bitrate
-# locks to low values.
-max_allowed_t = MSS + max(max_bytes_in_flight,
-  max_bytes_in_flight_prev) * BYTES_IN_FLIGHT_HEAD_ROOM
-int ref_wnd_t = ref_wnd + increment_t
-if (ref_wnd_t <= max_allowed_t)
-  ref_wnd = ref_wnd_t
-end
+   scl_t = scl_t * scl_t scl_t = max(scl_low_limit_t, min(1.0, scl_t))
+   increment_t *= scl_t
+
+9.  Slow down ref_wnd increase when ref_wnd is only a few MSS
+
+   # The ref_wnd increase can be as slow as #
+   LOW_REF_WND_SCALE_FACTOR*MSS per RTT float tmp_t =
+   ref_wnd_scale_factor_t
+
+10.  Further limit multiplicative increase when congestion occured
+
+   # recently. if (tmp_t > 1.0) tmp_t = 1.0 + (tmp_t - 1.0) *
+   post_congestion_scale_t * scl_t; end increment *= tmp_t
+
+11.  Increase ref_wnd only if bytes in flight is large enough
+
+   # Quite a lot of slack is allowed here to avoid that bitrate # locks
+   to low values. max_allowed_t = MSS + max(max_bytes_in_flight,
+   max_bytes_in_flight_prev) * BYTES_IN_FLIGHT_HEAD_ROOM int ref_wnd_t =
+   ref_wnd + increment_t if (ref_wnd_t <= max_allowed_t) ref_wnd =
+   ref_wnd_t end ~~~
 
    The ref_wnd_scale_factor_t scales the reference window increase.  The
    ref_wnd_scale_factor_t is increased with larger ref_wnd to allow for
@@ -1014,7 +1014,7 @@ end
 
    The two mechanisms complement one another.
 
-4.2.3.  Lost Packet Detection
+11.1.  Lost Packet Detection
 
    Lost packet detection is based on the received sequence number list.
    A reordering window SHOULD be applied to prevent packet reordering
@@ -1033,7 +1033,7 @@ end
    reordering window) after an RTP packet with a higher sequence number
    was acknowledged.
 
-4.2.4.  Send Window Calculation
+11.1.1.  Send Window Calculation
 
    The basic design principle behind packet transmission in SCReAM was
    to allow transmission only if the number of bytes in flight is less
@@ -1097,7 +1097,7 @@ end
    A 75%-ile is used in [SCReAM-CPP-implementation], the histogram can
    be made leaky such that old samples are gradually forgotten.
 
-4.2.5.  Packet Pacing
+11.1.2.  Packet Pacing
 
    Packet pacing is used in order to mitigate coalescing, i.e., when
    packets are transmitted in bursts, with the risks of increased jitter
@@ -1116,7 +1116,7 @@ end
    the smoothed round trip time.  RATE_PACE_MIN is the minimum pacing
    rate.
 
-4.2.6.  Stream Prioritization
+11.1.3.  Stream Prioritization
 
    The SCReAM algorithm makes a distinction between network congestion
    control and media rate control.  This is easily extended to many
@@ -1137,7 +1137,7 @@ end
    [SCReAM-CPP-implementation] in which case the target bitrate for the
    streams are also scaled relative to the scheduling priority.
 
-4.3.  Media Rate Control
+11.2.  Media Rate Control
 
    The media rate control algorithm is executed whenever the reference
    window is updated and updates the target bitrate.  The target bitrate
@@ -1184,7 +1184,7 @@ end
    target_bitrate = min(TARGET_BITRATE_MAX,
      max(TARGET_BITRATE_MIN,target_bitrate))
 
-4.4.  Competing Flows Compensation
+11.3.  Competing Flows Compensation
 
    It is likely that a flow will have to share congested bottlenecks
    with other flows that use a more aggressive congestion control
@@ -1276,7 +1276,7 @@ end
    lead to basically zero throughput if competing with loss-based
    traffic.
 
-4.5.  Handling of systematic errors in video coders
+11.4.  Handling of systematic errors in video coders
 
    Some video encoders are prone to systematically generate an output
    bitrate that is systematically larger or smaller than the target
@@ -1287,7 +1287,7 @@ end
    ToDo: A future draft version will describe this in more detail as it
    has been fully integrated into SCReAMv2.
 
-5.  Receiver Requirements on Feedback Intensity
+12.  Receiver Requirements on Feedback Intensity
 
    The simple task of the receiver is to feed back acknowledgements with
    with time stamp and ECN bits indication for received packets to the
@@ -1343,7 +1343,7 @@ end
    where regular full compound RTCP transmission is controlled by trr-
    int as described in [RFC4585].
 
-6.  Discussion
+13.  Discussion
 
    This section covers a few discussion points.
 
@@ -1406,11 +1406,11 @@ end
       [RFC3550] RR (Receiver Reports) can possibly be another solution
       to achieve better robustness with less overhead.
 
-7.  IANA Considerations
+14.  IANA Considerations
 
    This document does not require any IANA actions.
 
-8.  Security Considerations
+15.  Security Considerations
 
    The feedback can be vulnerable to attacks similar to those that can
    affect TCP.  It is therefore RECOMMENDED that the RTCP feedback is at
@@ -1420,9 +1420,9 @@ end
    mitigated by the minimum send rate maintained by SCReAM/SCReAMv2 when
    no feedback is received.
 
-9.  References
+16.  References
 
-9.1.  Normative References
+16.1.  Normative References
 
    [RFC3550]  Schulzrinne, H., Casner, S., Frederick, R., and V.
               Jacobson, "RTP: A Transport Protocol for Real-Time
@@ -1459,7 +1459,7 @@ end
               RFC 8888, DOI 10.17487/RFC8888, January 2021,
               <https://www.rfc-editor.org/info/rfc8888>.
 
-9.2.  Informative References
+16.2.  Informative References
 
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
               Requirement Levels", BCP 14, RFC 2119,
@@ -1539,9 +1539,10 @@ end
 
 Appendix A.  Acknowledgments
 
-   We would like to thank the following people for their comments,
-   questions, and support during the work that led to this memo: Mirja
-   Kuehlewind, Zaheduzzaman Sarker
+   Zaheduzzaman Sarker was a co-author of RFC 8298 the previous version
+   of scream which this document was based on.  We would like to thank
+   the following people for their comments, questions, and support
+   during the work that led to this memo: Mirja Kuehlewind.
 
 Authors' Addresses
 
