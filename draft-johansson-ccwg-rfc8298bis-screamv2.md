@@ -99,6 +99,7 @@ informative:
       date: December 2007
 
 normative:
+   RFC3168:
    RFC3550:
    RFC4585:
    RFC5506:
@@ -106,18 +107,19 @@ normative:
    RFC6817:
    RFC8174:
    RFC8888:
+   RFC9330:
 
 --- abstract
 
-This memo describes a rate adaptation algorithm for conversational media
+This memo describes a congestion control algorithm for conversational media
 services such as interactive video. The solution conforms to the packet
-conservation principle and is a hybrid loss- and delay based congestion
-control/rate management algorithm that also supports ECN and L4S. The algorithm
-is evaluated over both simulated Internet bottleneck scenarios as well as in a
-LongTerm Evolution (LTE) and 5G system simulator and is shown to achieve both
-low latency and high video throughput in these scenarios. This specification
-obsoletes RFC 8298. The algorithm supports handling of multiple media streams,
-typical use cases are streaming for remote control, AR and 3D VR googles.
+conservation principle and is a hybrid loss- and delay based congestion control
+that also supports ECN and L4S. The algorithm is evaluated over both simulated
+Internet bottleneck scenarios as well as in a mobile system simulator using
+LongTerm Evolution (LTE) and 5G and is shown to achieve both low latency and
+high video throughput in these scenarios. This specification obsoletes RFC
+8298. The algorithm supports handling of multiple media streams, typical use
+cases are streaming for remote control, AR and 3D VR googles.
 
 --- middle
 
@@ -143,17 +145,18 @@ large range in channel capacity.
 This memo describes Self-Clocked Rate Adaptation for Multimedia version 2
 (SCReAMv2), an update to SCReAM congestion control for RTP streams
 {{RFC3550}}. While SCReAM was originally devised for WebRTC, SCReAM as well as
-SCReAMv2 can also be used for other applications where congestion control of RTP
-streams is necessary. SCReAM is based on the self-clocking principle of TCP and
-uses techniques similar to what is used in the rate adaptation algorithm based
-on Low Extra Delay Background Transport (LEDBAT) {{RFC6817}}.
+SCReAMv2 can also be used for other applications where congestion control of
+different type of real-time streams, especially media streams is
+necessary. SCReAM is based on the self-clocking principle of TCP and uses
+techniques similar to what is used in the rate adaptation algorithm based on Low
+Extra Delay Background Transport (LEDBAT) {{RFC6817}}.
 
 SCReAMv2 is not entirely self-clocked as it augments self-clocking with pacing
 and a minimum send rate. Further, SCReAMv2 can take advantage of Explicit
-Congestion Notification (ECN) and Low Latency Low Loss and Scalable throughput
-(L4S) in cases where ECN or L4S is supported by the network and the
-hosts. However, ECN or L4S is not required for the basic congestion control
-functionality in SCReAMv2.
+Congestion Notification (ECN) {{RFC3168}} and Low Latency Low Loss and Scalable
+throughput (L4S) {{RFC9330}} in cases where ECN or L4S is supported by the
+network and the hosts. However, ECN or L4S is not required for the basic
+congestion control functionality in SCReAMv2.
 
 This specification replaces the previous experimental version {{RFC8298}} of
 SCReAM with SCReAMv2. There are many and fairly significant changes to the
