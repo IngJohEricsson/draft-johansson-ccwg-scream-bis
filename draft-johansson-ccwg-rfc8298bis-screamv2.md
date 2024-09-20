@@ -99,6 +99,7 @@ informative:
       date: December 2007
 
 normative:
+   RFC3168:
    RFC3550:
    RFC4585:
    RFC5506:
@@ -106,18 +107,19 @@ normative:
    RFC6817:
    RFC8174:
    RFC8888:
+   RFC9330:
 
 --- abstract
 
-This memo describes a rate adaptation algorithm for conversational media
+This memo describes a congestion control algorithm for conversational media
 services such as interactive video. The solution conforms to the packet
-conservation principle and is a hybrid loss- and delay based congestion
-control/rate management algorithm that also supports ECN and L4S. The algorithm
-is evaluated over both simulated Internet bottleneck scenarios as well as in a
-LongTerm Evolution (LTE) and 5G system simulator and is shown to achieve both
-low latency and high video throughput in these scenarios. This specification
-obsoletes RFC 8298. The algorithm supports handling of multiple media streams,
-typical use cases are streaming for remote control, AR and 3D VR googles.
+conservation principle and is a hybrid loss- and delay based congestion control
+that also supports ECN and L4S. The algorithm is evaluated over both simulated
+Internet bottleneck scenarios as well as in a mobile system simulator using
+LongTerm Evolution (LTE) and 5G and is shown to achieve both low latency and
+high video throughput in these scenarios. This specification obsoletes RFC
+8298. The algorithm supports handling of multiple media streams, typical use
+cases are streaming for remote control, AR and 3D VR googles.
 
 --- middle
 
@@ -143,17 +145,18 @@ large range in channel capacity.
 This memo describes Self-Clocked Rate Adaptation for Multimedia version 2
 (SCReAMv2), an update to SCReAM congestion control for RTP streams
 {{RFC3550}}. While SCReAM was originally devised for WebRTC, SCReAM as well as
-SCReAMv2 can also be used for other applications where congestion control of RTP
-streams is necessary. SCReAM is based on the self-clocking principle of TCP and
-uses techniques similar to what is used in the rate adaptation algorithm based
-on Low Extra Delay Background Transport (LEDBAT) {{RFC6817}}.
+SCReAMv2 can also be used for other applications where congestion control of
+different type of real-time streams, especially media streams is
+necessary. SCReAM is based on the self-clocking principle of TCP and uses
+techniques similar to what is used in the rate adaptation algorithm based on Low
+Extra Delay Background Transport (LEDBAT) {{RFC6817}}.
 
 SCReAMv2 is not entirely self-clocked as it augments self-clocking with pacing
 and a minimum send rate. Further, SCReAMv2 can take advantage of Explicit
-Congestion Notification (ECN) and Low Latency Low Loss and Scalable throughput
-(L4S) in cases where ECN or L4S is supported by the network and the
-hosts. However, ECN or L4S is not required for the basic congestion control
-functionality in SCReAMv2.
+Congestion Notification (ECN) {{RFC3168}} and Low Latency Low Loss and Scalable
+throughput (L4S) {{RFC9330}} in cases where ECN or L4S is supported by the
+network and the hosts. However, ECN or L4S is not required for the basic
+congestion control functionality in SCReAMv2.
 
 This specification replaces the previous experimental version {{RFC8298}} of
 SCReAM with SCReAMv2. There are many and fairly significant changes to the
@@ -189,12 +192,12 @@ SCReAM. The main differences are:
 environments. Wireless access such as LTE and 5G typically cannot guarantee a
 given bandwidth; this is true especially for default bearers. The network
 throughput can vary considerably, for instance, in cases where the wireless
-terminal is moving around. Even though 5G can support bitrates well above
-100Mbps, there are cases when the available bitrate can be much lower; examples
-are situations with high network load and poor coverage. An additional
-complication is that the network throughput can drop for short time intervals
-(e.g., at handover); these short glitches are initially very difficult to
-distinguish from more permanent reductions in throughput.
+terminal is moving around. Even though 5G can support bitrates above 1 Gbps,
+there are cases when the available bitrate can be much lower (less than 10
+Mbps); examples are situations with high network load and poor coverage. An
+additional complication is that the network throughput can drop for short time
+intervals (e.g., at handover); these short glitches are initially very difficult
+to distinguish from more permanent reductions in throughput.
 
 Unlike wireline bottlenecks with large statistical multiplexing, it is typically
 not possible to try to maintain a given bitrate when congestion is detected with
@@ -257,8 +260,8 @@ the SCReAM context lies in the facts that the source is rate limited and that
 the RTP queue must be kept short (preferably empty). In addition, the output
 from a video encoder is rarely constant bitrate; static content (talking heads,
 for instance) gives almost zero video bitrate. This yields two useful properties
-when LEDBAT is used with SCReAM; they help to avoid the issues described in
-{{LEDBAT-delay-impact}}:
+when LEDBAT's delay-based rate estimation techniques are used as part of SCReAM;
+they help to avoid the issues described in {{LEDBAT-delay-impact}}:
 
 1. There is always a certain probability that SCReAM is short of data to
 transmit; this means that the network queue will become empty every once in a
@@ -338,8 +341,8 @@ respective sizes, and the time they were transmitted. This information is used
 to determine the number of bytes that can be transmitted at any given time
 instant. A reference window puts an upper limit on how many bytes can be in
 flight, i.e., transmitted but not yet acknowledged. The reference window is
-however not an absolute limit as a slack is given to efficiently transmit large
-video frames.
+however not an absolute limit as a slack is given to efficiently transmit
+temporary larger media objects, such as video frames.
 
 The reference window seeks to increase by one segment per RTT and this increase
 regardless congestion occurs or not, the reference window increase is restriced
@@ -512,9 +515,11 @@ from experiments.
 * REF_WND_OVERHEAD (1.5): Indicates how much bytes in flight is allowed to
   exceed ref_wnd.
 
-* L4S_AVG_G (1.0/16): EWMA factor for l4s_alpha
+* L4S_AVG_G (1.0/16): Exponentially
+  Weighted Moving Average (EWMA) factor for l4s_alpha
 
-* QDELAY_AVG_G (1.0/4): EWMA factor for qdelay_avg
+* QDELAY_AVG_G (1.0/4): Exponentially
+  Weighted Moving Average (EWMA) factor for qdelay_avg
 
 * POST_CONGESTION_DELAY (4.0): Determines how long (seconds) after a congestion
   event that the reference window growth should be cautious.
@@ -536,7 +541,7 @@ The values within parentheses "()" indicate initial values.
 
 * qdelay_target (QDELAY_TARGET_LO): qdelay target [s], a variable qdelay target
   is introduced to manage cases where a fixed qdelay target would otherwise
-  starve the RMCAT flow under such circumstances (e.g., FTP competes for the
+  starve the data flow under such circumstances (e.g., FTP competes for the
   bandwidth over the same bottleneck). The qdelay target is allowed to vary
   between QDELAY_TARGET_LO and QDELAY_TARGET_HI.
 
@@ -611,6 +616,7 @@ The values within parentheses "()" indicate initial values.
   frame size for the given target bitrate
 
 * frame_period (0.02): The frame period [s].
+
 
 ## Network Congestion Control {#network-cc-2}
 
@@ -712,7 +718,7 @@ end
 
 Congestion is detected based on three different indicators:
 
- * Lost packets detected. The loss detection is described in Section 4.1.2.4.
+ * Lost packets detected. The loss detection is described in {{detect-loss}}.
 
  * ECN-CE marked packets detected.
 
@@ -976,14 +982,14 @@ reordering window SHOULD be applied to prevent packet reordering from triggering
 loss events. The reordering window is specified as a time unit, similar to the
 ideas behind Recent ACKnowledgement (RACK) {{RFC8985}}. The computation of the
 reordering window is made possible by means of a lost flag in the list of
-transmitted RTP packets. This flag is set if the received sequence number list
-indicates that the given RTP packet is missing. If later feedback indicates that
+transmitted packets. This flag is set if the received sequence number list
+indicates that the given packet is missing. If later feedback indicates that
 a previously lost marked packet was indeed received, then the reordering window
 is updated to reflect the reordering delay. The reordering window is given by
 the difference in time between the event that the packet was marked as lost and
 the event that it was indicated as successfully received. Loss is detected if a
 given RTP packet is not acknowledged within a time window (indicated by the
-reordering window) after an RTP packet with a higher sequence number was
+reordering window) after an packet with a higher sequence number was
 acknowledged.
 
 ### Send Window Calculation {#send-window}
@@ -1025,8 +1031,8 @@ send_wnd = ref_wnd * REF_WND_OVERHEAD * rel_framesize_high -
            bytes_in_flight
 ~~~
 
-The send window is updated whenever an RTP packet is transmitted or an RTCP
-feedback messaged is received.
+The send window is updated whenever an packet is transmitted or an feedback
+messaged is received.
 
 The variable rel_framesize_high is based on calculation of the high percentile
 of the frame sizes. The calculation is based on a histogram of the frame sizes
@@ -1066,8 +1072,8 @@ pace_bitrate = max(RATE_PACE_MIN, target_bitrate) *
 t_pace = rtp_size * 8 / pace_bitrate
 ~~~
 
-rtp_size is the size of the last transmitted RTP packet, and s_rtt is the
-smoothed round trip time. RATE_PACE_MIN is the minimum pacing rate.
+rtp_size is the size of the last transmitted RTP packet. RATE_PACE_MIN is the
+minimum pacing rate.
 
 ### Stream Prioritization {#stream-prioritization}
 
