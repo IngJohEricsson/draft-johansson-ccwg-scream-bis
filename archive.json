@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2024-09-19T01:26:23.487866+00:00",
+  "timestamp": "2024-09-22T01:40:37.214215+00:00",
   "repo": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
   "labels": [
     {
@@ -445,6 +445,48 @@
       },
       "comments": [],
       "reviews": []
+    },
+    {
+      "number": 13,
+      "id": "PR_kwDOK7AJUs58KXkC",
+      "title": "An review pass fixing some smaller editorial things",
+      "url": "https://github.com/IngJohEricsson/draft-johansson-ccwg-scream-bis/pull/13",
+      "state": "MERGED",
+      "author": "gloinul",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2024-09-20T12:30:14Z",
+      "updatedAt": "2024-09-20T13:26:32Z",
+      "baseRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
+      "baseRefName": "main",
+      "baseRefOid": "14b42bd656378fb9d3719994e4674c1a69c68dfa",
+      "headRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
+      "headRefName": "new-edits",
+      "headRefOid": "497ed175327c613fdf8a18b30c75be58db52e67e",
+      "closedAt": "2024-09-20T13:26:32Z",
+      "mergedAt": "2024-09-20T13:26:32Z",
+      "mergedBy": "IngJohEricsson",
+      "mergeCommit": {
+        "oid": "dbb813118b1277a81b36579f2fe76645d23a0795"
+      },
+      "comments": [],
+      "reviews": [
+        {
+          "id": "PRR_kwDOK7AJUs6KLj73",
+          "commit": {
+            "abbreviatedOid": "497ed17"
+          },
+          "author": "IngJohEricsson",
+          "authorAssociation": "OWNER",
+          "state": "APPROVED",
+          "body": "Proposed changes look fine",
+          "createdAt": "2024-09-20T13:26:23Z",
+          "updatedAt": "2024-09-20T13:26:23Z",
+          "comments": []
+        }
+      ]
     }
   ]
 }
