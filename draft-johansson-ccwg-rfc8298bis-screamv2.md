@@ -1363,6 +1363,8 @@ This section covers a few discussion points.
   (Receiver Reports) can possibly be another solution to achieve better
   robustness with less overhead. QUIC {{RFC9000}} overcomes this issue because of inherent design.
 
+* SCReAM has over time been evaluated in a number of different experiments, a few examples are found in {{SCReAM-evaluation-L4S}}.
+
 # IANA Considerations {#iana}
 
 This document does not require any IANA actions.
