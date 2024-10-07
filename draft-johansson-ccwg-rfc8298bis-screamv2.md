@@ -36,6 +36,8 @@ informative:
    RFC8869:
    RFC8985:
    RFC8257:
+   RFC8888:
+   RFC9000:
    RFC9332:
 
    Packet-conservation:
@@ -106,7 +108,6 @@ normative:
    RFC6298:
    RFC6817:
    RFC8174:
-   RFC8888:
    RFC9330:
 
 --- abstract
@@ -143,12 +144,12 @@ such as WebRTC {{RFC7478}}, should be both quick and be able to operate over a
 large range in channel capacity.
 
 This memo describes Self-Clocked Rate Adaptation for Multimedia version 2
-(SCReAMv2), an update to SCReAM congestion control for RTP streams
+(SCReAMv2), an update to SCReAM congestion control for media streams such as RTP 
 {{RFC3550}}. While SCReAM was originally devised for WebRTC, SCReAM as well as
 SCReAMv2 can also be used for other applications where congestion control of
 different type of real-time streams, especially media streams is
 necessary. SCReAM is based on the self-clocking principle of TCP and uses
-techniques similar to what is used in the rate adaptation algorithm based on Low
+estimates the forward queue delay in the same way as Low
 Extra Delay Background Transport (LEDBAT) {{RFC6817}}.
 
 SCReAMv2 is not entirely self-clocked as it augments self-clocking with pacing
@@ -242,6 +243,18 @@ outcome is that there is still only one mechanism to adjust the sending
 rate. This makes it difficult to reach the goals of high throughput and prompt
 reaction to congestion.
 
+## Requirements on media and feedback protocol {#requirements-media}
+
+SCReAM was originally designed to with with RTP + RTCP where {{RFC8888}} was used
+as recommended feedback. RTP offers unique packet indication with the sequence number and {{RFC8888}} offers timestamps of received packets and the status of the ECN bits.
+
+SCReAM is however not limited to RTP as long as some requirements are fulfilled :
+* Media data is split in data units that when encapsulated in IP packets fit in the network MTU.
+* Each data unit can be uniquely identified.
+* Data units can be queued up in a packet queue before transmission.
+* Feedback can indicate reception time for each data units, or a group of data units.
+* Feedback can indicate packets that are ECN-CE marked. Unique ECN bits indication for each packet is not necessary. An ECN-CE counter similar to what is defined in {{RFC9000}} is sufficient.
+
 ## Comparison with LEDBAT and TFWC in TCP {#ledbat-tfwc}
 
 The core SCReAM algorithm, which is still similar in SCReAMv2, has similarities
@@ -257,7 +270,7 @@ along the transmission path. This information is used to adjust the congestion
 window. The general problem described in the paper is that the base delay is
 offset by LEDBAT's own queue buildup. The big difference with using LEDBAT in
 the SCReAM context lies in the facts that the source is rate limited and that
-the RTP queue must be kept short (preferably empty). In addition, the output
+the data unit queue must be kept short (preferably empty). In addition, the output
 from a video encoder is rarely constant bitrate; static content (talking heads,
 for instance) gives almost zero video bitrate. This yields two useful properties
 when LEDBAT's delay-based rate estimation techniques are used as part of SCReAM;
@@ -274,7 +287,7 @@ become empty.
 It is sufficient that any of the two conditions above is fulfilled to make the
 base delay update properly. Furthermore, {{LEDBAT-delay-impact}} describes an
 issue with short-lived competing flows. In SCReAM, these short-lived flows will
-cause the self-clocking to slow down, thereby building up the RTP queue; in
+cause the self-clocking to slow down, thereby building up the data unit queue; in
 turn, this results in a reduced media video bitrate. Thus, SCReAM slows the
 bitrate more when there are competing short-lived flows than the traditional use
 of LEDBAT does. The basic functionality in the use of LEDBAT in SCReAM is quite
@@ -322,8 +335,8 @@ SCReAMv2 still consists of three main parts: network congestion control, sender
 transmission control, and media rate control. All of these parts reside at the
 sender side. Figure 1 shows the functional overview of a SCReAMv2 sender. The
 receiver-side algorithm is very simple in comparison, as it only generates
-feedback containing acknowledgements of received RTP packets and indication of
-ECN bits.
+feedback containing acknowledgements of received data units and indication of
+ECN-CE marking, either as an accumulated counter, or individual per data unit.
 
 ## Network Congestion Control {#network-cc}
 
@@ -331,12 +344,11 @@ The network congestion control sets an upper limit on how much data can be in
 the network (bytes in flight); this limit is called reference window (ref_wnd)
 and is used in the sender transmission control.
 
-The sender calculates the reference window based on the feedback from the RTP
-receiver. The feedback is timestamp and ECN echo for individual RTP packets.
-
-The receiver of the media echoes a list of received RTP packets and the
-timestamp of the RTP packet with the highest sequence number back to the sender
-in feedback packets. The sender keeps a list of transmitted packets, their
+The sender calculates the reference window based on the feedback from the data
+receiver.
+The feedback from the receiver is timestamp and individual data units or group of data
+units and ECN status per data unit or an accumulated ECN-CE count.
+The sender keeps a list of transmitted packets, their
 respective sizes, and the time they were transmitted. This information is used
 to determine the number of bytes that can be transmitted at any given time
 instant. A reference window puts an upper limit on how many bytes can be in
@@ -348,7 +360,7 @@ The reference window seeks to increase by one segment per RTT and this increase
 regardless congestion occurs or not, the reference window increase is restriced
 or relaxed based on the current value of the reference window relative to a
 previous max value and the time elapsed since last congestion event. The
-reference window update is increased by one MSS (maximum known RTP packet size)
+reference window update is increased by one MSS (maximum known data unit size)
 per RTT with some variation based on reference window size and time elapsed
 since the last congestion event. Multiplicative increase allows the congestion
 to increase by a fraction of ref_wnd when congestion has not occured for a
@@ -371,8 +383,7 @@ Reference window reduction is triggered by:
 
 The sender transmission control limits the output of data, given by the relation
 between the number of bytes in flight and the reference window. The congestion
-window is however not a hard limit, additional slack is given to avoid that RTP
-packets are queued up unnecessarily on the sender side. This means that the
+window is however not a hard limit, additional slack is given to avoid that data units are queued up unnecessarily on the sender side. This means that the
 algoritm prefers to build up a queue in the network rather than on the sender
 side. Additional congestion that this causes will reflect back and cause a
 reduction of the reference window. Packet pacing is used to mitigate issues with
@@ -392,7 +403,7 @@ enough to get a fair share of the system resources when link throughput
 increases.
 
 The reaction to reduced throughput must be prompt in order to avoid getting too
-much data queued in the RTP packet queue(s) in the sender. The media rate is
+much data queued in the data unit queue(s) in the sender. The media rate is
 calculated based on the reference window and RTT. For the case that multiple
 streams are enabled, the media rate among the streams is distrubuted according
 to relative priorities.
@@ -400,7 +411,7 @@ to relative priorities.
 In cases where the sender's frame queues increase rapidly, such as in the case
 of a Radio Access Type (RAT) handover, the SCReAMv2 sender MAY implement
 additional actions, such as discarding of encoded media frames or frame skipping
-in order to ensure that the RTP queues are drained quickly. Frame skipping
+in order to ensure that the data unit queues are drained quickly. Frame skipping
 results in the frame rate being temporarily reduced. Which method to use is a
 design choice and is outside the scope of this algorithm description.
 
@@ -410,8 +421,8 @@ This section describes the sender-side algorithm in more detail. It is split
 between the network congestion control, sender transmission control, and media
 rate control.
 
-The sender implements media rate control and an RTP queue for each media type or
-source, where RTP packets containing encoded media frames are temporarily stored
+The sender implements media rate control and an data unit queue for each media type or
+source, where data units containing encoded media frames are temporarily stored
 for transmission. Figure 1 shows the details when a single media source (or
 stream) is used. A transmission scheduler (not shown in the figure) is added to
 support multiple streams. The transmission scheduler can enforce differing
@@ -420,51 +431,51 @@ multiple flows. Support for multiple streams is implemented in
 {{SCReAM-CPP-implementation}}.
 
 ~~~aasvg
-          +---------------------------+
-          |        Media encoder      |
-          +---------------------------+
-              ^                  |(1)
-              |                 RTP
-              |(3)               |
-              |                  V
-              |            +-----------+
-         +---------+       |           |
-         | Media   |       |   Queue   |
-         | rate    |       |           |
-         | control |       |RTP packets|
-         +---------+       |           |
-              ^            +-----------+
-              |                  |
-              | (2)              |(4)
-              |                 RTP
-              |                  |
-              |                  v
-    +------------+       +--------------+
-    |  Network   |  (7)  |    Sender    |
-+-->| congestion |------>| Transmission |
-|   |  control   |       |   Control    |
-|   +------------+       +--------------+
-|                                |(5)
-+-------------RTCP----------+   RTP
-    (6)                     |    |
-                            |    v
-                        +------------+
-                        |     UDP    |
-                        |   socket   |
-                        +------------+
+          +------------------------------+
+          |          Media encoder       |
+          +------------------------------+
+              ^                     |(1)
+              |                 Data unit
+              |(3)                  |
+              |                     V
+              |               +-----------+
+         +---------+          |           |
+         | Media   |          |   Queue   |
+         | rate    |          |           |
+         | control |          | Data units|
+         +---------+          |           |
+              ^               +-----------+
+              |                     |
+              | (2)                 |(4)
+              |                 Data unit
+              |                     |
+              |                     v
+    +------------+          +--------------+
+    |  Network   |   (7)    |    Sender    |
++-->| congestion |--------->| Transmission |
+|   |  control   |          |   Control    |
+|   +------------+          +--------------+
+|                                   |(5)
++----------Feed back--------+   Data unit
+    (6)                     |       |
+                            |       v
+                        +---------------+
+                        |       UDP     |
+                        |     socket    |
+                        +---------------+
 ~~~
 {: #fig-sender-view title="Sender Functional View"}
 
-Media frames are encoded and forwarded to the RTP queue (1) in
-{{fig-sender-view}}. The RTP packets are picked from the RTP queue (4), for
-multiple flows from each RTP queue based on some defined priority order or
+Media frames are encoded and forwarded to the data unit queue (1) in
+{{fig-sender-view}}. The data units are picked from the data unit queue (4), for
+multiple flows from each data unit queue based on some defined priority order or
 simply in a round-robin fashion, by the sender transmission controller.
 
 The sender transmission controller (in case of multiple flows a transmission
-scheduler) sends the RTP packets to the UDP socket (5). In the general case, all
+scheduler) sends the data units to the UDP socket (5). In the general case, all
 media SHOULD go through the sender transmission controller and is limited so
 that the number of bytes in flight is less than the reference window albeit with
-a slack to avoid that packets are unnecessarily delayed in the RTP queue.
+a slack to avoid that packets are unnecessarily delayed in the data unit queue.
 
 RTCP packets are received (6) and the information about the bytes in flight and
 reference window is exchanged between the network congestion control and the
@@ -504,7 +515,7 @@ from experiments.
 
 * BETA_ECN (0.8): ref_wnd scale factor due to ECN event.
 
-* MSS (1000 byte): Maximum segment size = Max RTP packet size.
+* MSS (1000): Maximum segment size = Max data unit size [byte].
 
 * TARGET_BITRATE_MIN: Minimum target bitrate in [bps] (bits per second).
 
@@ -520,6 +531,8 @@ from experiments.
 
 * QDELAY_AVG_G (1.0/4): Exponentially
   Weighted Moving Average (EWMA) factor for qdelay_avg
+
+* PACKET_OVERHEAD (20) : Estimated packetization overhead [byte]
 
 * POST_CONGESTION_DELAY (4.0): Determines how long (seconds) after a congestion
   event that the reference window growth should be cautious.
@@ -548,23 +561,23 @@ The values within parentheses "()" indicate initial values.
 * qdelay_fraction_avg (0.0): Fractional qdelay filtered by the Exponentially
   Weighted Moving Average (EWMA).
 
-* ref_wnd (MIN_REF_WND): Reference window.
+* ref_wnd (MIN_REF_WND): Reference window [byte].
 
-* ref_wnd_i (1): Reference window inflection point.
+* ref_wnd_i (1): Reference window inflection point [byte].
 
 * bytes_newly_acked (0): The number of bytes that was acknowledged with the last
   received acknowledgement, i.e., bytes acknowledged since the last ref_wnd
   update.
 
 * max_bytes_in_flight (0): The maximum number of bytes in flight in the last
-  round trip.
+  round trip [byte].
 
 * max_bytes_in_flight_prev (0): The maximum number of bytes in flight in
-  previous round trip.
+  previous round trip [byte].
 
 * send_wnd (0): Upper limit to how many bytes can currently be
-  transmitted. Updated when ref_wnd is updated and when RTP packet is
-  transmitted.
+  transmitted. Updated when ref_wnd is updated and when data unit is
+  transmitted [byte].
 
 * target_bitrate (0): Media target bitrate [bps].
 
@@ -573,9 +586,9 @@ The values within parentheses "()" indicate initial values.
 * s_rtt (0.0): Smoothed RTT [s], computed with a similar method to that
   described in {{RFC6298}}.
 
-* rtp_size (0): Size [byte] of the last transmitted RTP packet.
+* data_unit_size (0): Size [byte] of the last transmitted data unit.
 
-* loss_event_rate (0.0): The estimated fraction of RTTs with lost packets
+* loss_event_rate (0.0): The estimated fraction of RTTs with lost data units
   detected.
 
 * bytes_in_flight_ratio (0.0): Ratio between the bytes in flight and the
@@ -583,20 +596,20 @@ The values within parentheses "()" indicate initial values.
 
 * ref_wnd_ratio (0.0): Ratio between MSS and ref_wnd.
 
-* last_fraction_marked (0.0): fraction marked packets in last update
+* last_fraction_marked (0.0): fraction marked data units in last update
 
-* l4s_alpha (0.0): Average fraction of marked packets per RTT.
+* l4s_alpha (0.0): Average fraction of marked data units per RTT.
 
-* l4s_active (false): Indicates that L4S is enabled and packets are indeed
+* l4s_active (false): Indicates that L4S is enabled and data units are indeed
   marked.
 
 * last_update_l4s_alpha_time (0): Last time l4s_alpha was updated [s].
 
 * last_update_qdelay_avg_time (0): Last time qdelay_avg was updated [s].
 
-* packets_delivered_this_rtt (0): Counter for delivered packets.
+* data_units_delivered_this_rtt (0): Counter for delivered data units.
 
-* packets_marked_this_rtt (0): Counter delivered and ECN-CE marked packets.
+* data_units_marked_this_rtt (0): Counter delivered and ECN-CE marked data units.
 
 * last_congestion_detected_time (0): Last time congestion event occured [s].
 
@@ -608,9 +621,9 @@ The values within parentheses "()" indicate initial values.
 * bytes_newly_acked_ce (0): Number of bytes newly ACKed and CE marked, reset to
   0 when reference window is updated [byte].
 
-* pace_bitrate (1e6): Packet pacing rate [bps].
+* pace_bitrate (1e6): Data unit pacing rate [bps].
 
-* t_pace (1e-6): Pacing interval between packets [s].
+* t_pace (1e-6): Pacing interval between data units [s].
 
 * rel_framesize_high (1.0): High percentile of frame size, normalized by nominal
   frame size for the given target bitrate
@@ -626,25 +639,24 @@ functions:
 * Computation of reference window at the sender: This gives an upper limit to
   the number of bytes in flight.
 
-* Calculation of send window at the sender: RTP packets are transmitted if
+* Calculation of send window at the sender: Data units are transmitted if
   allowed by the relation between the number of bytes in flight and the
   reference window. This is controlled by the send window.
 
 SCReAMv2 is a window-based and byte-oriented congestion control protocol, where
-the number of bytes transmitted is inferred from the size of the transmitted RTP
-packets. Thus, a list of transmitted RTP packets and their respective
+the number of bytes transmitted is inferred from the size of the transmitted data units. Thus, a list of transmitted data units and their respective
 transmission times (wall-clock time) MUST be kept for further calculation.
 
 The number of bytes in flight (bytes_in_flight) is computed as the sum of the
-sizes of the RTP packets ranging from the RTP packet most recently transmitted,
-down to but not including the acknowledged packet with the highest sequence
+sizes of the data units ranging from the data unit most recently transmitted,
+down to but not including the acknowledged data unit with the highest sequence
 number. This can be translated to the difference between the highest transmitted
 byte sequence number and the highest acknowledged byte sequence number. As an
-example: If an RTP packet with sequence number SN is transmitted and the last
+example: If a data unit with sequence number SN is transmitted and the last
 acknowledgement indicates SN-5 as the highest received sequence number, then
-bytes_in_flight is computed as the sum of the size of RTP packets with sequence
+bytes_in_flight is computed as the sum of the size of data units with sequence
 number SN-4, SN-3, SN-2, SN-1, and SN. It does not matter if, for instance, the
-packet with sequence number SN-3 was lost -- the size of RTP packet with
+data unit with sequence number SN-3 was lost -- the size of data unit with
 sequence number SN-3 will still be considered in the computation of
 bytes_in_flight.
 
@@ -656,9 +668,8 @@ Furthermore, a variable bytes_newly_acked is incremented with a value
 corresponding to how much the highest sequence number has increased since the
 last feedback. As an example: If the previous acknowledgement indicated the
 highest sequence number N and the new acknowledgement indicated N+3, then
-bytes_newly_acked is incremented by a value equal to the sum of the sizes of RTP
-packets with sequence number N+1, N+2, and N+3. Packets that are lost are also
-included, which means that even though, e.g., packet N+2 was lost, its size is
+bytes_newly_acked is incremented by a value equal to the sum of the sizes of data units with sequence number N+1, N+2, and N+3. Data units that are lost are also
+included, which means that even though, e.g., data unit N+2 was lost, its size is
 still included in the update of bytes_newly_acked. The bytes_newly_acked_ce is,
 similar to bytes_newly_acked, a counter of bytes newly acked with the extra
 condition that they are ECN-CE marked. The bytes_newly_acked and
@@ -666,40 +677,38 @@ bytes_newly_acked_ce are reset to zero after a ref_wnd update.
 
 The feedback from the receiver is assumed to consist of the following elements.
 
-* A list of received RTP packets' sequence numbers. With an indication if
-  packets are ECN-CE marked.
+* A list of received data units' sequence numbers. With an indication if
+  data units are ECN-CE marked, the ECN status can be either per data unit or an accumulated count of ECN-CE marked data units.
 
-* The wall-clock timestamp corresponding to the received RTP packet with the
+* The wall-clock timestamp corresponding to the received data unit with the
   highest sequence number.
 
-It is recommended to use RFC8888 {{RFC8888}} for the feedback as it supports the
-feedback elements described above.
 
 When the sender receives RTCP feedback, the qdelay is calculated as outlined in
 {{RFC6817}}. A qdelay sample is obtained for each received acknowledgement. A
 number of variables are updated as illustrated by the pseudocode below;
 temporary variables are appended with '_t'. Division operation is always
 floating point unless otherwise noted. l4s_alpha is calculated based in number
-of packets delivered (and marked). This makes calculation of L4S alpha more
-accurate at very low bitrates, given that the tail RTP packet in a video frame
+of data units delivered (and marked). This makes calculation of L4S alpha more
+accurate at very low bitrates, given that the tail data unit in e.g a video frame
 is often smaller than MSS.
 
 The smoothed RTT (s_rtt) is computed in a way similar to {{RFC6298}}.
 
 ~~~
-packets_delivered_this_rtt += packets_acked
-packets_marked_this_rtt += packets_acked_ce
+data_units_delivered_this_rtt += data_units_acked
+data_units_marked_this_rtt += data_units_acked_ce
 # l4s_alpha is updated at least every 10ms
 if (now - last_update_l4s_alpha_time >= min(0.01,s_rtt)
-  # l4s_alpha is calculated from packets marked istf bytes marked
-  fraction_marked_t = packets_marked_this_rtt/
-                      packets_delivered_this_rtt
+  # l4s_alpha is calculated from data_units marked istf bytes marked
+  fraction_marked_t = data_units_marked_this_rtt/
+                      data_units_delivered_this_rtt
 
   l4s_alpha = L4S_AVG_G*fraction_marked_t + (1.0-L4S_AVG_G)*l4S_alpha
 
   last_update_l4s_alpha_time = now
-  packets_delivered_this_rtt = 0
-  packets_marked_this_rtt = 0
+  data_units_delivered_this_rtt = 0
+  data_units_marked_this_rtt = 0
   last_fraction_marked = fraction_marked_t
 end
 
@@ -714,13 +723,13 @@ if (now - last_update_qdelay_avg_time >= s_rtt)
 end
 ~~~
 
-### Reaction to Delay, Packet Loss and ECN-CE {#reaction-delay-loss-ce}
+### Reaction to Delay, Data unit Loss and ECN-CE {#reaction-delay-loss-ce}
 
 Congestion is detected based on three different indicators:
 
- * Lost packets detected. The loss detection is described in {{detect-loss}}.
+ * Lost data units detected. The loss detection is described in {{detect-loss}}.
 
- * ECN-CE marked packets detected.
+ * ECN-CE marked data units detected.
 
  * Estimated queue delay exceeds a threshold.
 
@@ -728,7 +737,7 @@ A congestion event occurs if any of the above indicators are true AND it is at
 least min(VIRTUAL_RTT,s_rtt) since the last congestion event. This ensures that
 the reference window is reduced at most once per smoothed RTT.
 
-#### Lost packets  {#reaction-loss}
+#### Lost data units  {#reaction-loss}
 
 The reference window back-off due to loss events is deliberately a bit less than
 is the case with TCP Reno, for example. TCP is generally used to transmit whole
@@ -746,13 +755,13 @@ In classic ECN mode the ref_wnd is scaled by a fixed value (BETA_ECN).
 
 The reference window back-off due to an ECN event MAY be smaller than if a loss
 event occurs. This is in line with the idea outlined in {{RFC8511}} to enable
-ECN marking thresholds lower than the corresponding packet drop thresholds.
+ECN marking thresholds lower than the corresponding data unit drop thresholds.
 
 #### ECN-CE and L4S {#reaction-l4s-ce}
 
-The ref_wnd is scaled down in proportion to the fraction of marked packets per
+The ref_wnd is scaled down in proportion to the fraction of marked data units per
 RTT. The scale down proportion is given by l4s_alpha, which is an EWMA filtered
-version of the fraction of marked packets per RTT. This is inline with how DCTCP
+version of the fraction of marked data units per RTT. This is inline with how DCTCP
 works {{RFC8257}}. Additional methods are applied to make the reference window
 reduction reasonably stable, especially when the reference window is only a few
 MSS. In addition, because SCReAMv2 can quite often be source limited, additional
@@ -770,7 +779,7 @@ avoid that the SCReAMv2 congestion control over-reacts to scheduling jitter,
 sudden delay spikes due to e.g. handover or link layer
 retransmissions. Furthermore, the delay based congestion control is inactivated
 when it is reasonably certain that L4S is active, i.e. L4S is enabled and
-congested nodes apply L4S marking of packets. This reduces negative effects of
+congested nodes apply L4S marking of data units. This reduces negative effects of
 clockdrift, that the delay based control can introduce, whenever possible.
 
 ### Reference Window Update {#ref-wnd-update}
@@ -789,7 +798,7 @@ if (now - last_congestion_detected_time >= min(VIRTUAL_RTT,s_rtt)
   if (loss detected)
     is_loss_t = true
   end
-  if (packets marked)
+  if (data units marked)
     is_ce_t = true
   end
   if (qdelay > qdelay_target/2)
@@ -828,7 +837,7 @@ if (is_ce_t)
     backoff_t = l4s_alpha / 2
 
     # Increase stability for very small ref_wnd
-    backOff_t *= max(0.8, 1.0 - ref_wnd_ratio * 2)
+    backOff_t *= max(0.5, 1.0 - ref_wnd_ratio)
 
     if (now - last_congestion_detected_time > 5)
       # A long time since last congested because link throughput
@@ -887,6 +896,9 @@ ref_wnd_scale_factor_t = 1.0 + (MUL_INCREASE_FACTOR  * ref_wnd) / MSS)
 
 
 # Calculate bytes acked that are not CE marked
+# For the case that only accumulated number of CE marked packets is
+# reported by the feedback, it is necessary to make an approximation
+# of bytes_newly_acked_ce based on average data unit size.
 bytes_newly_acked_minus_ce_t = bytes_newly_acked-
                                bytes_newly_acked_ce
 
@@ -900,25 +912,22 @@ increment_t *= tmp_t * tmp_t
 # known max value before congestion
 scl_t = (ref_wnd-ref_wnd_i) / ref_wnd_i
 scl_t *= 4
-scl_low_limit_t = 0.1
-if (is_l4s_active)
-  # Restrict limit to small reference windows. The limitation
-  # is gradually lifted and completely removed when
-  # ref_wnd > 50MSS
-  scl_low_limit_t = max(0.1, min(1.0, 0.02 / ref_wnd_ratio));
+scl_t = scl_t * scl_t
+scl_t = max(0.1, min(1.0, scl_t))
+if (!is_l4s_active)
+  increment_t *= scl_t
 end
 
-scl_t = scl_t * scl_t
-scl_t = max(scl_low_limit_t, min(1.0, scl_t))
-increment_t *= scl_t
+# Limit on CWND growth speed further for small CWND
+# This is complemented with a corresponding restriction on CWND
+# reduction
+increment *= max(0.5,1.0-ref_wnd_ratio)
 
-# Slow down ref_wnd increase when ref_wnd is only a few MSS
-# The ref_wnd increase can be as slow as
-# LOW_REF_WND_SCALE_FACTOR*MSS per RTT
+# Scale up increment with multiplicative increase
+# Limit multiplicative increase when congestion occured
+# recently and when reference window is close to the last
+# known max value
 float tmp_t = ref_wnd_scale_factor_t
-
-# Further limit multiplicative increase when congestion occured
-# recently.
 if (tmp_t > 1.0)
   tmp_t = 1.0 + (tmp_t - 1.0) * post_congestion_scale_t * scl_t;
 end
@@ -947,7 +956,7 @@ The multiplicative increase is restricted directly after a congestion event and
 the restriction is gradually relaxed as the time since last congested
 increased. The restriction makes the reference window growth to be no faster
 than additive increase when congestion continusly occurs.  For L4S operation
-this means that the SCReAMv2 algorithm will adhere to the 2 marked packets per
+this means that the SCReAMv2 algorithm will adhere to the 2 marked data units per
 RTT equilibrium at steady state congestion, with the exception of the case
 below.
 
@@ -975,36 +984,36 @@ to manage this:
 
 The two mechanisms complement one another.
 
-### Lost Packet Detection {#detect-loss}
+### Lost Data Unit Detection {#detect-loss}
 
-Lost packet detection is based on the received sequence number list. A
-reordering window SHOULD be applied to prevent packet reordering from triggering
+Lost data unit detection is based on the received sequence number list. A
+reordering window SHOULD be applied to prevent data unit reordering from triggering
 loss events. The reordering window is specified as a time unit, similar to the
 ideas behind Recent ACKnowledgement (RACK) {{RFC8985}}. The computation of the
 reordering window is made possible by means of a lost flag in the list of
-transmitted packets. This flag is set if the received sequence number list
-indicates that the given packet is missing. If later feedback indicates that
-a previously lost marked packet was indeed received, then the reordering window
+transmitted data units. This flag is set if the received sequence number list
+indicates that the given data unit is missing. If later feedback indicates that
+a previously lost marked data unit was indeed received, then the reordering window
 is updated to reflect the reordering delay. The reordering window is given by
-the difference in time between the event that the packet was marked as lost and
+the difference in time between the event that the data unit was marked as lost and
 the event that it was indicated as successfully received. Loss is detected if a
-given RTP packet is not acknowledged within a time window (indicated by the
-reordering window) after an packet with a higher sequence number was
+given data unit is not acknowledged within a time window (indicated by the
+reordering window) after an data unit with a higher sequence number was
 acknowledged.
 
 ### Send Window Calculation {#send-window}
 
-The basic design principle behind packet transmission in SCReAM was to allow
+The basic design principle behind data unit transmission in SCReAM was to allow
 transmission only if the number of bytes in flight is less than the congestion
 window. There are, however, two reasons why this strict rule will not work
 optimally:
 
 * Bitrate variations: Media sources such as video encoders generally produce
-  frames whose size always vary to a larger or smaller extent. The RTP queue
-  absorbs the natural variations in frame sizes. However, the RTP queue should
+  frames whose size always vary to a larger or smaller extent. The data unit queue
+  absorbs the natural variations in frame sizes. However, the data unit queue should
   be as short as possible to prevent the end-to-end delay from increasing. A
   strict 'send only when bytes in flight is less than the reference window' rule
-  can cause the RTP queue to grow simply because the send window is limited. The
+  can cause the data unit queue to grow simply because the send window is limited. The
   consequence is that the reference window will not increase, or will increase
   very slowly, because the reference window is only allowed to increase when
   there is a sufficient amount of data in flight. The final effect is that the
@@ -1023,7 +1032,7 @@ reference window and the amount of bytes in flight according to the pseudocode
 below. The multiplication of ref_wnd with REF_WND_OVERHEAD and
 rel_framesize_high has the effect that bytes in flight is 'around' the ref_wnd
 rather than limited by the ref_wnd when the link is congested.  The
-implementation allows the RTP queue to be small even when the frame sizes vary
+implementation allows the data unit queue to be small even when the frame sizes vary
 and thus increased e2e delay can be avoided.
 
 ~~~
@@ -1031,7 +1040,7 @@ send_wnd = ref_wnd * REF_WND_OVERHEAD * rel_framesize_high -
            bytes_in_flight
 ~~~
 
-The send window is updated whenever an packet is transmitted or an feedback
+The send window is updated whenever an data unit is transmitted or an feedback
 messaged is received.
 
 The variable rel_framesize_high is based on calculation of the high percentile
@@ -1063,23 +1072,23 @@ Packet pacing is used in order to mitigate coalescing, i.e., when packets are
 transmitted in bursts, with the risks of increased jitter and potentially
 increased packet loss. Packet pacing is also recommended to be used with L4S and
 also mitigates possible issues with queue overflow due to key-frame generation
-in video coders. The time interval between consecutive packet transmissions is
+in video coders. The time interval between consecutive data unit transmissions is
 greater than or equal to t_pace, where t_pace is given by the equations below :
 
 ~~~
 pace_bitrate = max(RATE_PACE_MIN, target_bitrate) *
                PACKET_PACING_HEADROOM
-t_pace = rtp_size * 8 / pace_bitrate
+t_pace = data_unit_size * 8 / pace_bitrate
 ~~~
 
-rtp_size is the size of the last transmitted RTP packet. RATE_PACE_MIN is the
+data_unit_size is the size of the last transmitted data unit. RATE_PACE_MIN is the
 minimum pacing rate.
 
 ### Stream Prioritization {#stream-prioritization}
 
 The SCReAM algorithm makes a distinction between network congestion control and
-media rate control. This is easily extended to many streams. RTP packets from
-two or more RTP queues are scheduled at the rate permitted by the network
+media rate control. This is easily extended to many streams. Data units from
+two or more data unit queues are scheduled at the rate permitted by the network
 congestion control.
 
 The scheduling can be done by means of a few different scheduling regimes. For
@@ -1105,7 +1114,7 @@ target_bitrate = 8 * ref_wnd / s_rtt
 ~~~
 
 The role of the media rate control is to strike a reasonable balance between a
-low amount of queuing in the RTP queue(s) and a sufficient amount of data to
+low amount of queuing in the data unit queue(s) and a sufficient amount of data to
 send in order to keep the data path busy. Because the reference window is
 updated based on loss, ECN-CE and delay, so does the target rate also update.
 
@@ -1113,7 +1122,7 @@ The code above however needs some modifications to work fine in a number of
 scenarios
 
 * L4S is inactive, i.e L4S is either not enabled or congested bottlenecks do not
-  L4S mark packets
+  L4S mark data units
 
 * ref_wnd is very small, just a few MSS or smaller
 
@@ -1133,7 +1142,10 @@ end
 
 # Scale down rate slighty when the reference window is very
 # small compared to MSS
-tmp_t *= 1.0 - min(0.8, max(0.0, ref_wnd_ratio - 0.1))
+tmp_t *= 1.0 - min(0.2, max(0.0, ref_wnd_ratio - 0.1))
+
+# Additional compensation for packetization overhead, important when MSS is small
+tmp_t_ *= mss/(mss + PACKET_OVERHEAD)
 
 # Calculate target bitrate and limit to min and max allowed
 # values
@@ -1165,7 +1177,7 @@ adjust_qdelay_target(qdelay)
   new_target_t = qdelay_norm_avg_t + sqrt(qdelay_norm_var_t)
   new_target_t *= QDELAY_TARGET_LO
   if (loss_event_rate > 0.002)
-    # Packet losses detected
+    # Data unit losses detected
     qdelay_target = 1.5 * new_target_t
   else
     if (qdelay_norm_var_t < 0.2)
@@ -1199,7 +1211,7 @@ delay target.
 
 A low qdelay_norm_var_t indicates that the queue delay is relatively stable. The
 reason could be that the queue delay is low, but it could also be that a
-competing flow is causing the bottleneck to reach the point that packet losses
+competing flow is causing the bottleneck to reach the point that data unit losses
 start to occur, in which case the queue delay will stay relatively high for a
 longer time.
 
@@ -1246,8 +1258,8 @@ fully integrated into SCReAMv2.
 #  Receiver Requirements on Feedback Intensity {#scream-receiver}
 
 The simple task of the receiver is to feed back acknowledgements with with time
-stamp and ECN bits indication for received packets to the sender. Upon reception
-of each RTP packet, the receiver MUST maintain enough information to send the
+stamp and ECN bits indication for received data units to the sender. Upon reception
+of each data unit, the receiver MUST maintain enough information to send the
 aforementioned values to the sender via an RTCP transport- layer feedback
 message. The frequency of the feedback message depends on the available RTCP
 bandwidth. The requirements on the feedback elements and the feedback interval
@@ -1269,7 +1281,7 @@ useful for the computation of the desired RTCP bandwidth. The following equation
 expresses the feedback rate:
 
 ~~~
-# Assume 100 byte RTCP packets
+# Assume 100 byte feedback packets
 rate_fb = 0.02 * [average received rate] / (100.0 * 8.0);
 rate_fb = min(1000, max(10, rate_fb))
 
@@ -1279,9 +1291,9 @@ fb_int = 1.0/rate_fb
 
 Feedback should also forcibly be transmitted in any of these cases:
 
-* More than N packets received since last RTCP feedback has been transmitted
+* More than N data units received since last RTCP feedback has been transmitted
 
-* An RTP packet with marker bit set is received
+* A data unit with marker bit set or other last data unit for media frame is received
 
 The transmission interval is not critical. So, in the case of multi-stream
 handling between two hosts, the feedback for two or more synchronization sources
@@ -1310,11 +1322,11 @@ This section covers a few discussion points.
 * Clock skipping: The sender or receiver clock can occasionally skip. Handling
   of this is implemented in {{SCReAM-CPP-implementation}}.
 
-* The target bitrate given by SCReAMv2 is the bitrate including the RTP and
+* The target bitrate given by SCReAMv2 is the bitrate including the data unit and
   Forward Error Correction (FEC) overhead. The media encoder SHOULD take this
   overhead into account when the media bitrate is set. This means that the media
   coder bitrate SHOULD be computed as: media_rate = target_bitrate -
-  rtp_plus_fec_overhead_bitrate It is not necessary to make a 100% perfect
+  data_unit_plus_fec_overhead_bitrate It is not necessary to make a 100% perfect
   compensation for the overhead, as the SCReAM algorithm will inherently
   compensate for moderate errors. Under-compensating for the overhead has the
   effect of increasing jitter, while overcompensating will cause the bottleneck
@@ -1349,7 +1361,7 @@ This section covers a few discussion points.
   than every 16th packet, and where each RTCP feedback spans the last 32
   received packets. This however creates unnecessary overhead. {{RFC3550}} RR
   (Receiver Reports) can possibly be another solution to achieve better
-  robustness with less overhead.
+  robustness with less overhead. QUIC {{RFC9000}} overcomes this issue because of inherent design.
 
 # IANA Considerations {#iana}
 
