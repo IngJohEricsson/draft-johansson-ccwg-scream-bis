@@ -144,7 +144,7 @@ such as WebRTC {{RFC7478}}, should be both quick and be able to operate over a
 large range in channel capacity.
 
 This memo describes Self-Clocked Rate Adaptation for Multimedia version 2
-(SCReAMv2), an update to SCReAM congestion control for media streams such as RTP 
+(SCReAMv2), an update to SCReAM congestion control for media streams such as RTP
 {{RFC3550}}. While SCReAM was originally devised for WebRTC, SCReAM as well as
 SCReAMv2 can also be used for other applications where congestion control of
 different type of real-time streams, especially media streams is
