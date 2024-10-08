@@ -921,7 +921,7 @@ end
 # Limit on CWND growth speed further for small CWND
 # This is complemented with a corresponding restriction on CWND
 # reduction
-increment *= max(0.5,1.0-ref_wnd_ratio)
+increment_t *= max(0.5,1.0-ref_wnd_ratio)
 
 # Scale up increment with multiplicative increase
 # Limit multiplicative increase when congestion occured
@@ -1291,7 +1291,7 @@ fb_int = 1.0/rate_fb
 
 Feedback should also forcibly be transmitted in any of these cases:
 
-* More than N data units received since last RTCP feedback has been transmitted
+* More than N data units received since last feedback has been transmitted
 
 * A data unit with marker bit set or other last data unit for media frame is received
 
@@ -1306,6 +1306,8 @@ by SCReAMv2 but can nonetheless be useful for RTCP messages not directly related
 to SCReAMv2, such as those specified in {{RFC4585}}. It is RECOMMENDED to use
 reduced-size RTCP {{RFC5506}}, where regular full compound RTCP transmission is
 controlled by trr-int as described in {{RFC4585}}.
+
+While the guidelines above are somewhat RTCP specific, similar principles apply to for instance QUIC.
 
 # Discussion {#discussion}
 
@@ -1364,6 +1366,14 @@ This section covers a few discussion points.
   robustness with less overhead. QUIC {{RFC9000}} overcomes this issue because of inherent design.
 
 * SCReAM has over time been evaluated in a number of different experiments, a few examples are found in {{SCReAM-evaluation-L4S}}.
+
+# Algorithm changes {#algorithm-changes}
+
+Algorithm changes since the last draft version are:
+
+* Slow down reference window growth when close the last know max is disabled when L4S active. This makes SCReAM adhere more closely to 2 marked packets per RTT at steady state.
+* Reference window decrease and increase reduced by up to 50% when ref_wnd/mss is small. This reduces rate oscillations.
+* Target bitrate down adjustment when ref_wnd/mss is small is modified to only help to avoid that the data unit queue grows excessively in certain low bitrate cases.
 
 # IANA Considerations {#iana}
 
