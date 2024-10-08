@@ -5,8 +5,8 @@
 CCWG                                                        I. Johansson
 Internet-Draft                                             M. Westerlund
 Obsoletes: 8298 (if approved)                                   Ericsson
-Intended status: Experimental                             7 October 2024
-Expires: 10 April 2025
+Intended status: Experimental                             8 October 2024
+Expires: 11 April 2025
 
 
               Self-Clocked Rate Adaptation for Multimedia
@@ -58,7 +58,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 10 April 2025.
+   This Internet-Draft will expire on 11 April 2025.
 
 Copyright Notice
 
@@ -102,11 +102,12 @@ Table of Contents
      4.5.  Handling of systematic errors in video coders
    5.  Receiver Requirements on Feedback Intensity
    6.  Discussion
-   7.  IANA Considerations
-   8.  Security Considerations
-   9.  References
-     9.1.  Normative References
-     9.2.  Informative References
+   7.  Algorithm changes
+   8.  IANA Considerations
+   9.  Security Considerations
+   10. References
+     10.1.  Normative References
+     10.2.  Informative References
    Appendix A.  Acknowledgments
    Authors' Addresses
 
@@ -973,7 +974,7 @@ Table of Contents
   # Limit on CWND growth speed further for small CWND
   # This is complemented with a corresponding restriction on CWND
   # reduction
-  increment *= max(0.5,1.0-ref_wnd_ratio)
+  increment_t *= max(0.5,1.0-ref_wnd_ratio)
 
   # Scale up increment with multiplicative increase
   # Limit multiplicative increase when congestion occured
@@ -1350,7 +1351,7 @@ target_bitrate = min(TARGET_BITRATE_MAX,
 
    Feedback should also forcibly be transmitted in any of these cases:
 
-   *  More than N data units received since last RTCP feedback has been
+   *  More than N data units received since last feedback has been
       transmitted
 
    *  A data unit with marker bit set or other last data unit for media
@@ -1369,6 +1370,9 @@ target_bitrate = min(TARGET_BITRATE_MAX,
    [RFC4585].  It is RECOMMENDED to use reduced-size RTCP [RFC5506],
    where regular full compound RTCP transmission is controlled by trr-
    int as described in [RFC4585].
+
+   While the guidelines above are somewhat RTCP specific, similar
+   principles apply to for instance QUIC.
 
 6.  Discussion
 
@@ -1437,11 +1441,26 @@ target_bitrate = min(TARGET_BITRATE_MAX,
    *  SCReAM has over time been evaluated in a number of different
       experiments, a few examples are found in [SCReAM-evaluation-L4S].
 
-7.  IANA Considerations
+7.  Algorithm changes
+
+   Algorithm changes since the last draft version are:
+
+   *  Slow down reference window growth when close the last know max is
+      disabled when L4S active.  This makes SCReAM adhere more closely
+      to 2 marked packets per RTT at steady state.
+
+   *  Reference window decrease and increase reduced by up to 50% when
+      ref_wnd/mss is small.  This reduces rate oscillations.
+
+   *  Target bitrate down adjustment when ref_wnd/mss is small is
+      modified to only help to avoid that the data unit queue grows
+      excessively in certain low bitrate cases.
+
+8.  IANA Considerations
 
    This document does not require any IANA actions.
 
-8.  Security Considerations
+9.  Security Considerations
 
    The feedback can be vulnerable to attacks similar to those that can
    affect TCP.  It is therefore RECOMMENDED that the RTCP feedback is at
@@ -1451,9 +1470,9 @@ target_bitrate = min(TARGET_BITRATE_MAX,
    mitigated by the minimum send rate maintained by SCReAM/SCReAMv2 when
    no feedback is received.
 
-9.  References
+10.  References
 
-9.1.  Normative References
+10.1.  Normative References
 
    [RFC3168]  Ramakrishnan, K., Floyd, S., and D. Black, "The Addition
               of Explicit Congestion Notification (ECN) to IP",
@@ -1496,7 +1515,7 @@ target_bitrate = min(TARGET_BITRATE_MAX,
               DOI 10.17487/RFC9330, January 2023,
               <https://www.rfc-editor.org/info/rfc9330>.
 
-9.2.  Informative References
+10.2.  Informative References
 
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
               Requirement Levels", BCP 14, RFC 2119,
