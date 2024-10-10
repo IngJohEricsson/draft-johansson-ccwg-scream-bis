@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2024-10-08T01:36:14.528606+00:00",
+  "timestamp": "2024-10-10T01:35:43.825342+00:00",
   "repo": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
   "labels": [
     {
@@ -93,15 +93,15 @@
       "id": "I_kwDOK7AJUs6AhpJV",
       "title": "Draft name should be draft-johansson-ccwg-rfc8298bis",
       "url": "https://github.com/IngJohEricsson/draft-johansson-ccwg-scream-bis/issues/2",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "mirjak",
       "authorAssociation": "COLLABORATOR",
       "assignees": [],
       "labels": [],
       "body": "The usual naming for a bis draft would be draft-johansson-ccwg-rfc8298bis. If you want to have scream in the name, I recommend using draft-johansson-ccwg-rfc8298bis-scream.",
       "createdAt": "2024-02-27T11:03:49Z",
-      "updatedAt": "2024-02-28T10:18:31Z",
-      "closedAt": null,
+      "updatedAt": "2024-10-09T13:08:09Z",
+      "closedAt": "2024-10-09T13:08:09Z",
       "comments": [
         {
           "author": "IngJohEricsson",
@@ -117,15 +117,15 @@
       "id": "I_kwDOK7AJUs6AhqLe",
       "title": "LTE is soo yesterday ;-)",
       "url": "https://github.com/IngJohEricsson/draft-johansson-ccwg-scream-bis/issues/3",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "mirjak",
       "authorAssociation": "COLLABORATOR",
       "assignees": [],
       "labels": [],
       "body": "Does it still make sense to talk about LTE in the draft? I guess we could say it more generally like \"mobile networks, like e.g. LTE\" or something? I actually wonder if section 1.1. is still needed at all?",
       "createdAt": "2024-02-27T11:06:07Z",
-      "updatedAt": "2024-02-28T10:18:04Z",
-      "closedAt": null,
+      "updatedAt": "2024-10-09T13:06:27Z",
+      "closedAt": "2024-10-09T13:06:27Z",
       "comments": [
         {
           "author": "mirjak",
@@ -140,6 +140,13 @@
           "body": "You are probably right. On the other hand I (we) have tried it mainly with 3GPP access (4G and 5G), with only limited testing in WiFi home networks.  ",
           "createdAt": "2024-02-28T10:18:03Z",
           "updatedAt": "2024-02-28T10:18:03Z"
+        },
+        {
+          "author": "mirjak",
+          "authorAssociation": "COLLABORATOR",
+          "body": "done",
+          "createdAt": "2024-10-09T13:06:27Z",
+          "updatedAt": "2024-10-09T13:06:27Z"
         }
       ]
     },
@@ -172,15 +179,15 @@
       "id": "I_kwDOK7AJUs6Ah2N3",
       "title": "Rename the algorithm to SCREAMv2?",
       "url": "https://github.com/IngJohEricsson/draft-johansson-ccwg-scream-bis/issues/5",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "mirjak",
       "authorAssociation": "COLLABORATOR",
       "assignees": [],
       "labels": [],
       "body": "Removal of fast increase, making it more rate-based, and the general change of the the delay-based approach, maybe we should actually call this also differently. It's definitely not only a bis where you try to fix some issues. It's really more a redesign. If you still want to obsolete the old scream draft, I propose to call this algorithm SCREAMv2.",
       "createdAt": "2024-02-27T11:32:22Z",
-      "updatedAt": "2024-02-28T10:15:21Z",
-      "closedAt": null,
+      "updatedAt": "2024-10-09T13:06:12Z",
+      "closedAt": "2024-10-09T13:06:12Z",
       "comments": [
         {
           "author": "IngJohEricsson",
@@ -188,6 +195,13 @@
           "body": "Yes, it is actually a major redesign. In the github code it named ScreamV2Tx.cpp. I don't have a very strong opinion, which is the preferred, seen from an IETF perspective ?\r\n",
           "createdAt": "2024-02-28T10:15:20Z",
           "updatedAt": "2024-02-28T10:15:20Z"
+        },
+        {
+          "author": "mirjak",
+          "authorAssociation": "COLLABORATOR",
+          "body": "This was done",
+          "createdAt": "2024-10-09T13:06:12Z",
+          "updatedAt": "2024-10-09T13:06:12Z"
         }
       ]
     },
@@ -519,25 +533,35 @@
       "id": "PR_kwDOK7AJUs59yZwI",
       "title": "RTP to Data units and some algorithmic changes",
       "url": "https://github.com/IngJohEricsson/draft-johansson-ccwg-scream-bis/pull/15",
-      "state": "OPEN",
+      "state": "MERGED",
       "author": "IngJohEricsson",
       "authorAssociation": "OWNER",
       "assignees": [],
       "labels": [],
       "body": "New PR",
       "createdAt": "2024-10-07T09:25:25Z",
-      "updatedAt": "2024-10-07T12:55:09Z",
+      "updatedAt": "2024-10-08T08:29:38Z",
       "baseRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
       "baseRefName": "main",
       "baseRefOid": "dbb813118b1277a81b36579f2fe76645d23a0795",
       "headRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
       "headRefName": "ij-new-edits",
-      "headRefOid": "16caac142b93dc9f4c277a81b3f00dc8e6600195",
-      "closedAt": null,
-      "mergedAt": null,
-      "mergedBy": null,
-      "mergeCommit": null,
-      "comments": [],
+      "headRefOid": "979ae918accb4893caecf8b4ac641af8050050f1",
+      "closedAt": "2024-10-08T08:29:06Z",
+      "mergedAt": "2024-10-08T08:29:06Z",
+      "mergedBy": "IngJohEricsson",
+      "mergeCommit": {
+        "oid": "6188466653b86bbada888bcaf5ad816568fefdf3"
+      },
+      "comments": [
+        {
+          "author": "IngJohEricsson",
+          "authorAssociation": "OWNER",
+          "body": "Merge after review",
+          "createdAt": "2024-10-08T08:29:01Z",
+          "updatedAt": "2024-10-08T08:29:01Z"
+        }
+      ],
       "reviews": [
         {
           "id": "PRR_kwDOK7AJUs6MLfpE",
@@ -574,6 +598,133 @@
               "body": "As there are algorithmic changes, maybe add a \"Changes\" section that document the non-editorial changes. ",
               "createdAt": "2024-10-07T12:40:41Z",
               "updatedAt": "2024-10-07T12:40:49Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs6MS3Q-",
+          "commit": {
+            "abbreviatedOid": "16caac1"
+          },
+          "author": "IngJohEricsson",
+          "authorAssociation": "OWNER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-10-08T08:19:33Z",
+          "updatedAt": "2024-10-08T08:19:33Z",
+          "comments": [
+            {
+              "originalPosition": 678,
+              "body": "Explained in new section Algorithm changes",
+              "createdAt": "2024-10-08T08:19:33Z",
+              "updatedAt": "2024-10-08T08:19:33Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs6MS3be",
+          "commit": {
+            "abbreviatedOid": "16caac1"
+          },
+          "author": "IngJohEricsson",
+          "authorAssociation": "OWNER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-10-08T08:19:49Z",
+          "updatedAt": "2024-10-08T08:19:49Z",
+          "comments": [
+            {
+              "originalPosition": 728,
+              "body": "Yes",
+              "createdAt": "2024-10-08T08:19:49Z",
+              "updatedAt": "2024-10-08T08:19:49Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs6MS3ta",
+          "commit": {
+            "abbreviatedOid": "16caac1"
+          },
+          "author": "IngJohEricsson",
+          "authorAssociation": "OWNER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-10-08T08:20:16Z",
+          "updatedAt": "2024-10-08T08:20:16Z",
+          "comments": [
+            {
+              "originalPosition": 533,
+              "body": "Increment_t is correct",
+              "createdAt": "2024-10-08T08:20:16Z",
+              "updatedAt": "2024-10-08T08:20:16Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs6MS37L",
+          "commit": {
+            "abbreviatedOid": "16caac1"
+          },
+          "author": "IngJohEricsson",
+          "authorAssociation": "OWNER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-10-08T08:20:37Z",
+          "updatedAt": "2024-10-08T08:20:37Z",
+          "comments": [
+            {
+              "originalPosition": 497,
+              "body": "Explained in new section Algorithm changes",
+              "createdAt": "2024-10-08T08:20:37Z",
+              "updatedAt": "2024-10-08T08:20:37Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "number": 16,
+      "id": "PR_kwDOK7AJUs5-FD-S",
+      "title": "Update draft-johansson-ccwg-rfc8298bis-screamv2.md",
+      "url": "https://github.com/IngJohEricsson/draft-johansson-ccwg-scream-bis/pull/16",
+      "state": "CLOSED",
+      "author": "mirjak",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2024-10-09T13:04:02Z",
+      "updatedAt": "2024-10-09T13:05:19Z",
+      "baseRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
+      "baseRefName": "main",
+      "baseRefOid": "6188466653b86bbada888bcaf5ad816568fefdf3",
+      "headRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
+      "headRefName": "mirjak-patch-3",
+      "headRefOid": "79f586a188bc4ada61c430cac7aa8dc0b19b0bc9",
+      "closedAt": "2024-10-09T13:05:14Z",
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [],
+      "reviews": [
+        {
+          "id": "PRR_kwDOK7AJUs6Mfnxi",
+          "commit": {
+            "abbreviatedOid": "c7df6c8"
+          },
+          "author": "mirjak",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-10-09T13:04:39Z",
+          "updatedAt": "2024-10-09T13:04:39Z",
+          "comments": [
+            {
+              "originalPosition": 5,
+              "body": "```suggestion\r\nTest is over now\r\n\r\n```",
+              "createdAt": "2024-10-09T13:04:39Z",
+              "updatedAt": "2024-10-09T13:04:39Z"
             }
           ]
         }
