@@ -245,15 +245,26 @@ reaction to congestion.
 
 ## Requirements on media and feedback protocol {#requirements-media}
 
-SCReAM was originally designed to with with RTP + RTCP where {{RFC8888}} was used
-as recommended feedback. RTP offers unique packet indication with the sequence number and {{RFC8888}} offers timestamps of received packets and the status of the ECN bits.
+SCReAM was originally designed to with with RTP + RTCP where {{RFC8888}} was
+used as recommended feedback. RTP offers unique packet indication with the
+sequence number and {{RFC8888}} offers timestamps of received packets and the
+status of the ECN bits.
 
 SCReAM is however not limited to RTP as long as some requirements are fulfilled :
-* Media data is split in data units that when encapsulated in IP packets fit in the network MTU.
-* Each data unit can be uniquely identified.
-* Data units can be queued up in a packet queue before transmission.
-* Feedback can indicate reception time for each data units, or a group of data units.
-* Feedback can indicate packets that are ECN-CE marked. Unique ECN bits indication for each packet is not necessary. An ECN-CE counter similar to what is defined in {{RFC9000}} is sufficient.
+
+ * Media data is split in data units that when encapsulated in IP packets fit in
+   the network MTU.
+
+ * Each data unit can be uniquely identified.
+
+ * Data units can be queued up in a packet queue before transmission.
+
+ * Feedback can indicate reception time for each data units, or a group of data
+   units.
+
+ * Feedback can indicate packets that are ECN-CE marked. Unique ECN bits
+   indication for each packet is not necessary. An ECN-CE counter similar to
+   what is defined in {{RFC9000}} is sufficient.
 
 ## Comparison with LEDBAT and TFWC in TCP {#ledbat-tfwc}
 
@@ -383,7 +394,8 @@ Reference window reduction is triggered by:
 
 The sender transmission control limits the output of data, given by the relation
 between the number of bytes in flight and the reference window. The congestion
-window is however not a hard limit, additional slack is given to avoid that data units are queued up unnecessarily on the sender side. This means that the
+window is however not a hard limit, additional slack is given to avoid that data
+units are queued up unnecessarily on the sender side. This means that the
 algoritm prefers to build up a queue in the network rather than on the sender
 side. Additional congestion that this causes will reflect back and cause a
 reduction of the reference window. Packet pacing is used to mitigate issues with
@@ -421,11 +433,11 @@ This section describes the sender-side algorithm in more detail. It is split
 between the network congestion control, sender transmission control, and media
 rate control.
 
-The sender implements media rate control and an data unit queue for each media type or
-source, where data units containing encoded media frames are temporarily stored
-for transmission. Figure 1 shows the details when a single media source (or
-stream) is used. A transmission scheduler (not shown in the figure) is added to
-support multiple streams. The transmission scheduler can enforce differing
+The sender implements media rate control and an data unit queue for each media
+type or source, where data units containing encoded media frames are temporarily
+stored for transmission. Figure 1 shows the details when a single media source
+(or stream) is used. A transmission scheduler (not shown in the figure) is added
+to support multiple streams. The transmission scheduler can enforce differing
 priorities between the streams and act like a coupled congestion controller for
 multiple flows. Support for multiple streams is implemented in
 {{SCReAM-CPP-implementation}}.
@@ -643,9 +655,11 @@ functions:
   allowed by the relation between the number of bytes in flight and the
   reference window. This is controlled by the send window.
 
-SCReAMv2 is a window-based and byte-oriented congestion control protocol, where
-the number of bytes transmitted is inferred from the size of the transmitted data units. Thus, a list of transmitted data units and their respective
-transmission times (wall-clock time) MUST be kept for further calculation.
+SCReAMv2 is a window-based and byte-oriented congestion control
+protocol, where the number of bytes transmitted is inferred from the
+size of the transmitted data units. Thus, a list of transmitted data
+units and their respective transmission times (wall-clock time) MUST
+be kept for further calculation.
 
 The number of bytes in flight (bytes_in_flight) is computed as the sum of the
 sizes of the data units ranging from the data unit most recently transmitted,
@@ -665,20 +679,24 @@ ref_wnd. This value should be computed at the beginning of the ACK
 processing. ref_wnd_ratio is computed as the relation between MSS and ref_wnd.
 
 Furthermore, a variable bytes_newly_acked is incremented with a value
-corresponding to how much the highest sequence number has increased since the
-last feedback. As an example: If the previous acknowledgement indicated the
-highest sequence number N and the new acknowledgement indicated N+3, then
-bytes_newly_acked is incremented by a value equal to the sum of the sizes of data units with sequence number N+1, N+2, and N+3. Data units that are lost are also
-included, which means that even though, e.g., data unit N+2 was lost, its size is
-still included in the update of bytes_newly_acked. The bytes_newly_acked_ce is,
-similar to bytes_newly_acked, a counter of bytes newly acked with the extra
-condition that they are ECN-CE marked. The bytes_newly_acked and
-bytes_newly_acked_ce are reset to zero after a ref_wnd update.
+corresponding to how much the highest sequence number has increased
+since the last feedback. As an example: If the previous
+acknowledgement indicated the highest sequence number N and the new
+acknowledgement indicated N+3, then bytes_newly_acked is incremented
+by a value equal to the sum of the sizes of data units with sequence
+number N+1, N+2, and N+3. Data units that are lost are also included,
+which means that even though, e.g., data unit N+2 was lost, its size
+is still included in the update of bytes_newly_acked. The
+bytes_newly_acked_ce is, similar to bytes_newly_acked, a counter of
+bytes newly acked with the extra condition that they are ECN-CE
+marked. The bytes_newly_acked and bytes_newly_acked_ce are reset to
+zero after a ref_wnd update.
 
 The feedback from the receiver is assumed to consist of the following elements.
 
-* A list of received data units' sequence numbers. With an indication if
-  data units are ECN-CE marked, the ECN status can be either per data unit or an accumulated count of ECN-CE marked data units.
+* A list of received data units' sequence numbers. With an indication
+  if data units are ECN-CE marked, the ECN status can be either per
+  data unit or an accumulated count of ECN-CE marked data units.
 
 * The wall-clock timestamp corresponding to the received data unit with the
   highest sequence number.
@@ -1144,7 +1162,8 @@ end
 # small compared to MSS
 tmp_t *= 1.0 - min(0.2, max(0.0, ref_wnd_ratio - 0.1))
 
-# Additional compensation for packetization overhead, important when MSS is small
+# Additional compensation for packetization overhead,
+# important when MSS is small
 tmp_t_ *= mss/(mss + PACKET_OVERHEAD)
 
 # Calculate target bitrate and limit to min and max allowed
@@ -1298,7 +1317,7 @@ Feedback should also forcibly be transmitted in any of these cases:
 The transmission interval is not critical. So, in the case of multi-stream
 handling between two hosts, the feedback for two or more synchronization sources
 (SSRCs) can be bundled to save UDP/IP overhead. However, the final realized
-feedback interval SHOULD not exceed 2*fb_int in such cases, meaning that a
+feedback interval SHOULD NOT exceed 2*fb_int in such cases, meaning that a
 scheduled feedback transmission event should not be delayed more than fb_int.
 
 SCReAMv2 works with AVPF regular mode; immediate or early mode is not required
@@ -1307,7 +1326,8 @@ to SCReAMv2, such as those specified in {{RFC4585}}. It is RECOMMENDED to use
 reduced-size RTCP {{RFC5506}}, where regular full compound RTCP transmission is
 controlled by trr-int as described in {{RFC4585}}.
 
-While the guidelines above are somewhat RTCP specific, similar principles apply to for instance QUIC.
+While the guidelines above are somewhat RTCP specific, similar principles apply
+to for instance QUIC.
 
 # Discussion {#discussion}
 
@@ -1351,29 +1371,38 @@ This section covers a few discussion points.
     means that uplink transmission slots are unused with a lower link
     utilization as a result.
 
-* Packet pacing is recommended, it is however possible to operate SCReAMv2 with
+ * Packet pacing is recommended, it is however possible to operate SCReAMv2 with
   packet pacing disabled. The code in {{SCReAM-CPP-implementation}} implements
   additonal mechanisms to achieve a high link utilization when packet pacing is
   disabled.
 
-* RFC8888 Feedback issues: RTCP feedback packets can be lost, this means that
+ * Feedback issues: RTCP feedback packets {{RFC8888}} can be lost, this means that
   the loss detection in SCReAMv2 may trigger even though packets arrive safely
   on the receiver side. {{SCReAM-CPP-implementation}} solves this by using
   overlapping RTCP feedback, i.e RTCP feedback is transmitted no more seldom
   than every 16th packet, and where each RTCP feedback spans the last 32
   received packets. This however creates unnecessary overhead. {{RFC3550}} RR
   (Receiver Reports) can possibly be another solution to achieve better
-  robustness with less overhead. QUIC {{RFC9000}} overcomes this issue because of inherent design.
+  robustness with less overhead. QUIC {{RFC9000}} overcomes this issue because
+  of inherent design.
 
-* SCReAM has over time been evaluated in a number of different experiments, a few examples are found in {{SCReAM-evaluation-L4S}}.
+ * SCReAM has over time been evaluated in a number of different experiments, a
+  few examples are found in {{SCReAM-evaluation-L4S}}.
 
 # Algorithm changes {#algorithm-changes}
 
 Algorithm changes since the last draft version are:
 
-* Slow down reference window growth when close the last know max is disabled when L4S active. This makes SCReAM adhere more closely to 2 marked packets per RTT at steady state.
-* Reference window decrease and increase reduced by up to 50% when ref_wnd/mss is small. This reduces rate oscillations.
-* Target bitrate down adjustment when ref_wnd/mss is small is modified to only help to avoid that the data unit queue grows excessively in certain low bitrate cases.
+ * Slow down reference window growth when close the last know max is disabled
+   when L4S active. This makes SCReAM adhere more closely to 2 marked packets
+   per RTT at steady state.
+
+ * Reference window decrease and increase reduced by up to 50% when ref_wnd/mss
+   is small. This reduces rate oscillations.
+
+ * Target bitrate down adjustment when ref_wnd/mss is small is modified to only
+   help to avoid that the data unit queue grows excessively in certain low
+   bitrate cases.
 
 # IANA Considerations {#iana}
 
