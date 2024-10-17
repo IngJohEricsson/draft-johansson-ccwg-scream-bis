@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2024-10-15T01:37:17.059015+00:00",
+  "timestamp": "2024-10-17T01:36:27.929351+00:00",
   "repo": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
   "labels": [
     {
@@ -160,9 +160,9 @@
       "authorAssociation": "COLLABORATOR",
       "assignees": [],
       "labels": [],
-      "body": "With the v3 xml you can now use artwork for equations e.g. like this\r\n\r\n~~~ math\r\n\\frac{a}{a}\r\n~~~\r\n{: artwork-align=\"center\" }\r\n\r\nI believe this is align with tex. Maybe see the cubic bis doc for more examples:\r\n\r\nhttps://github.com/NTAP/rfc8312bis/blob/main/draft-ietf-tcpm-rfc8312bis.md?plain=1",
+      "body": "With the v3 xml you can now use artwork for equations e.g. like this\r\n\r\n```\r\n~~~ math\r\n\\frac{a}{a}\r\n~~~\r\n{: artwork-align=\"center\" }\r\n```\r\n\r\nI believe this is align with tex. Maybe see the cubic bis doc for more examples:\r\n\r\nhttps://github.com/NTAP/rfc8312bis/blob/main/draft-ietf-tcpm-rfc8312bis.md?plain=1",
       "createdAt": "2024-02-27T11:13:09Z",
-      "updatedAt": "2024-02-28T10:16:00Z",
+      "updatedAt": "2024-10-16T13:42:27Z",
       "closedAt": null,
       "comments": [
         {
