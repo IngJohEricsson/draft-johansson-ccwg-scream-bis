@@ -546,7 +546,7 @@ from experiments.
 
 * PACKET_OVERHEAD (20) : Estimated packetization overhead [byte]
 
-* POST_CONGESTION_DELAY (4.0): Determines how long (seconds) after a congestion
+* POST_CONGESTION_DELAY_RTT (100): Determines how long RTTS after a congestion
   event that the reference window growth should be cautious.
 
 * MUL_INCREASE_FACTOR (0.02): Determines how much (as a fraction of ref_wnd)
@@ -554,7 +554,8 @@ from experiments.
 
 * IS_L4S (false): Congestion control operates in L4S mode.
 
-* VIRTUAL_RTT (0.025): Virtual RTT [s]
+* VIRTUAL_RTT (0.025): Virtual RTT [s]. This mimics Prague's RTT fairness such that flows with RTT
+  below VIRTUAL_RTT should get a roughly equal share over an L4S path.
 
 * PACKET_PACING_HEADROOM (1.5): Extra head room for packet pacing.
 
@@ -833,8 +834,8 @@ if (now - last_congestion_detected_time >= min(VIRTUAL_RTT,s_rtt)
 end
 
 if (is_loss_t || is_ce_t || is_virtual_ce_t)
-  if (now - last_ref_wnd_i_update_time > 0.25)
-    # Update ref_wnd_i
+  if (now - last_ref_wnd_i_update_time > 10*s_rtt)
+    # Update ref_wnd_i, no more often than every 10 RTTs
     # Additional median filtering over more congestion epochs
     # may improve accuracy of ref_wnd_i
     last_ref_wnd_i_update_time = now
@@ -857,8 +858,8 @@ if (is_ce_t)
     # Increase stability for very small ref_wnd
     backOff_t *= max(0.5, 1.0 - ref_wnd_ratio)
 
-    if (now - last_congestion_detected_time > 5)
-      # A long time since last congested because link throughput
+    if (now - last_congestion_detected_time > 100*max(VIRTUAL_RTT,s_rtt))
+      # A long time (>100 RTTs) since last congested because link throughput
       # exceeds max video bitrate.
       # There is a certain risk that ref_wnd has increased way above
       # bytes in flight, so we reduce it here to get it better on
@@ -907,7 +908,7 @@ Reference window increase
 # after congestion
 
 post_congestion_scale_t = max(0.0, min(1.0, (now -
-last_congestion_detected_time) / POST_CONGESTION_DELAY))
+last_congestion_detected_time) / (POST_CONGESTION_DELAY_RTTS * max(VIRTUAL_RTT, s_rtt))))
 
 # Scale factor for ref_wnd update
 ref_wnd_scale_factor_t = 1.0 + (MUL_INCREASE_FACTOR  * ref_wnd) / MSS)
@@ -1391,7 +1392,30 @@ This section covers a few discussion points.
 
 # Algorithm changes {#algorithm-changes}
 
-Algorithm changes since the last draft version are:
+The algorithm has changed quite considerably since {{RFC8298}}. The main changes are:
+
+* L4S support added. The L4S algoritm has many similarities with the DCTCP and
+  Prague congestion control but has a few extra modifications to make it work
+  well with peridic sources such as video.
+
+* The delay based congestion control is changed to implement a pseudo-L4S
+  approach, this simplifies the delay based congestion control.
+
+* The fast increase mode is removed. The reference window additive increase is
+  replaced with an adaptive multiplicative increase to enhance convergence
+  speed.
+
+* The algorithm is more rate based than self-clocked. The calculated reference
+  window is used mainly to calculate proper media bitrates. Bytes in flight is
+  however allowed to exceeed the reference window.
+
+* The media bitrate calculation is dramatically changed and simplified. In practive
+  it is manifested with a relatively simple relation between the reference window and RTT.
+
+* Additional compensation is added to make SCReAMv2 handle cases such as large
+  changing frame sizes.
+
+Algorithm changes since the last draft version -01 are:
 
  * Slow down reference window growth when close the last know max is disabled
    when L4S active. This makes SCReAM adhere more closely to 2 marked packets
