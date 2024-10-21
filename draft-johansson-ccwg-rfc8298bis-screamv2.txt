@@ -5,8 +5,8 @@
 CCWG                                                        I. Johansson
 Internet-Draft                                             M. Westerlund
 Obsoletes: 8298 (if approved)                                   Ericsson
-Intended status: Experimental                            16 October 2024
-Expires: 19 April 2025
+Intended status: Experimental                            21 October 2024
+Expires: 24 April 2025
 
 
               Self-Clocked Rate Adaptation for Multimedia
@@ -58,7 +58,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 19 April 2025.
+   This Internet-Draft will expire on 24 April 2025.
 
 Copyright Notice
 
@@ -571,7 +571,7 @@ Table of Contents
 
    *  PACKET_OVERHEAD (20) : Estimated packetization overhead [byte]
 
-   *  POST_CONGESTION_DELAY (4.0): Determines how long (seconds) after a
+   *  POST_CONGESTION_DELAY_RTT (100): Determines how many RTTS after a
       congestion event that the reference window growth should be
       cautious.
 
@@ -580,7 +580,9 @@ Table of Contents
 
    *  IS_L4S (false): Congestion control operates in L4S mode.
 
-   *  VIRTUAL_RTT (0.025): Virtual RTT [s]
+   *  VIRTUAL_RTT (0.025): Virtual RTT [s].  This mimics Prague's RTT
+      fairness such that flows with RTT below VIRTUAL_RTT should get a
+      roughly equal share over an L4S path.
 
    *  PACKET_PACING_HEADROOM (1.5): Extra head room for packet pacing.
 
@@ -856,87 +858,87 @@ Table of Contents
 
    Actions when congestion detected
 
-   # The reference window is updated at least every VIRTUAL_RTT
-   if (now - last_congestion_detected_time >= min(VIRTUAL_RTT,s_rtt)
-     if (loss detected)
-       is_loss_t = true
-     end
-     if (data units marked)
-       is_ce_t = true
-     end
-     if (qdelay > qdelay_target/2)
-       # It is expected that l4s_alpha is below a given value,
-       l4_alpha_lim_t = 2 / target_bitrate * MSS * 8 / s_rtt
-       if (l4s_alpha < l4_alpha_lim_t || !l4s_active)
-         # L4S does not seem to be active
-         l4s_alpha_v_t = min(1.0, max(0.0,
-            (qdelay_avg - qdelay_target / 2) /
-            (qdelay_target / 2)));
-         is_virtual_ce_t = true
-       end
-     end
-   end
+# The reference window is updated at least every VIRTUAL_RTT
+if (now - last_congestion_detected_time >= min(VIRTUAL_RTT,s_rtt)
+  if (loss detected)
+    is_loss_t = true
+  end
+  if (data units marked)
+    is_ce_t = true
+  end
+  if (qdelay > qdelay_target/2)
+    # It is expected that l4s_alpha is below a given value,
+    l4_alpha_lim_t = 2 / target_bitrate * MSS * 8 / s_rtt
+    if (l4s_alpha < l4_alpha_lim_t || !l4s_active)
+      # L4S does not seem to be active
+      l4s_alpha_v_t = min(1.0, max(0.0,
+         (qdelay_avg - qdelay_target / 2) /
+         (qdelay_target / 2)));
+      is_virtual_ce_t = true
+    end
+  end
+end
 
-   if (is_loss_t || is_ce_t || is_virtual_ce_t)
-     if (now - last_ref_wnd_i_update_time > 0.25)
-       # Update ref_wnd_i
-       # Additional median filtering over more congestion epochs
-       # may improve accuracy of ref_wnd_i
-       last_ref_wnd_i_update_time = now
-       ref_wnd_i = ref_wnd
-     end
-   end
+if (is_loss_t || is_ce_t || is_virtual_ce_t)
+  if (now - last_ref_wnd_i_update_time > 10*s_rtt)
+    # Update ref_wnd_i, no more often than every 10 RTTs
+    # Additional median filtering over more congestion epochs
+    # may improve accuracy of ref_wnd_i
+    last_ref_wnd_i_update_time = now
+    ref_wnd_i = ref_wnd
+  end
+end
 
 
-   # Either loss, ECN mark or increased qdelay is detected
-   if (is_loss_t)
-     # Loss is detected
-     ref_wnd = ref_wnd * BETA_LOSS
-   end
-   if (is_ce_t)
-     # ECN-CE detected
-     if (IS_L4S)
-       # L4S mode
-       backoff_t = l4s_alpha / 2
+# Either loss, ECN mark or increased qdelay is detected
+if (is_loss_t)
+  # Loss is detected
+  ref_wnd = ref_wnd * BETA_LOSS
+end
+if (is_ce_t)
+  # ECN-CE detected
+  if (IS_L4S)
+    # L4S mode
+    backoff_t = l4s_alpha / 2
 
-       # Increase stability for very small ref_wnd
-       backOff_t *= max(0.5, 1.0 - ref_wnd_ratio)
+    # Increase stability for very small ref_wnd
+    backOff_t *= max(0.5, 1.0 - ref_wnd_ratio)
 
-       if (now - last_congestion_detected_time > 5)
-         # A long time since last congested because link throughput
-         # exceeds max video bitrate.
-         # There is a certain risk that ref_wnd has increased way above
-         # bytes in flight, so we reduce it here to get it better on
-         # track and thus the congestion episode is shortened
-         ref_wnd = min(ref_wnd, max_bytes_in_flight_prev)
+    if (now - last_congestion_detected_time > 100*max(VIRTUAL_RTT,s_rtt))
+      # A long time (>100 RTTs) since last congested because link throughput
+      # exceeds max video bitrate.
+      # There is a certain risk that ref_wnd has increased way above
+      # bytes in flight, so we reduce it here to get it better on
+      # track and thus the congestion episode is shortened
+      ref_wnd = min(ref_wnd, max_bytes_in_flight_prev)
 
-         # Also, we back off a little extra if needed
-         # because alpha is quite likely very low
-         # This can in some cases be an over-reaction
-         # but as this function should kick in relatively seldom
-         # it should not be to too big concern
-         backoff_t = max(backoff_t, 0.25)
+      # Also, we back off a little extra if needed
+      # because alpha is quite likely very low
+      # This can in some cases be an over-reaction
+      # but as this function should kick in relatively seldom
+      # it should not be to too big concern
+      backoff_t = max(backoff_t, 0.25)
 
-         # In addition, bump up l4sAlpha to a more credible value
-         # This may over react but it is better than
-         # excessive queue delay
-         l4sAlpha = 0.25
-       end
-       ref_wnd = (1.0 - backoff_t) * ref_wnd
-     else
-       # Classic ECN mode
-       ref_wnd = ref_wnd * BETA_ECN
-     end
-   end
-   if (is_virtual_ce_t)
-     backoff_t = l4s_alpha_v_t / 2
-     ref_wnd = (1.0 - backoff_t) * ref_wnd
-   end
-   ref_wnd = max(MIN_REF_WND, ref_wnd)
+      # In addition, bump up l4sAlpha to a more credible value
+      # This may over react but it is better than
+      # excessive queue delay
+      l4sAlpha = 0.25
+    end
+    ref_wnd = (1.0 - backoff_t) * ref_wnd
+  else
+    # Classic ECN mode
+    ref_wnd = ref_wnd * BETA_ECN
+  end
+end
+if (is_virtual_ce_t)
+  backoff_t = l4s_alpha_v_t / 2
+  ref_wnd = (1.0 - backoff_t) * ref_wnd
+end
+ref_wnd = max(MIN_REF_WND, ref_wnd)
 
-   if (is_loss_t || is_ce_t || is_virtual_ce_t)
-     last_congestion_detected_time = now
-   end
+if (is_loss_t || is_ce_t || is_virtual_ce_t)
+  last_congestion_detected_time = now
+end
 
    The variable max_bytes_in_flight_prev indicates the maximum bytes in
    flights in the previous round trip.  The reason to this is that bytes
@@ -945,63 +947,63 @@ Table of Contents
 
    Reference window increase
 
-  # Delay factor for multiplicative reference window increase
-  # after congestion
+# Delay factor for multiplicative reference window increase
+# after congestion
 
-  post_congestion_scale_t = max(0.0, min(1.0, (now -
-  last_congestion_detected_time) / POST_CONGESTION_DELAY))
+post_congestion_scale_t = max(0.0, min(1.0, (now -
+last_congestion_detected_time) / (POST_CONGESTION_DELAY_RTTS * max(VIRTUAL_RTT, s_rtt))))
 
-  # Scale factor for ref_wnd update
-  ref_wnd_scale_factor_t = 1.0 + (MUL_INCREASE_FACTOR  * ref_wnd) / MSS)
+# Scale factor for ref_wnd update
+ref_wnd_scale_factor_t = 1.0 + (MUL_INCREASE_FACTOR  * ref_wnd) / MSS)
 
 
-  # Calculate bytes acked that are not CE marked
-  # For the case that only accumulated number of CE marked packets is
-  # reported by the feedback, it is necessary to make an approximation
-  # of bytes_newly_acked_ce based on average data unit size.
-  bytes_newly_acked_minus_ce_t = bytes_newly_acked-
-                                 bytes_newly_acked_ce
+# Calculate bytes acked that are not CE marked
+# For the case that only accumulated number of CE marked packets is
+# reported by the feedback, it is necessary to make an approximation
+# of bytes_newly_acked_ce based on average data unit size.
+bytes_newly_acked_minus_ce_t = bytes_newly_acked-
+                               bytes_newly_acked_ce
 
-  increment_t = bytes_newly_acked_minus_ce_t*ref_wnd_ratio
+increment_t = bytes_newly_acked_minus_ce_t*ref_wnd_ratio
 
-  # Reduce increment for small RTTs
-  tmp_t = min(1.0, s_rtt / VIRTUAL_RTT)
-  increment_t *= tmp_t * tmp_t
+# Reduce increment for small RTTs
+tmp_t = min(1.0, s_rtt / VIRTUAL_RTT)
+increment_t *= tmp_t * tmp_t
 
-  # Apply limit to reference window growth when close to last
-  # known max value before congestion
-  scl_t = (ref_wnd-ref_wnd_i) / ref_wnd_i
-  scl_t *= 4
-  scl_t = scl_t * scl_t
-  scl_t = max(0.1, min(1.0, scl_t))
-  if (!is_l4s_active)
-    increment_t *= scl_t
-  end
+# Apply limit to reference window growth when close to last
+# known max value before congestion
+scl_t = (ref_wnd-ref_wnd_i) / ref_wnd_i
+scl_t *= 4
+scl_t = scl_t * scl_t
+scl_t = max(0.1, min(1.0, scl_t))
+if (!is_l4s_active)
+  increment_t *= scl_t
+end
 
-  # Limit on CWND growth speed further for small CWND
-  # This is complemented with a corresponding restriction on CWND
-  # reduction
-  increment_t *= max(0.5,1.0-ref_wnd_ratio)
+# Limit on CWND growth speed further for small CWND
+# This is complemented with a corresponding restriction on CWND
+# reduction
+increment_t *= max(0.5,1.0-ref_wnd_ratio)
 
-  # Scale up increment with multiplicative increase
-  # Limit multiplicative increase when congestion occured
-  # recently and when reference window is close to the last
-  # known max value
-  float tmp_t = ref_wnd_scale_factor_t
-  if (tmp_t > 1.0)
-    tmp_t = 1.0 + (tmp_t - 1.0) * post_congestion_scale_t * scl_t;
-  end
-  increment *= tmp_t
+# Scale up increment with multiplicative increase
+# Limit multiplicative increase when congestion occured
+# recently and when reference window is close to the last
+# known max value
+float tmp_t = ref_wnd_scale_factor_t
+if (tmp_t > 1.0)
+  tmp_t = 1.0 + (tmp_t - 1.0) * post_congestion_scale_t * scl_t;
+end
+increment *= tmp_t
 
-  # Increase ref_wnd only if bytes in flight is large enough
-  # Quite a lot of slack is allowed here to avoid that bitrate
-  # locks to low values.
-  max_allowed_t = MSS + max(max_bytes_in_flight,
-    max_bytes_in_flight_prev) * BYTES_IN_FLIGHT_HEAD_ROOM
-  int ref_wnd_t = ref_wnd + increment_t
-  if (ref_wnd_t <= max_allowed_t)
-    ref_wnd = ref_wnd_t
-  end
+# Increase ref_wnd only if bytes in flight is large enough
+# Quite a lot of slack is allowed here to avoid that bitrate
+# locks to low values.
+max_allowed_t = MSS + max(max_bytes_in_flight,
+  max_bytes_in_flight_prev) * BYTES_IN_FLIGHT_HEAD_ROOM
+int ref_wnd_t = ref_wnd + increment_t
+if (ref_wnd_t <= max_allowed_t)
+  ref_wnd = ref_wnd_t
+end
 
    The ref_wnd_scale_factor_t scales the reference window increase.  The
    ref_wnd_scale_factor_t is increased with larger ref_wnd to allow for
@@ -1451,7 +1453,35 @@ Table of Contents
 
 7.  Algorithm changes
 
-   Algorithm changes since the last draft version are:
+   The algorithm has changed quite considerably since [RFC8298].  The
+   main changes are:
+
+   *  L4S support added.  The L4S algoritm has many similarities with
+      the DCTCP and Prague congestion control but has a few extra
+      modifications to make it work well with peridic sources such as
+      video.
+
+   *  The delay based congestion control is changed to implement a
+      pseudo-L4S approach, this simplifies the delay based congestion
+      control.
+
+   *  The fast increase mode is removed.  The reference window additive
+      increase is replaced with an adaptive multiplicative increase to
+      enhance convergence speed.
+
+   *  The algorithm is more rate based than self-clocked.  The
+      calculated reference window is used mainly to calculate proper
+      media bitrates.  Bytes in flight is however allowed to exceeed the
+      reference window.
+
+   *  The media bitrate calculation is dramatically changed and
+      simplified.  In practive it is manifested with a relatively simple
+      relation between the reference window and RTT.
+
+   *  Additional compensation is added to make SCReAMv2 handle cases
+      such as large changing frame sizes.
+
+   Algorithm changes since the last draft version -01 are:
 
    *  Slow down reference window growth when close the last know max is
       disabled when L4S active.  This makes SCReAM adhere more closely
@@ -1463,6 +1493,8 @@ Table of Contents
    *  Target bitrate down adjustment when ref_wnd/mss is small is
       modified to only help to avoid that the data unit queue grows
       excessively in certain low bitrate cases.
+
+   *  Timing set to multiples of RTT instead of seconds.
 
 8.  IANA Considerations
 
