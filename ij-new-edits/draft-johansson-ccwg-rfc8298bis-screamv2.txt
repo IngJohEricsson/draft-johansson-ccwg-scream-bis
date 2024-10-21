@@ -5,8 +5,8 @@
 CCWG                                                        I. Johansson
 Internet-Draft                                             M. Westerlund
 Obsoletes: 8298 (if approved)                                   Ericsson
-Intended status: Experimental                            17 October 2024
-Expires: 20 April 2025
+Intended status: Experimental                            21 October 2024
+Expires: 24 April 2025
 
 
               Self-Clocked Rate Adaptation for Multimedia
@@ -58,7 +58,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 20 April 2025.
+   This Internet-Draft will expire on 24 April 2025.
 
 Copyright Notice
 
@@ -1493,6 +1493,8 @@ end
    *  Target bitrate down adjustment when ref_wnd/mss is small is
       modified to only help to avoid that the data unit queue grows
       excessively in certain low bitrate cases.
+
+   *  Timing set to multiples of RTT istf seconds
 
 8.  IANA Considerations
 
