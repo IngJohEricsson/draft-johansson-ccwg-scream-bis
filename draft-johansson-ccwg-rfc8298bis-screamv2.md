@@ -546,8 +546,8 @@ from experiments.
 
 * PACKET_OVERHEAD (20) : Estimated packetization overhead [byte]
 
-* POST_CONGESTION_DELAY_RTT (100): Determines how many RTTS after a congestion
-  event that the reference window growth should be cautious.
+* POST_CONGESTION_DELAY_RTT (100): Determines how many RTTs after a congestion
+  event the reference window growth should be cautious.
 
 * MUL_INCREASE_FACTOR (0.02): Determines how much (as a fraction of ref_wnd)
   that the ref_wnd can increase per RTT.
@@ -1428,7 +1428,7 @@ Algorithm changes since the last draft version -01 are:
    help to avoid that the data unit queue grows excessively in certain low
    bitrate cases.
 
- * Timing set to multiples of RTT instead of seconds.
+ * Timing set to multiples of RTTs instead of seconds.
 
 # IANA Considerations {#iana}
 
