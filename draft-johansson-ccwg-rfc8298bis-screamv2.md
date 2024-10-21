@@ -858,9 +858,9 @@ if (is_ce_t)
     # Increase stability for very small ref_wnd
     backOff_t *= max(0.5, 1.0 - ref_wnd_ratio)
 
-    if (now - last_congestion_detected_time > 
+    if (now - last_congestion_detected_time >
         100*max(VIRTUAL_RTT,s_rtt))
-      # A long time (>100 RTTs) since last congested because 
+      # A long time (>100 RTTs) since last congested because
       # link throughput exceeds max video bitrate.
       # There is a certain risk that ref_wnd has increased way above
       # bytes in flight, so we reduce it here to get it better on
