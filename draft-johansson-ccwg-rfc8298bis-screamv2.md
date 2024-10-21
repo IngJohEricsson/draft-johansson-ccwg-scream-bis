@@ -1428,6 +1428,8 @@ Algorithm changes since the last draft version -01 are:
    help to avoid that the data unit queue grows excessively in certain low
    bitrate cases.
 
+ * Timing set to multiples of RTT istf seconds 
+
 # IANA Considerations {#iana}
 
 This document does not require any IANA actions.
