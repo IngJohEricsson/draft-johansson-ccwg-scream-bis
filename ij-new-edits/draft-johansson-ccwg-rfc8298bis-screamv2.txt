@@ -571,7 +571,7 @@ Table of Contents
 
    *  PACKET_OVERHEAD (20) : Estimated packetization overhead [byte]
 
-   *  POST_CONGESTION_DELAY_RTT (100): Determines how long RTTS after a
+   *  POST_CONGESTION_DELAY_RTT (100): Determines how many RTTS after a
       congestion event that the reference window growth should be
       cautious.
 
@@ -1494,7 +1494,7 @@ end
       modified to only help to avoid that the data unit queue grows
       excessively in certain low bitrate cases.
 
-   *  Timing set to multiples of RTT istf seconds
+   *  Timing set to multiples of RTT instead of seconds.
 
 8.  IANA Considerations
 
