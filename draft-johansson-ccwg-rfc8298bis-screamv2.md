@@ -114,13 +114,13 @@ normative:
 
 This memo describes a congestion control algorithm for conversational media
 services such as interactive video. The solution conforms to the packet
-conservation principle and is a hybrid loss- and delay based congestion control
+conservation principle and is a hybrid loss and delay-based congestion control
 that also supports ECN and L4S. The algorithm is evaluated over both simulated
 Internet bottleneck scenarios as well as in a mobile system simulator using
 LongTerm Evolution (LTE) and 5G and is shown to achieve both low latency and
 high video throughput in these scenarios. This specification obsoletes RFC
-8298. The algorithm supports handling of multiple media streams, typical use
-cases are streaming for remote control, AR and 3D VR googles.
+8298. The algorithm supports handling of multiple media streams; typical use
+cases are streaming for remote control, AR and 3D VR goggles.
 
 --- middle
 
@@ -147,9 +147,9 @@ This memo describes Self-Clocked Rate Adaptation for Multimedia version 2
 (SCReAMv2), an update to SCReAM congestion control for media streams such as RTP
 {{RFC3550}}. While SCReAM was originally devised for WebRTC, SCReAM as well as
 SCReAMv2 can also be used for other applications where congestion control of
-different type of real-time streams, especially media streams is
+different type of real-time streams, especially media streams, is
 necessary. SCReAM is based on the self-clocking principle of TCP and uses
-estimates the forward queue delay in the same way as Low
+estimates of the forward queue delay in the same way as Low
 Extra Delay Background Transport (LEDBAT) {{RFC6817}}.
 
 SCReAMv2 is not entirely self-clocked as it augments self-clocking with pacing
@@ -163,21 +163,21 @@ This specification replaces the previous experimental version {{RFC8298}} of
 SCReAM with SCReAMv2. There are many and fairly significant changes to the
 original SCReAM algorithm.
 
-The algorithm in this memo differs greatly against the previous version of
+The algorithm in this memo differs greatly from the previous version of
 SCReAM. The main differences are:
 
 * L4S support added. The L4S algoritm has many similarities with the DCTCP and
   Prague congestion control but has a few extra modifications to make it work
-  well with peridic sources such as video.
+  well with periodic sources such as video.
 
-* The delay based congestion control is changed to implement a pseudo-L4S
-  approach, this simplifies the delay based congestion control.
+* The delay-based congestion control is changed to implement a pseudo-L4S
+  approach, this simplifies the delay-based congestion control.
 
-* The fast increase mode is removed. The reference window additive increase is
+* Fast increase mode is removed. The reference window additive increase is
   replaced with an adaptive multiplicative increase to enhance convergence
   speed.
 
-* The algorithm is more rate based than self-clocked. The calculated congestion
+* The algorithm is more rate-based than self-clocked. The calculated congestion
   window is used mainly to calculate proper media bitrates. Bytes in flight is
   however allowed to exceeed the reference window.
 
@@ -229,7 +229,7 @@ mechanisms:
 
 * A fine-grained congestion control given by the self-clocking; it operates on a
   shorter time scale (1 RTT). The benefits of self-clocking are also elaborated
-  upon in {{TFWC}}. The self-clocking however acts more like an emergency break
+  upon in {{TFWC}}. The self-clocking however acts more like an emergency brake
   as bytes in flight can exceed the reference window only to a certain
   degree. The rationale is to be able to transmit large video frames and avoid
   that they are unnecessarily queued up on the sender side, but still prevent a
@@ -245,14 +245,14 @@ reaction to congestion.
 
 ## Requirements on media and feedback protocol {#requirements-media}
 
-SCReAM was originally designed to with with RTP + RTCP where {{RFC8888}} was
+SCReAM was originally designed to be used with RTP + RTCP, where {{RFC8888}} was
 used as recommended feedback. RTP offers unique packet indication with the
-sequence number and {{RFC8888}} offers timestamps of received packets and the
+sequence number, and {{RFC8888}} offers timestamps of received packets and the
 status of the ECN bits.
 
-SCReAM is however not limited to RTP as long as some requirements are fulfilled :
+SCReAM is however not limited to RTP as long as some requirements are fulfilled:
 
- * Media data is split in data units that when encapsulated in IP packets fit in
+ * Media data is split in data units that, when encapsulated in IP packets, fit in
    the network MTU.
 
  * Each data unit can be uniquely identified.
@@ -364,10 +364,10 @@ respective sizes, and the time they were transmitted. This information is used
 to determine the number of bytes that can be transmitted at any given time
 instant. A reference window puts an upper limit on how many bytes can be in
 flight, i.e., transmitted but not yet acknowledged. The reference window is
-however not an absolute limit as a slack is given to efficiently transmit
-temporary larger media objects, such as video frames.
+however not an absolute limit as some slack is given to efficiently transmit
+occasional larger media objects, such as video frames.
 
-The reference window seeks to increase by one segment per RTT and this increase
+The reference window seeks to increase by one segment per RTT, and this increase
 regardless congestion occurs or not, the reference window increase is restriced
 or relaxed based on the current value of the reference window relative to a
 previous max value and the time elapsed since last congestion event. The
@@ -379,7 +379,7 @@ while. The reference window is thus an adaptive multiplicative increase that is
 mainly additive increase when steady state is reached but allows a faster
 convergence to a higher link speed.
 
-Reference window reduction is triggered by:
+Reference window reduction is triggered when:
 
 * Packet loss or Classic ECN marking is detected : The reference window is
   reduced by a predetermined fraction.
@@ -789,17 +789,17 @@ period without congestion.
 
 #### Increased queue delay {#reaction-delay}
 
-SCReAMv2 implements a delay based congestion control approach where it mimics
+SCReAMv2 implements a delay-based congestion control approach where it mimics
 L4S congestion marking when the averaged queue delay exceeds a target
 threshold. This threshold is set to qdelay_target/2 and the congestion backoff
 factor (l4s_alpha_v) increases linearly from 0 to 100% as qdelay_avg goes from
 qdelay_target/2 to qdelay_target. The averaged qdelay (qdelay_avg) is used to
 avoid that the SCReAMv2 congestion control over-reacts to scheduling jitter,
 sudden delay spikes due to e.g. handover or link layer
-retransmissions. Furthermore, the delay based congestion control is inactivated
+retransmissions. Furthermore, the delay-based congestion control is inactivated
 when it is reasonably certain that L4S is active, i.e. L4S is enabled and
 congested nodes apply L4S marking of data units. This reduces negative effects of
-clockdrift, that the delay based control can introduce, whenever possible.
+clockdrift, that the delay-based control can introduce, whenever possible.
 
 ### Reference Window Update {#ref-wnd-update}
 
@@ -1400,14 +1400,14 @@ The algorithm has changed quite considerably since {{RFC8298}}. The main changes
   Prague congestion control but has a few extra modifications to make it work
   well with peridic sources such as video.
 
-* The delay based congestion control is changed to implement a pseudo-L4S
-  approach, this simplifies the delay based congestion control.
+* The delay-based congestion control is changed to implement a pseudo-L4S
+  approach, this simplifies the delay-based congestion control.
 
-* The fast increase mode is removed. The reference window additive increase is
+* Fast increase mode is removed. The reference window additive increase is
   replaced with an adaptive multiplicative increase to enhance convergence
   speed.
 
-* The algorithm is more rate based than self-clocked. The calculated reference
+* The algorithm is more rate-based than self-clocked. The calculated reference
   window is used mainly to calculate proper media bitrates. Bytes in flight is
   however allowed to exceeed the reference window.
 
@@ -1449,7 +1449,7 @@ SCReAM/SCReAMv2 when no feedback is received.
 
 # Acknowledgments {#acknowledgements}
 
-Zaheduzzaman Sarker was a co-author of RFC 8298 the previous version
-of scream which this document was based on. We would like to thank the
+Zaheduzzaman Sarker was a co-author of RFC 8298, the previous version
+of SCReAM, which this document was based on. We would like to thank the
 following people for their comments, questions, and support during the
 work that led to this memo: Mirja Kuehlewind.
