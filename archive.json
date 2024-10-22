@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2024-10-20T01:42:53.812219+00:00",
+  "timestamp": "2024-10-22T01:37:22.470609+00:00",
   "repo": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
   "labels": [
     {
@@ -55,15 +55,15 @@
       "id": "I_kwDOK7AJUs6Ahnmp",
       "title": "Add section on Changes from RFCXXXX",
       "url": "https://github.com/IngJohEricsson/draft-johansson-ccwg-scream-bis/issues/1",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "mirjak",
       "authorAssociation": "COLLABORATOR",
       "assignees": [],
       "labels": [],
       "body": "You only write in the intro that there are significant change but don't give anywhere a summary of what the changes are. For implementor that want to update that specific information would be highly valuable. For this reason bis documents often has a section title \"Changes from RFCXXXX\" which gives a bullet list of change (and potentially pointers to the specific parts in the doc). I think it would be very useful to have such a section in this doc as well.",
       "createdAt": "2024-02-27T11:00:53Z",
-      "updatedAt": "2024-02-28T11:12:56Z",
-      "closedAt": null,
+      "updatedAt": "2024-10-21T12:01:31Z",
+      "closedAt": "2024-10-21T12:01:31Z",
       "comments": [
         {
           "author": "mirjak",
@@ -85,6 +85,13 @@
           "body": "You use {#xxx} to define an anchor and then {{xxx}} to refer to it, e.g.\r\n\r\n```\r\n# section 1 {#sec1}\r\n\r\nSee {{sec1}} for further information.\r\n```",
           "createdAt": "2024-02-28T11:12:55Z",
           "updatedAt": "2024-02-28T11:12:55Z"
+        },
+        {
+          "author": "mirjak",
+          "authorAssociation": "COLLABORATOR",
+          "body": "#17 added this.",
+          "createdAt": "2024-10-21T12:01:31Z",
+          "updatedAt": "2024-10-21T12:01:31Z"
         }
       ]
     },
@@ -725,6 +732,103 @@
               "body": "```suggestion\r\nTest is over now\r\n\r\n```",
               "createdAt": "2024-10-09T13:04:39Z",
               "updatedAt": "2024-10-09T13:04:39Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "number": 17,
+      "id": "PR_kwDOK7AJUs5_SxtM",
+      "title": "Ij new edits",
+      "url": "https://github.com/IngJohEricsson/draft-johansson-ccwg-scream-bis/pull/17",
+      "state": "MERGED",
+      "author": "IngJohEricsson",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "Added difference against RFC8298 in changes section\r\nTiming for action based on POST_CONGESTION_DELAY and update after long stretch of uncongested changed to multiples of RTT istf seconds\r\nVIRTUAL_RTT explained",
+      "createdAt": "2024-10-21T09:56:48Z",
+      "updatedAt": "2024-10-21T11:42:28Z",
+      "baseRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
+      "baseRefName": "main",
+      "baseRefOid": "5d8e001b5ad3dc592b75d83157686b5acb6677f9",
+      "headRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
+      "headRefName": "ij-new-edits",
+      "headRefOid": "07b41f6cefade3a2debeb6a9389f3dffe640c8be",
+      "closedAt": "2024-10-21T11:33:52Z",
+      "mergedAt": "2024-10-21T11:33:52Z",
+      "mergedBy": "IngJohEricsson",
+      "mergeCommit": {
+        "oid": "76446567a1edfba80f81853bd2f84e0295c2e33e"
+      },
+      "comments": [
+        {
+          "author": "IngJohEricsson",
+          "authorAssociation": "OWNER",
+          "body": "New edits",
+          "createdAt": "2024-10-21T11:33:48Z",
+          "updatedAt": "2024-10-21T11:33:48Z"
+        }
+      ],
+      "reviews": [
+        {
+          "id": "PRR_kwDOK7AJUs6N9Py6",
+          "commit": {
+            "abbreviatedOid": "ab6ba4d"
+          },
+          "author": "mirjak",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-10-21T10:47:30Z",
+          "updatedAt": "2024-10-21T10:47:30Z",
+          "comments": [
+            {
+              "originalPosition": 86,
+              "body": "```suggestion\r\n * Timing set to multiples of RTT istf seconds\r\n```",
+              "createdAt": "2024-10-21T10:47:30Z",
+              "updatedAt": "2024-10-21T10:47:30Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs6N9Rum",
+          "commit": {
+            "abbreviatedOid": "da80c68"
+          },
+          "author": "mirjak",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-10-21T10:51:18Z",
+          "updatedAt": "2024-10-21T10:51:18Z",
+          "comments": [
+            {
+              "originalPosition": 86,
+              "body": "```suggestion\r\n * Timing set to multiples of RTT instead of seconds\r\n```",
+              "createdAt": "2024-10-21T10:51:18Z",
+              "updatedAt": "2024-10-21T10:51:53Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs6N9SIl",
+          "commit": {
+            "abbreviatedOid": "da80c68"
+          },
+          "author": "mirjak",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-10-21T10:52:01Z",
+          "updatedAt": "2024-10-21T10:52:02Z",
+          "comments": [
+            {
+              "originalPosition": 5,
+              "body": "```suggestion\r\n* POST_CONGESTION_DELAY_RTT (100): Determines how many RTTS after a congestion\r\n```",
+              "createdAt": "2024-10-21T10:52:01Z",
+              "updatedAt": "2024-10-21T10:52:02Z"
             }
           ]
         }
