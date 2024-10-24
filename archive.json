@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2024-10-22T01:37:22.470609+00:00",
+  "timestamp": "2024-10-24T01:36:07.069837+00:00",
   "repo": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
   "labels": [
     {
@@ -833,6 +833,32 @@
           ]
         }
       ]
+    },
+    {
+      "number": 18,
+      "id": "PR_kwDOK7AJUs5_dTLL",
+      "title": "Small editorial changes - typo fixes etc.",
+      "url": "https://github.com/IngJohEricsson/draft-johansson-ccwg-scream-bis/pull/18",
+      "state": "OPEN",
+      "author": "sleinen",
+      "authorAssociation": "NONE",
+      "assignees": [],
+      "labels": [],
+      "body": "I have read through the first part of the I-D, and made some changes along the way.  For my own convenience, I put them in a single commit, but please feel free to adopt only a subset (including possibly the empty subset :-).\r\n\r\nThere were a few phrases I had trouble understanding.  I'll send separate mail about those.\r\n\r\nUnfortunately I only had time to read up until the \"Sender Transmission Control\" section so far.",
+      "createdAt": "2024-10-22T12:44:04Z",
+      "updatedAt": "2024-10-22T12:44:04Z",
+      "baseRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
+      "baseRefName": "main",
+      "baseRefOid": "29ff2f654f7669763bf33351269ff6c49c11fc77",
+      "headRepository": "sleinen/draft-johansson-ccwg-scream-bis",
+      "headRefName": "main",
+      "headRefOid": "b75fbb0cad13ca41ce233314cb5599ec95eef2eb",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [],
+      "reviews": []
     }
   ]
 }
