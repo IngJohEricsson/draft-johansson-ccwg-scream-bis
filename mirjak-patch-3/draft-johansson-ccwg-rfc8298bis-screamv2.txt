@@ -5,8 +5,8 @@
 CCWG                                                        I. Johansson
 Internet-Draft                                             M. Westerlund
 Obsoletes: 8298 (if approved)                                   Ericsson
-Intended status: Experimental                             9 October 2024
-Expires: 12 April 2025
+Intended status: Experimental                            4 December 2024
+Expires: 7 June 2025
 
 
               Self-Clocked Rate Adaptation for Multimedia
@@ -14,17 +14,12 @@ Expires: 12 April 2025
 
 Abstract
 
-   This memo describes a congestion control algorithm for conversational
-   media services such as interactive video.  The solution conforms to
-   the packet conservation principle and is a hybrid loss- and delay
-   based congestion control that also supports ECN and L4S.  The
-   algorithm is evaluated over both simulated Internet bottleneck
-   scenarios as well as in a mobile system simulator using LongTerm
-   Evolution (LTE) and 5G and is shown to achieve both low latency and
-   high video throughput in these scenarios.  This specification
-   obsoletes RFC 8298.  The algorithm supports handling of multiple
-   media streams, typical use cases are streaming for remote control, AR
-   and 3D VR googles.
+   This memo describes Self-Clocked Rate Adaptation for Multimedia
+   version 2 (SCReAMv2), an update to SCReAM congestion control for
+   media streams such as RTP [RFC3550].  While SCReAM was originally
+   devised for WebRTC, SCReAM as well as SCReAMv2 can also be used for
+   other applications where congestion control of different type of
+   real-time streams, especially media streams is necessary.
 
 About This Document
 
@@ -58,7 +53,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 12 April 2025.
+   This Internet-Draft will expire on 7 June 2025.
 
 Copyright Notice
 
@@ -77,10 +72,11 @@ Copyright Notice
 Table of Contents
 
    1.  Introduction
-     1.1.  Wireless (LTE and 5G) Access Properties
-     1.2.  Why is it a self-clocked algorithm?
-     1.3.  Requirements on media and feedback protocol
-     1.4.  Comparison with LEDBAT and TFWC in TCP
+     1.1.  Updates compared to SCReAM (version 1)
+     1.2.  Wireless (LTE and 5G) Access Properties
+     1.3.  Why is it a self-clocked algorithm?
+     1.4.  Requirements on media and feedback protocol
+     1.5.  Comparison with LEDBAT and TFWC in TCP
    2.  Requirements Language
    3.  Overview of SCReAMv2 Algorithm
      3.1.  Network Congestion Control
@@ -113,49 +109,29 @@ Table of Contents
 
 1.  Introduction
 
-   Test is over now
-
-   Congestion in the Internet occurs when the transmitted bitrate is
-   higher than the available capacity over a given transmission path.
-   Applications that are deployed in the Internet have to employ
-   congestion control to achieve robust performance and to avoid
-   congestion collapse in the Internet.
-
-   Interactive real-time communication imposes a lot of requirements on
-   the transport; therefore, a robust, efficient rate adaptation for all
-   access types is an important part of interactive real-time
-   communications, as the transmission channel bandwidth can vary over
-   time.
-
-   Wireless access such as LTE and 5G, which is an integral part of the
-   current Internet, increases the importance of rate adaptation as the
-   channel bandwidth of a default LTE bearer [QoS-3GPP] can change
-   considerably in a very short time frame.  Thus, a rate adaptation
-   solution for interactive real-time media, such as WebRTC [RFC7478],
-   should be both quick and be able to operate over a large range in
-   channel capacity.
-
    This memo describes Self-Clocked Rate Adaptation for Multimedia
-   version 2 (SCReAMv2), an update to SCReAM congestion control for
-   media streams such as RTP [RFC3550].  While SCReAM was originally
-   devised for WebRTC, SCReAM as well as SCReAMv2 can also be used for
-   other applications where congestion control of different type of
-   real-time streams, especially media streams is necessary.  SCReAM is
-   based on the self-clocking principle of TCP and uses estimates the
-   forward queue delay in the same way as Low Extra Delay Background
-   Transport (LEDBAT) [RFC6817].
+   version 2 (SCReAMv2).  This specification replaces the previous
+   experimental version [RFC8298] of SCReAM with SCReAMv2.  There are
+   many and fairly significant changes to the original SCReAM algorithm
+   as desribed in section Section 1.1.
 
+   While SCReAM was originally designed for media streams such as RTP
+   [RFC3550] and WebRTC, SCReAM as well as SCReAMv2 can also be used for
+   other real-time and media applications.
+
+   Both SCReAM and SCReAMv2 estimates the forward queue delay in the
+   same way as Low Extra Delay Background Transport (LEDBAT) [RFC6817].
+   However, while SCReAM is based on the self-clocking principle of TCP,
    SCReAMv2 is not entirely self-clocked as it augments self-clocking
-   with pacing and a minimum send rate.  Further, SCReAMv2 can take
-   advantage of Explicit Congestion Notification (ECN) [RFC3168] and Low
-   Latency Low Loss and Scalable throughput (L4S) [RFC9330] in cases
-   where ECN or L4S is supported by the network and the hosts.  However,
-   ECN or L4S is not required for the basic congestion control
-   functionality in SCReAMv2.
+   with pacing and a minimum send rate.
 
-   This specification replaces the previous experimental version
-   [RFC8298] of SCReAM with SCReAMv2.  There are many and fairly
-   significant changes to the original SCReAM algorithm.
+   Further, SCReAMv2 can take advantage of Explicit Congestion
+   Notification (ECN) [RFC3168] and Low Latency Low Loss and Scalable
+   throughput (L4S) [RFC9330] in cases where ECN or L4S is supported by
+   the network and the hosts.  However, ECN or L4S is not required for
+   the basic congestion control functionality in SCReAMv2.
+
+1.1.  Updates compared to SCReAM (version 1)
 
    The algorithm in this memo differs greatly against the previous
    version of SCReAM.  The main differences are:
@@ -184,7 +160,7 @@ Table of Contents
    *  Additional compensation is added to make SCReAMv2 handle cases
       such as large changing frame sizes.
 
-1.1.  Wireless (LTE and 5G) Access Properties
+1.2.  Wireless (LTE and 5G) Access Properties
 
    [RFC8869] describes the complications that can be observed in
    wireless environments.  Wireless access such as LTE and 5G typically
@@ -217,7 +193,7 @@ Table of Contents
    scheduler and achives fairness with additional marking for the L4S
    flows.
 
-1.2.  Why is it a self-clocked algorithm?
+1.3.  Why is it a self-clocked algorithm?
 
    Self-clocked congestion control algorithms provide a benefit over
    their rate-based counterparts in that the former consists of two
@@ -248,7 +224,7 @@ Table of Contents
    one mechanism to adjust the sending rate.  This makes it difficult to
    reach the goals of high throughput and prompt reaction to congestion.
 
-1.3.  Requirements on media and feedback protocol
+1.4.  Requirements on media and feedback protocol
 
    SCReAM was originally designed to with with RTP + RTCP where
    [RFC8888] was used as recommended feedback.  RTP offers unique packet
@@ -256,16 +232,23 @@ Table of Contents
    of received packets and the status of the ECN bits.
 
    SCReAM is however not limited to RTP as long as some requirements are
-   fulfilled : * Media data is split in data units that when
-   encapsulated in IP packets fit in the network MTU. * Each data unit
-   can be uniquely identified. * Data units can be queued up in a packet
-   queue before transmission. * Feedback can indicate reception time for
-   each data units, or a group of data units. * Feedback can indicate
-   packets that are ECN-CE marked.  Unique ECN bits indication for each
-   packet is not necessary.  An ECN-CE counter similar to what is
-   defined in [RFC9000] is sufficient.
+   fulfilled :
 
-1.4.  Comparison with LEDBAT and TFWC in TCP
+   *  Media data is split in data units that when encapsulated in IP
+      packets fit in the network MTU.
+
+   *  Each data unit can be uniquely identified.
+
+   *  Data units can be queued up in a packet queue before transmission.
+
+   *  Feedback can indicate reception time for each data units, or a
+      group of data units.
+
+   *  Feedback can indicate packets that are ECN-CE marked.  Unique ECN
+      bits indication for each packet is not necessary.  An ECN-CE
+      counter similar to what is defined in [RFC9000] is sufficient.
+
+1.5.  Comparison with LEDBAT and TFWC in TCP
 
    The core SCReAM algorithm, which is still similar in SCReAMv2, has
    similarities to the concepts of self-clocking used in TCP-friendly
@@ -566,16 +549,17 @@ Table of Contents
 
    *  PACKET_OVERHEAD (20) : Estimated packetization overhead [byte]
 
-   *  POST_CONGESTION_DELAY (4.0): Determines how long (seconds) after a
-      congestion event that the reference window growth should be
-      cautious.
+   *  POST_CONGESTION_DELAY_RTT (100): Determines how many RTTs after a
+      congestion event the reference window growth should be cautious.
 
    *  MUL_INCREASE_FACTOR (0.02): Determines how much (as a fraction of
       ref_wnd) that the ref_wnd can increase per RTT.
 
    *  IS_L4S (false): Congestion control operates in L4S mode.
 
-   *  VIRTUAL_RTT (0.025): Virtual RTT [s]
+   *  VIRTUAL_RTT (0.025): Virtual RTT [s].  This mimics Prague's RTT
+      fairness such that flows with RTT below VIRTUAL_RTT should get a
+      roughly equal share over an L4S path.
 
    *  PACKET_PACING_HEADROOM (1.5): Extra head room for packet pacing.
 
@@ -873,8 +857,8 @@ Table of Contents
    end
 
    if (is_loss_t || is_ce_t || is_virtual_ce_t)
-     if (now - last_ref_wnd_i_update_time > 0.25)
-       # Update ref_wnd_i
+     if (now - last_ref_wnd_i_update_time > 10*s_rtt)
+       # Update ref_wnd_i, no more often than every 10 RTTs
        # Additional median filtering over more congestion epochs
        # may improve accuracy of ref_wnd_i
        last_ref_wnd_i_update_time = now
@@ -897,9 +881,10 @@ Table of Contents
        # Increase stability for very small ref_wnd
        backOff_t *= max(0.5, 1.0 - ref_wnd_ratio)
 
-       if (now - last_congestion_detected_time > 5)
-         # A long time since last congested because link throughput
-         # exceeds max video bitrate.
+       if (now - last_congestion_detected_time >
+           100*max(VIRTUAL_RTT,s_rtt))
+         # A long time (>100 RTTs) since last congested because
+         # link throughput exceeds max video bitrate.
          # There is a certain risk that ref_wnd has increased way above
          # bytes in flight, so we reduce it here to get it better on
          # track and thus the congestion episode is shortened
@@ -943,8 +928,9 @@ Table of Contents
   # Delay factor for multiplicative reference window increase
   # after congestion
 
-  post_congestion_scale_t = max(0.0, min(1.0, (now -
-  last_congestion_detected_time) / POST_CONGESTION_DELAY))
+  post_congestion_scale_t = max(0.0, min(1.0,
+   (now - last_congestion_detected_time) /
+    (POST_CONGESTION_DELAY_RTTS * max(VIRTUAL_RTT, s_rtt))))
 
   # Scale factor for ref_wnd update
   ref_wnd_scale_factor_t = 1.0 + (MUL_INCREASE_FACTOR  * ref_wnd) / MSS)
@@ -1189,29 +1175,30 @@ Table of Contents
    The complete pseudo code for adjustment of the target bitrate is
    shown below
 
-tmp_t = 1.0
+   tmp_t = 1.0
 
-# limit bitrate if bytes in flight exceeds is close to or
-# exceeds ref_wnd. This helps to avoid large rate fluctiations and
-# variations in RTT
-# Only applied when L4S is inactive
-if (!l4s_active && bytes_in_flight_ratio > BYTES_IN_FLIGHT_LIMIT)
-  tmp_t /= min(BYTES_IN_FLIGHT_LIMIT_COMPENSATION,
-    bytesInFlightRatio / BYTES_IN_FLIGHT_LIMIT)
-end
+   # limit bitrate if bytes in flight exceeds is close to or
+   # exceeds ref_wnd. This helps to avoid large rate fluctiations and
+   # variations in RTT
+   # Only applied when L4S is inactive
+   if (!l4s_active && bytes_in_flight_ratio > BYTES_IN_FLIGHT_LIMIT)
+     tmp_t /= min(BYTES_IN_FLIGHT_LIMIT_COMPENSATION,
+       bytesInFlightRatio / BYTES_IN_FLIGHT_LIMIT)
+   end
 
-# Scale down rate slighty when the reference window is very
-# small compared to MSS
-tmp_t *= 1.0 - min(0.2, max(0.0, ref_wnd_ratio - 0.1))
+   # Scale down rate slighty when the reference window is very
+   # small compared to MSS
+   tmp_t *= 1.0 - min(0.2, max(0.0, ref_wnd_ratio - 0.1))
 
-# Additional compensation for packetization overhead, important when MSS is small
-tmp_t_ *= mss/(mss + PACKET_OVERHEAD)
+   # Additional compensation for packetization overhead,
+   # important when MSS is small
+   tmp_t_ *= mss/(mss + PACKET_OVERHEAD)
 
-# Calculate target bitrate and limit to min and max allowed
-# values
-target_bitrate = tmp_t * 8 * ref_wnd / s_rtt
-target_bitrate = min(TARGET_BITRATE_MAX,
-  max(TARGET_BITRATE_MIN,target_bitrate))
+   # Calculate target bitrate and limit to min and max allowed
+   # values
+   target_bitrate = tmp_t * 8 * ref_wnd / s_rtt
+   target_bitrate = min(TARGET_BITRATE_MAX,
+     max(TARGET_BITRATE_MIN,target_bitrate))
 
 4.4.  Competing Flows Compensation
 
@@ -1362,7 +1349,7 @@ target_bitrate = min(TARGET_BITRATE_MAX,
    The transmission interval is not critical.  So, in the case of multi-
    stream handling between two hosts, the feedback for two or more
    synchronization sources (SSRCs) can be bundled to save UDP/IP
-   overhead.  However, the final realized feedback interval SHOULD not
+   overhead.  However, the final realized feedback interval SHOULD NOT
    exceed 2*fb_int in such cases, meaning that a scheduled feedback
    transmission event should not be delayed more than fb_int.
 
@@ -1429,7 +1416,7 @@ target_bitrate = min(TARGET_BITRATE_MAX,
       [SCReAM-CPP-implementation] implements additonal mechanisms to
       achieve a high link utilization when packet pacing is disabled.
 
-   *  RFC8888 Feedback issues: RTCP feedback packets can be lost, this
+   *  Feedback issues: RTCP feedback packets [RFC8888] can be lost, this
       means that the loss detection in SCReAMv2 may trigger even though
       packets arrive safely on the receiver side.
       [SCReAM-CPP-implementation] solves this by using overlapping RTCP
@@ -1445,7 +1432,35 @@ target_bitrate = min(TARGET_BITRATE_MAX,
 
 7.  Algorithm changes
 
-   Algorithm changes since the last draft version are:
+   The algorithm has changed quite considerably since [RFC8298].  The
+   main changes are:
+
+   *  L4S support added.  The L4S algoritm has many similarities with
+      the DCTCP and Prague congestion control but has a few extra
+      modifications to make it work well with peridic sources such as
+      video.
+
+   *  The delay based congestion control is changed to implement a
+      pseudo-L4S approach, this simplifies the delay based congestion
+      control.
+
+   *  The fast increase mode is removed.  The reference window additive
+      increase is replaced with an adaptive multiplicative increase to
+      enhance convergence speed.
+
+   *  The algorithm is more rate based than self-clocked.  The
+      calculated reference window is used mainly to calculate proper
+      media bitrates.  Bytes in flight is however allowed to exceeed the
+      reference window.
+
+   *  The media bitrate calculation is dramatically changed and
+      simplified.  In practive it is manifested with a relatively simple
+      relation between the reference window and RTT.
+
+   *  Additional compensation is added to make SCReAMv2 handle cases
+      such as large changing frame sizes.
+
+   Algorithm changes since the last draft version -01 are:
 
    *  Slow down reference window growth when close the last know max is
       disabled when L4S active.  This makes SCReAM adhere more closely
@@ -1457,6 +1472,8 @@ target_bitrate = min(TARGET_BITRATE_MAX,
    *  Target bitrate down adjustment when ref_wnd/mss is small is
       modified to only help to avoid that the data unit queue grows
       excessively in certain low bitrate cases.
+
+   *  Timing set to multiples of RTTs instead of seconds.
 
 8.  IANA Considerations
 
