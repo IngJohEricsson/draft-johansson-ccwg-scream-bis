@@ -161,7 +161,7 @@ SCReAM. The main differences are:
   speed.
 
 * The algorithm is more rate based than self-clocked:
-  
+
     * The calculated congestion window is mainly used to calculate proper media bitrates. Bytes in flight is
   however allowed to exceeed the reference window. Therefore, The term
   reference window is used instead of congestion window, as the	reference
