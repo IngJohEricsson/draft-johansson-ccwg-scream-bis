@@ -117,7 +117,7 @@ This memo describes Self-Clocked Rate Adaptation for Multimedia version 2
 {{RFC3550}}. SCReAMv2 compromised several algorithm simplifications and adds
 support for L4S. The algorithm supports handling of multiple media streams,
 typical use cases are streaming for remote control, ARand 3D VR googles.
-This specification obsoletes RFC 8298. 
+This specification obsoletes RFC 8298.
 
 --- middle
 
