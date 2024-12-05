@@ -160,9 +160,18 @@ SCReAM. The main differences are:
   replaced with an adaptive multiplicative increase to enhance convergence
   speed.
 
-* The algorithm is more rate based than self-clocked. The calculated congestion
-  window is used mainly to calculate proper media bitrates. Bytes in flight is
-  however allowed to exceeed the reference window.
+* The algorithm is more rate based than self-clocked:
+  
+    * The calculated congestion window is mainly used to calculate proper media bitrates. Bytes in flight is
+  however allowed to exceeed the reference window. Therefore, The term
+  reference window is used instead of congestion window, as the	reference
+  window does not set an absolute limit on the bytes in	flight.
+
+    * The self-clocking now acts more like an emergency break
+  as bytes in flight can exceed the reference window only to a certain
+  degree. The rationale is to be able to transmit large video frames and avoid
+  that they are unnecessarily queued up on the sender side, but still prevent a
+  large network queue.
 
 * The media bitrate calculation is dramatically changed and simplified.
 
@@ -198,34 +207,6 @@ these are prioritized over other bearers. This differs from e.g DualQ
 {{RFC9332}}, which prioritizes L4S traffic in a weighted scheduler and achives
 fairness with additional marking for the L4S flows.
 
-## Why is it a self-clocked algorithm? {#why-selfclock}
-
-Self-clocked congestion control algorithms provide a benefit over their
-rate-based counterparts in that the former consists of two adaptation
-mechanisms:
-
-* A reference window computation that evolves over a longer timescale (several
-  RTTs) especially when the reference window evolution is dictated by estimated
-  delay (to minimize vulnerability to, e.g., short-term delay variations). The
-  term reference window is used instead of congestion window, as the reference
-  window does not set an absolute limit on the bytes in flight.
-
-* A fine-grained congestion control given by the self-clocking; it operates on a
-  shorter time scale (1 RTT). The benefits of self-clocking are also elaborated
-  upon in {{TFWC}}. The self-clocking however acts more like an emergency break
-  as bytes in flight can exceed the reference window only to a certain
-  degree. The rationale is to be able to transmit large video frames and avoid
-  that they are unnecessarily queued up on the sender side, but still prevent a
-  large network queue.
-
-A rate-based congestion control algorithm typically adjusts the rate based on
-delay and loss. The congestion detection needs to be done with a certain time
-lag to avoid overreaction to spurious congestion events such as delay
-spikes. Despite the fact that there are two or more congestion indications, the
-outcome is that there is still only one mechanism to adjust the sending
-rate. This makes it difficult to reach the goals of high throughput and prompt
-reaction to congestion.
-
 ## Requirements on media and feedback protocol {#requirements-media}
 
 SCReAM was originally designed to with with RTP + RTCP where {{RFC8888}} was
@@ -258,52 +239,15 @@ conservation principle is described as a key factor behind the protection of
 networks from congestion {{Packet-conservation}}.
 
 The reference window is determined in a way similar to the congestion window in
-LEDBAT {{RFC6817}}. LEDBAT is a congestion control algorithm that uses send and
-receive timestamps to estimate the queuing delay (from now on denoted "qdelay")
-along the transmission path. This information is used to adjust the congestion
-window. The general problem described in the paper is that the base delay is
-offset by LEDBAT's own queue buildup. The big difference with using LEDBAT in
-the SCReAM context lies in the facts that the source is rate limited and that
-the data unit queue must be kept short (preferably empty). In addition, the output
-from a video encoder is rarely constant bitrate; static content (talking heads,
-for instance) gives almost zero video bitrate. This yields two useful properties
-when LEDBAT's delay-based rate estimation techniques are used as part of SCReAM;
-they help to avoid the issues described in {{LEDBAT-delay-impact}}:
-
-1. There is always a certain probability that SCReAM is short of data to
-transmit; this means that the network queue will become empty every once in a
-while.
-
-2. The max video bitrate can be lower than the link capacity. If the max video
-bitrate is 5 Mbps and the capacity is 10 Mbps, then the network queue will
-become empty.
-
-It is sufficient that any of the two conditions above is fulfilled to make the
-base delay update properly. Furthermore, {{LEDBAT-delay-impact}} describes an
-issue with short-lived competing flows. In SCReAM, these short-lived flows will
-cause the self-clocking to slow down, thereby building up the data unit queue; in
-turn, this results in a reduced media video bitrate. Thus, SCReAM slows the
-bitrate more when there are competing short-lived flows than the traditional use
-of LEDBAT does. The basic functionality in the use of LEDBAT in SCReAM is quite
-simple; however, there are a few steps in order to make the concept work with
-conversational media:
-
-* Addition of a media rate control function.
-
-* Reference window validation techniques. The reference window is used as a
-  basis for the target bitrate calculation. For that reason, various actions are
-  taken to avoid that the reference window grows too much beyond the bytes in
-  flight. Additional contraints are applied when in congested state and when the
-  max target bitrate is reached.
-
-* Use of inflection points in the reference window calculation to achieve
-  reduced delay jitter.
-
-* Adjustment of qdelay target for better performance when competing with other
-  loss-based congestion-controlled flows.
-
-The above-mentioned features will be described in more detail in Section
-{{scream-detailed-description}}.
+LEDBAT {{RFC6817}}; however, SCReAM/SCReAMv2 also describes the interaction with
+media rate control function, introduces the use of inflection points in the
+reference window calculation to achieve reduced delay jitter, and adjusts the
+qdelay target for better performance when competing with other
+loss-based congestion-controlled flows. Further, SCReAMv2 add a new reference
+window validation technique. The reference window is used as a basis for the
+target bitrate calculation. For that reason, various actions are taken to avoid
+that the reference window grows too much beyond the bytes in flight. Additional
+contraints are applied when in congested state and when the maximum target bitrate is reached.
 
 The SCReAM/SCReAMv2 congestion control method uses techniques similar to LEDBAT
 {{RFC6817}} to measure the qdelay. As is the case with LEDBAT, it is not
@@ -323,7 +267,6 @@ document are to be interpreted as described in BCP 14 {{RFC2119}} {{RFC8174}}
 when, and only when, they appear in all capitals, as shown here.
 
 # Overview of SCReAMv2 Algorithm {#scream-overview}
-
 
 SCReAMv2 still consists of three main parts: network congestion control, sender
 transmission control, and media rate control. All of these parts reside at the
