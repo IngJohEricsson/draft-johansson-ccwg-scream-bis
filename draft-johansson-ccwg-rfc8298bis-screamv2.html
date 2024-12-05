@@ -8,26 +8,23 @@
 <meta content="Ingemar Johansson" name="author">
 <meta content="Magnus Westerlund" name="author">
 <meta content="
-       This memo describes a congestion control algorithm for conversational media
-services such as interactive video. The solution conforms to the packet
-conservation principle and is a hybrid loss- and delay based congestion control
-that also supports ECN and L4S. The algorithm is evaluated over both simulated
-Internet bottleneck scenarios as well as in a mobile system simulator using
-LongTerm Evolution (LTE) and 5G and is shown to achieve both low latency and
-high video throughput in these scenarios. This specification obsoletes RFC
-8298. The algorithm supports handling of multiple media streams, typical use
-cases are streaming for remote control, AR and 3D VR googles. 
+       This memo describes Self-Clocked Rate Adaptation for Multimedia version 2
+(SCReAMv2), an update to SCReAM congestion control for media streams such as RTP
+ . While SCReAM was originally devised for WebRTC, SCReAM as well as
+SCReAMv2 can also be used for other applications where congestion control of
+different type of real-time streams, especially media streams is
+necessary. 
     " name="description">
-<meta content="xml2rfc 3.23.2" name="generator">
+<meta content="xml2rfc 3.25.0" name="generator">
 <meta content="draft-johansson-ccwg-rfc8298bis-screamv2-latest" name="ietf.draft">
 <!-- Generator version information:
-  xml2rfc 3.23.2
+  xml2rfc 3.25.0
     Python 3.12.7
     ConfigArgParse 1.7
     google-i18n-address 3.1.1
     intervaltree 3.1.0
     Jinja2 3.1.4
-    lxml 4.9.4
+    lxml 5.3.0
     platformdirs 4.3.6
     pycountry 22.3.5
     PyYAML 6.0.1
@@ -169,31 +166,6 @@ cases are streaming for remote control, AR and 3D VR googles.
 }
 
 @font-face {
-  font-family: 'Cabin Condensed';
-  font-style: normal;
-  font-weight: 600;
-  font-display: swap;
-  src: local('Cabin Condensed SemiBold'), local('CabinCondensed-SemiBold'), url('https://martinthomson.github.io/rfc-css/fonts/cabincondensed-semibold-vietnamese.woff2') format('woff2');
-  unicode-range: U+0102-0103, U+0110-0111, U+1EA0-1EF9, U+20AB;
-}
-@font-face {
-  font-family: 'Cabin Condensed';
-  font-style: normal;
-  font-weight: 600;
-  font-display: swap;
-  src: local('Cabin Condensed SemiBold'), local('CabinCondensed-SemiBold'), url('https://martinthomson.github.io/rfc-css/fonts/cabincondensed-semibold-latin-ext.woff2') format('woff2');
-  unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
-}
-@font-face {
-  font-family: 'Cabin Condensed';
-  font-style: normal;
-  font-weight: 600;
-  font-display: swap;
-  src: local('Cabin Condensed SemiBold'), local('CabinCondensed-SemiBold'), url('https://martinthomson.github.io/rfc-css/fonts/cabincondensed-semibold-latin.woff2') format('woff2');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
-
-@font-face {
   font-family: 'Oxygen Mono';
   font-style: normal;
   font-weight: 400;
@@ -210,6 +182,77 @@ cases are streaming for remote control, AR and 3D VR googles.
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: italic;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-italic-cyrillic-ext.woff2') format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: italic;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-italic-cyrillic.woff2') format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: italic;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-italic-greek.woff2') format('woff2');
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: italic;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-italic-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: italic;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-italic-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: normal;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-regular-cyrillic-ext.woff2') format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: normal;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-regular-cyrillic.woff2') format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: normal;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-regular-greek.woff2') format('woff2');
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: normal;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-regular-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Sofia Sans Semi Condensed';
+  font-style: normal;
+  font-weight: 1 1000;
+  src: url('https://martinthomson.github.io/rfc-css/fonts/sofiasanssemicondensed-regular-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
 :root {
   color-scheme: light dark;
   --background-color: #fff;
@@ -222,6 +265,7 @@ cases are streaming for remote control, AR and 3D VR googles.
   --pilcrow-strong: #bbb;
   --small-font-size: 14.5px;
   --font-mono: 'Oxygen Mono', monospace;
+  --font-title: "Sofia Sans Semi Condensed", sans-serif;
   scrollbar-color: #bbb #eee;
 }
 body {
@@ -239,9 +283,15 @@ body {
 }
 
 /* headings */
+section {
+  clear: both;
+}
+.section-number {
+  padding-right: 0.5em;
+}
 h1, h2, h3, h4, h5, h6 {
-  font-family: "Cabin Condensed", sans-serif;
-  font-weight: 600;
+  font-family: var(--font-title);
+  font-weight: 680;
   margin: 0.8em 0 0.3em;
   font-size-adjust: 0.5;
   color: var(--title-color);
@@ -270,6 +320,7 @@ h4, h5, h6 {
 /* general structure */
 .author {
   padding-bottom: 0.3em;
+  vertical-align: top;
 }
 #abstract+p {
   font-size: 18px;
@@ -347,25 +398,26 @@ svg[font-family~="monospace" i], svg [font-family~="monospace" i] {
 ol, ul {
   padding: 0;
   margin: 0 0 0.5em 2em;
-}
-:is(ol, ul) :is(ol, ul) {
-  margin-left: 1em;
+  & :is(ol, ul) {
+    margin-left: 1em;
+  }
 }
 li {
   margin: 0 0 0.25em 0;
 }
-.ulCompact li {
-  margin: 0;
-}
 ul.empty, .ulEmpty {
   list-style-type: none;
-}
-ul.empty li, .ulEmpty li {
-  margin-top: 0.5em;
+  & li {
+    margin-top: 0.5em;
+  }
 }
 :is(ul, ol).compact, .ulCompact, .olCompact {
-  line-height: 1;
   margin: 0 0 0 2em;
+  & li {
+    margin: 0;
+    & :first-child { margin-top: 0; }
+    & :last-child { margin-bottom: 0; }
+  }
 }
 
 /* definition lists */
@@ -373,38 +425,39 @@ dl {
   clear: left;
   --indent: 3ch;
   /* --indent: attr(indent ch); not supported in any browser, but we can dream */
-}
-dl.olPercent {
-  --indent: 5ch;
+  &.olPercent {
+    --indent: 5ch;
+    & > dt {
+      min-width: calc(var(--indent) - 2ch);
+    }
+  }
+  &.olPercent > dt {
+    float: none;
+  }
+
+  dl > dd > & {
+    margin-top: 0.5em;
+    margin-bottom: 0;
+  }
 }
 dl > dt {
   float: left;
   margin-right: 2ch;
   min-width: 8ch;
 }
-dl.dlNewline > dt {
-  float: none;
-}
 dl > dd {
   margin-bottom: .8em;
   margin-left: var(--indent) !important; /* stupid element overrides */
   min-height: 2ex;
 }
-dl.olPercent > dt {
-  min-width: calc(var(--indent) - 2ch);
-}
 :is(dl.compact, .dlCompact) > dd {
   margin-bottom: 0;
-}
-:is(dl.compact, .dlCompact) > dd > :is(:first-child, .break:first-child + *) {
-  margin-top: 0;
-}
-:is(dl.compact, .dlCompact) > dd > :is(:last-child) {
-  margin-bottom: 0;
-}
-dl > dd > dl {
-  margin-top: 0.5em;
-  margin-bottom: 0;
+  & > :is(:first-child, .break:first-child + *) {
+    margin-top: 0;
+  }
+  & > :is(:last-child) {
+    margin-bottom: 0;
+  }
 }
 :is(dd, span).break {
   display: none;
@@ -468,6 +521,7 @@ figcaption, caption {
   font-style: italic;
   margin: 0.5em 1.5em;
   text-align: left;
+  caption-side: bottom;
 }
 @media screen {
   /* Auto-collapse boilerplate. */
@@ -522,6 +576,7 @@ cite {
 
 /* tables */
 table {
+  width: auto;
   max-width: 100%;
   margin: 0 0 1em;
   border-collapse: collapse;
@@ -536,6 +591,16 @@ table.center {
 table.left {
   margin-right: auto;
 }
+table .text-left {
+  text-align: left;
+}
+table .text-center {
+  text-align: center;
+}
+table .text-right {
+  text-align: right;
+}
+
 thead, tbody {
   border: 1px solid var(--line-color);
 }
@@ -566,9 +631,11 @@ a.pilcrow {
   margin-left: 3px;
   opacity: 0.2;
   user-select: none;
+  &[href] {
+    color: var(--pilcrow-weak);
+    &:hover { text-decoration: none; }
+  }
 }
-a.pilcrow[href] { color: var(--pilcrow-weak); }
-a.pilcrow[href]:hover { text-decoration: none; }
 @media not print {
   :hover > a.pilcrow {
     opacity: 1;
@@ -608,26 +675,28 @@ sub, sup {
   font-size: var(--small-font-size);
   line-height: 18px;
   --identifier-width: 15ch;
-}
-#identifiers dt {
-  width: var(--identifier-width);
-  min-width: var(--identifier-width);
-  clear: left;
-  float: left;
-  text-align: right;
-  margin-right: 1ch;
-}
-#identifiers dd {
-  margin: 0;
-  margin-left: calc(1em + var(--identifier-width)) !important;
-  min-width: 5em;
-}
-#identifiers .authors .author {
-  display: inline-block;
-  margin-right: 1.5em;
-}
-#identifiers .authors .org {
-  font-style: italic;
+  & dt {
+    width: var(--identifier-width);
+    min-width: var(--identifier-width);
+    clear: left;
+    float: left;
+    text-align: right;
+    margin-right: 1ch;
+  }
+  & dd {
+    margin: 0;
+    margin-left: calc(1em + var(--identifier-width)) !important;
+    min-width: 5em;
+  }
+  & .authors {
+    & .author {
+      display: inline-block;
+      margin-right: 1.5em;
+    }
+    & .org {
+      font-style: italic;
+    }
+  }
 }
 
 /* The prepared/rendered info at the very bottom of the page */
@@ -638,9 +707,6 @@ sub, sup {
   margin-top: 2em;
 }
 .docInfo .prepared {
-  float: left;
-}
-.docInfo .prepared {
   float: right;
 }
 
@@ -648,47 +714,48 @@ sub, sup {
 #toc {
   padding: 0.75em 0 2em 0;
   margin-bottom: 1em;
-}
-#toc nav ul {
-  margin: 0 0.5em 0 0;
-  padding: 0;
-  list-style: none;
-}
-#toc nav li {
-  line-height: 1.3em;
-  margin: 2px 0;
-  padding-left: 1.2em;
-  text-indent: -1.2em;
-}
-#toc a.xref {
-  white-space: normal;
-}
-/* references */
-.references dt {
-  text-align: right;
-  font-weight: bold;
-  min-width: 10ch;
-  margin-right: 1.5ch;
-}
-.references dt:target::before {
-  content: "⇒";
-  width: 15px;
-  margin: 0 10px 0 -25px;
-}
-.references dd {
-  margin-left: 12ch !important;
-  overflow: auto;
+
+  & nav {
+    & ul {
+      margin: 0 0.5em 0 0;
+      padding: 0;
+      list-style: none;
+    }
+    & li {
+      line-height: 1.3em;
+      margin: 2px 0;
+      padding-left: 1.2em;
+      text-indent: -1.2em;
+    }
+  }
+  & a.xref {
+    white-space: normal;
+  }
 }
 
-.refInstance {
-  margin-bottom: 1.25em;
+.references {
+  & > dt {
+    text-align: right;
+    font-weight: bold;
+    min-width: 10ch;
+    margin-right: 1.5ch;
+    &:target::before {
+      content: "⇒";
+      margin: 0 10px 0 -25px;
+    }
+  }
+  & > dd {
+    margin-left: 12ch !important;
+    overflow: visible;
+    & .refInstance {
+      margin-bottom: 0.8em;
+    }
+    & .ascii {
+      margin-bottom: 0.25em;
+    }
+  }
 }
 
-.references .ascii {
-  margin-bottom: 0.25em;
-}
-
-/* index */
 #rfc\.index\.index + ul {
   margin-left: 0;
 }
@@ -696,21 +763,33 @@ sub, sup {
 /* authors */
 address.vcard {
   font-style: normal;
-  margin: 1em 0;
+  max-width: 20em;
+  margin: 1em auto 1em 0;
+
+  & .nameRole {
+    font-weight: 700;
+    margin-left: 0;
+  }
+  & .label {
+    margin: 0.5em 0;
+  }
+  & .type {
+    display: none;
+  }
+  & .alternative-contact {
+    margin: 0.5em 0 0.25em 0;
+  }
+  & .non-ascii {
+    margin: 0 0 0 2em;
+  }
+  & div.left {
+    text-align: left;
+  }
+  & div.right {
+    text-align: right;
+  }
 }
-address.vcard .nameRole {
-  font-weight: 700;
-  margin-left: 0;
-}
-address.vcard .label {
-  margin: 0.5em 0;
-}
-address.vcard .type {
-  display: none;
-}
-.alternative-contact {
-  margin: 1.5em 0 1em;
-}
+
 hr.addr {
   border-top: 1px dashed;
   margin: 0;
@@ -732,6 +811,7 @@ hr.addr {
   }
 }
 
+/* Comments */
 .rfcEditorRemove p:first-of-type {
   font-style: italic;
 }
@@ -742,7 +822,31 @@ hr.addr {
 .crefSource {
   font-style: italic;
 }
-/* alternative layout for smaller screens */
+
+@media screen {
+  #toc nav {
+    font-family: var(--font-title);
+    font-weight: 360;
+    & > ul { margin-bottom: 2em; }
+    & ul {
+      margin: 0 0 0 4px;
+      & :is(p, li) {
+        margin: 2px 0;
+      }
+    }
+  }
+  #toc a.toplink {
+    float: right;
+  }
+}
+@media not screen {
+  #toc a.toplink {
+    display: none;
+  }
+}
+
+
+/* TOC layout for smaller screens */
 @media screen and (max-width: 929px) {
   #toc {
     position: fixed;
@@ -753,9 +857,6 @@ hr.addr {
     margin: 0;
     border-bottom: 1px solid #ccc;
     opacity: 0.6;
-  }
-  #toc.active {
-      opacity: 1;
   }
   #toc h2 {
     margin: 0;
@@ -768,17 +869,17 @@ hr.addr {
     background-color: #444;
     color: white;
     cursor: pointer;
-  }
-  #toc h2::before { /* css hamburger */
-    float: right;
-    position: relative;
-    width: 1em;
-    height: 1px;
-    left: -164px;
-    margin: 8px 0 0 0;
-    background: white none repeat scroll 0 0;
-    box-shadow: 0 4px 0 0 white, 0 8px 0 0 white;
-    content: "";
+    &::before { /* css hamburger */
+      float: right;
+      position: relative;
+      width: 1em;
+      height: 1px;
+      left: -164px;
+      margin: 8px 0 0 0;
+      background: white none repeat scroll 0 0;
+      box-shadow: 0 4px 0 0 white, 0 8px 0 0 white;
+      content: "";
+    }
   }
   #toc nav {
     display: none;
@@ -789,14 +890,13 @@ hr.addr {
     height: calc(100vh - 48px);
     border-left: 1px solid #ddd;
   }
-  #toc.active nav {
-    display: block;
+  #toc.active {
+    opacity: 1;
+    & nav { display: block; }
   }
   /* Make the collapsed ToC header render white on gray also when it's a link */
   #toc h2 a,
-  #toc h2 a:link,
-  #toc h2 a:focus,
-  #toc h2 a:hover,
+  #toc h2 a:is(:link, :focus, :hover),
   #toc a.toplink,
   #toc a.toplink:hover {
     color: white;
@@ -804,11 +904,11 @@ hr.addr {
     text-decoration: none;
   }
   #toc a.toplink {
-    margin-top: 2px;
+    margin: 2px 0.5em 0;
   }
 }
 
-/* alternative layout for wide screens */
+/* TOC layout for wide screens */
 @media screen and (min-width: 930px) {
   body {
     padding-right: 360px;
@@ -837,20 +937,12 @@ hr.addr {
     overscroll-behavior: contain;
     scrollbar-width: thin;
   }
-  #toc nav > ul  {
-    margin-bottom: 2em;
-  }
-  #toc ul {
-    margin: 0 0 0 4px;
-    font-size: var(--small-font-size);
-  }
-  #toc ul :is(p, li) {
-    margin: 2px 0;
-    line-height: 22px;
-  }
   img { /* future proofing */
     max-width: 100%;
     height: auto;
+  }
+  #toc a.toplink {
+    margin: 8px 0.5em 0;
   }
 }
 
@@ -893,9 +985,6 @@ hr.addr {
   td {
     border-top: 1px solid #ddd;
   }
-  .toplink {
-    display: none;
-  }
 }
 
 @page :first {
@@ -918,82 +1007,6 @@ hr.addr {
   size: A4;
   margin-bottom: 45mm;
   padding-top: 20px;
-}
-
-/* Changes introduced to fix issues found during implementation */
-
-/* Separate body from document info even without intervening H1 */
-section {
-  clear: both;
-}
-
-/* Top align author divs, to avoid names without organization dropping level with org names */
-.author {
-  vertical-align: top;
-}
-
-/* Style section numbers with more space between number and title */
-.section-number {
-  padding-right: 0.5em;
-}
-
-/* Add styling for a link in the ToC that points to the top of the document */
-a.toplink {
-  float: right;
-  margin: 8px 0.5em 0;
-}
-
-/* Provide styling for table cell text alignment */
-table .text-left {
-  text-align: left;
-}
-table .text-center {
-  text-align: center;
-}
-table .text-right {
-  text-align: right;
-}
-
-/* Make the alternative author contact information look less like just another
-   author, and group it closer with the primary author contact information */
-.alternative-contact {
-  margin: 0.5em 0 0.25em 0;
-}
-address .non-ascii {
-  margin: 0 0 0 2em;
-}
-
-/* With it being possible to set tables with alignment
-  left, center, and right, { width: 100%; } does not make sense */
-table {
-  width: auto;
-}
-
-/* Avoid reference text that sits in a block with very wide left margin,
-   because of a long floating dt label.*/
-.references dd {
-  overflow: visible;
-}
-
-/* Control caption placement */
-caption {
-  caption-side: bottom;
-}
-
-/* Limit the width of the author address vcard, so names in right-to-left
-   script don't end up on the other side of the page. */
-
-address.vcard {
-  max-width: 20em;
-  margin-right: auto;
-}
-
-/* For address alignment dependent on LTR or RTL scripts */
-address div.left {
-  text-align: left;
-}
-address div.right {
-  text-align: right;
 }
 
 /* Dark mode. */
@@ -1032,11 +1045,11 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <thead><tr>
 <td class="left">Internet-Draft</td>
 <td class="center">SCReAMv2</td>
-<td class="right">October 2024</td>
+<td class="right">December 2024</td>
 </tr></thead>
 <tfoot><tr>
 <td class="left">Johansson &amp; Westerlund</td>
-<td class="center">Expires 24 April 2025</td>
+<td class="center">Expires 8 June 2025</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1052,12 +1065,12 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <a href="https://www.rfc-editor.org/rfc/rfc8298" class="eref">8298</a> (if approved)</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2024-10-21" class="published">21 October 2024</time>
+<time datetime="2024-12-05" class="published">5 December 2024</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Experimental</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2025-04-24">24 April 2025</time></dd>
+<dd class="expires"><time datetime="2025-06-08">8 June 2025</time></dd>
 <dt class="label-authors">Authors:</dt>
 <dd class="authors">
 <div class="author">
@@ -1074,15 +1087,12 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <h1 id="title">Self-Clocked Rate Adaptation for Multimedia</h1>
 <section id="section-abstract">
       <h2 id="abstract"><a href="#abstract" class="selfRef">Abstract</a></h2>
-<p id="section-abstract-1">This memo describes a congestion control algorithm for conversational media
-services such as interactive video. The solution conforms to the packet
-conservation principle and is a hybrid loss- and delay based congestion control
-that also supports ECN and L4S. The algorithm is evaluated over both simulated
-Internet bottleneck scenarios as well as in a mobile system simulator using
-LongTerm Evolution (LTE) and 5G and is shown to achieve both low latency and
-high video throughput in these scenarios. This specification obsoletes RFC
-8298. The algorithm supports handling of multiple media streams, typical use
-cases are streaming for remote control, AR and 3D VR googles.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
+<p id="section-abstract-1">This memo describes Self-Clocked Rate Adaptation for Multimedia version 2
+(SCReAMv2), an update to SCReAM congestion control for media streams such as RTP
+<span>[<a href="#RFC3550" class="cite xref">RFC3550</a>]</span>. While SCReAM was originally devised for WebRTC, SCReAM as well as
+SCReAMv2 can also be used for other applications where congestion control of
+different type of real-time streams, especially media streams is
+necessary.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
 </section>
 <section class="note rfcEditorRemove" id="section-note.1">
       <h2 id="name-about-this-document">
@@ -1118,7 +1128,7 @@ cases are streaming for remote control, AR and 3D VR googles.<a href="#section-a
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 24 April 2025.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 8 June 2025.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -1151,16 +1161,19 @@ cases are streaming for remote control, AR and 3D VR googles.<a href="#section-a
             <p id="section-toc.1-1.1.1"><a href="#section-1" class="auto internal xref">1</a>.  <a href="#name-introduction" class="internal xref">Introduction</a></p>
 <ul class="compact toc ulBare ulEmpty">
 <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.1.2.1">
-                <p id="section-toc.1-1.1.2.1.1" class="keepWithNext"><a href="#section-1.1" class="auto internal xref">1.1</a>.  <a href="#name-wireless-lte-and-5g-access-" class="internal xref">Wireless (LTE and 5G) Access Properties</a></p>
+                <p id="section-toc.1-1.1.2.1.1" class="keepWithNext"><a href="#section-1.1" class="auto internal xref">1.1</a>.  <a href="#name-updates-compared-to-scream-" class="internal xref">Updates compared to SCReAM (version 1)</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.1.2.2">
-                <p id="section-toc.1-1.1.2.2.1" class="keepWithNext"><a href="#section-1.2" class="auto internal xref">1.2</a>.  <a href="#name-why-is-it-a-self-clocked-al" class="internal xref">Why is it a self-clocked algorithm?</a></p>
+                <p id="section-toc.1-1.1.2.2.1" class="keepWithNext"><a href="#section-1.2" class="auto internal xref">1.2</a>.  <a href="#name-wireless-lte-and-5g-access-" class="internal xref">Wireless (LTE and 5G) Access Properties</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.1.2.3">
-                <p id="section-toc.1-1.1.2.3.1" class="keepWithNext"><a href="#section-1.3" class="auto internal xref">1.3</a>.  <a href="#name-requirements-on-media-and-f" class="internal xref">Requirements on media and feedback protocol</a></p>
+                <p id="section-toc.1-1.1.2.3.1" class="keepWithNext"><a href="#section-1.3" class="auto internal xref">1.3</a>.  <a href="#name-why-is-it-a-self-clocked-al" class="internal xref">Why is it a self-clocked algorithm?</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.1.2.4">
-                <p id="section-toc.1-1.1.2.4.1"><a href="#section-1.4" class="auto internal xref">1.4</a>.  <a href="#name-comparison-with-ledbat-and-" class="internal xref">Comparison with LEDBAT and TFWC in TCP</a></p>
+                <p id="section-toc.1-1.1.2.4.1"><a href="#section-1.4" class="auto internal xref">1.4</a>.  <a href="#name-requirements-on-media-and-f" class="internal xref">Requirements on media and feedback protocol</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.1.2.5">
+                <p id="section-toc.1-1.1.2.5.1"><a href="#section-1.5" class="auto internal xref">1.5</a>.  <a href="#name-comparison-with-ledbat-and-" class="internal xref">Comparison with LEDBAT and TFWC in TCP</a></p>
 </li>
             </ul>
 </li>
@@ -1270,73 +1283,66 @@ cases are streaming for remote control, AR and 3D VR googles.<a href="#section-a
       <h2 id="name-introduction">
 <a href="#section-1" class="section-number selfRef">1. </a><a href="#name-introduction" class="section-name selfRef">Introduction</a>
       </h2>
-<p id="section-1-1">Congestion in the Internet occurs when the transmitted bitrate is higher than
-the available capacity over a given transmission path. Applications that are
-deployed in the Internet have to employ congestion control to achieve robust
-performance and to avoid congestion collapse in the Internet.<a href="#section-1-1" class="pilcrow">¶</a></p>
-<p id="section-1-2">Interactive real-time communication imposes a lot of requirements on the
-transport; therefore, a robust, efficient rate adaptation for all access types
-is an important part of interactive real-time communications, as the
-transmission channel bandwidth can vary over time.<a href="#section-1-2" class="pilcrow">¶</a></p>
-<p id="section-1-3">Wireless access such as LTE and 5G, which is an integral part of the current
-Internet, increases the importance of rate adaptation as the channel bandwidth
-of a default LTE bearer <span>[<a href="#QoS-3GPP" class="cite xref">QoS-3GPP</a>]</span> can change considerably in a very short
-time frame. Thus, a rate adaptation solution for interactive real-time media,
-such as WebRTC <span>[<a href="#RFC7478" class="cite xref">RFC7478</a>]</span>, should be both quick and be able to operate over a
-large range in channel capacity.<a href="#section-1-3" class="pilcrow">¶</a></p>
-<p id="section-1-4">This memo describes Self-Clocked Rate Adaptation for Multimedia version 2
-(SCReAMv2), an update to SCReAM congestion control for media streams such as RTP
-<span>[<a href="#RFC3550" class="cite xref">RFC3550</a>]</span>. While SCReAM was originally devised for WebRTC, SCReAM as well as
-SCReAMv2 can also be used for other applications where congestion control of
-different type of real-time streams, especially media streams is
-necessary. SCReAM is based on the self-clocking principle of TCP and uses
-estimates the forward queue delay in the same way as Low
-Extra Delay Background Transport (LEDBAT) <span>[<a href="#RFC6817" class="cite xref">RFC6817</a>]</span>.<a href="#section-1-4" class="pilcrow">¶</a></p>
-<p id="section-1-5">SCReAMv2 is not entirely self-clocked as it augments self-clocking with pacing
-and a minimum send rate. Further, SCReAMv2 can take advantage of Explicit
+<p id="section-1-1">This memo describes Self-Clocked Rate Adaptation for Multimedia version 2
+(SCReAMv2). This specification replaces the previous experimental version <span>[<a href="#RFC8298" class="cite xref">RFC8298</a>]</span> of
+SCReAM with SCReAMv2. There are many and fairly significant changes to the
+original SCReAM algorithm as desribed in section <a href="#sec_changes" class="auto internal xref">Section 1.1</a>.<a href="#section-1-1" class="pilcrow">¶</a></p>
+<p id="section-1-2">While SCReAM was originally designed for media streams such as RTP
+<span>[<a href="#RFC3550" class="cite xref">RFC3550</a>]</span> and WebRTC, SCReAM as well as
+SCReAMv2 can also be used for other real-time and media applications.<a href="#section-1-2" class="pilcrow">¶</a></p>
+<p id="section-1-3">Both SCReAM and SCReAMv2 estimates the forward queue delay in the same way as Low
+Extra Delay Background Transport (LEDBAT) <span>[<a href="#RFC6817" class="cite xref">RFC6817</a>]</span>.
+However, while SCReAM is based on the self-clocking principle of TCP,
+SCReAMv2 is not entirely self-clocked as it augments self-clocking with pacing
+and a minimum send rate.<a href="#section-1-3" class="pilcrow">¶</a></p>
+<p id="section-1-4">Further, SCReAMv2 can take advantage of Explicit
 Congestion Notification (ECN) <span>[<a href="#RFC3168" class="cite xref">RFC3168</a>]</span> and Low Latency Low Loss and Scalable
 throughput (L4S) <span>[<a href="#RFC9330" class="cite xref">RFC9330</a>]</span> in cases where ECN or L4S is supported by the
 network and the hosts. However, ECN or L4S is not required for the basic
-congestion control functionality in SCReAMv2.<a href="#section-1-5" class="pilcrow">¶</a></p>
-<p id="section-1-6">This specification replaces the previous experimental version <span>[<a href="#RFC8298" class="cite xref">RFC8298</a>]</span> of
-SCReAM with SCReAMv2. There are many and fairly significant changes to the
-original SCReAM algorithm.<a href="#section-1-6" class="pilcrow">¶</a></p>
-<p id="section-1-7">The algorithm in this memo differs greatly against the previous version of
-SCReAM. The main differences are:<a href="#section-1-7" class="pilcrow">¶</a></p>
-<ul class="normal">
-<li class="normal" id="section-1-8.1">
-          <p id="section-1-8.1.1">L4S support added. The L4S algoritm has many similarities with the DCTCP and
-Prague congestion control but has a few extra modifications to make it work
-well with peridic sources such as video.<a href="#section-1-8.1.1" class="pilcrow">¶</a></p>
-</li>
-        <li class="normal" id="section-1-8.2">
-          <p id="section-1-8.2.1">The delay based congestion control is changed to implement a pseudo-L4S
-approach, this simplifies the delay based congestion control.<a href="#section-1-8.2.1" class="pilcrow">¶</a></p>
-</li>
-        <li class="normal" id="section-1-8.3">
-          <p id="section-1-8.3.1">The fast increase mode is removed. The reference window additive increase is
-replaced with an adaptive multiplicative increase to enhance convergence
-speed.<a href="#section-1-8.3.1" class="pilcrow">¶</a></p>
-</li>
-        <li class="normal" id="section-1-8.4">
-          <p id="section-1-8.4.1">The algorithm is more rate based than self-clocked. The calculated congestion
-window is used mainly to calculate proper media bitrates. Bytes in flight is
-however allowed to exceeed the reference window.<a href="#section-1-8.4.1" class="pilcrow">¶</a></p>
-</li>
-        <li class="normal" id="section-1-8.5">
-          <p id="section-1-8.5.1">The media bitrate calculation is dramatically changed and simplified.<a href="#section-1-8.5.1" class="pilcrow">¶</a></p>
-</li>
-        <li class="normal" id="section-1-8.6">
-          <p id="section-1-8.6.1">Additional compensation is added to make SCReAMv2 handle cases such as large
-changing frame sizes.<a href="#section-1-8.6.1" class="pilcrow">¶</a></p>
-</li>
-      </ul>
-<div id="lte-5g">
+congestion control functionality in SCReAMv2.<a href="#section-1-4" class="pilcrow">¶</a></p>
+<div id="sec_changes">
 <section id="section-1.1">
-        <h3 id="name-wireless-lte-and-5g-access-">
-<a href="#section-1.1" class="section-number selfRef">1.1. </a><a href="#name-wireless-lte-and-5g-access-" class="section-name selfRef">Wireless (LTE and 5G) Access Properties</a>
+        <h3 id="name-updates-compared-to-scream-">
+<a href="#section-1.1" class="section-number selfRef">1.1. </a><a href="#name-updates-compared-to-scream-" class="section-name selfRef">Updates compared to SCReAM (version 1)</a>
         </h3>
-<p id="section-1.1-1"><span>[<a href="#RFC8869" class="cite xref">RFC8869</a>]</span> describes the complications that can be observed in wireless
+<p id="section-1.1-1">The algorithm in this memo differs greatly against the previous version of
+SCReAM. The main differences are:<a href="#section-1.1-1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-1.1-2.1">
+            <p id="section-1.1-2.1.1">L4S support added. The L4S algoritm has many similarities with the DCTCP and
+Prague congestion control but has a few extra modifications to make it work
+well with peridic sources such as video.<a href="#section-1.1-2.1.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-1.1-2.2">
+            <p id="section-1.1-2.2.1">The delay based congestion control is changed to implement a pseudo-L4S
+approach, this simplifies the delay based congestion control.<a href="#section-1.1-2.2.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-1.1-2.3">
+            <p id="section-1.1-2.3.1">The fast increase mode is removed. The reference window additive increase is
+replaced with an adaptive multiplicative increase to enhance convergence
+speed.<a href="#section-1.1-2.3.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-1.1-2.4">
+            <p id="section-1.1-2.4.1">The algorithm is more rate based than self-clocked. The calculated congestion
+window is used mainly to calculate proper media bitrates. Bytes in flight is
+however allowed to exceeed the reference window.<a href="#section-1.1-2.4.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-1.1-2.5">
+            <p id="section-1.1-2.5.1">The media bitrate calculation is dramatically changed and simplified.<a href="#section-1.1-2.5.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-1.1-2.6">
+            <p id="section-1.1-2.6.1">Additional compensation is added to make SCReAMv2 handle cases such as large
+changing frame sizes.<a href="#section-1.1-2.6.1" class="pilcrow">¶</a></p>
+</li>
+        </ul>
+</section>
+</div>
+<div id="lte-5g">
+<section id="section-1.2">
+        <h3 id="name-wireless-lte-and-5g-access-">
+<a href="#section-1.2" class="section-number selfRef">1.2. </a><a href="#name-wireless-lte-and-5g-access-" class="section-name selfRef">Wireless (LTE and 5G) Access Properties</a>
+        </h3>
+<p id="section-1.2-1"><span>[<a href="#RFC8869" class="cite xref">RFC8869</a>]</span> describes the complications that can be observed in wireless
 environments. Wireless access such as LTE and 5G typically cannot guarantee a
 given bandwidth; this is true especially for default bearers. The network
 throughput can vary considerably, for instance, in cases where the wireless
@@ -1345,8 +1351,8 @@ there are cases when the available bitrate can be much lower (less than 10
 Mbps); examples are situations with high network load and poor coverage. An
 additional complication is that the network throughput can drop for short time
 intervals (e.g., at handover); these short glitches are initially very difficult
-to distinguish from more permanent reductions in throughput.<a href="#section-1.1-1" class="pilcrow">¶</a></p>
-<p id="section-1.1-2">Unlike wireline bottlenecks with large statistical multiplexing, it is typically
+to distinguish from more permanent reductions in throughput.<a href="#section-1.2-1" class="pilcrow">¶</a></p>
+<p id="section-1.2-2">Unlike wireline bottlenecks with large statistical multiplexing, it is typically
 not possible to try to maintain a given bitrate when congestion is detected with
 the hope that other flows will yield. This is because there are generally few
 other flows competing for the same bottleneck. Each user gets its own variable
@@ -1359,88 +1365,88 @@ bearer, a flow in that bearer aims to reduce the sending rate quite quickly
 has the consenquence that L4S capable 5G radio bearers will build a queue unless
 these are prioritized over other bearers. This differs from e.g DualQ
 <span>[<a href="#RFC9332" class="cite xref">RFC9332</a>]</span>, which prioritizes L4S traffic in a weighted scheduler and achives
-fairness with additional marking for the L4S flows.<a href="#section-1.1-2" class="pilcrow">¶</a></p>
+fairness with additional marking for the L4S flows.<a href="#section-1.2-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="why-selfclock">
-<section id="section-1.2">
+<section id="section-1.3">
         <h3 id="name-why-is-it-a-self-clocked-al">
-<a href="#section-1.2" class="section-number selfRef">1.2. </a><a href="#name-why-is-it-a-self-clocked-al" class="section-name selfRef">Why is it a self-clocked algorithm?</a>
+<a href="#section-1.3" class="section-number selfRef">1.3. </a><a href="#name-why-is-it-a-self-clocked-al" class="section-name selfRef">Why is it a self-clocked algorithm?</a>
         </h3>
-<p id="section-1.2-1">Self-clocked congestion control algorithms provide a benefit over their
+<p id="section-1.3-1">Self-clocked congestion control algorithms provide a benefit over their
 rate-based counterparts in that the former consists of two adaptation
-mechanisms:<a href="#section-1.2-1" class="pilcrow">¶</a></p>
+mechanisms:<a href="#section-1.3-1" class="pilcrow">¶</a></p>
 <ul class="normal">
-<li class="normal" id="section-1.2-2.1">
-            <p id="section-1.2-2.1.1">A reference window computation that evolves over a longer timescale (several
+<li class="normal" id="section-1.3-2.1">
+            <p id="section-1.3-2.1.1">A reference window computation that evolves over a longer timescale (several
 RTTs) especially when the reference window evolution is dictated by estimated
 delay (to minimize vulnerability to, e.g., short-term delay variations). The
 term reference window is used instead of congestion window, as the reference
-window does not set an absolute limit on the bytes in flight.<a href="#section-1.2-2.1.1" class="pilcrow">¶</a></p>
+window does not set an absolute limit on the bytes in flight.<a href="#section-1.3-2.1.1" class="pilcrow">¶</a></p>
 </li>
-          <li class="normal" id="section-1.2-2.2">
-            <p id="section-1.2-2.2.1">A fine-grained congestion control given by the self-clocking; it operates on a
+          <li class="normal" id="section-1.3-2.2">
+            <p id="section-1.3-2.2.1">A fine-grained congestion control given by the self-clocking; it operates on a
 shorter time scale (1 RTT). The benefits of self-clocking are also elaborated
 upon in <span>[<a href="#TFWC" class="cite xref">TFWC</a>]</span>. The self-clocking however acts more like an emergency break
 as bytes in flight can exceed the reference window only to a certain
 degree. The rationale is to be able to transmit large video frames and avoid
 that they are unnecessarily queued up on the sender side, but still prevent a
-large network queue.<a href="#section-1.2-2.2.1" class="pilcrow">¶</a></p>
+large network queue.<a href="#section-1.3-2.2.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
-<p id="section-1.2-3">A rate-based congestion control algorithm typically adjusts the rate based on
+<p id="section-1.3-3">A rate-based congestion control algorithm typically adjusts the rate based on
 delay and loss. The congestion detection needs to be done with a certain time
 lag to avoid overreaction to spurious congestion events such as delay
 spikes. Despite the fact that there are two or more congestion indications, the
 outcome is that there is still only one mechanism to adjust the sending
 rate. This makes it difficult to reach the goals of high throughput and prompt
-reaction to congestion.<a href="#section-1.2-3" class="pilcrow">¶</a></p>
+reaction to congestion.<a href="#section-1.3-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="requirements-media">
-<section id="section-1.3">
+<section id="section-1.4">
         <h3 id="name-requirements-on-media-and-f">
-<a href="#section-1.3" class="section-number selfRef">1.3. </a><a href="#name-requirements-on-media-and-f" class="section-name selfRef">Requirements on media and feedback protocol</a>
+<a href="#section-1.4" class="section-number selfRef">1.4. </a><a href="#name-requirements-on-media-and-f" class="section-name selfRef">Requirements on media and feedback protocol</a>
         </h3>
-<p id="section-1.3-1">SCReAM was originally designed to with with RTP + RTCP where <span>[<a href="#RFC8888" class="cite xref">RFC8888</a>]</span> was
+<p id="section-1.4-1">SCReAM was originally designed to with with RTP + RTCP where <span>[<a href="#RFC8888" class="cite xref">RFC8888</a>]</span> was
 used as recommended feedback. RTP offers unique packet indication with the
 sequence number and <span>[<a href="#RFC8888" class="cite xref">RFC8888</a>]</span> offers timestamps of received packets and the
-status of the ECN bits.<a href="#section-1.3-1" class="pilcrow">¶</a></p>
-<p id="section-1.3-2">SCReAM is however not limited to RTP as long as some requirements are fulfilled :<a href="#section-1.3-2" class="pilcrow">¶</a></p>
+status of the ECN bits.<a href="#section-1.4-1" class="pilcrow">¶</a></p>
+<p id="section-1.4-2">SCReAM is however not limited to RTP as long as some requirements are fulfilled :<a href="#section-1.4-2" class="pilcrow">¶</a></p>
 <ul class="normal">
-<li class="normal" id="section-1.3-3.1">
-            <p id="section-1.3-3.1.1">Media data is split in data units that when encapsulated in IP packets fit in
-the network MTU.<a href="#section-1.3-3.1.1" class="pilcrow">¶</a></p>
+<li class="normal" id="section-1.4-3.1">
+            <p id="section-1.4-3.1.1">Media data is split in data units that when encapsulated in IP packets fit in
+the network MTU.<a href="#section-1.4-3.1.1" class="pilcrow">¶</a></p>
 </li>
-          <li class="normal" id="section-1.3-3.2">
-            <p id="section-1.3-3.2.1">Each data unit can be uniquely identified.<a href="#section-1.3-3.2.1" class="pilcrow">¶</a></p>
+          <li class="normal" id="section-1.4-3.2">
+            <p id="section-1.4-3.2.1">Each data unit can be uniquely identified.<a href="#section-1.4-3.2.1" class="pilcrow">¶</a></p>
 </li>
-          <li class="normal" id="section-1.3-3.3">
-            <p id="section-1.3-3.3.1">Data units can be queued up in a packet queue before transmission.<a href="#section-1.3-3.3.1" class="pilcrow">¶</a></p>
+          <li class="normal" id="section-1.4-3.3">
+            <p id="section-1.4-3.3.1">Data units can be queued up in a packet queue before transmission.<a href="#section-1.4-3.3.1" class="pilcrow">¶</a></p>
 </li>
-          <li class="normal" id="section-1.3-3.4">
-            <p id="section-1.3-3.4.1">Feedback can indicate reception time for each data units, or a group of data
-units.<a href="#section-1.3-3.4.1" class="pilcrow">¶</a></p>
+          <li class="normal" id="section-1.4-3.4">
+            <p id="section-1.4-3.4.1">Feedback can indicate reception time for each data units, or a group of data
+units.<a href="#section-1.4-3.4.1" class="pilcrow">¶</a></p>
 </li>
-          <li class="normal" id="section-1.3-3.5">
-            <p id="section-1.3-3.5.1">Feedback can indicate packets that are ECN-CE marked. Unique ECN bits
+          <li class="normal" id="section-1.4-3.5">
+            <p id="section-1.4-3.5.1">Feedback can indicate packets that are ECN-CE marked. Unique ECN bits
 indication for each packet is not necessary. An ECN-CE counter similar to
-what is defined in <span>[<a href="#RFC9000" class="cite xref">RFC9000</a>]</span> is sufficient.<a href="#section-1.3-3.5.1" class="pilcrow">¶</a></p>
+what is defined in <span>[<a href="#RFC9000" class="cite xref">RFC9000</a>]</span> is sufficient.<a href="#section-1.4-3.5.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
 </section>
 </div>
 <div id="ledbat-tfwc">
-<section id="section-1.4">
+<section id="section-1.5">
         <h3 id="name-comparison-with-ledbat-and-">
-<a href="#section-1.4" class="section-number selfRef">1.4. </a><a href="#name-comparison-with-ledbat-and-" class="section-name selfRef">Comparison with LEDBAT and TFWC in TCP</a>
+<a href="#section-1.5" class="section-number selfRef">1.5. </a><a href="#name-comparison-with-ledbat-and-" class="section-name selfRef">Comparison with LEDBAT and TFWC in TCP</a>
         </h3>
-<p id="section-1.4-1">The core SCReAM algorithm, which is still similar in SCReAMv2, has similarities
+<p id="section-1.5-1">The core SCReAM algorithm, which is still similar in SCReAMv2, has similarities
 to the concepts of self-clocking used in TCP-friendly window-based congestion
 control <span>[<a href="#TFWC" class="cite xref">TFWC</a>]</span> and follows the packet conservation principle. The packet
 conservation principle is described as a key factor behind the protection of
-networks from congestion <span>[<a href="#Packet-conservation" class="cite xref">Packet-conservation</a>]</span>.<a href="#section-1.4-1" class="pilcrow">¶</a></p>
-<p id="section-1.4-2">The reference window is determined in a way similar to the congestion window in
+networks from congestion <span>[<a href="#Packet-conservation" class="cite xref">Packet-conservation</a>]</span>.<a href="#section-1.5-1" class="pilcrow">¶</a></p>
+<p id="section-1.5-2">The reference window is determined in a way similar to the congestion window in
 LEDBAT <span>[<a href="#RFC6817" class="cite xref">RFC6817</a>]</span>. LEDBAT is a congestion control algorithm that uses send and
 receive timestamps to estimate the queuing delay (from now on denoted "qdelay")
 along the transmission path. This information is used to adjust the congestion
@@ -1451,20 +1457,20 @@ the data unit queue must be kept short (preferably empty). In addition, the outp
 from a video encoder is rarely constant bitrate; static content (talking heads,
 for instance) gives almost zero video bitrate. This yields two useful properties
 when LEDBAT's delay-based rate estimation techniques are used as part of SCReAM;
-they help to avoid the issues described in <span>[<a href="#LEDBAT-delay-impact" class="cite xref">LEDBAT-delay-impact</a>]</span>:<a href="#section-1.4-2" class="pilcrow">¶</a></p>
-<ol start="1" type="1" class="normal type-1" id="section-1.4-3">
-<li id="section-1.4-3.1">
-            <p id="section-1.4-3.1.1">There is always a certain probability that SCReAM is short of data to
+they help to avoid the issues described in <span>[<a href="#LEDBAT-delay-impact" class="cite xref">LEDBAT-delay-impact</a>]</span>:<a href="#section-1.5-2" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-1.5-3">
+<li id="section-1.5-3.1">
+            <p id="section-1.5-3.1.1">There is always a certain probability that SCReAM is short of data to
 transmit; this means that the network queue will become empty every once in a
-while.<a href="#section-1.4-3.1.1" class="pilcrow">¶</a></p>
+while.<a href="#section-1.5-3.1.1" class="pilcrow">¶</a></p>
 </li>
-          <li id="section-1.4-3.2">
-            <p id="section-1.4-3.2.1">The max video bitrate can be lower than the link capacity. If the max video
+          <li id="section-1.5-3.2">
+            <p id="section-1.5-3.2.1">The max video bitrate can be lower than the link capacity. If the max video
 bitrate is 5 Mbps and the capacity is 10 Mbps, then the network queue will
-become empty.<a href="#section-1.4-3.2.1" class="pilcrow">¶</a></p>
+become empty.<a href="#section-1.5-3.2.1" class="pilcrow">¶</a></p>
 </li>
         </ol>
-<p id="section-1.4-4">It is sufficient that any of the two conditions above is fulfilled to make the
+<p id="section-1.5-4">It is sufficient that any of the two conditions above is fulfilled to make the
 base delay update properly. Furthermore, <span>[<a href="#LEDBAT-delay-impact" class="cite xref">LEDBAT-delay-impact</a>]</span> describes an
 issue with short-lived competing flows. In SCReAM, these short-lived flows will
 cause the self-clocking to slow down, thereby building up the data unit queue; in
@@ -1472,30 +1478,30 @@ turn, this results in a reduced media video bitrate. Thus, SCReAM slows the
 bitrate more when there are competing short-lived flows than the traditional use
 of LEDBAT does. The basic functionality in the use of LEDBAT in SCReAM is quite
 simple; however, there are a few steps in order to make the concept work with
-conversational media:<a href="#section-1.4-4" class="pilcrow">¶</a></p>
+conversational media:<a href="#section-1.5-4" class="pilcrow">¶</a></p>
 <ul class="normal">
-<li class="normal" id="section-1.4-5.1">
-            <p id="section-1.4-5.1.1">Addition of a media rate control function.<a href="#section-1.4-5.1.1" class="pilcrow">¶</a></p>
+<li class="normal" id="section-1.5-5.1">
+            <p id="section-1.5-5.1.1">Addition of a media rate control function.<a href="#section-1.5-5.1.1" class="pilcrow">¶</a></p>
 </li>
-          <li class="normal" id="section-1.4-5.2">
-            <p id="section-1.4-5.2.1">Reference window validation techniques. The reference window is used as a
+          <li class="normal" id="section-1.5-5.2">
+            <p id="section-1.5-5.2.1">Reference window validation techniques. The reference window is used as a
 basis for the target bitrate calculation. For that reason, various actions are
 taken to avoid that the reference window grows too much beyond the bytes in
 flight. Additional contraints are applied when in congested state and when the
-max target bitrate is reached.<a href="#section-1.4-5.2.1" class="pilcrow">¶</a></p>
+max target bitrate is reached.<a href="#section-1.5-5.2.1" class="pilcrow">¶</a></p>
 </li>
-          <li class="normal" id="section-1.4-5.3">
-            <p id="section-1.4-5.3.1">Use of inflection points in the reference window calculation to achieve
-reduced delay jitter.<a href="#section-1.4-5.3.1" class="pilcrow">¶</a></p>
+          <li class="normal" id="section-1.5-5.3">
+            <p id="section-1.5-5.3.1">Use of inflection points in the reference window calculation to achieve
+reduced delay jitter.<a href="#section-1.5-5.3.1" class="pilcrow">¶</a></p>
 </li>
-          <li class="normal" id="section-1.4-5.4">
-            <p id="section-1.4-5.4.1">Adjustment of qdelay target for better performance when competing with other
-loss-based congestion-controlled flows.<a href="#section-1.4-5.4.1" class="pilcrow">¶</a></p>
+          <li class="normal" id="section-1.5-5.4">
+            <p id="section-1.5-5.4.1">Adjustment of qdelay target for better performance when competing with other
+loss-based congestion-controlled flows.<a href="#section-1.5-5.4.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
-<p id="section-1.4-6">The above-mentioned features will be described in more detail in Section
-<a href="#scream-detailed-description" class="auto internal xref">Section 4</a>.<a href="#section-1.4-6" class="pilcrow">¶</a></p>
-<p id="section-1.4-7">The SCReAM/SCReAMv2 congestion control method uses techniques similar to LEDBAT
+<p id="section-1.5-6">The above-mentioned features will be described in more detail in Section
+<a href="#scream-detailed-description" class="auto internal xref">Section 4</a>.<a href="#section-1.5-6" class="pilcrow">¶</a></p>
+<p id="section-1.5-7">The SCReAM/SCReAMv2 congestion control method uses techniques similar to LEDBAT
 <span>[<a href="#RFC6817" class="cite xref">RFC6817</a>]</span> to measure the qdelay. As is the case with LEDBAT, it is not
 necessary to use synchronized clocks in the sender and receiver in order to
 compute the qdelay. However, it is necessary that they use the same clock
@@ -1503,7 +1509,7 @@ frequency, or that the clock frequency at the receiver can be inferred reliably
 by the sender. Failure to meet this requirement leads to malfunction in the
 SCReAM/SCReAMv2 congestion control algorithm due to incorrect estimation of the
 network queue delay. Use of <span>[<a href="#RFC8888" class="cite xref">RFC8888</a>]</span> as feedback ensures that the same time
-base is used in sender and receiver.<a href="#section-1.4-7" class="pilcrow">¶</a></p>
+base is used in sender and receiver.<a href="#section-1.5-7" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>

@@ -5,8 +5,8 @@
 CCWG                                                        I. Johansson
 Internet-Draft                                             M. Westerlund
 Obsoletes: 8298 (if approved)                                   Ericsson
-Intended status: Experimental                            21 October 2024
-Expires: 24 April 2025
+Intended status: Experimental                            5 December 2024
+Expires: 8 June 2025
 
 
               Self-Clocked Rate Adaptation for Multimedia
@@ -14,17 +14,12 @@ Expires: 24 April 2025
 
 Abstract
 
-   This memo describes a congestion control algorithm for conversational
-   media services such as interactive video.  The solution conforms to
-   the packet conservation principle and is a hybrid loss- and delay
-   based congestion control that also supports ECN and L4S.  The
-   algorithm is evaluated over both simulated Internet bottleneck
-   scenarios as well as in a mobile system simulator using LongTerm
-   Evolution (LTE) and 5G and is shown to achieve both low latency and
-   high video throughput in these scenarios.  This specification
-   obsoletes RFC 8298.  The algorithm supports handling of multiple
-   media streams, typical use cases are streaming for remote control, AR
-   and 3D VR googles.
+   This memo describes Self-Clocked Rate Adaptation for Multimedia
+   version 2 (SCReAMv2), an update to SCReAM congestion control for
+   media streams such as RTP [RFC3550].  While SCReAM was originally
+   devised for WebRTC, SCReAM as well as SCReAMv2 can also be used for
+   other applications where congestion control of different type of
+   real-time streams, especially media streams is necessary.
 
 About This Document
 
@@ -58,7 +53,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 24 April 2025.
+   This Internet-Draft will expire on 8 June 2025.
 
 Copyright Notice
 
@@ -77,10 +72,11 @@ Copyright Notice
 Table of Contents
 
    1.  Introduction
-     1.1.  Wireless (LTE and 5G) Access Properties
-     1.2.  Why is it a self-clocked algorithm?
-     1.3.  Requirements on media and feedback protocol
-     1.4.  Comparison with LEDBAT and TFWC in TCP
+     1.1.  Updates compared to SCReAM (version 1)
+     1.2.  Wireless (LTE and 5G) Access Properties
+     1.3.  Why is it a self-clocked algorithm?
+     1.4.  Requirements on media and feedback protocol
+     1.5.  Comparison with LEDBAT and TFWC in TCP
    2.  Requirements Language
    3.  Overview of SCReAMv2 Algorithm
      3.1.  Network Congestion Control
@@ -113,47 +109,29 @@ Table of Contents
 
 1.  Introduction
 
-   Congestion in the Internet occurs when the transmitted bitrate is
-   higher than the available capacity over a given transmission path.
-   Applications that are deployed in the Internet have to employ
-   congestion control to achieve robust performance and to avoid
-   congestion collapse in the Internet.
-
-   Interactive real-time communication imposes a lot of requirements on
-   the transport; therefore, a robust, efficient rate adaptation for all
-   access types is an important part of interactive real-time
-   communications, as the transmission channel bandwidth can vary over
-   time.
-
-   Wireless access such as LTE and 5G, which is an integral part of the
-   current Internet, increases the importance of rate adaptation as the
-   channel bandwidth of a default LTE bearer [QoS-3GPP] can change
-   considerably in a very short time frame.  Thus, a rate adaptation
-   solution for interactive real-time media, such as WebRTC [RFC7478],
-   should be both quick and be able to operate over a large range in
-   channel capacity.
-
    This memo describes Self-Clocked Rate Adaptation for Multimedia
-   version 2 (SCReAMv2), an update to SCReAM congestion control for
-   media streams such as RTP [RFC3550].  While SCReAM was originally
-   devised for WebRTC, SCReAM as well as SCReAMv2 can also be used for
-   other applications where congestion control of different type of
-   real-time streams, especially media streams is necessary.  SCReAM is
-   based on the self-clocking principle of TCP and uses estimates the
-   forward queue delay in the same way as Low Extra Delay Background
-   Transport (LEDBAT) [RFC6817].
+   version 2 (SCReAMv2).  This specification replaces the previous
+   experimental version [RFC8298] of SCReAM with SCReAMv2.  There are
+   many and fairly significant changes to the original SCReAM algorithm
+   as desribed in section Section 1.1.
 
+   While SCReAM was originally designed for media streams such as RTP
+   [RFC3550] and WebRTC, SCReAM as well as SCReAMv2 can also be used for
+   other real-time and media applications.
+
+   Both SCReAM and SCReAMv2 estimates the forward queue delay in the
+   same way as Low Extra Delay Background Transport (LEDBAT) [RFC6817].
+   However, while SCReAM is based on the self-clocking principle of TCP,
    SCReAMv2 is not entirely self-clocked as it augments self-clocking
-   with pacing and a minimum send rate.  Further, SCReAMv2 can take
-   advantage of Explicit Congestion Notification (ECN) [RFC3168] and Low
-   Latency Low Loss and Scalable throughput (L4S) [RFC9330] in cases
-   where ECN or L4S is supported by the network and the hosts.  However,
-   ECN or L4S is not required for the basic congestion control
-   functionality in SCReAMv2.
+   with pacing and a minimum send rate.
 
-   This specification replaces the previous experimental version
-   [RFC8298] of SCReAM with SCReAMv2.  There are many and fairly
-   significant changes to the original SCReAM algorithm.
+   Further, SCReAMv2 can take advantage of Explicit Congestion
+   Notification (ECN) [RFC3168] and Low Latency Low Loss and Scalable
+   throughput (L4S) [RFC9330] in cases where ECN or L4S is supported by
+   the network and the hosts.  However, ECN or L4S is not required for
+   the basic congestion control functionality in SCReAMv2.
+
+1.1.  Updates compared to SCReAM (version 1)
 
    The algorithm in this memo differs greatly against the previous
    version of SCReAM.  The main differences are:
@@ -182,7 +160,7 @@ Table of Contents
    *  Additional compensation is added to make SCReAMv2 handle cases
       such as large changing frame sizes.
 
-1.1.  Wireless (LTE and 5G) Access Properties
+1.2.  Wireless (LTE and 5G) Access Properties
 
    [RFC8869] describes the complications that can be observed in
    wireless environments.  Wireless access such as LTE and 5G typically
@@ -215,7 +193,7 @@ Table of Contents
    scheduler and achives fairness with additional marking for the L4S
    flows.
 
-1.2.  Why is it a self-clocked algorithm?
+1.3.  Why is it a self-clocked algorithm?
 
    Self-clocked congestion control algorithms provide a benefit over
    their rate-based counterparts in that the former consists of two
@@ -246,7 +224,7 @@ Table of Contents
    one mechanism to adjust the sending rate.  This makes it difficult to
    reach the goals of high throughput and prompt reaction to congestion.
 
-1.3.  Requirements on media and feedback protocol
+1.4.  Requirements on media and feedback protocol
 
    SCReAM was originally designed to with with RTP + RTCP where
    [RFC8888] was used as recommended feedback.  RTP offers unique packet
@@ -270,7 +248,7 @@ Table of Contents
       bits indication for each packet is not necessary.  An ECN-CE
       counter similar to what is defined in [RFC9000] is sufficient.
 
-1.4.  Comparison with LEDBAT and TFWC in TCP
+1.5.  Comparison with LEDBAT and TFWC in TCP
 
    The core SCReAM algorithm, which is still similar in SCReAMv2, has
    similarities to the concepts of self-clocking used in TCP-friendly
