@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2024-12-03T01:44:58.465026+00:00",
+  "timestamp": "2024-12-05T01:45:19.392235+00:00",
   "repo": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
   "labels": [
     {
@@ -881,6 +881,32 @@
           "comments": []
         }
       ]
+    },
+    {
+      "number": 19,
+      "id": "PR_kwDOK7AJUs6EDlYm",
+      "title": "proposal for a much shorter abstract and intro",
+      "url": "https://github.com/IngJohEricsson/draft-johansson-ccwg-scream-bis/pull/19",
+      "state": "OPEN",
+      "author": "mirjak",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "I actually also think we can remove the other subsections in the intro. However, we could also check if we want to keep some of it or just move it to the appendix but there is not a huge amount of value because all the text can still be found in the RFC for scream v1.",
+      "createdAt": "2024-12-04T15:07:18Z",
+      "updatedAt": "2024-12-04T15:07:18Z",
+      "baseRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
+      "baseRefName": "main",
+      "baseRefOid": "29ff2f654f7669763bf33351269ff6c49c11fc77",
+      "headRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
+      "headRefName": "mirjak-patch-3",
+      "headRefOid": "e9930b7751eeccec82c6b0ee7b1368ad9e908463",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [],
+      "reviews": []
     }
   ]
 }
