@@ -212,7 +212,7 @@ on the time since the last congestion event and introduces use of inflection poi
 reference window increase calculation to achieve reduced delay jitter.
 Further, other than LEDABT which is a scavenger congestion control mostly designed
 for low priority background traffic, SCReAM adjusts the qdelay target to
-compete with other loss-based congestion-controlled flows. 
+compete with other loss-based congestion-controlled flows.
 
 SCReAMv2 adds a new reference window validation technique, as the reference window is used as a basis for the
 target bitrate calculation. For that reason, various actions are taken to avoid
@@ -258,11 +258,11 @@ reduction of the reference window.
 After a congestion event the reference window seeks to increase by one segment per RTT
 until a certain number of RTT elapses. After this initial phase the refrence window
 increases multiplicativly where the increase factor is adjusted relative to a
-previous max value and the time elapsed since last congestion event. 
+previous max value and the time elapsed since last congestion event.
 This enables a faster convergence to a higher link speed.
 
 Reference window is reduced if congestion is detected. Similar as for LEDBAT
-the reference window is reduced either by a fixed fraction in case of packet loss or Classic ECN marking, 
+the reference window is reduced either by a fixed fraction in case of packet loss or Classic ECN marking,
 or if the estimated queue delay exceeds a given threshold depending on how much the delay exceeds the threshold.
 SCReAMv2 reduces the reference window in proportion to the fraction of marked packets
 if L4S is used (scalable congestion control).
