@@ -205,13 +205,16 @@ control {{TFWC}} and follows the packet conservation principle. The packet
 conservation principle is described as a key factor behind the protection of
 networks from congestion {{Packet-conservation}}.
 
-The reference window is determined in a way similar to the congestion window in
-LEDBAT {{RFC6817}}; however, SCReAM/SCReAMv2 also describes the interaction with
-media rate control function, introduces the use of inflection points in the
-reference window calculation to achieve reduced delay jitter, and adjusts the
-qdelay target for better performance when competing with other
-loss-based congestion-controlled flows. Further, SCReAMv2 add a new reference
-window validation technique. The reference window is used as a basis for the
+The reference window decrase is determined in a way similar as in
+LEDBAT {{RFC6817}}. However, the window increase is not based on the
+delay but uses both a linear increase and multiplicate increase function depending
+on the time since the last congestion event and introduces use of inflection points in the
+reference window increase calculation to achieve reduced delay jitter.
+Further, other than LEDABT which is a scavenger congestion control mostly designed
+for low priority background traffic, SCReAM adjusts the qdelay target to
+compete with other loss-based congestion-controlled flows. 
+
+SCReAMv2 adds a new reference window validation technique, as the reference window is used as a basis for the
 target bitrate calculation. For that reason, various actions are taken to avoid
 that the reference window grows too much beyond the bytes in flight. Additional
 contraints are applied when in congested state and when the maximum target bitrate is reached.
@@ -237,79 +240,53 @@ when, and only when, they appear in all capitals, as shown here.
 
 SCReAMv2 still consists of three main parts: network congestion control, sender
 transmission control, and media rate control. All of these parts reside at the
-sender side. Figure 1 shows the functional overview of a SCReAMv2 sender. The
-receiver-side algorithm is very simple in comparison, as it only generates
-feedback containing acknowledgements of received data units and indication of
-ECN-CE marking, either as an accumulated counter, or individual per data unit.
+sender side while the receiver is assumpted to provide acknowledgements of received
+data units and indication of ECN-CE marking, either as an accumulated bytes counter,
+or per individual data unit.
 
 ## Network Congestion Control {#network-cc}
 
-The network congestion control sets an upper limit on how much data can be in
-the network (bytes in flight); this limit is called reference window (ref_wnd)
-and is used in the sender transmission control.
-
-The sender calculates the reference window based on the feedback from the data
-receiver.
-The feedback from the receiver is timestamp and individual data units or group of data
-units and ECN status per data unit or an accumulated ECN-CE count.
-The sender keeps a list of transmitted packets, their
-respective sizes, and the time they were transmitted. This information is used
-to determine the number of bytes that can be transmitted at any given time
-instant. A reference window puts an upper limit on how many bytes can be in
+The network congestion control sets reference window (ref_wnd)
+which puts an upper limit on how many bytes can be in
 flight, i.e., transmitted but not yet acknowledged. The reference window is
-however not an absolute limit as a slack is given to efficiently transmit
-temporary larger media objects, such as video frames.
+however not an absolute limit as slack is given to efficiently transmit
+temporary larger media objects, such as video frames. This means that the
+algoritm prefers to build up a queue in the network rather than on the sender
+side. Additional congestion that this causes will reflect back and cause a
+reduction of the reference window.
 
-The reference window seeks to increase by one segment per RTT and this increase
-regardless congestion occurs or not, the reference window increase is restriced
-or relaxed based on the current value of the reference window relative to a
-previous max value and the time elapsed since last congestion event. The
-reference window update is increased by one MSS (maximum known data unit size)
-per RTT with some variation based on reference window size and time elapsed
-since the last congestion event. Multiplicative increase allows the congestion
-to increase by a fraction of ref_wnd when congestion has not occured for a
-while. The reference window is thus an adaptive multiplicative increase that is
-mainly additive increase when steady state is reached but allows a faster
-convergence to a higher link speed.
+After a congestion event the reference window seeks to increase by one segment per RTT
+until a certain number of RTT elapses. After this initial phase the refrence window
+increases multiplicativly where the increase factor is adjusted relative to a
+previous max value and the time elapsed since last congestion event. 
+This enables a faster convergence to a higher link speed.
 
-Reference window reduction is triggered by:
-
-* Packet loss or Classic ECN marking is detected : The reference window is
-  reduced by a predetermined fraction.
-
-* Estimated queue delay exceeds a given threshold : The reference window is
-  reduced given by how much the delay exceeds the threshold.
-
-* L4S ECN marking detected : The reference window is reduced in proportion to
-  the fraction of packets that are marked (scalable congestion control).
+Reference window is reduced if congestion is detected. Similar as for LEDBAT
+the reference window is reduced either by a fixed fraction in case of packet loss or Classic ECN marking, 
+or if the estimated queue delay exceeds a given threshold depending on how much the delay exceeds the threshold.
+SCReAMv2 reduces the reference window in proportion to the fraction of marked packets
+if L4S is used (scalable congestion control).
 
 ## Sender Transmission Control {#sender-tc}
 
-The sender transmission control limits the output of data, given by the relation
-between the number of bytes in flight and the reference window. The congestion
-window is however not a hard limit, additional slack is given to avoid that data
-units are queued up unnecessarily on the sender side. This means that the
-algoritm prefers to build up a queue in the network rather than on the sender
-side. Additional congestion that this causes will reflect back and cause a
-reduction of the reference window. Packet pacing is used to mitigate issues with
-ACK compression that MAY cause increased jitter and/or packet loss in the media
-traffic. Packet pacing limits the packet transmission rate given by the
-estimated link throughput. Even if the send window allows for the transmission
+The sender transmission control limits sending rate based on the
+relation of the estimated link throughput (bytes in flight) and the reference window.
+This is achived by applying packet pacing: Even if the send window allows for the transmission
 of a number of packets, these packets are not transmitted immediately; rather,
 they are transmitted in intervals given by the packet size and the estimated
 link throughput. Packets are generally paced at a higher rate than the target
 bitrate, this makes it possible to transmit occasionally larger video frames in
-a timely manner.
+a timely manner. Further, this mitigates issues with ACK compression that can cause
+increased jitter and/or packet loss in the media traffic.
 
 ## Media Rate Control {#media-rate-control}
 
-The media rate control serves to adjust the media bitrate to ramp up quickly
-enough to get a fair share of the system resources when link throughput
-increases.
+The media rate control calculates the media rate based on the reference window and RTT.
+The media rate need to ramp up quickly enough to get a fair share of the system resources when link throughput
+increases. Further, the reaction to reduced throughput must be prompt in order to avoid getting too
+much data queued in the data unit queue(s) in the sender.
 
-The reaction to reduced throughput must be prompt in order to avoid getting too
-much data queued in the data unit queue(s) in the sender. The media rate is
-calculated based on the reference window and RTT. For the case that multiple
+For the case that multiple
 streams are enabled, the media rate among the streams is distrubuted according
 to relative priorities.
 
