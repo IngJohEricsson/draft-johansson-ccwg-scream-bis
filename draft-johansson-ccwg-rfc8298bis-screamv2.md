@@ -174,35 +174,6 @@ SCReAM. The main differences are:
 * Additional compensation is added to make SCReAMv2 handle cases such as large
   changing frame sizes.
 
-
-## Wireless (LTE and 5G) Access Properties {#lte-5g}
-
-{{RFC8869}} describes the complications that can be observed in wireless
-environments. Wireless access such as LTE and 5G typically cannot guarantee a
-given bandwidth; this is true especially for default bearers. The network
-throughput can vary considerably, for instance, in cases where the wireless
-terminal is moving around. Even though 5G can support bitrates above 1 Gbps,
-there are cases when the available bitrate can be much lower (less than 10
-Mbps); examples are situations with high network load and poor coverage. An
-additional complication is that the network throughput can drop for short time
-intervals (e.g., at handover); these short glitches are initially very difficult
-to distinguish from more permanent reductions in throughput.
-
-Unlike wireline bottlenecks with large statistical multiplexing, it is typically
-not possible to try to maintain a given bitrate when congestion is detected with
-the hope that other flows will yield. This is because there are generally few
-other flows competing for the same bottleneck. Each user gets its own variable
-throughput bottleneck, where the throughput depends on factors like channel
-quality, network load, and historical throughput. The bottom line is, if the
-throughput drops, the sender has no other option than to reduce the
-bitrate. Once the radio scheduler has reduced the resource allocation for a
-bearer, a flow in that bearer aims to reduce the sending rate quite quickly
-(within one RTT) in order to avoid excessive queuing delay or packet loss. This
-has the consenquence that L4S capable 5G radio bearers will build a queue unless
-these are prioritized over other bearers. This differs from e.g DualQ
-{{RFC9332}}, which prioritizes L4S traffic in a weighted scheduler and achives
-fairness with additional marking for the L4S flows.
-
 ## Requirements on media and feedback protocol {#requirements-media}
 
 SCReAM was originally designed to with with RTP + RTCP where {{RFC8888}} was
