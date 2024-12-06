@@ -114,10 +114,10 @@ normative:
 
 This memo describes Self-Clocked Rate Adaptation for Multimedia version 2
 (SCReAMv2), an update to SCReAM congestion control for media streams such as RTP
-{{RFC3550}}. While SCReAM was originally devised for WebRTC, SCReAM as well as
-SCReAMv2 can also be used for other applications where congestion control of
-different type of real-time streams, especially media streams is
-necessary.
+{{RFC3550}}. SCReAMv2 compromised several algorithm simplifications and adds
+support for L4S. The algorithm supports handling of multiple media streams,
+typical use cases are streaming for remote control, ARand 3D VR googles.
+This specification obsoletes RFC 8298.
 
 --- middle
 
@@ -127,10 +127,6 @@ This memo describes Self-Clocked Rate Adaptation for Multimedia version 2
 (SCReAMv2). This specification replaces the previous experimental version {{RFC8298}} of
 SCReAM with SCReAMv2. There are many and fairly significant changes to the
 original SCReAM algorithm as desribed in section {{sec:changes}}.
-
-While SCReAM was originally designed for media streams such as RTP
-{{RFC3550}} and WebRTC, SCReAM as well as
-SCReAMv2 can also be used for other real-time and media applications.
 
 Both SCReAM and SCReAMv2 estimates the forward queue delay in the same way as Low
 Extra Delay Background Transport (LEDBAT) {{RFC6817}}.
