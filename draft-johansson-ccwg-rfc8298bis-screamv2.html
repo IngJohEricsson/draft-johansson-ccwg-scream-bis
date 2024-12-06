@@ -1164,13 +1164,10 @@ This specification obsoletes RFC 8298.<a href="#section-abstract-1" class="pilcr
                 <p id="section-toc.1-1.1.2.1.1" class="keepWithNext"><a href="#section-1.1" class="auto internal xref">1.1</a>.  <a href="#name-updates-compared-to-scream-" class="internal xref">Updates compared to SCReAM (version 1)</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.1.2.2">
-                <p id="section-toc.1-1.1.2.2.1" class="keepWithNext"><a href="#section-1.2" class="auto internal xref">1.2</a>.  <a href="#name-wireless-lte-and-5g-access-" class="internal xref">Wireless (LTE and 5G) Access Properties</a></p>
+                <p id="section-toc.1-1.1.2.2.1" class="keepWithNext"><a href="#section-1.2" class="auto internal xref">1.2</a>.  <a href="#name-requirements-on-media-and-f" class="internal xref">Requirements on media and feedback protocol</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.1.2.3">
-                <p id="section-toc.1-1.1.2.3.1" class="keepWithNext"><a href="#section-1.3" class="auto internal xref">1.3</a>.  <a href="#name-requirements-on-media-and-f" class="internal xref">Requirements on media and feedback protocol</a></p>
-</li>
-              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.1.2.4">
-                <p id="section-toc.1-1.1.2.4.1"><a href="#section-1.4" class="auto internal xref">1.4</a>.  <a href="#name-comparison-with-ledbat-and-" class="internal xref">Comparison with LEDBAT and TFWC in TCP</a></p>
+                <p id="section-toc.1-1.1.2.3.1" class="keepWithNext"><a href="#section-1.3" class="auto internal xref">1.3</a>.  <a href="#name-comparison-with-ledbat-and-" class="internal xref">Comparison with LEDBAT and TFWC in TCP</a></p>
 </li>
             </ul>
 </li>
@@ -1344,81 +1341,50 @@ changing frame sizes.<a href="#section-1.1-2.6.1" class="pilcrow">¶</a></p>
         </ul>
 </section>
 </div>
-<div id="lte-5g">
-<section id="section-1.2">
-        <h3 id="name-wireless-lte-and-5g-access-">
-<a href="#section-1.2" class="section-number selfRef">1.2. </a><a href="#name-wireless-lte-and-5g-access-" class="section-name selfRef">Wireless (LTE and 5G) Access Properties</a>
-        </h3>
-<p id="section-1.2-1"><span>[<a href="#RFC8869" class="cite xref">RFC8869</a>]</span> describes the complications that can be observed in wireless
-environments. Wireless access such as LTE and 5G typically cannot guarantee a
-given bandwidth; this is true especially for default bearers. The network
-throughput can vary considerably, for instance, in cases where the wireless
-terminal is moving around. Even though 5G can support bitrates above 1 Gbps,
-there are cases when the available bitrate can be much lower (less than 10
-Mbps); examples are situations with high network load and poor coverage. An
-additional complication is that the network throughput can drop for short time
-intervals (e.g., at handover); these short glitches are initially very difficult
-to distinguish from more permanent reductions in throughput.<a href="#section-1.2-1" class="pilcrow">¶</a></p>
-<p id="section-1.2-2">Unlike wireline bottlenecks with large statistical multiplexing, it is typically
-not possible to try to maintain a given bitrate when congestion is detected with
-the hope that other flows will yield. This is because there are generally few
-other flows competing for the same bottleneck. Each user gets its own variable
-throughput bottleneck, where the throughput depends on factors like channel
-quality, network load, and historical throughput. The bottom line is, if the
-throughput drops, the sender has no other option than to reduce the
-bitrate. Once the radio scheduler has reduced the resource allocation for a
-bearer, a flow in that bearer aims to reduce the sending rate quite quickly
-(within one RTT) in order to avoid excessive queuing delay or packet loss. This
-has the consenquence that L4S capable 5G radio bearers will build a queue unless
-these are prioritized over other bearers. This differs from e.g DualQ
-<span>[<a href="#RFC9332" class="cite xref">RFC9332</a>]</span>, which prioritizes L4S traffic in a weighted scheduler and achives
-fairness with additional marking for the L4S flows.<a href="#section-1.2-2" class="pilcrow">¶</a></p>
-</section>
-</div>
 <div id="requirements-media">
-<section id="section-1.3">
+<section id="section-1.2">
         <h3 id="name-requirements-on-media-and-f">
-<a href="#section-1.3" class="section-number selfRef">1.3. </a><a href="#name-requirements-on-media-and-f" class="section-name selfRef">Requirements on media and feedback protocol</a>
+<a href="#section-1.2" class="section-number selfRef">1.2. </a><a href="#name-requirements-on-media-and-f" class="section-name selfRef">Requirements on media and feedback protocol</a>
         </h3>
-<p id="section-1.3-1">SCReAM was originally designed to with with RTP + RTCP where <span>[<a href="#RFC8888" class="cite xref">RFC8888</a>]</span> was
+<p id="section-1.2-1">SCReAM was originally designed to with with RTP + RTCP where <span>[<a href="#RFC8888" class="cite xref">RFC8888</a>]</span> was
 used as recommended feedback. RTP offers unique packet indication with the
 sequence number and <span>[<a href="#RFC8888" class="cite xref">RFC8888</a>]</span> offers timestamps of received packets and the
-status of the ECN bits.<a href="#section-1.3-1" class="pilcrow">¶</a></p>
-<p id="section-1.3-2">SCReAM is however not limited to RTP as long as some requirements are fulfilled :<a href="#section-1.3-2" class="pilcrow">¶</a></p>
+status of the ECN bits.<a href="#section-1.2-1" class="pilcrow">¶</a></p>
+<p id="section-1.2-2">SCReAM is however not limited to RTP as long as some requirements are fulfilled :<a href="#section-1.2-2" class="pilcrow">¶</a></p>
 <ul class="normal">
-<li class="normal" id="section-1.3-3.1">
-            <p id="section-1.3-3.1.1">Media data is split in data units that when encapsulated in IP packets fit in
-the network MTU.<a href="#section-1.3-3.1.1" class="pilcrow">¶</a></p>
+<li class="normal" id="section-1.2-3.1">
+            <p id="section-1.2-3.1.1">Media data is split in data units that when encapsulated in IP packets fit in
+the network MTU.<a href="#section-1.2-3.1.1" class="pilcrow">¶</a></p>
 </li>
-          <li class="normal" id="section-1.3-3.2">
-            <p id="section-1.3-3.2.1">Each data unit can be uniquely identified.<a href="#section-1.3-3.2.1" class="pilcrow">¶</a></p>
+          <li class="normal" id="section-1.2-3.2">
+            <p id="section-1.2-3.2.1">Each data unit can be uniquely identified.<a href="#section-1.2-3.2.1" class="pilcrow">¶</a></p>
 </li>
-          <li class="normal" id="section-1.3-3.3">
-            <p id="section-1.3-3.3.1">Data units can be queued up in a packet queue before transmission.<a href="#section-1.3-3.3.1" class="pilcrow">¶</a></p>
+          <li class="normal" id="section-1.2-3.3">
+            <p id="section-1.2-3.3.1">Data units can be queued up in a packet queue before transmission.<a href="#section-1.2-3.3.1" class="pilcrow">¶</a></p>
 </li>
-          <li class="normal" id="section-1.3-3.4">
-            <p id="section-1.3-3.4.1">Feedback can indicate reception time for each data units, or a group of data
-units.<a href="#section-1.3-3.4.1" class="pilcrow">¶</a></p>
+          <li class="normal" id="section-1.2-3.4">
+            <p id="section-1.2-3.4.1">Feedback can indicate reception time for each data units, or a group of data
+units.<a href="#section-1.2-3.4.1" class="pilcrow">¶</a></p>
 </li>
-          <li class="normal" id="section-1.3-3.5">
-            <p id="section-1.3-3.5.1">Feedback can indicate packets that are ECN-CE marked. Unique ECN bits
+          <li class="normal" id="section-1.2-3.5">
+            <p id="section-1.2-3.5.1">Feedback can indicate packets that are ECN-CE marked. Unique ECN bits
 indication for each packet is not necessary. An ECN-CE counter similar to
-what is defined in <span>[<a href="#RFC9000" class="cite xref">RFC9000</a>]</span> is sufficient.<a href="#section-1.3-3.5.1" class="pilcrow">¶</a></p>
+what is defined in <span>[<a href="#RFC9000" class="cite xref">RFC9000</a>]</span> is sufficient.<a href="#section-1.2-3.5.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
 </section>
 </div>
 <div id="ledbat-tfwc">
-<section id="section-1.4">
+<section id="section-1.3">
         <h3 id="name-comparison-with-ledbat-and-">
-<a href="#section-1.4" class="section-number selfRef">1.4. </a><a href="#name-comparison-with-ledbat-and-" class="section-name selfRef">Comparison with LEDBAT and TFWC in TCP</a>
+<a href="#section-1.3" class="section-number selfRef">1.3. </a><a href="#name-comparison-with-ledbat-and-" class="section-name selfRef">Comparison with LEDBAT and TFWC in TCP</a>
         </h3>
-<p id="section-1.4-1">The core SCReAM algorithm, which is still similar in SCReAMv2, has similarities
+<p id="section-1.3-1">The core SCReAM algorithm, which is still similar in SCReAMv2, has similarities
 to the concepts of self-clocking used in TCP-friendly window-based congestion
 control <span>[<a href="#TFWC" class="cite xref">TFWC</a>]</span> and follows the packet conservation principle. The packet
 conservation principle is described as a key factor behind the protection of
-networks from congestion <span>[<a href="#Packet-conservation" class="cite xref">Packet-conservation</a>]</span>.<a href="#section-1.4-1" class="pilcrow">¶</a></p>
-<p id="section-1.4-2">The reference window is determined in a way similar to the congestion window in
+networks from congestion <span>[<a href="#Packet-conservation" class="cite xref">Packet-conservation</a>]</span>.<a href="#section-1.3-1" class="pilcrow">¶</a></p>
+<p id="section-1.3-2">The reference window is determined in a way similar to the congestion window in
 LEDBAT <span>[<a href="#RFC6817" class="cite xref">RFC6817</a>]</span>; however, SCReAM/SCReAMv2 also describes the interaction with
 media rate control function, introduces the use of inflection points in the
 reference window calculation to achieve reduced delay jitter, and adjusts the
@@ -1427,8 +1393,8 @@ loss-based congestion-controlled flows. Further, SCReAMv2 add a new reference
 window validation technique. The reference window is used as a basis for the
 target bitrate calculation. For that reason, various actions are taken to avoid
 that the reference window grows too much beyond the bytes in flight. Additional
-contraints are applied when in congested state and when the maximum target bitrate is reached.<a href="#section-1.4-2" class="pilcrow">¶</a></p>
-<p id="section-1.4-3">The SCReAM/SCReAMv2 congestion control method uses techniques similar to LEDBAT
+contraints are applied when in congested state and when the maximum target bitrate is reached.<a href="#section-1.3-2" class="pilcrow">¶</a></p>
+<p id="section-1.3-3">The SCReAM/SCReAMv2 congestion control method uses techniques similar to LEDBAT
 <span>[<a href="#RFC6817" class="cite xref">RFC6817</a>]</span> to measure the qdelay. As is the case with LEDBAT, it is not
 necessary to use synchronized clocks in the sender and receiver in order to
 compute the qdelay. However, it is necessary that they use the same clock
@@ -1436,7 +1402,7 @@ frequency, or that the clock frequency at the receiver can be inferred reliably
 by the sender. Failure to meet this requirement leads to malfunction in the
 SCReAM/SCReAMv2 congestion control algorithm due to incorrect estimation of the
 network queue delay. Use of <span>[<a href="#RFC8888" class="cite xref">RFC8888</a>]</span> as feedback ensures that the same time
-base is used in sender and receiver.<a href="#section-1.4-3" class="pilcrow">¶</a></p>
+base is used in sender and receiver.<a href="#section-1.3-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
