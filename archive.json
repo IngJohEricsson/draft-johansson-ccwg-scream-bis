@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2024-12-05T01:45:19.392235+00:00",
+  "timestamp": "2024-12-08T01:51:35.948114+00:00",
   "repo": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
   "labels": [
     {
@@ -887,24 +887,131 @@
       "id": "PR_kwDOK7AJUs6EDlYm",
       "title": "proposal for a much shorter abstract and intro",
       "url": "https://github.com/IngJohEricsson/draft-johansson-ccwg-scream-bis/pull/19",
-      "state": "OPEN",
+      "state": "MERGED",
       "author": "mirjak",
       "authorAssociation": "COLLABORATOR",
       "assignees": [],
       "labels": [],
       "body": "I actually also think we can remove the other subsections in the intro. However, we could also check if we want to keep some of it or just move it to the appendix but there is not a huge amount of value because all the text can still be found in the RFC for scream v1.",
       "createdAt": "2024-12-04T15:07:18Z",
-      "updatedAt": "2024-12-04T15:07:18Z",
+      "updatedAt": "2024-12-05T08:09:38Z",
       "baseRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
       "baseRefName": "main",
       "baseRefOid": "29ff2f654f7669763bf33351269ff6c49c11fc77",
       "headRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
       "headRefName": "mirjak-patch-3",
       "headRefOid": "e9930b7751eeccec82c6b0ee7b1368ad9e908463",
-      "closedAt": null,
-      "mergedAt": null,
-      "mergedBy": null,
-      "mergeCommit": null,
+      "closedAt": "2024-12-05T08:09:38Z",
+      "mergedAt": "2024-12-05T08:09:38Z",
+      "mergedBy": "IngJohEricsson",
+      "mergeCommit": {
+        "oid": "6e77f1df1c802df7eb39977cbbc58c6fb3497328"
+      },
+      "comments": [],
+      "reviews": []
+    },
+    {
+      "number": 20,
+      "id": "PR_kwDOK7AJUs6EMBbB",
+      "title": "Update to abstract",
+      "url": "https://github.com/IngJohEricsson/draft-johansson-ccwg-scream-bis/pull/20",
+      "state": "MERGED",
+      "author": "mirjak",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2024-12-05T13:58:15Z",
+      "updatedAt": "2024-12-06T09:39:43Z",
+      "baseRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
+      "baseRefName": "main",
+      "baseRefOid": "6e77f1df1c802df7eb39977cbbc58c6fb3497328",
+      "headRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
+      "headRefName": "mirjak-patch-4",
+      "headRefOid": "44dcf7b7263e3df6e42c27c77ffe9b59e34249e6",
+      "closedAt": "2024-12-06T09:39:43Z",
+      "mergedAt": "2024-12-06T09:39:43Z",
+      "mergedBy": "IngJohEricsson",
+      "mergeCommit": {
+        "oid": "32f3c112b52d7eab0bec4e2168a11a6566f7dbe1"
+      },
+      "comments": [],
+      "reviews": [
+        {
+          "id": "PRR_kwDOK7AJUs6T8azW",
+          "commit": {
+            "abbreviatedOid": "da4101a"
+          },
+          "author": "mirjak",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-12-05T15:40:27Z",
+          "updatedAt": "2024-12-05T15:40:27Z",
+          "comments": [
+            {
+              "originalPosition": 11,
+              "body": "```suggestion\r\nThis specification obsoletes RFC 8298.\r\n```",
+              "createdAt": "2024-12-05T15:40:27Z",
+              "updatedAt": "2024-12-05T15:40:27Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "number": 21,
+      "id": "PR_kwDOK7AJUs6EM5Bf",
+      "title": "Remove section on wireless access properties",
+      "url": "https://github.com/IngJohEricsson/draft-johansson-ccwg-scream-bis/pull/21",
+      "state": "MERGED",
+      "author": "mirjak",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2024-12-05T15:39:53Z",
+      "updatedAt": "2024-12-06T09:41:13Z",
+      "baseRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
+      "baseRefName": "main",
+      "baseRefOid": "4b134a81c8e4d064a1cf35df8738d97f15fd65ba",
+      "headRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
+      "headRefName": "mirjak-patch-5",
+      "headRefOid": "fd77c9fcc78da87017a68654267c4fca4f689847",
+      "closedAt": "2024-12-06T09:41:13Z",
+      "mergedAt": "2024-12-06T09:41:13Z",
+      "mergedBy": "IngJohEricsson",
+      "mergeCommit": {
+        "oid": "7f208d957c51b5b2232e819e85660b89bb35e6c3"
+      },
+      "comments": [],
+      "reviews": []
+    },
+    {
+      "number": 22,
+      "id": "PR_kwDOK7AJUs6ENM5t",
+      "title": "Overview section",
+      "url": "https://github.com/IngJohEricsson/draft-johansson-ccwg-scream-bis/pull/22",
+      "state": "MERGED",
+      "author": "mirjak",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2024-12-05T16:12:55Z",
+      "updatedAt": "2024-12-06T09:43:16Z",
+      "baseRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
+      "baseRefName": "main",
+      "baseRefOid": "5230c52c5b8254bd7e3bdca1157bae4bf72727ec",
+      "headRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
+      "headRefName": "mirjak-patch-6",
+      "headRefOid": "7ffdb0f86de5c45e683e14d8fec72ba3924f4367",
+      "closedAt": "2024-12-06T09:43:16Z",
+      "mergedAt": "2024-12-06T09:43:16Z",
+      "mergedBy": "IngJohEricsson",
+      "mergeCommit": {
+        "oid": "3a206cfb3356997d47d53cce2107252009247287"
+      },
       "comments": [],
       "reviews": []
     }
