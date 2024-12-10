@@ -244,38 +244,6 @@ sender side while the receiver is assumpted to provide acknowledgements of recei
 data units and indication of ECN-CE marking, either as an accumulated bytes counter,
 or per individual data unit.
 
-~~~aasvg
-+-------------------------------------+
-|              Media encoder          |
-+-------------------------------------+
-       ^
-       |
-target bitrate
-       |
-+------------+
-|    Media   |
-|    Rate    |---------------+
-|   Control  |               |
-+------------+               |
-       ^                     |
-       |               target bitrate
-    ref wnd                  |
-       |                     v
-+------------+        +--------------+
-|  Network   |   ref  |    Sender    |
-| Congestion |------->| Transmission |
-|  Control   |   wnd  |   Control    |
-+------------+        +--------------+
-       ^                     |
-       |                pacing rate
-    Feedback                 |
-       |                     v
-+-------------------------------------+
-|                  UDP                |
-|                 socket              |
-+-------------------------------------+
-~~~
-{: #fig-sender-view title="Sender Functional View"}
 
 ## Network Congestion Control {#network-cc}
 
@@ -349,31 +317,31 @@ multiple flows. Support for multiple streams is implemented in
 +-------------------------------------+
 |              Media encoder          |
 +-------------------------------------+
-       ^                     |(1)
-       |                 Data unit
-       |(3)                  |
-       |                     V
-       |               +-----------+
-+------------+         |           |
-|    Media   |         |   Queue   |
-|    Rate    |         |   Data    |
-|   Control  |         |   Units   |
-+------------+         |           |
-       ^               +-----------+
-       | (2)                 |(4)
-       |                 Data unit
-       |                     |
-       |                     v
-+------------+        +--------------+
-|  Network   |   (7)  |    Sender    |
-| Congestion |------->| Transmission |
-|  Control   |        |   Control    |
-+------------+        +--------------+
-       ^                     |
-       | (6)                 |(5)
-    Feedback             Data unit
-       |                     |
-       |                     v
+       ^                            |
+       |                         Data unit
+ target_bitrate                     |
+       |                            V
+       |                         +-----------+
++------------+                   |           |
+|    Media   |                   |   Queue   |
+|    Rate    |---------------+   |   Data    |
+|   Control  |               |   |   Units   |
++------------+               |   |           |
+       ^                     |   +-----------+
+       |                     |          |
+    ref_wnd                  |       Data unit
+      RTT            target_bitrate     |
+       |                     v          v
++------------+               +--------------+
+|  Network   |    ref_wnd    |    Sender    |
+| Congestion |-------------->| Transmission |
+|  Control   |Bytes in flight|   Control    |
++------------+               +--------------+
+       ^                        |
+       |                        |
+Congestion Feedback          Data unit
+  Bytes in flight               |
+       |                        v
 +-------------------------------------+
 |                  UDP                |
 |                 socket              |
