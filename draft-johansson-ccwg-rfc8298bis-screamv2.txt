@@ -5,8 +5,8 @@
 CCWG                                                        I. Johansson
 Internet-Draft                                             M. Westerlund
 Obsoletes: 8298 (if approved)                                   Ericsson
-Intended status: Experimental                            6 December 2024
-Expires: 9 June 2025
+Intended status: Experimental                           10 December 2024
+Expires: 13 June 2025
 
 
               Self-Clocked Rate Adaptation for Multimedia
@@ -54,7 +54,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 9 June 2025.
+   This Internet-Draft will expire on 13 June 2025.
 
 Copyright Notice
 
@@ -88,13 +88,12 @@ Table of Contents
      4.2.  Network Congestion Control
        4.2.1.  Reaction to Delay, Data unit Loss and ECN-CE
        4.2.2.  Reference Window Update
-       4.2.3.  Lost Data Unit Detection
-       4.2.4.  Send Window Calculation
-       4.2.5.  Packet Pacing
-       4.2.6.  Stream Prioritization
-     4.3.  Media Rate Control
-     4.4.  Competing Flows Compensation
-     4.5.  Handling of systematic errors in video coders
+     4.3.  Sender Transmission Control
+       4.3.1.  Send Window Calculation
+       4.3.2.  Packet Pacing
+     4.4.  Media Rate Control
+     4.5.  Competing Flows Compensation
+     4.6.  Handling of systematic errors in video coders
    5.  Receiver Requirements on Feedback Intensity
    6.  Discussion
    7.  Algorithm changes
@@ -641,7 +640,7 @@ Table of Contents
    Congestion is detected based on three different indicators:
 
    *  Lost data units detected.  The loss detection is described in
-      Section 4.2.3.
+      Section 4.2.1.1.
 
    *  ECN-CE marked data units detected.
 
@@ -664,6 +663,23 @@ Table of Contents
    grab free capacity than a TCP-based file transfer.  To compensate for
    this, it is RECOMMENDED to let SCReAMv2 reduce the reference window
    less than what is the case with TCP when loss events occur.
+
+   Lost data unit detection is based on the received sequence number
+   list.  A reordering window SHOULD be applied to prevent data unit
+   reordering from triggering loss events.  The reordering window is
+   specified as a time unit, similar to the ideas behind Recent
+   ACKnowledgement (RACK) [RFC8985].  The computation of the reordering
+   window is made possible by means of a lost flag in the list of
+   transmitted data units.  This flag is set if the received sequence
+   number list indicates that the given data unit is missing.  If later
+   feedback indicates that a previously lost marked data unit was indeed
+   received, then the reordering window is updated to reflect the
+   reordering delay.  The reordering window is given by the difference
+   in time between the event that the data unit was marked as lost and
+   the event that it was indicated as successfully received.  Loss is
+   detected if a given data unit is not acknowledged within a time
+   window (indicated by the reordering window) after an data unit with a
+   higher sequence number was acknowledged.
 
 4.2.1.2.  ECN-CE and classic ECN
 
@@ -906,26 +922,9 @@ Table of Contents
 
    The two mechanisms complement one another.
 
-4.2.3.  Lost Data Unit Detection
+4.3.  Sender Transmission Control
 
-   Lost data unit detection is based on the received sequence number
-   list.  A reordering window SHOULD be applied to prevent data unit
-   reordering from triggering loss events.  The reordering window is
-   specified as a time unit, similar to the ideas behind Recent
-   ACKnowledgement (RACK) [RFC8985].  The computation of the reordering
-   window is made possible by means of a lost flag in the list of
-   transmitted data units.  This flag is set if the received sequence
-   number list indicates that the given data unit is missing.  If later
-   feedback indicates that a previously lost marked data unit was indeed
-   received, then the reordering window is updated to reflect the
-   reordering delay.  The reordering window is given by the difference
-   in time between the event that the data unit was marked as lost and
-   the event that it was indicated as successfully received.  Loss is
-   detected if a given data unit is not acknowledged within a time
-   window (indicated by the reordering window) after an data unit with a
-   higher sequence number was acknowledged.
-
-4.2.4.  Send Window Calculation
+4.3.1.  Send Window Calculation
 
    The basic design principle behind data unit transmission in SCReAM
    was to allow transmission only if the number of bytes in flight is
@@ -989,7 +988,7 @@ Table of Contents
    A 75%-ile is used in [SCReAM-CPP-implementation], the histogram can
    be made leaky such that old samples are gradually forgotten.
 
-4.2.5.  Packet Pacing
+4.3.2.  Packet Pacing
 
    Packet pacing is used in order to mitigate coalescing, i.e., when
    packets are transmitted in bursts, with the risks of increased jitter
@@ -1007,28 +1006,7 @@ Table of Contents
    data_unit_size is the size of the last transmitted data unit.
    RATE_PACE_MIN is the minimum pacing rate.
 
-4.2.6.  Stream Prioritization
-
-   The SCReAM algorithm makes a distinction between network congestion
-   control and media rate control.  This is easily extended to many
-   streams.  Data units from two or more data unit queues are scheduled
-   at the rate permitted by the network congestion control.
-
-   The scheduling can be done by means of a few different scheduling
-   regimes.  For example, the method for coupled congestion control
-   specified in [RFC8699] can be used.  One implementation of SCReAMv2
-   [SCReAM-CPP-implementation] uses credit-based scheduling.  In credit-
-   based scheduling, credit is accumulated by queues as they wait for
-   service and is spent while the queues are being serviced.  For
-   instance, if one queue is allowed to transmit 1000 bytes, then a
-   credit of 1000 bytes is allocated to the other unscheduled queues.
-   This principle can be extended to weighted scheduling, where the
-   credit allocated to unscheduled queues depends on the relative
-   weights.  The latter is also implemented in
-   [SCReAM-CPP-implementation] in which case the target bitrate for the
-   streams are also scaled relative to the scheduling priority.
-
-4.3.  Media Rate Control
+4.4.  Media Rate Control
 
    The media rate control algorithm is executed whenever the reference
    window is updated and updates the target bitrate.  The target bitrate
@@ -1079,7 +1057,7 @@ Table of Contents
    target_bitrate = min(TARGET_BITRATE_MAX,
      max(TARGET_BITRATE_MIN,target_bitrate))
 
-4.4.  Competing Flows Compensation
+4.5.  Competing Flows Compensation
 
    It is likely that a flow will have to share congested bottlenecks
    with other flows that use a more aggressive congestion control
@@ -1171,7 +1149,7 @@ Table of Contents
    lead to basically zero throughput if competing with loss-based
    traffic.
 
-4.5.  Handling of systematic errors in video coders
+4.6.  Handling of systematic errors in video coders
 
    Some video encoders are prone to systematically generate an output
    bitrate that is systematically larger or smaller than the target
