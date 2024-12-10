@@ -377,7 +377,7 @@ Table of Contents
 
 4.1.  Sender side state
 
-   The sender needs to maintain sedning state as well as state about the
+   The sender needs to maintain sending state as well as state about the
    received feedback, covered by the following variables:
 
    *  bytes_in_flight:
@@ -390,7 +390,7 @@ Table of Contents
    *  s_rtt (0.0): Smoothed RTT [s], computed with a similar method to
       that described in [RFC6298].
 
-   *  qdelay
+   *  qdelay:
 
    *  last_update_qdelay_avg_time (0): Last time qdelay_avg was updated
       [s].
@@ -401,9 +401,11 @@ Table of Contents
    *  bytes_newly_acked_ce (0): Number of bytes newly ACKed and CE
       marked, reset to 0 when reference window is updated [byte].
 
-   *  data_units_acked
+   *  data_unit_size (0): Size [byte] of the last transmitted data unit.
 
-   *  data_units_acked_ce
+   *  data_units_acked:
+
+   *  data_units_acked_ce:
 
    *  l4s_active (false): Indicates that L4S is enabled and data units
       are indeed marked.
@@ -579,7 +581,7 @@ Table of Contents
 
 4.2.1.4.  Increased queue delay
 
-   SCReAMv2 implements a delay based congestion control approach where
+   SCReAMv2 implements a delay-based congestion control approach where
    it mimics L4S congestion marking when the averaged queue delay
    exceeds a target threshold.  This threshold is set to qdelay_target/2
    and the congestion backoff factor (l4s_alpha_v) increases linearly
@@ -593,7 +595,7 @@ Table of Contents
    This reduces negative effects of clockdrift, that the delay based
    control can introduce, whenever possible.
 
-   *  qdelay_avg
+   *  qdelay_avg:
 
    The following constant is used:
 
@@ -1061,8 +1063,6 @@ Table of Contents
    *  pace_bitrate (1e6): Data unit pacing rate [bps].
 
    *  t_pace (1e-6): Pacing interval between data units [s].
-
-   *  data_unit_size (0): Size [byte] of the last transmitted data unit.
 
    The following constants are used by the packet pacing:
 
