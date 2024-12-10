@@ -987,20 +987,24 @@ send_wnd = ref_wnd * REF_WND_OVERHEAD * rel_framesize_high -
 The send window is updated whenever an data unit is transmitted or an feedback
 messaged is received.
 
+### Calculate Frame Size
+
 The variable rel_framesize_high is based on calculation of the high percentile
 of the frame sizes. The calculation is based on a histogram of the frame sizes
 relative to the expected frame size given the target bitrate and frame
-period. The calculation of rel_framesize_high is done for every new video frame
-and is outlined roughly with the pseudo code below. For more detailed code, see
-{{SCReAM-CPP-implementation}}.
+period.
 
 * rel_framesize_high (1.0): High percentile of frame size, normalized by nominal
   frame size for the given target bitrate
 
 * frame_period (0.02): The frame period [s].
 
+* frame_size: the frame size of the last encoded frame
+
+The calculation of rel_framesize_high is done for every new video frame
+and is outlined roughly with the pseudo code below:
+
 ~~~
-# frame_size is that frame size for the last encoded frame
 tmp_t = frame_size / (target_bitrate * frame_period / 8)
 
 if (tmp_t > 1.0)
