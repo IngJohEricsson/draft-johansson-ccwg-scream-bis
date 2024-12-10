@@ -391,6 +391,12 @@ feedback, covered by the following variables:
 * loss_event_rate (0.0): The estimated fraction of RTTs with lost data units
   detected.
 
+* max_bytes_in_flight (0): The maximum number of bytes in flight in the last
+  round trip [byte].
+
+* max_bytes_in_flight_prev (0): The maximum number of bytes in flight in
+  previous round trip [byte].
+
 * bytes_newly_acked (0): Number of bytes newly ACKed, reset to 0 when congestion
   window is updated [byte].
 
@@ -428,6 +434,12 @@ bytes_in_flight.
 bytes_in_flight_ratio is calculated as the ratio between bytes_flight and
 ref_wnd. This value should be computed at the beginning of the ACK
 processing. ref_wnd_ratio is computed as the relation between MSS and ref_wnd.
+
+The variable max_bytes_in_flight indicates the maximum bytes in flight in the
+current round trip. The variable max_bytes_in_flight_prev indicates the
+maximum bytes in flights in the previous round trip. As bytes in flight can spike
+when congestion occurs, using the maximum of max_bytes_in_flight and max_bytes_in_flight_prev
+makes it more likely that an uncongested bytes in flight is used.
 
 Furthermore, a variable bytes_newly_acked is incremented with a value
 corresponding to how much the highest sequence number has increased
@@ -690,12 +702,6 @@ The following variables are defined:
 
 * ref_wnd_i (1): Reference window inflection point [byte].
 
-* max_bytes_in_flight (0): The maximum number of bytes in flight in the last
-  round trip [byte].
-
-* max_bytes_in_flight_prev (0): The maximum number of bytes in flight in
-  previous round trip [byte].
-
 * qdelay_target (QDELAY_TARGET_LO): qdelay target [s], a variable qdelay target
   is introduced to manage cases where a fixed qdelay target would otherwise
   starve the data flow under such circumstances (e.g., FTP competes for the
@@ -829,11 +835,6 @@ if (is_loss_t || is_ce_t || is_virtual_ce_t)
 end
 ~~~
 
-The variable max_bytes_in_flight_prev indicates the maximum bytes in flights in
-the previous round trip. The reason to this is that bytes in flight can spike
-when congestion occurs, max_bytes_in_flight_prev thus ensures better that an
-uncongested bytes in flight is used.
-
 
 #### Reference window increase
 
@@ -902,9 +903,6 @@ The ref_wnd_scale_factor_t scales the reference window increase. The
 ref_wnd_scale_factor_t is increased with larger ref_wnd to allow for a
 multiplicative increase and thus a faster convergence when link capacity
 increases.
-
-The variable max_bytes_in_flight indicates the max bytes in flight in the
-current round trip.
 
 The multiplicative increase is restricted directly after a congestion event and
 the restriction is gradually relaxed as the time since last congested
