@@ -939,7 +939,6 @@ to manage this:
 
 The two mechanisms complement one another.
 
-### Competing Flows Compensation {#competing-flows-compensation}
 
 It is likely that a flow will have to share congested bottlenecks with other
 flows that use a more aggressive congestion control algorithm (for example,
