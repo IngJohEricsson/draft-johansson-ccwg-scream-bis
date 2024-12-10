@@ -244,6 +244,39 @@ sender side while the receiver is assumpted to provide acknowledgements of recei
 data units and indication of ECN-CE marking, either as an accumulated bytes counter,
 or per individual data unit.
 
+~~~aasvg
++-------------------------------------+
+|              Media encoder          |
++-------------------------------------+
+       ^
+       |
+target bitrate
+       |
++------------+
+|    Media   |
+|    Rate    |---------------+
+|   Control  |               |
++------------+               |
+       ^                     |
+       |               target bitrate
+    ref wnd                  |
+       |                     v
++------------+        +--------------+
+|  Network   |   ref  |    Sender    |
+| Congestion |------->| Transmission |
+|  Control   |   wnd  |   Control    |
++------------+        +--------------+
+       ^                     |
+       |                pacing rate
+    Feedback                 |
+       |                     v
++-------------------------------------+
+|                  UDP                |
+|                 socket              |
++-------------------------------------+
+~~~
+{: #fig-sender-view title="Sender Functional View"}
+
 ## Network Congestion Control {#network-cc}
 
 The network congestion control sets reference window (ref_wnd)
@@ -313,38 +346,38 @@ multiple flows. Support for multiple streams is implemented in
 {{SCReAM-CPP-implementation}}.
 
 ~~~aasvg
-          +------------------------------+
-          |          Media encoder       |
-          +------------------------------+
-              ^                     |(1)
-              |                 Data unit
-              |(3)                  |
-              |                     V
-              |               +-----------+
-         +---------+          |           |
-         | Media   |          |   Queue   |
-         | rate    |          |           |
-         | control |          | Data units|
-         +---------+          |           |
-              ^               +-----------+
-              |                     |
-              | (2)                 |(4)
-              |                 Data unit
-              |                     |
-              |                     v
-    +------------+          +--------------+
-    |  Network   |   (7)    |    Sender    |
-+-->| congestion |--------->| Transmission |
-|   |  control   |          |   Control    |
-|   +------------+          +--------------+
-|                                   |(5)
-+----------Feed back--------+   Data unit
-    (6)                     |       |
-                            |       v
-                        +---------------+
-                        |       UDP     |
-                        |     socket    |
-                        +---------------+
++-------------------------------------+
+|              Media encoder          |
++-------------------------------------+
+       ^                     |(1)
+       |                 Data unit
+       |(3)                  |
+       |                     V
+       |               +-----------+
++------------+         |           |
+|    Media   |         |   Queue   |
+|    Rate    |         |   Data    |
+|   Control  |         |   Units   |
++------------+         |           |
+       ^               +-----------+
+       | (2)                 |(4)
+       |                 Data unit
+       |                     |
+       |                     v
++------------+        +--------------+
+|  Network   |   (7)  |    Sender    |
+| Congestion |------->| Transmission |
+|  Control   |        |   Control    |
++------------+        +--------------+
+       ^                     |
+       | (6)                 |(5)
+    Feedback             Data unit
+       |                     |
+       |                     v
++-------------------------------------+
+|                  UDP                |
+|                 socket              |
++-------------------------------------+
 ~~~
 {: #fig-sender-view title="Sender Functional View"}
 
