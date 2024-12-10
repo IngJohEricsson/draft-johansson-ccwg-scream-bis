@@ -321,23 +321,36 @@ algoritm prefers to build up a queue in the network rather than on the sender
 side. Additional congestion that this causes will reflect back and cause a
 reduction of the reference window.
 
-After a congestion event the reference window seeks to increase by one segment per RTT
-until a certain number of RTT elapses. After this initial phase the refrence window
-increases multiplicativly where the increase factor is adjusted relative to a
-previous max value and the time elapsed since last congestion event.
-This enables a faster convergence to a higher link speed.
-
 Reference window is reduced if congestion is detected. Similar as for LEDBAT
 the reference window is reduced either by a fixed fraction in case of packet loss or Classic ECN marking,
 or if the estimated queue delay exceeds a given threshold depending on how much the delay exceeds the threshold.
 SCReAMv2 reduces the reference window in proportion to the fraction of marked packets
 if L4S is used (scalable congestion control).
 
+~~~
+ref_wnd = BETA_LOSS * (BETA_ECN|l4s_alpha) * qtarget_alpha * ref_wnd 
+~~~
+
+After a congestion event the reference window seeks to increase by one segment per RTT
+until a certain number of RTT elapses. After this initial phase the refrence window
+increases multiplicativly where the increase factor is adjusted relative to a
+previous max value and the time elapsed since last congestion event.
+This enables a faster convergence to a higher link speed.
+
+~~~
+ref_wnd = ref_wnd + increment
+~~~
+
 ## Sender Transmission Control {#sender-tc}
 
 The sender transmission control limits sending rate based on the
 relation of the estimated link throughput (bytes in flight) and the reference window.
-This is achived by applying packet pacing: Even if the send window allows for the transmission
+
+~~~
+send_wnd = ref_wnd * REF_WND_OVERHEAD * frame_size - bytes_in_flight
+~~~
+
+The respective sending rate is achived by applying packet pacing: Even if the send window allows for the transmission
 of a number of packets, these packets are not transmitted immediately; rather,
 they are transmitted in intervals given by the packet size and the estimated
 link throughput. Packets are generally paced at a higher rate than the target
@@ -348,6 +361,11 @@ increased jitter and/or packet loss in the media traffic.
 ## Media Rate Control {#media-rate-control}
 
 The media rate control calculates the media rate based on the reference window and RTT.
+
+~~~
+target_bitrate = 8 * ref_wnd / s_rtt
+~~~
+
 The media rate need to ramp up quickly enough to get a fair share of the system resources when link throughput
 increases. Further, the reaction to reduced throughput must be prompt in order to avoid getting too
 much data queued in the data unit queue(s) in the sender.
