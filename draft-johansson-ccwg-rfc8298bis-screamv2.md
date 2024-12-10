@@ -6,8 +6,8 @@ obsoletes: 8298
 cat: exp
 ipr: trust200902
 wg: CCWG
-area: Transport
-submissiontype: IETF  # also: "independent", "IAB", or "IRTF"
+area: WIT
+submissiontype: IETF
 
 venue:
   group: Congestion Control Working Group (ccwg)
@@ -688,13 +688,13 @@ clockdrift, that the delay based control can introduce, whenever possible.
 
 ### Reference Window Update {#ref-wnd-update}
 
-The reference window update contains two parts. One that reduces the congestion
+The reference window update contains two parts. One that reduces the reference
 window when congestion events (listed above) occur, and one part that
 continously increases the reference window.
 
 The target bitrate is updated whenever the reference window is updated.
 
-Actions when congestion detected
+#### reference window reduction
 
 ~~~
 # The reference window is updated at least every VIRTUAL_RTT
@@ -787,7 +787,7 @@ when congestion occurs, max_bytes_in_flight_prev thus ensures better that an
 uncongested bytes in flight is used.
 
 
-Reference window increase
+#### Reference window increase
 
 ~~~
 # Delay factor for multiplicative reference window increase
@@ -889,6 +889,95 @@ to manage this:
   values. See {{SCReAM-CPP-implementation}} for details.
 
 The two mechanisms complement one another.
+
+#### Competing Flows Compensation {#competing-flows-compensation}
+
+It is likely that a flow will have to share congested bottlenecks with other
+flows that use a more aggressive congestion control algorithm (for example,
+large FTP flows using loss-based congestion control). The worst condition occurs
+when the bottleneck queues are of tail-drop type with a large buffer
+size. SCReAMv2 takes care of such situations by adjusting the qdelay_target when
+loss-based flows are detected, as shown in the pseudocode below.
+
+~~~
+adjust_qdelay_target(qdelay)
+  qdelay_norm_t = qdelay / QDELAY_TARGET_LOW
+  update_qdelay_norm_history(qdelay_norm_t)
+  # Compute variance
+  qdelay_norm_var_t = VARIANCE(qdelay_norm_history(200))
+  # Compensation for competing traffic
+  # Compute average
+  qdelay_norm_avg_t = AVERAGE(qdelay_norm_history(50))
+  # Compute upper limit to target delay
+  new_target_t = qdelay_norm_avg_t + sqrt(qdelay_norm_var_t)
+  new_target_t *= QDELAY_TARGET_LO
+  if (loss_event_rate > 0.002)
+    # Data unit losses detected
+    qdelay_target = 1.5 * new_target_t
+  else
+    if (qdelay_norm_var_t < 0.2)
+      # Reasonably safe to set target qdelay
+      qdelay_target = new_target_t
+    else
+      # Check if target delay can be reduced; this helps prevent
+      # the target delay from being locked to high values forever
+      if (new_target_t < QDELAY_TARGET_LO)
+        # Decrease target delay quickly, as measured queuing
+        # delay is lower than target
+        qdelay_target = max(qdelay_target * 0.5, new_target_t)
+      else
+        # Decrease target delay slowly
+        qdelay_target *= 0.9
+      end
+    end
+  end
+
+  # Apply limits
+  qdelay_target = min(QDELAY_TARGET_HI, qdelay_target)
+  qdelay_target = max(QDELAY_TARGET_LO, qdelay_target)
+~~~
+
+Two temporary variables are calculated. qdelay_norm_avg_t is the long-term
+average queue delay, qdelay_norm_var_t is the long-term variance of the queue
+delay. A high qdelay_norm_var_t indicates that the queue delay changes; this can
+be an indication that bottleneck bandwidth is reduced or that a competing flow
+has just entered. Thus, it indicates that it is not safe to adjust the queue
+delay target.
+
+A low qdelay_norm_var_t indicates that the queue delay is relatively stable. The
+reason could be that the queue delay is low, but it could also be that a
+competing flow is causing the bottleneck to reach the point that data unit losses
+start to occur, in which case the queue delay will stay relatively high for a
+longer time.
+
+The queue delay target is allowed to be increased if either the loss event rate
+is above a given threshold or qdelay_norm_var_t is low. Both these conditions
+indicate that a competing flow may be present. In all other cases, the queue
+delay target is decreased.
+
+The function that adjusts the qdelay_target is simple and could produce false
+positives and false negatives. The case that self-inflicted congestion by the
+SCReAMv2 algorithm may be falsely interpreted as the presence of competing
+loss-based FTP flows is a false positive. The opposite case -- where the
+algorithm fails to detect the presence of a competing FTP flow -- is a false
+negative.
+
+Extensive simulations have shown that the algorithm performs well in LTE and 5G
+test cases and that it also performs well in simple bandwidth-limited bottleneck
+test cases with competing FTP flows. However, the potential failure of the
+algorithm cannot be completely ruled out. A false positive (i.e., when
+self-inflicted congestion is mistakenly identified as competing flows) is
+especially problematic when it leads to increasing the target queue delay, which
+can cause the end-to-end delay to increase dramatically.
+
+If it is deemed unlikely that competing flows occur over the same bottleneck,
+the algorithm described in this section MAY be turned off. One such case is
+QoS-enabled bearers in 3GPP-based access such as LTE and 5G. However, when
+sending over the Internet, often the network conditions are not known for sure,
+so in general it is not possible to make safe assumptions on how a network is
+used and whether or not competing flows share the same bottleneck. Therefore,
+turning this algorithm off must be considered with caution, as it can lead to
+basically zero throughput if competing with loss-based traffic.
 
 ## Sender Transmission Control
 
@@ -1027,97 +1116,7 @@ target_bitrate = min(TARGET_BITRATE_MAX,
   max(TARGET_BITRATE_MIN,target_bitrate))
 ~~~
 
-
-## Competing Flows Compensation {#competing-flows-compensation}
-
-It is likely that a flow will have to share congested bottlenecks with other
-flows that use a more aggressive congestion control algorithm (for example,
-large FTP flows using loss-based congestion control). The worst condition occurs
-when the bottleneck queues are of tail-drop type with a large buffer
-size. SCReAMv2 takes care of such situations by adjusting the qdelay_target when
-loss-based flows are detected, as shown in the pseudocode below.
-
-~~~
-adjust_qdelay_target(qdelay)
-  qdelay_norm_t = qdelay / QDELAY_TARGET_LOW
-  update_qdelay_norm_history(qdelay_norm_t)
-  # Compute variance
-  qdelay_norm_var_t = VARIANCE(qdelay_norm_history(200))
-  # Compensation for competing traffic
-  # Compute average
-  qdelay_norm_avg_t = AVERAGE(qdelay_norm_history(50))
-  # Compute upper limit to target delay
-  new_target_t = qdelay_norm_avg_t + sqrt(qdelay_norm_var_t)
-  new_target_t *= QDELAY_TARGET_LO
-  if (loss_event_rate > 0.002)
-    # Data unit losses detected
-    qdelay_target = 1.5 * new_target_t
-  else
-    if (qdelay_norm_var_t < 0.2)
-      # Reasonably safe to set target qdelay
-      qdelay_target = new_target_t
-    else
-      # Check if target delay can be reduced; this helps prevent
-      # the target delay from being locked to high values forever
-      if (new_target_t < QDELAY_TARGET_LO)
-        # Decrease target delay quickly, as measured queuing
-        # delay is lower than target
-        qdelay_target = max(qdelay_target * 0.5, new_target_t)
-      else
-        # Decrease target delay slowly
-        qdelay_target *= 0.9
-      end
-    end
-  end
-
-  # Apply limits
-  qdelay_target = min(QDELAY_TARGET_HI, qdelay_target)
-  qdelay_target = max(QDELAY_TARGET_LO, qdelay_target)
-~~~
-
-Two temporary variables are calculated. qdelay_norm_avg_t is the long-term
-average queue delay, qdelay_norm_var_t is the long-term variance of the queue
-delay. A high qdelay_norm_var_t indicates that the queue delay changes; this can
-be an indication that bottleneck bandwidth is reduced or that a competing flow
-has just entered. Thus, it indicates that it is not safe to adjust the queue
-delay target.
-
-A low qdelay_norm_var_t indicates that the queue delay is relatively stable. The
-reason could be that the queue delay is low, but it could also be that a
-competing flow is causing the bottleneck to reach the point that data unit losses
-start to occur, in which case the queue delay will stay relatively high for a
-longer time.
-
-The queue delay target is allowed to be increased if either the loss event rate
-is above a given threshold or qdelay_norm_var_t is low. Both these conditions
-indicate that a competing flow may be present. In all other cases, the queue
-delay target is decreased.
-
-The function that adjusts the qdelay_target is simple and could produce false
-positives and false negatives. The case that self-inflicted congestion by the
-SCReAMv2 algorithm may be falsely interpreted as the presence of competing
-loss-based FTP flows is a false positive. The opposite case -- where the
-algorithm fails to detect the presence of a competing FTP flow -- is a false
-negative.
-
-Extensive simulations have shown that the algorithm performs well in LTE and 5G
-test cases and that it also performs well in simple bandwidth-limited bottleneck
-test cases with competing FTP flows. However, the potential failure of the
-algorithm cannot be completely ruled out. A false positive (i.e., when
-self-inflicted congestion is mistakenly identified as competing flows) is
-especially problematic when it leads to increasing the target queue delay, which
-can cause the end-to-end delay to increase dramatically.
-
-If it is deemed unlikely that competing flows occur over the same bottleneck,
-the algorithm described in this section MAY be turned off. One such case is
-QoS-enabled bearers in 3GPP-based access such as LTE and 5G. However, when
-sending over the Internet, often the network conditions are not known for sure,
-so in general it is not possible to make safe assumptions on how a network is
-used and whether or not competing flows share the same bottleneck. Therefore,
-turning this algorithm off must be considered with caution, as it can lead to
-basically zero throughput if competing with loss-based traffic.
-
-## Handling of systematic errors in video coders {#coder-errors}
+### Handling of systematic errors in video coders {#coder-errors}
 
 Some video encoders are prone to systematically generate an output bitrate that
 is systematically larger or smaller than the target bitrate. SCReAMv2 can handle
