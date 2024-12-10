@@ -244,6 +244,7 @@ sender side while the receiver is assumpted to provide acknowledgements of recei
 data units and indication of ECN-CE marking, either as an accumulated bytes counter,
 or per individual data unit.
 
+
 ## Network Congestion Control {#network-cc}
 
 The network congestion control sets reference window (ref_wnd)
@@ -313,38 +314,38 @@ multiple flows. Support for multiple streams is implemented in
 {{SCReAM-CPP-implementation}}.
 
 ~~~aasvg
-          +------------------------------+
-          |          Media encoder       |
-          +------------------------------+
-              ^                     |(1)
-              |                 Data unit
-              |(3)                  |
-              |                     V
-              |               +-----------+
-         +---------+          |           |
-         | Media   |          |   Queue   |
-         | rate    |          |           |
-         | control |          | Data units|
-         +---------+          |           |
-              ^               +-----------+
-              |                     |
-              | (2)                 |(4)
-              |                 Data unit
-              |                     |
-              |                     v
-    +------------+          +--------------+
-    |  Network   |   (7)    |    Sender    |
-+-->| congestion |--------->| Transmission |
-|   |  control   |          |   Control    |
-|   +------------+          +--------------+
-|                                   |(5)
-+----------Feed back--------+   Data unit
-    (6)                     |       |
-                            |       v
-                        +---------------+
-                        |       UDP     |
-                        |     socket    |
-                        +---------------+
++-------------------------------------+
+|              Media encoder          |
++-------------------------------------+
+       ^                            |
+       |                         Data unit
+ target_bitrate                     |
+       |                            V
+       |                         +-----------+
++------------+                   |           |
+|    Media   |                   |   Queue   |
+|    Rate    |---------------+   |   Data    |
+|   Control  |               |   |   Units   |
++------------+               |   |           |
+       ^                     |   +-----------+
+       |                     |          |
+    ref_wnd                  |       Data unit
+      RTT            target_bitrate     |
+       |                     v          v
++------------+               +--------------+
+|  Network   |    ref_wnd    |    Sender    |
+| Congestion |-------------->| Transmission |
+|  Control   |Bytes in flight|   Control    |
++------------+               +--------------+
+       ^                        |
+       |                        |
+Congestion Feedback          Data unit
+  Bytes in flight               |
+       |                        v
++-------------------------------------+
+|                  UDP                |
+|                 socket              |
++-------------------------------------+
 ~~~
 {: #fig-sender-view title="Sender Functional View"}
 
