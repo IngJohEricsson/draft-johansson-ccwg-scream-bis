@@ -372,7 +372,7 @@ rate control.
 
 ## Sender side state
 
-The sender needs to maintain sedning state as well as state about the received
+The sender needs to maintain sending state as well as state about the received
 feedback, covered by the following variables:
 
 * bytes_in_flight:
@@ -385,7 +385,7 @@ feedback, covered by the following variables:
 * s_rtt (0.0): Smoothed RTT [s], computed with a similar method to that
   described in {{RFC6298}}.
 
-* qdelay
+* qdelay:
 
 * last_update_qdelay_avg_time (0): Last time qdelay_avg was updated [s].
 
@@ -395,9 +395,11 @@ feedback, covered by the following variables:
 * bytes_newly_acked_ce (0): Number of bytes newly ACKed and CE marked, reset to
   0 when reference window is updated [byte].
 
-* data_units_acked
+* data_unit_size (0): Size [byte] of the last transmitted data unit.
 
-* data_units_acked_ce
+* data_units_acked:
+
+* data_units_acked_ce:
 
 * l4s_active (false): Indicates that L4S is enabled and data units are indeed
   marked.
@@ -555,7 +557,7 @@ end
 
 #### Increased queue delay {#reaction-delay}
 
-SCReAMv2 implements a delay based congestion control approach where it mimics
+SCReAMv2 implements a delay-based congestion control approach where it mimics
 L4S congestion marking when the averaged queue delay exceeds a target
 threshold. This threshold is set to qdelay_target/2 and the congestion backoff
 factor (l4s_alpha_v) increases linearly from 0 to 100% as qdelay_avg goes from
@@ -567,7 +569,7 @@ when it is reasonably certain that L4S is active, i.e. L4S is enabled and
 congested nodes apply L4S marking of data units. This reduces negative effects of
 clockdrift, that the delay based control can introduce, whenever possible.
 
-* qdelay_avg
+* qdelay_avg:
 
 The following constant is used:
 
@@ -972,7 +974,6 @@ optimally:
   congested. The REF_WND_OVERHEAD allows for some degree of reverse path
   congestion as the bytes in flight is allowed to exceed ref_wnd.
 
-
 In SCReAMv2, the send window is given by the relation between the adjusted
 reference window and the amount of bytes in flight according to the pseudocode
 below. The multiplication of ref_wnd with REF_WND_OVERHEAD and
@@ -1029,8 +1030,6 @@ in video coders.
 
 * t_pace (1e-6): Pacing interval between data units [s].
 
-* data_unit_size (0): Size [byte] of the last transmitted data unit.
-
 The following constants are used by the packet pacing:
 
 * RATE_PACE_MIN (50000): Minimum pacing rate in [bps].
@@ -1045,8 +1044,6 @@ pace_bitrate = max(RATE_PACE_MIN, target_bitrate) *
                PACKET_PACING_HEADROOM
 t_pace = data_unit_size * 8 / pace_bitrate
 ~~~
-
-
 
 data_unit_size is the size of the last transmitted data unit. RATE_PACE_MIN is the
 minimum pacing rate.
