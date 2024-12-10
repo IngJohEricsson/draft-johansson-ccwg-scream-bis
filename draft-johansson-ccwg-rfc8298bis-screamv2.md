@@ -375,7 +375,7 @@ rate control.
 The sender needs to maintain sedning state as well as state about the received
 feedback, covered by the following variables:
 
-* bytes_in_flight: 
+* bytes_in_flight:
 
 * bytes_in_flight_ratio (0.0): Ratio between the bytes in flight and the
   reference window.
