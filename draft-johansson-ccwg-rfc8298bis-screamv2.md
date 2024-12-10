@@ -616,7 +616,7 @@ end
 
 Congestion is detected based on three different indicators:
 
- * Lost data units detected. The loss detection is described in {{detect-loss}}.
+ * Lost data units detected. The loss detection is described in {{reaction-loss}}.
 
  * ECN-CE marked data units detected.
 
