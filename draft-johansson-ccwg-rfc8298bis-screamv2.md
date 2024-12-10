@@ -290,7 +290,7 @@ Congestion Feedback          Data unit
 
 Media frames are encoded and forwarded to the data unit queue in
 {{fig-sender-view}}. The data units are sent by the sender transmission controller
-from the data unit queue. 
+from the data unit queue.
 
 The sender transmission controller (in case of multiple flows a transmission
 scheduler) sends the data units to the UDP socket. The sender transmission
@@ -461,7 +461,7 @@ Congestion is detected based on three different indicators:
 
  * Lost data units detected,
 
- * ECN-CE marked data units detected either for classic ECN or L4S, 
+ * ECN-CE marked data units detected either for classic ECN or L4S,
 
  * Estimated queue delay exceeds a threshold.
 
