@@ -328,7 +328,7 @@ SCReAMv2 reduces the reference window in proportion to the fraction of marked pa
 if L4S is used (scalable congestion control).
 
 ~~~
-ref_wnd = BETA_LOSS * (BETA_ECN|l4s_alpha) * qtarget_alpha * ref_wnd 
+ref_wnd = BETA_LOSS * (BETA_ECN|l4s_alpha) * qtarget_alpha * ref_wnd
 ~~~
 
 After a congestion event the reference window seeks to increase by one segment per RTT
