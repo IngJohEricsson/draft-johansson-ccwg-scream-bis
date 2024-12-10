@@ -244,6 +244,72 @@ sender side while the receiver is assumpted to provide acknowledgements of recei
 data units and indication of ECN-CE marking, either as an accumulated bytes counter,
 or per individual data unit.
 
+The sender implements media rate control and an data unit queue for each media
+type or source, where data units containing encoded media frames are temporarily
+stored for transmission. Figure 1 shows the details when a single media source
+(or stream) is used. Scheduling and priotization of mulitiple streams is not
+covered in this document. However, if multiple flows are sent, each data unit queue can be
+served based on some defined priority or simply in a round-robin fashion. Alternatively,
+a similar approach as coupled congestion control {RFC6365} can be applied.
+
+~~~aasvg
++-------------------------------------+
+|              Media encoder          |
++-------------------------------------+
+       ^                            |
+       |                         Data unit
+ target_bitrate                     |
+       |                            V
+       |                         +-----------+
++------------+                   |           |
+|    Media   |                   |   Queue   |
+|    Rate    |---------------+   |   Data    |
+|   Control  |               |   |   Units   |
++------------+               |   |           |
+       ^                     |   +-----------+
+       |                     |          |
+    ref_wnd                  |       Data unit
+      RTT            target_bitrate     |
+       |                     v          v
++------------+               +--------------+
+|  Network   |    ref_wnd    |    Sender    |
+| Congestion |-------------->| Transmission |
+|  Control   |Bytes in flight|   Control    |
++------------+               +--------------+
+       ^                        |
+       |                        |
+Congestion Feedback          Data unit
+  Bytes in flight               |
+       |                        v
++-------------------------------------+
+|                  UDP                |
+|                 socket              |
++-------------------------------------+
+~~~
+{: #fig-sender-view title="Sender Functional View"}
+
+Media frames are encoded and forwarded to the data unit queue in
+{{fig-sender-view}}. The data units are sent by the sender transmission controller
+from the data unit queue. 
+
+The sender transmission controller (in case of multiple flows a transmission
+scheduler) sends the data units to the UDP socket. The sender transmission
+controller limits the sending rate so
+that the number of bytes in flight is less than the reference window albeit with
+a slack to avoid that packets are unnecessarily delayed in the data unit queue.
+A apcing rate is calculated based on the target bitrate provided by the
+media rate controller.
+
+Feedback about the received bytes as well as metadata to estimatethe congestion
+level or queuing delay are provided to the network congestion controller.
+The network congestion controller calculated reference window and provides it
+togteher with the bytes in flight to the sender transmission control (7).
+
+The reference window and the estimated RTT is further provided to the media rate
+control to compute the appropriate target bitrate. The target bitrate is
+updated whenever the reference window is updated. Additional parameters are also
+communicated to make the rate control more stable when the congestion window is
+very small or when L4S is not active. This is described more in detail below.
 
 ## Network Congestion Control {#network-cc}
 
@@ -304,199 +370,23 @@ This section describes the sender-side algorithm in more detail. It is split
 between the network congestion control, sender transmission control, and media
 rate control.
 
-The sender implements media rate control and an data unit queue for each media
-type or source, where data units containing encoded media frames are temporarily
-stored for transmission. Figure 1 shows the details when a single media source
-(or stream) is used. Scheduling and priotization of mulitiple streams is not
-covered in this document. However, a similar approach as coupled congestion control
-{RFC6365} can be applied.
+## Network Congestion Control {#network-cc-2}
 
-~~~aasvg
-+-------------------------------------+
-|              Media encoder          |
-+-------------------------------------+
-       ^                            |
-       |                         Data unit
- target_bitrate                     |
-       |                            V
-       |                         +-----------+
-+------------+                   |           |
-|    Media   |                   |   Queue   |
-|    Rate    |---------------+   |   Data    |
-|   Control  |               |   |   Units   |
-+------------+               |   |           |
-       ^                     |   +-----------+
-       |                     |          |
-    ref_wnd                  |       Data unit
-      RTT            target_bitrate     |
-       |                     v          v
-+------------+               +--------------+
-|  Network   |    ref_wnd    |    Sender    |
-| Congestion |-------------->| Transmission |
-|  Control   |Bytes in flight|   Control    |
-+------------+               +--------------+
-       ^                        |
-       |                        |
-Congestion Feedback          Data unit
-  Bytes in flight               |
-       |                        v
-+-------------------------------------+
-|                  UDP                |
-|                 socket              |
-+-------------------------------------+
-~~~
-{: #fig-sender-view title="Sender Functional View"}
+This section explains the network congestion control, which calcultes the
+reference window. The reference window gives an upper limit to the number of bytes in flight.
 
-Media frames are encoded and forwarded to the data unit queue (1) in
-{{fig-sender-view}}. The data units are picked from the data unit queue (4), for
-multiple flows from each data unit queue based on some defined priority order or
-simply in a round-robin fashion, by the sender transmission controller.
+### Sender side state
 
-The sender transmission controller (in case of multiple flows a transmission
-scheduler) sends the data units to the UDP socket (5). The sender transmission
-controller limits the sending rate so
-that the number of bytes in flight is less than the reference window albeit with
-a slack to avoid that packets are unnecessarily delayed in the data unit queue.
-
-Feedback about the received bytes as well as metadata to estimatethe congestion
-level or queuing delay are received (6) and the bytes in flight as well as the
-calculaed reference window are provided by the network congestion control to the
-sender transmission control (7).
-
-The reference window and the estimated RTT is communicated to the media rate
-control (2) to compute the appropriate target bitrate. The target bitrate is
-updated whenever the reference window is updated. Additional parameters are also
-communicated to make the rate control more stable when the congestion window is
-very small or when L4S is not active. This is described more in detail below.
-
-## Constants and variables {#constants-variables}
-
-Constants and state variables are listed in this section. Temporary variables
-are not listed; instead, they are appended with '_t' in the pseudocode to
-indicate their local scope.
-
-### Constants {#constants}
-
-The RECOMMENDED values, within parentheses "()", for the constants are deduced
-from experiments.
-
-* QDELAY_TARGET_LO (0.06): Target value for the minimum qdelay [s].
-
-* QDELAY_TARGET_HI (0.4): Target value for the maximum qdelay [s]. This
-  parameter provides an upper limit to how much the target qdelay
-  (qdelay_target) can be increased in order to cope with competing loss-based
-  flows. However, the target qdelay does not have to be initialized to this high
-  value, as it would increase end-to-end delay and also make the rate control
-  and congestion control loops sluggish.
-
-* MIN_REF_WND (3000): Minimum reference window [byte].
-
-* MAX_BYTES_IN_FLIGHT_HEAD_ROOM (1.1): Headroom for the limitation of ref_wnd.
-
-* BETA_LOSS (0.7): ref_wnd scale factor due to loss event.
-
-* BETA_ECN (0.8): ref_wnd scale factor due to ECN event.
-
-* MSS (1000): Maximum segment size = Max data unit size [byte].
-
-* TARGET_BITRATE_MIN: Minimum target bitrate in [bps] (bits per second).
-
-* TARGET_BITRATE_MAX: Maximum target bitrate in [bps].
-
-* RATE_PACE_MIN (50000): Minimum pacing rate in [bps].
-
-* REF_WND_OVERHEAD (1.5): Indicates how much bytes in flight is allowed to
-  exceed ref_wnd.
-
-* L4S_AVG_G (1.0/16): Exponentially
-  Weighted Moving Average (EWMA) factor for l4s_alpha
-
-* QDELAY_AVG_G (1.0/4): Exponentially
-  Weighted Moving Average (EWMA) factor for qdelay_avg
-
-* PACKET_OVERHEAD (20) : Estimated packetization overhead [byte]
-
-* POST_CONGESTION_DELAY_RTT (100): Determines how many RTTs after a congestion
-  event the reference window growth should be cautious.
-
-* MUL_INCREASE_FACTOR (0.02): Determines how much (as a fraction of ref_wnd)
-  that the ref_wnd can increase per RTT.
-
-* IS_L4S (false): Congestion control operates in L4S mode.
-
-* VIRTUAL_RTT (0.025): Virtual RTT [s]. This mimics Prague's RTT fairness such that flows with RTT
-  below VIRTUAL_RTT should get a roughly equal share over an L4S path.
-
-* PACKET_PACING_HEADROOM (1.5): Extra head room for packet pacing.
-
-* BYTES_IN_FLIGHT_HEAD_ROOM (2.0): Extra headroom for bytes in flight.
-
-### State Variables {#state-variables}
-
-The values within parentheses "()" indicate initial values.
-
-* qdelay_target (QDELAY_TARGET_LO): qdelay target [s], a variable qdelay target
-  is introduced to manage cases where a fixed qdelay target would otherwise
-  starve the data flow under such circumstances (e.g., FTP competes for the
-  bandwidth over the same bottleneck). The qdelay target is allowed to vary
-  between QDELAY_TARGET_LO and QDELAY_TARGET_HI.
-
-* qdelay_fraction_avg (0.0): Fractional qdelay filtered by the Exponentially
-  Weighted Moving Average (EWMA).
-
-* ref_wnd (MIN_REF_WND): Reference window [byte].
-
-* ref_wnd_i (1): Reference window inflection point [byte].
-
-* bytes_newly_acked (0): The number of bytes that was acknowledged with the last
-  received acknowledgement, i.e., bytes acknowledged since the last ref_wnd
-  update.
-
-* max_bytes_in_flight (0): The maximum number of bytes in flight in the last
-  round trip [byte].
-
-* max_bytes_in_flight_prev (0): The maximum number of bytes in flight in
-  previous round trip [byte].
-
-* send_wnd (0): Upper limit to how many bytes can currently be
-  transmitted. Updated when ref_wnd is updated and when data unit is
-  transmitted [byte].
-
-* target_bitrate (0): Media target bitrate [bps].
-
-* rate_media (0.0): Measured bitrate [bps] from the media encoder.
-
-* s_rtt (0.0): Smoothed RTT [s], computed with a similar method to that
-  described in {{RFC6298}}.
-
-* data_unit_size (0): Size [byte] of the last transmitted data unit.
-
-* loss_event_rate (0.0): The estimated fraction of RTTs with lost data units
-  detected.
+The sender needs to maintain sedning state as well as state about the received
+feedback, covered by the following variables:
 
 * bytes_in_flight_ratio (0.0): Ratio between the bytes in flight and the
   reference window.
 
 * ref_wnd_ratio (0.0): Ratio between MSS and ref_wnd.
 
-* last_fraction_marked (0.0): fraction marked data units in last update
-
-* l4s_alpha (0.0): Average fraction of marked data units per RTT.
-
-* l4s_active (false): Indicates that L4S is enabled and data units are indeed
-  marked.
-
-* last_update_l4s_alpha_time (0): Last time l4s_alpha was updated [s].
-
-* last_update_qdelay_avg_time (0): Last time qdelay_avg was updated [s].
-
-* data_units_delivered_this_rtt (0): Counter for delivered data units.
-
-* data_units_marked_this_rtt (0): Counter delivered and ECN-CE marked data units.
-
-* last_congestion_detected_time (0): Last time congestion event occured [s].
-
-* last_ref_wnd_i_update_time (0): Last time ref_wnd_i was updated [s].
+* s_rtt (0.0): Smoothed RTT [s], computed with a similar method to that
+  described in {{RFC6298}}.
 
 * bytes_newly_acked (0): Number of bytes newly ACKed, reset to 0 when congestion
   window is updated [byte].
@@ -504,27 +394,8 @@ The values within parentheses "()" indicate initial values.
 * bytes_newly_acked_ce (0): Number of bytes newly ACKed and CE marked, reset to
   0 when reference window is updated [byte].
 
-* pace_bitrate (1e6): Data unit pacing rate [bps].
-
-* t_pace (1e-6): Pacing interval between data units [s].
-
-* rel_framesize_high (1.0): High percentile of frame size, normalized by nominal
-  frame size for the given target bitrate
-
-* frame_period (0.02): The frame period [s].
-
-
-## Network Congestion Control {#network-cc-2}
-
-This section explains the network congestion control, which performs two main
-functions:
-
-* Computation of reference window at the sender: This gives an upper limit to
-  the number of bytes in flight.
-
-* Calculation of send window at the sender: Data units are transmitted if
-  allowed by the relation between the number of bytes in flight and the
-  reference window. This is controlled by the send window.
+* l4s_active (false): Indicates that L4S is enabled and data units are indeed
+  marked.
 
 SCReAMv2 is a window-based and byte-oriented congestion control
 protocol, where the number of bytes transmitted is inferred from the
@@ -572,7 +443,6 @@ The feedback from the receiver is assumed to consist of the following elements.
 * The wall-clock timestamp corresponding to the received data unit with the
   highest sequence number.
 
-
 When the sender receives RTCP feedback, the qdelay is calculated as outlined in
 {{RFC6817}}. A qdelay sample is obtained for each received acknowledgement. A
 number of variables are updated as illustrated by the pseudocode below;
@@ -584,41 +454,14 @@ is often smaller than MSS.
 
 The smoothed RTT (s_rtt) is computed in a way similar to {{RFC6298}}.
 
-~~~
-data_units_delivered_this_rtt += data_units_acked
-data_units_marked_this_rtt += data_units_acked_ce
-# l4s_alpha is updated at least every 10ms
-if (now - last_update_l4s_alpha_time >= min(0.01,s_rtt)
-  # l4s_alpha is calculated from data_units marked istf bytes marked
-  fraction_marked_t = data_units_marked_this_rtt/
-                      data_units_delivered_this_rtt
-
-  l4s_alpha = L4S_AVG_G*fraction_marked_t + (1.0-L4S_AVG_G)*l4S_alpha
-
-  last_update_l4s_alpha_time = now
-  data_units_delivered_this_rtt = 0
-  data_units_marked_this_rtt = 0
-  last_fraction_marked = fraction_marked_t
-end
-
-if (now - last_update_qdelay_avg_time >= s_rtt)
-  # qdelay_avg is updated with a slow attack, fast decay EWMA filter
-  if (qdelay < qdelay_avg)
-    qdelay_avg = qdelay
-  else
-    qdelay_avg = QDELAY_AVG_G*qdelay + (1.0-QDELAY_AVG_G)*qdelay_avg
-  end
-  last_update_qdelay_avg_time = now
-end
-~~~
 
 ### Reaction to Delay, Data unit Loss and ECN-CE {#reaction-delay-loss-ce}
 
 Congestion is detected based on three different indicators:
 
- * Lost data units detected. The loss detection is described in {{reaction-loss}}.
+ * Lost data units detected,
 
- * ECN-CE marked data units detected.
+ * ECN-CE marked data units detected either for classic ECN or L4S, 
 
  * Estimated queue delay exceeds a threshold.
 
@@ -672,6 +515,38 @@ MSS. In addition, because SCReAMv2 can quite often be source limited, additional
 steps are taken to restore the reference window to a proper value after a long
 period without congestion.
 
+* last_fraction_marked (0.0): fraction marked data units in last update
+
+* l4s_alpha (0.0): Average fraction of marked data units per RTT.
+
+* last_update_l4s_alpha_time (0): Last time l4s_alpha was updated [s].
+
+* data_units_delivered_this_rtt (0): Counter for delivered data units.
+
+* data_units_marked_this_rtt (0): Counter delivered and ECN-CE marked data units.
+
+The following constant is used
+
+* L4S_AVG_G (1/16): Exponentially Weighted Moving Average (EWMA) factor for l4s_alpha
+
+~~~
+data_units_delivered_this_rtt += data_units_acked
+data_units_marked_this_rtt += data_units_acked_ce
+# l4s_alpha is updated at least every 10ms
+if (now - last_update_l4s_alpha_time >= min(0.01,s_rtt)
+  # l4s_alpha is calculated from data_units marked istf bytes marked
+  fraction_marked_t = data_units_marked_this_rtt/
+                      data_units_delivered_this_rtt
+
+  l4s_alpha = L4S_AVG_G*fraction_marked_t + (1.0-L4S_AVG_G)*l4S_alpha
+
+  last_update_l4s_alpha_time = now
+  data_units_delivered_this_rtt = 0
+  data_units_marked_this_rtt = 0
+  last_fraction_marked = fraction_marked_t
+end
+~~~
+
 #### Increased queue delay {#reaction-delay}
 
 SCReAMv2 implements a delay based congestion control approach where it mimics
@@ -686,13 +561,91 @@ when it is reasonably certain that L4S is active, i.e. L4S is enabled and
 congested nodes apply L4S marking of data units. This reduces negative effects of
 clockdrift, that the delay based control can introduce, whenever possible.
 
+* qdelay
+
+* qdelay_avg
+
+* last_update_qdelay_avg_time (0): Last time qdelay_avg was updated [s].
+
+The following constant is used:
+
+* QDELAY_AVG_G (1/4): Exponentially Weighted Moving Average (EWMA) factor for qdelay_avg
+
+~~~
+if (now - last_update_qdelay_avg_time >= s_rtt)
+  # qdelay_avg is updated with a slow attack, fast decay EWMA filter
+  if (qdelay < qdelay_avg)
+    qdelay_avg = qdelay
+  else
+    qdelay_avg = QDELAY_AVG_G*qdelay + (1.0-QDELAY_AVG_G)*qdelay_avg
+  end
+  last_update_qdelay_avg_time = now
+end
+~~~
+
 ### Reference Window Update {#ref-wnd-update}
 
 The reference window update contains two parts. One that reduces the reference
 window when congestion events (listed above) occur, and one part that
 continously increases the reference window.
 
-The target bitrate is updated whenever the reference window is updated.
+The following variables are defined:
+
+* ref_wnd (MIN_REF_WND): Reference window [byte].
+
+* ref_wnd_i (1): Reference window inflection point [byte].
+
+* max_bytes_in_flight (0): The maximum number of bytes in flight in the last
+  round trip [byte].
+
+* max_bytes_in_flight_prev (0): The maximum number of bytes in flight in
+  previous round trip [byte].
+
+* qdelay_target (QDELAY_TARGET_LO): qdelay target [s], a variable qdelay target
+  is introduced to manage cases where a fixed qdelay target would otherwise
+  starve the data flow under such circumstances (e.g., FTP competes for the
+  bandwidth over the same bottleneck). The qdelay target is allowed to vary
+  between QDELAY_TARGET_LO and QDELAY_TARGET_HI.
+
+* last_congestion_detected_time (0): Last time congestion event occured [s].
+
+* last_ref_wnd_i_update_time (0): Last time ref_wnd_i was updated [s].
+
+Further the following constants are used (the RECOMMENDED values, within parentheses "()",
+for the constants are deduced from experiments):
+
+* QDELAY_TARGET_LO (0.06): Target value for the minimum qdelay [s].
+
+* QDELAY_TARGET_HI (0.4): Target value for the maximum qdelay [s]. This
+  parameter provides an upper limit to how much the target qdelay
+  (qdelay_target) can be increased in order to cope with competing loss-based
+  flows. However, the target qdelay does not have to be initialized to this high
+  value, as it would increase end-to-end delay and also make the rate control
+  and congestion control loops sluggish.
+
+* MIN_REF_WND (3000): Minimum reference window [byte].
+
+* BYTES_IN_FLIGHT_HEAD_ROOM (2.0): Extra headroom for bytes in flight.
+
+* BETA_LOSS (0.7): ref_wnd scale factor due to loss event.
+
+* BETA_ECN (0.8): ref_wnd scale factor due to ECN event.
+
+* MSS (1000): Maximum segment size = Max data unit size [byte].
+
+* REF_WND_OVERHEAD (1.5): Indicates how much bytes in flight is allowed to
+  exceed ref_wnd.
+
+* POST_CONGESTION_DELAY_RTT (100): Determines how many RTTs after a congestion
+  event the reference window growth should be cautious.
+
+* MUL_INCREASE_FACTOR (0.02): Determines how much (as a fraction of ref_wnd)
+  that the ref_wnd can increase per RTT.
+
+* IS_L4S (false): Congestion control operates in L4S mode.
+
+* VIRTUAL_RTT (0.025): Virtual RTT [s]. This mimics Prague's RTT fairness such that flows with RTT
+  below VIRTUAL_RTT should get a roughly equal share over an L4S path.
 
 #### reference window reduction
 
@@ -899,6 +852,9 @@ when the bottleneck queues are of tail-drop type with a large buffer
 size. SCReAMv2 takes care of such situations by adjusting the qdelay_target when
 loss-based flows are detected, as shown in the pseudocode below.
 
+* loss_event_rate (0.0): The estimated fraction of RTTs with lost data units
+  detected.
+
 ~~~
 adjust_qdelay_target(qdelay)
   qdelay_norm_t = qdelay / QDELAY_TARGET_LOW
@@ -981,6 +937,14 @@ basically zero throughput if competing with loss-based traffic.
 
 ## Sender Transmission Control
 
+The Sender Transmission control calculates of send window at the sender.
+Data units are transmitted if allowed by the relation between the number of bytes
+in flight and the reference window. This is controlled by the send window:
+
+* send_wnd (0): Upper limit to how many bytes can currently be
+  transmitted. Updated when ref_wnd is updated and when data unit is
+  transmitted [byte].
+
 ### Send Window Calculation {#send-window}
 
 The basic design principle behind data unit transmission in SCReAM was to allow
@@ -1030,6 +994,11 @@ period. The calculation of rel_framesize_high is done for every new video frame
 and is outlined roughly with the pseudo code below. For more detailed code, see
 {{SCReAM-CPP-implementation}}.
 
+* rel_framesize_high (1.0): High percentile of frame size, normalized by nominal
+  frame size for the given target bitrate
+
+* frame_period (0.02): The frame period [s].
+
 ~~~
 # frame_size is that frame size for the last encoded frame
 tmp_t = frame_size / (target_bitrate * frame_period / 8)
@@ -1052,8 +1021,22 @@ Packet pacing is used in order to mitigate coalescing, i.e., when packets are
 transmitted in bursts, with the risks of increased jitter and potentially
 increased packet loss. Packet pacing is also recommended to be used with L4S and
 also mitigates possible issues with queue overflow due to key-frame generation
-in video coders. The time interval between consecutive data unit transmissions is
-greater than or equal to t_pace, where t_pace is given by the equations below :
+in video coders.
+
+* pace_bitrate (1e6): Data unit pacing rate [bps].
+
+* t_pace (1e-6): Pacing interval between data units [s].
+
+* data_unit_size (0): Size [byte] of the last transmitted data unit.
+
+The following constants are used by the packet pacing:
+
+* RATE_PACE_MIN (50000): Minimum pacing rate in [bps].
+
+* PACKET_PACING_HEADROOM (1.5): Extra head room for packet pacing.
+
+The time interval between consecutive data unit transmissions is
+greater than or equal to t_pace, where t_pace is given by the equations below:
 
 ~~~
 pace_bitrate = max(RATE_PACE_MIN, target_bitrate) *
@@ -1061,14 +1044,32 @@ pace_bitrate = max(RATE_PACE_MIN, target_bitrate) *
 t_pace = data_unit_size * 8 / pace_bitrate
 ~~~
 
+
+
 data_unit_size is the size of the last transmitted data unit. RATE_PACE_MIN is the
 minimum pacing rate.
 
 ## Media Rate Control {#media-rate-control-2}
 
 The media rate control algorithm is executed whenever the reference window is
-updated and updates the target bitrate. The target bitrate is essentiatlly based
-on the reference window and the (smoothed) RTT according to
+updated and calculates the target bitrate:
+
+* target_bitrate (0): Media target bitrate [bps].
+
+The following constants are used by the media rate control:
+
+* BYTES_IN_FLIGHT_LIMIT
+
+* BYTES_IN_FLIGHT_LIMIT_COMPENSATION
+
+* PACKET_OVERHEAD (20) : Estimated packetization overhead [byte]
+
+* TARGET_BITRATE_MIN: Minimum target bitrate in [bps] (bits per second).
+
+* TARGET_BITRATE_MAX: Maximum target bitrate in [bps].
+
+The target bitrate is essentiatlly based
+on the reference window ref_wnd and the (smoothed) RTT s_rtt according to
 
 ~~~
 target_bitrate = 8 * ref_wnd / s_rtt
