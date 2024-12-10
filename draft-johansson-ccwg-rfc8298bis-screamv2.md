@@ -616,7 +616,7 @@ end
 
 Congestion is detected based on three different indicators:
 
- * Lost data units detected. The loss detection is described in {{detect-loss}}.
+ * Lost data units detected. The loss detection is described in {{reaction-loss}}.
 
  * ECN-CE marked data units detected.
 
@@ -637,6 +637,21 @@ value; the effect is that SCReAMv2 has less opportunity to grab free capacity
 than a TCP-based file transfer. To compensate for this, it is RECOMMENDED to let
 SCReAMv2 reduce the reference window less than what is the case with TCP when
 loss events occur.
+
+Lost data unit detection is based on the received sequence number list. A
+reordering window SHOULD be applied to prevent data unit reordering from triggering
+loss events. The reordering window is specified as a time unit, similar to the
+ideas behind Recent ACKnowledgement (RACK) {{RFC8985}}. The computation of the
+reordering window is made possible by means of a lost flag in the list of
+transmitted data units. This flag is set if the received sequence number list
+indicates that the given data unit is missing. If later feedback indicates that
+a previously lost marked data unit was indeed received, then the reordering window
+is updated to reflect the reordering delay. The reordering window is given by
+the difference in time between the event that the data unit was marked as lost and
+the event that it was indicated as successfully received. Loss is detected if a
+given data unit is not acknowledged within a time window (indicated by the
+reordering window) after an data unit with a higher sequence number was
+acknowledged.
 
 #### ECN-CE and classic ECN  {#reaction-ecn-ce}
 
@@ -875,22 +890,7 @@ to manage this:
 
 The two mechanisms complement one another.
 
-### Lost Data Unit Detection {#detect-loss}
-
-Lost data unit detection is based on the received sequence number list. A
-reordering window SHOULD be applied to prevent data unit reordering from triggering
-loss events. The reordering window is specified as a time unit, similar to the
-ideas behind Recent ACKnowledgement (RACK) {{RFC8985}}. The computation of the
-reordering window is made possible by means of a lost flag in the list of
-transmitted data units. This flag is set if the received sequence number list
-indicates that the given data unit is missing. If later feedback indicates that
-a previously lost marked data unit was indeed received, then the reordering window
-is updated to reflect the reordering delay. The reordering window is given by
-the difference in time between the event that the data unit was marked as lost and
-the event that it was indicated as successfully received. Loss is detected if a
-given data unit is not acknowledged within a time window (indicated by the
-reordering window) after an data unit with a higher sequence number was
-acknowledged.
+## Sender Transmission Control
 
 ### Send Window Calculation {#send-window}
 
@@ -974,25 +974,6 @@ t_pace = data_unit_size * 8 / pace_bitrate
 
 data_unit_size is the size of the last transmitted data unit. RATE_PACE_MIN is the
 minimum pacing rate.
-
-### Stream Prioritization {#stream-prioritization}
-
-The SCReAM algorithm makes a distinction between network congestion control and
-media rate control. This is easily extended to many streams. Data units from
-two or more data unit queues are scheduled at the rate permitted by the network
-congestion control.
-
-The scheduling can be done by means of a few different scheduling regimes. For
-example, the method for coupled congestion control specified in {{RFC8699}} can
-be used. One implementation of SCReAMv2 {{SCReAM-CPP-implementation}} uses
-credit-based scheduling. In credit-based scheduling, credit is accumulated by
-queues as they wait for service and is spent while the queues are being
-serviced. For instance, if one queue is allowed to transmit 1000 bytes, then a
-credit of 1000 bytes is allocated to the other unscheduled queues. This
-principle can be extended to weighted scheduling, where the credit allocated to
-unscheduled queues depends on the relative weights. The latter is also
-implemented in {{SCReAM-CPP-implementation}} in which case the target bitrate
-for the streams are also scaled relative to the scheduling priority.
 
 ## Media Rate Control {#media-rate-control-2}
 
