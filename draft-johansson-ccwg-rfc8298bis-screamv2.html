@@ -1230,12 +1230,11 @@ This specification obsoletes RFC 8298.<a href="#section-abstract-1" class="pilcr
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.4">
                 <p id="section-toc.1-1.4.2.4.1"><a href="#section-4.4" class="auto internal xref">4.4</a>.  <a href="#name-media-rate-control-2" class="internal xref">Media Rate Control</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.4.2.1">
+                    <p id="section-toc.1-1.4.2.4.2.1.1"><a href="#section-4.4.1" class="auto internal xref">4.4.1</a>.  <a href="#name-handling-of-systematic-erro" class="internal xref">Handling of systematic errors in video coders</a></p>
 </li>
-              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.5">
-                <p id="section-toc.1-1.4.2.5.1"><a href="#section-4.5" class="auto internal xref">4.5</a>.  <a href="#name-competing-flows-compensatio" class="internal xref">Competing Flows Compensation</a></p>
-</li>
-              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.6">
-                <p id="section-toc.1-1.4.2.6.1"><a href="#section-4.6" class="auto internal xref">4.6</a>.  <a href="#name-handling-of-systematic-erro" class="internal xref">Handling of systematic errors in video coders</a></p>
+                </ul>
 </li>
             </ul>
 </li>
@@ -2030,12 +2029,16 @@ clockdrift, that the delay based control can introduce, whenever possible.<a hre
           <h4 id="name-reference-window-update">
 <a href="#section-4.2.2" class="section-number selfRef">4.2.2. </a><a href="#name-reference-window-update" class="section-name selfRef">Reference Window Update</a>
           </h4>
-<p id="section-4.2.2-1">The reference window update contains two parts. One that reduces the congestion
+<p id="section-4.2.2-1">The reference window update contains two parts. One that reduces the reference
 window when congestion events (listed above) occur, and one part that
 continously increases the reference window.<a href="#section-4.2.2-1" class="pilcrow">¶</a></p>
 <p id="section-4.2.2-2">The target bitrate is updated whenever the reference window is updated.<a href="#section-4.2.2-2" class="pilcrow">¶</a></p>
-<p id="section-4.2.2-3">Actions when congestion detected<a href="#section-4.2.2-3" class="pilcrow">¶</a></p>
-<div class="alignLeft art-text artwork" id="section-4.2.2-4">
+<div id="reference-window-reduction">
+<section id="section-4.2.2.1">
+            <h5 id="name-reference-window-reduction">
+<a href="#section-4.2.2.1" class="section-number selfRef">4.2.2.1. </a><a href="#name-reference-window-reduction" class="section-name selfRef">reference window reduction</a>
+            </h5>
+<div class="alignLeft art-text artwork" id="section-4.2.2.1-1">
 <pre>
 # The reference window is updated at least every VIRTUAL_RTT
 if (now - last_congestion_detected_time &gt;= min(VIRTUAL_RTT,s_rtt)
@@ -2119,14 +2122,20 @@ ref_wnd = max(MIN_REF_WND, ref_wnd)
 if (is_loss_t || is_ce_t || is_virtual_ce_t)
   last_congestion_detected_time = now
 end
-</pre><a href="#section-4.2.2-4" class="pilcrow">¶</a>
+</pre><a href="#section-4.2.2.1-1" class="pilcrow">¶</a>
 </div>
-<p id="section-4.2.2-5">The variable max_bytes_in_flight_prev indicates the maximum bytes in flights in
+<p id="section-4.2.2.1-2">The variable max_bytes_in_flight_prev indicates the maximum bytes in flights in
 the previous round trip. The reason to this is that bytes in flight can spike
 when congestion occurs, max_bytes_in_flight_prev thus ensures better that an
-uncongested bytes in flight is used.<a href="#section-4.2.2-5" class="pilcrow">¶</a></p>
-<p id="section-4.2.2-6">Reference window increase<a href="#section-4.2.2-6" class="pilcrow">¶</a></p>
-<div class="alignLeft art-text artwork" id="section-4.2.2-7">
+uncongested bytes in flight is used.<a href="#section-4.2.2.1-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="reference-window-increase">
+<section id="section-4.2.2.2">
+            <h5 id="name-reference-window-increase">
+<a href="#section-4.2.2.2" class="section-number selfRef">4.2.2.2. </a><a href="#name-reference-window-increase" class="section-name selfRef">Reference window increase</a>
+            </h5>
+<div class="alignLeft art-text artwork" id="section-4.2.2.2-1">
 <pre>
 # Delay factor for multiplicative reference window increase
 # after congestion
@@ -2186,46 +2195,136 @@ int ref_wnd_t = ref_wnd + increment_t
 if (ref_wnd_t &lt;= max_allowed_t)
   ref_wnd = ref_wnd_t
 end
-</pre><a href="#section-4.2.2-7" class="pilcrow">¶</a>
+</pre><a href="#section-4.2.2.2-1" class="pilcrow">¶</a>
 </div>
-<p id="section-4.2.2-8">The ref_wnd_scale_factor_t scales the reference window increase. The
+<p id="section-4.2.2.2-2">The ref_wnd_scale_factor_t scales the reference window increase. The
 ref_wnd_scale_factor_t is increased with larger ref_wnd to allow for a
 multiplicative increase and thus a faster convergence when link capacity
-increases.<a href="#section-4.2.2-8" class="pilcrow">¶</a></p>
-<p id="section-4.2.2-9">The variable max_bytes_in_flight indicates the max bytes in flight in the
-current round trip.<a href="#section-4.2.2-9" class="pilcrow">¶</a></p>
-<p id="section-4.2.2-10">The multiplicative increase is restricted directly after a congestion event and
+increases.<a href="#section-4.2.2.2-2" class="pilcrow">¶</a></p>
+<p id="section-4.2.2.2-3">The variable max_bytes_in_flight indicates the max bytes in flight in the
+current round trip.<a href="#section-4.2.2.2-3" class="pilcrow">¶</a></p>
+<p id="section-4.2.2.2-4">The multiplicative increase is restricted directly after a congestion event and
 the restriction is gradually relaxed as the time since last congested
 increased. The restriction makes the reference window growth to be no faster
 than additive increase when congestion continusly occurs.  For L4S operation
 this means that the SCReAMv2 algorithm will adhere to the 2 marked data units per
 RTT equilibrium at steady state congestion, with the exception of the case
-below.<a href="#section-4.2.2-10" class="pilcrow">¶</a></p>
-<p id="section-4.2.2-11">The reference window increase is restricted to values as small as 0.1MSS/RTT
+below.<a href="#section-4.2.2.2-4" class="pilcrow">¶</a></p>
+<p id="section-4.2.2.2-5">The reference window increase is restricted to values as small as 0.1MSS/RTT
 when the reference window is close to the last known max value (ref_wnd_i). This
 increases stability and reduces periodic overshoot. This restriction is applied
-in full only for small reference windows when in L4S operation.<a href="#section-4.2.2-11" class="pilcrow">¶</a></p>
-<p id="section-4.2.2-12">It is particularly important that the reference window reflects the transmitted
+in full only for small reference windows when in L4S operation.<a href="#section-4.2.2.2-5" class="pilcrow">¶</a></p>
+<p id="section-4.2.2.2-6">It is particularly important that the reference window reflects the transmitted
 bitrate especially in L4S mode operation. An inflated ref_wnd takes extra RTTs
 to bring down to a correct value upon congestion and thus causes unnecessary
 queue buildup. At the same time the reference window must be allowed to be large
 enough to avoid that the SCReAMv2 algorithm begins to limit itself, given that
 the target bitrate is calculated based on the ref_wnd. Two mechanisms are used
-to manage this:<a href="#section-4.2.2-12" class="pilcrow">¶</a></p>
+to manage this:<a href="#section-4.2.2.2-6" class="pilcrow">¶</a></p>
 <ul class="normal">
-<li class="normal" id="section-4.2.2-13.1">
-              <p id="section-4.2.2-13.1.1">Restore correct value of ref_wnd upon congestion. This is done if is a
+<li class="normal" id="section-4.2.2.2-7.1">
+                <p id="section-4.2.2.2-7.1.1">Restore correct value of ref_wnd upon congestion. This is done if is a
 prolonged time since the link was congested. A typical example is that
 SCReAMv2 has been rate limited, i.e the target bitrate has reached the
-TARGET_BITRATE_MAX.<a href="#section-4.2.2-13.1.1" class="pilcrow">¶</a></p>
+TARGET_BITRATE_MAX.<a href="#section-4.2.2.2-7.1.1" class="pilcrow">¶</a></p>
 </li>
-            <li class="normal" id="section-4.2.2-13.2">
-              <p id="section-4.2.2-13.2.1">Limit ref_wnd when the target_bitrate has reached TARGET_BITRATE_MAX. The
+              <li class="normal" id="section-4.2.2.2-7.2">
+                <p id="section-4.2.2.2-7.2.1">Limit ref_wnd when the target_bitrate has reached TARGET_BITRATE_MAX. The
 ref_wnd is restricted based on a history of the last max_bytes_in_flight
-values. See <span>[<a href="#SCReAM-CPP-implementation" class="cite xref">SCReAM-CPP-implementation</a>]</span> for details.<a href="#section-4.2.2-13.2.1" class="pilcrow">¶</a></p>
+values. See <span>[<a href="#SCReAM-CPP-implementation" class="cite xref">SCReAM-CPP-implementation</a>]</span> for details.<a href="#section-4.2.2.2-7.2.1" class="pilcrow">¶</a></p>
 </li>
-          </ul>
-<p id="section-4.2.2-14">The two mechanisms complement one another.<a href="#section-4.2.2-14" class="pilcrow">¶</a></p>
+            </ul>
+<p id="section-4.2.2.2-8">The two mechanisms complement one another.<a href="#section-4.2.2.2-8" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="competing-flows-compensation">
+<section id="section-4.2.2.3">
+            <h5 id="name-competing-flows-compensatio">
+<a href="#section-4.2.2.3" class="section-number selfRef">4.2.2.3. </a><a href="#name-competing-flows-compensatio" class="section-name selfRef">Competing Flows Compensation</a>
+            </h5>
+<p id="section-4.2.2.3-1">It is likely that a flow will have to share congested bottlenecks with other
+flows that use a more aggressive congestion control algorithm (for example,
+large FTP flows using loss-based congestion control). The worst condition occurs
+when the bottleneck queues are of tail-drop type with a large buffer
+size. SCReAMv2 takes care of such situations by adjusting the qdelay_target when
+loss-based flows are detected, as shown in the pseudocode below.<a href="#section-4.2.2.3-1" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-4.2.2.3-2">
+<pre>
+adjust_qdelay_target(qdelay)
+  qdelay_norm_t = qdelay / QDELAY_TARGET_LOW
+  update_qdelay_norm_history(qdelay_norm_t)
+  # Compute variance
+  qdelay_norm_var_t = VARIANCE(qdelay_norm_history(200))
+  # Compensation for competing traffic
+  # Compute average
+  qdelay_norm_avg_t = AVERAGE(qdelay_norm_history(50))
+  # Compute upper limit to target delay
+  new_target_t = qdelay_norm_avg_t + sqrt(qdelay_norm_var_t)
+  new_target_t *= QDELAY_TARGET_LO
+  if (loss_event_rate &gt; 0.002)
+    # Data unit losses detected
+    qdelay_target = 1.5 * new_target_t
+  else
+    if (qdelay_norm_var_t &lt; 0.2)
+      # Reasonably safe to set target qdelay
+      qdelay_target = new_target_t
+    else
+      # Check if target delay can be reduced; this helps prevent
+      # the target delay from being locked to high values forever
+      if (new_target_t &lt; QDELAY_TARGET_LO)
+        # Decrease target delay quickly, as measured queuing
+        # delay is lower than target
+        qdelay_target = max(qdelay_target * 0.5, new_target_t)
+      else
+        # Decrease target delay slowly
+        qdelay_target *= 0.9
+      end
+    end
+  end
+
+  # Apply limits
+  qdelay_target = min(QDELAY_TARGET_HI, qdelay_target)
+  qdelay_target = max(QDELAY_TARGET_LO, qdelay_target)
+</pre><a href="#section-4.2.2.3-2" class="pilcrow">¶</a>
+</div>
+<p id="section-4.2.2.3-3">Two temporary variables are calculated. qdelay_norm_avg_t is the long-term
+average queue delay, qdelay_norm_var_t is the long-term variance of the queue
+delay. A high qdelay_norm_var_t indicates that the queue delay changes; this can
+be an indication that bottleneck bandwidth is reduced or that a competing flow
+has just entered. Thus, it indicates that it is not safe to adjust the queue
+delay target.<a href="#section-4.2.2.3-3" class="pilcrow">¶</a></p>
+<p id="section-4.2.2.3-4">A low qdelay_norm_var_t indicates that the queue delay is relatively stable. The
+reason could be that the queue delay is low, but it could also be that a
+competing flow is causing the bottleneck to reach the point that data unit losses
+start to occur, in which case the queue delay will stay relatively high for a
+longer time.<a href="#section-4.2.2.3-4" class="pilcrow">¶</a></p>
+<p id="section-4.2.2.3-5">The queue delay target is allowed to be increased if either the loss event rate
+is above a given threshold or qdelay_norm_var_t is low. Both these conditions
+indicate that a competing flow may be present. In all other cases, the queue
+delay target is decreased.<a href="#section-4.2.2.3-5" class="pilcrow">¶</a></p>
+<p id="section-4.2.2.3-6">The function that adjusts the qdelay_target is simple and could produce false
+positives and false negatives. The case that self-inflicted congestion by the
+SCReAMv2 algorithm may be falsely interpreted as the presence of competing
+loss-based FTP flows is a false positive. The opposite case -- where the
+algorithm fails to detect the presence of a competing FTP flow -- is a false
+negative.<a href="#section-4.2.2.3-6" class="pilcrow">¶</a></p>
+<p id="section-4.2.2.3-7">Extensive simulations have shown that the algorithm performs well in LTE and 5G
+test cases and that it also performs well in simple bandwidth-limited bottleneck
+test cases with competing FTP flows. However, the potential failure of the
+algorithm cannot be completely ruled out. A false positive (i.e., when
+self-inflicted congestion is mistakenly identified as competing flows) is
+especially problematic when it leads to increasing the target queue delay, which
+can cause the end-to-end delay to increase dramatically.<a href="#section-4.2.2.3-7" class="pilcrow">¶</a></p>
+<p id="section-4.2.2.3-8">If it is deemed unlikely that competing flows occur over the same bottleneck,
+the algorithm described in this section MAY be turned off. One such case is
+QoS-enabled bearers in 3GPP-based access such as LTE and 5G. However, when
+sending over the Internet, often the network conditions are not known for sure,
+so in general it is not possible to make safe assumptions on how a network is
+used and whether or not competing flows share the same bottleneck. Therefore,
+turning this algorithm off must be considered with caution, as it can lead to
+basically zero throughput if competing with loss-based traffic.<a href="#section-4.2.2.3-8" class="pilcrow">¶</a></p>
+</section>
+</div>
 </section>
 </div>
 </section>
@@ -2385,108 +2484,20 @@ target_bitrate = min(TARGET_BITRATE_MAX,
   max(TARGET_BITRATE_MIN,target_bitrate))
 </pre><a href="#section-4.4-7" class="pilcrow">¶</a>
 </div>
-</section>
-</div>
-<div id="competing-flows-compensation">
-<section id="section-4.5">
-        <h3 id="name-competing-flows-compensatio">
-<a href="#section-4.5" class="section-number selfRef">4.5. </a><a href="#name-competing-flows-compensatio" class="section-name selfRef">Competing Flows Compensation</a>
-        </h3>
-<p id="section-4.5-1">It is likely that a flow will have to share congested bottlenecks with other
-flows that use a more aggressive congestion control algorithm (for example,
-large FTP flows using loss-based congestion control). The worst condition occurs
-when the bottleneck queues are of tail-drop type with a large buffer
-size. SCReAMv2 takes care of such situations by adjusting the qdelay_target when
-loss-based flows are detected, as shown in the pseudocode below.<a href="#section-4.5-1" class="pilcrow">¶</a></p>
-<div class="alignLeft art-text artwork" id="section-4.5-2">
-<pre>
-adjust_qdelay_target(qdelay)
-  qdelay_norm_t = qdelay / QDELAY_TARGET_LOW
-  update_qdelay_norm_history(qdelay_norm_t)
-  # Compute variance
-  qdelay_norm_var_t = VARIANCE(qdelay_norm_history(200))
-  # Compensation for competing traffic
-  # Compute average
-  qdelay_norm_avg_t = AVERAGE(qdelay_norm_history(50))
-  # Compute upper limit to target delay
-  new_target_t = qdelay_norm_avg_t + sqrt(qdelay_norm_var_t)
-  new_target_t *= QDELAY_TARGET_LO
-  if (loss_event_rate &gt; 0.002)
-    # Data unit losses detected
-    qdelay_target = 1.5 * new_target_t
-  else
-    if (qdelay_norm_var_t &lt; 0.2)
-      # Reasonably safe to set target qdelay
-      qdelay_target = new_target_t
-    else
-      # Check if target delay can be reduced; this helps prevent
-      # the target delay from being locked to high values forever
-      if (new_target_t &lt; QDELAY_TARGET_LO)
-        # Decrease target delay quickly, as measured queuing
-        # delay is lower than target
-        qdelay_target = max(qdelay_target * 0.5, new_target_t)
-      else
-        # Decrease target delay slowly
-        qdelay_target *= 0.9
-      end
-    end
-  end
-
-  # Apply limits
-  qdelay_target = min(QDELAY_TARGET_HI, qdelay_target)
-  qdelay_target = max(QDELAY_TARGET_LO, qdelay_target)
-</pre><a href="#section-4.5-2" class="pilcrow">¶</a>
-</div>
-<p id="section-4.5-3">Two temporary variables are calculated. qdelay_norm_avg_t is the long-term
-average queue delay, qdelay_norm_var_t is the long-term variance of the queue
-delay. A high qdelay_norm_var_t indicates that the queue delay changes; this can
-be an indication that bottleneck bandwidth is reduced or that a competing flow
-has just entered. Thus, it indicates that it is not safe to adjust the queue
-delay target.<a href="#section-4.5-3" class="pilcrow">¶</a></p>
-<p id="section-4.5-4">A low qdelay_norm_var_t indicates that the queue delay is relatively stable. The
-reason could be that the queue delay is low, but it could also be that a
-competing flow is causing the bottleneck to reach the point that data unit losses
-start to occur, in which case the queue delay will stay relatively high for a
-longer time.<a href="#section-4.5-4" class="pilcrow">¶</a></p>
-<p id="section-4.5-5">The queue delay target is allowed to be increased if either the loss event rate
-is above a given threshold or qdelay_norm_var_t is low. Both these conditions
-indicate that a competing flow may be present. In all other cases, the queue
-delay target is decreased.<a href="#section-4.5-5" class="pilcrow">¶</a></p>
-<p id="section-4.5-6">The function that adjusts the qdelay_target is simple and could produce false
-positives and false negatives. The case that self-inflicted congestion by the
-SCReAMv2 algorithm may be falsely interpreted as the presence of competing
-loss-based FTP flows is a false positive. The opposite case -- where the
-algorithm fails to detect the presence of a competing FTP flow -- is a false
-negative.<a href="#section-4.5-6" class="pilcrow">¶</a></p>
-<p id="section-4.5-7">Extensive simulations have shown that the algorithm performs well in LTE and 5G
-test cases and that it also performs well in simple bandwidth-limited bottleneck
-test cases with competing FTP flows. However, the potential failure of the
-algorithm cannot be completely ruled out. A false positive (i.e., when
-self-inflicted congestion is mistakenly identified as competing flows) is
-especially problematic when it leads to increasing the target queue delay, which
-can cause the end-to-end delay to increase dramatically.<a href="#section-4.5-7" class="pilcrow">¶</a></p>
-<p id="section-4.5-8">If it is deemed unlikely that competing flows occur over the same bottleneck,
-the algorithm described in this section MAY be turned off. One such case is
-QoS-enabled bearers in 3GPP-based access such as LTE and 5G. However, when
-sending over the Internet, often the network conditions are not known for sure,
-so in general it is not possible to make safe assumptions on how a network is
-used and whether or not competing flows share the same bottleneck. Therefore,
-turning this algorithm off must be considered with caution, as it can lead to
-basically zero throughput if competing with loss-based traffic.<a href="#section-4.5-8" class="pilcrow">¶</a></p>
-</section>
-</div>
 <div id="coder-errors">
-<section id="section-4.6">
-        <h3 id="name-handling-of-systematic-erro">
-<a href="#section-4.6" class="section-number selfRef">4.6. </a><a href="#name-handling-of-systematic-erro" class="section-name selfRef">Handling of systematic errors in video coders</a>
-        </h3>
-<p id="section-4.6-1">Some video encoders are prone to systematically generate an output bitrate that
+<section id="section-4.4.1">
+          <h4 id="name-handling-of-systematic-erro">
+<a href="#section-4.4.1" class="section-number selfRef">4.4.1. </a><a href="#name-handling-of-systematic-erro" class="section-name selfRef">Handling of systematic errors in video coders</a>
+          </h4>
+<p id="section-4.4.1-1">Some video encoders are prone to systematically generate an output bitrate that
 is systematically larger or smaller than the target bitrate. SCReAMv2 can handle
 some deviation inherently but for larger devation it becomes necessary to
 compensate for this. The algorithm for this is detailed in
-<span>[<a href="#SCReAM-CPP-implementation" class="cite xref">SCReAM-CPP-implementation</a>]</span>.<a href="#section-4.6-1" class="pilcrow">¶</a></p>
-<p id="section-4.6-2">ToDo: A future draft version will describe this in more detail as it has been
-fully integrated into SCReAMv2.<a href="#section-4.6-2" class="pilcrow">¶</a></p>
+<span>[<a href="#SCReAM-CPP-implementation" class="cite xref">SCReAM-CPP-implementation</a>]</span>.<a href="#section-4.4.1-1" class="pilcrow">¶</a></p>
+<p id="section-4.4.1-2">ToDo: A future draft version will describe this in more detail as it has been
+fully integrated into SCReAMv2.<a href="#section-4.4.1-2" class="pilcrow">¶</a></p>
+</section>
+</div>
 </section>
 </div>
 </section>
