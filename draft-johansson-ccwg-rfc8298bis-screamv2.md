@@ -253,38 +253,37 @@ served based on some defined priority or simply in a round-robin fashion. Altern
 a similar approach as coupled congestion control {RFC6365} can be applied.
 
 ~~~aasvg
-+-------------------------------------+
-|              Media encoder          |
-+-------------------------------------+
-       ^                            |
-       |                         Data unit
- target_bitrate                     |
-       |                            V
-       |                         +-----------+
-+------------+                   |           |
-|    Media   |                   |   Queue   |
-|    Rate    |---------------+   |   Data    |
-|   Control  |               |   |   Units   |
-+------------+               |   |           |
-       ^                     |   +-----------+
-       |                     |          |
-    ref_wnd                  |       Data unit
-      RTT            target_bitrate     |
-       |                     v          v
-+------------+               +--------------+
-|  Network   |    ref_wnd    |    Sender    |
-| Congestion |-------------->| Transmission |
-|  Control   |Bytes in flight|   Control    |
-+------------+               +--------------+
-       ^                        |
-       |                        |
-Congestion Feedback          Data unit
-  Bytes in flight               |
-       |                        v
-+-------------------------------------+
-|                  UDP                |
-|                 socket              |
-+-------------------------------------+
++--------------------------------------------------------+
+|                       Media encoder                    |
++--------------------------------------------------------+
+       ^                                       |
+       |                                    Data unit
+ target_bitrate                                |
+       |                                       V
+       |                                  +-----------+
++------------+                            |           |
+|    Media   |                            |   Queue   |
+|    Rate    |---------------+            |   Data    |
+|   Control  |               |            |   Units   |
++------------+               |            |           |
+       ^               target_bitrate     +-----------+
+       |                     |                  |
+    ref_wnd                  |               Data unit
+      RTT                    |                  |
+       |                     |                  v
++------------+               |           +--------------+
+|  Network   |               +---------->|    Sender    |
+| Congestion |     ref_wnd               | Transmission |
+|  Control   |-------------------------->|   Control    |
++------------+     Bytes in flight       +--------------+
+       ^                                        |
+       |                                        |
+Congestion Feedback                          Data unit
+  Bytes in flight                               |
+       |                                        v
++--------------------------------------------------------+
+|                        UDP socket                      |
++--------------------------------------------------------+
 ~~~
 {: #fig-sender-view title="Sender Functional View"}
 
