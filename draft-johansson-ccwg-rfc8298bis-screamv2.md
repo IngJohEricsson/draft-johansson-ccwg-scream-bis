@@ -306,11 +306,9 @@ rate control.
 The sender implements media rate control and an data unit queue for each media
 type or source, where data units containing encoded media frames are temporarily
 stored for transmission. Figure 1 shows the details when a single media source
-(or stream) is used. A transmission scheduler (not shown in the figure) is added
-to support multiple streams. The transmission scheduler can enforce differing
-priorities between the streams and act like a coupled congestion controller for
-multiple flows. Support for multiple streams is implemented in
-{{SCReAM-CPP-implementation}}.
+(or stream) is used. Scheduling and priotization of mulitiple streams is not
+covered in this document. However, a similar approach as coupled congestion control
+{RFC6365} can be applied.
 
 ~~~aasvg
           +------------------------------+
@@ -354,13 +352,14 @@ multiple flows from each data unit queue based on some defined priority order or
 simply in a round-robin fashion, by the sender transmission controller.
 
 The sender transmission controller (in case of multiple flows a transmission
-scheduler) sends the data units to the UDP socket (5). In the general case, all
-media SHOULD go through the sender transmission controller and is limited so
+scheduler) sends the data units to the UDP socket (5). The sender transmission
+controller limits the sending rate so
 that the number of bytes in flight is less than the reference window albeit with
 a slack to avoid that packets are unnecessarily delayed in the data unit queue.
 
-RTCP packets are received (6) and the information about the bytes in flight and
-reference window is exchanged between the network congestion control and the
+Feedback about the received bytes as well as metadata to estimatethe congestion
+level or queuing delay are received (6) and the bytes in flight as well as the
+calculaed reference window are provided by the network congestion control to the
 sender transmission control (7).
 
 The reference window and the estimated RTT is communicated to the media rate
