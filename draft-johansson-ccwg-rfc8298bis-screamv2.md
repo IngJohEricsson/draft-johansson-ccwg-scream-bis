@@ -296,19 +296,19 @@ scheduler) sends the data units to the UDP socket. The sender transmission
 controller limits the sending rate so
 that the number of bytes in flight is less than the reference window albeit with
 a slack to avoid that packets are unnecessarily delayed in the data unit queue.
-A apcing rate is calculated based on the target bitrate provided by the
+A pacing rate is calculated based on the target bitrate provided by the
 media rate controller.
 
 Feedback about the received bytes as well as metadata to estimatethe congestion
 level or queuing delay are provided to the network congestion controller.
 The network congestion controller calculated reference window and provides it
-togteher with the bytes in flight to the sender transmission control (7).
+togteher with the bytes in flight to the sender transmission control.
 
 The reference window and the estimated RTT is further provided to the media rate
 control to compute the appropriate target bitrate. The target bitrate is
 updated whenever the reference window is updated. Additional parameters are also
 communicated to make the rate control more stable when the congestion window is
-very small or when L4S is not active. This is described more in detail below.
+very small or when L4S is not active.
 
 ## Network Congestion Control {#network-cc}
 
