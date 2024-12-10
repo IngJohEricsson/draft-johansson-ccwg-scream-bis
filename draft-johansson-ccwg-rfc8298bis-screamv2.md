@@ -370,15 +370,12 @@ This section describes the sender-side algorithm in more detail. It is split
 between the network congestion control, sender transmission control, and media
 rate control.
 
-## Network Congestion Control {#network-cc-2}
-
-This section explains the network congestion control, which calcultes the
-reference window. The reference window gives an upper limit to the number of bytes in flight.
-
-### Sender side state
+## Sender side state
 
 The sender needs to maintain sedning state as well as state about the received
 feedback, covered by the following variables:
+
+* bytes_in_flight: 
 
 * bytes_in_flight_ratio (0.0): Ratio between the bytes in flight and the
   reference window.
@@ -388,11 +385,19 @@ feedback, covered by the following variables:
 * s_rtt (0.0): Smoothed RTT [s], computed with a similar method to that
   described in {{RFC6298}}.
 
+* qdelay
+
+* last_update_qdelay_avg_time (0): Last time qdelay_avg was updated [s].
+
 * bytes_newly_acked (0): Number of bytes newly ACKed, reset to 0 when congestion
   window is updated [byte].
 
 * bytes_newly_acked_ce (0): Number of bytes newly ACKed and CE marked, reset to
   0 when reference window is updated [byte].
+
+* data_units_acked
+
+* data_units_acked_ce
 
 * l4s_active (false): Indicates that L4S is enabled and data units are indeed
   marked.
@@ -434,6 +439,11 @@ bytes newly acked with the extra condition that they are ECN-CE
 marked. The bytes_newly_acked and bytes_newly_acked_ce are reset to
 zero after a ref_wnd update.
 
+When the sender receives RTCP feedback, the qdelay is calculated as outlined in
+{{RFC6817}}. A qdelay sample is obtained for each received acknowledgement.
+
+The smoothed RTT (s_rtt) is computed in a way similar to {{RFC6298}}.
+
 The feedback from the receiver is assumed to consist of the following elements.
 
 * A list of received data units' sequence numbers. With an indication
@@ -443,19 +453,12 @@ The feedback from the receiver is assumed to consist of the following elements.
 * The wall-clock timestamp corresponding to the received data unit with the
   highest sequence number.
 
-When the sender receives RTCP feedback, the qdelay is calculated as outlined in
-{{RFC6817}}. A qdelay sample is obtained for each received acknowledgement. A
-number of variables are updated as illustrated by the pseudocode below;
-temporary variables are appended with '_t'. Division operation is always
-floating point unless otherwise noted. l4s_alpha is calculated based in number
-of data units delivered (and marked). This makes calculation of L4S alpha more
-accurate at very low bitrates, given that the tail data unit in e.g a video frame
-is often smaller than MSS.
+## Network Congestion Control {#network-cc-2}
 
-The smoothed RTT (s_rtt) is computed in a way similar to {{RFC6298}}.
+This section explains the network congestion control, which calcultes the
+reference window. The reference window gives an upper limit to the number of bytes in flight.
 
-
-### Reaction to Delay, Data unit Loss and ECN-CE {#reaction-delay-loss-ce}
+### Congestion Detection: Delay, Data unit Loss and ECN-CE {#reaction-delay-loss-ce}
 
 Congestion is detected based on three different indicators:
 
@@ -515,7 +518,8 @@ MSS. In addition, because SCReAMv2 can quite often be source limited, additional
 steps are taken to restore the reference window to a proper value after a long
 period without congestion.
 
-* last_fraction_marked (0.0): fraction marked data units in last update
+l4s_alpha is calculated based in number of data units delivered (and marked).
+This makes calculation of L4S alpha more accurate at very low bitrates, given that the tail data unit in e.g a video frame is often smaller than MSS.
 
 * l4s_alpha (0.0): Average fraction of marked data units per RTT.
 
@@ -524,6 +528,8 @@ period without congestion.
 * data_units_delivered_this_rtt (0): Counter for delivered data units.
 
 * data_units_marked_this_rtt (0): Counter delivered and ECN-CE marked data units.
+
+* last_fraction_marked (0.0): fraction marked data units in last update
 
 The following constant is used
 
@@ -561,11 +567,7 @@ when it is reasonably certain that L4S is active, i.e. L4S is enabled and
 congested nodes apply L4S marking of data units. This reduces negative effects of
 clockdrift, that the delay based control can introduce, whenever possible.
 
-* qdelay
-
 * qdelay_avg
-
-* last_update_qdelay_avg_time (0): Last time qdelay_avg was updated [s].
 
 The following constant is used:
 
