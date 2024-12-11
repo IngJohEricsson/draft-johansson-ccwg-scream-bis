@@ -1053,7 +1053,7 @@ svg :is([fill="white"], [fill^="#fff"]) {
 </tr></thead>
 <tfoot><tr>
 <td class="left">Johansson &amp; Westerlund</td>
-<td class="center">Expires 13 June 2025</td>
+<td class="center">Expires 14 June 2025</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1069,12 +1069,12 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <a href="https://www.rfc-editor.org/rfc/rfc8298" class="eref">8298</a> (if approved)</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2024-12-10" class="published">10 December 2024</time>
+<time datetime="2024-12-11" class="published">11 December 2024</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Experimental</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2025-06-13">13 June 2025</time></dd>
+<dd class="expires"><time datetime="2025-06-14">14 June 2025</time></dd>
 <dt class="label-authors">Authors:</dt>
 <dd class="authors">
 <div class="author">
@@ -1132,7 +1132,7 @@ This specification obsoletes RFC 8298.<a href="#section-abstract-1" class="pilcr
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 13 June 2025.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 14 June 2025.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -1565,16 +1565,26 @@ temporary larger media objects, such as video frames. This means that the
 algoritm prefers to build up a queue in the network rather than on the sender
 side. Additional congestion that this causes will reflect back and cause a
 reduction of the reference window.<a href="#section-3.1-1" class="pilcrow">¶</a></p>
-<p id="section-3.1-2">After a congestion event the reference window seeks to increase by one segment per RTT
-until a certain number of RTT elapses. After this initial phase the refrence window
-increases multiplicativly where the increase factor is adjusted relative to a
-previous max value and the time elapsed since last congestion event.
-This enables a faster convergence to a higher link speed.<a href="#section-3.1-2" class="pilcrow">¶</a></p>
-<p id="section-3.1-3">Reference window is reduced if congestion is detected. Similar as for LEDBAT
+<p id="section-3.1-2">Reference window is reduced if congestion is detected. Similar as for LEDBAT
 the reference window is reduced either by a fixed fraction in case of packet loss or Classic ECN marking,
 or if the estimated queue delay exceeds a given threshold depending on how much the delay exceeds the threshold.
 SCReAMv2 reduces the reference window in proportion to the fraction of marked packets
-if L4S is used (scalable congestion control).<a href="#section-3.1-3" class="pilcrow">¶</a></p>
+if L4S is used (scalable congestion control).<a href="#section-3.1-2" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-3.1-3">
+<pre>
+ref_wnd = BETA_LOSS * (BETA_ECN|l4s_alpha) * qtarget_alpha * ref_wnd
+</pre><a href="#section-3.1-3" class="pilcrow">¶</a>
+</div>
+<p id="section-3.1-4">After a congestion event the reference window seeks to increase by one segment per RTT
+until a certain number of RTT elapses. After this initial phase the refrence window
+increases multiplicativly where the increase factor is adjusted relative to a
+previous max value and the time elapsed since last congestion event.
+This enables a faster convergence to a higher link speed.<a href="#section-3.1-4" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-3.1-5">
+<pre>
+ref_wnd = ref_wnd + increment
+</pre><a href="#section-3.1-5" class="pilcrow">¶</a>
+</div>
 </section>
 </div>
 <div id="sender-tc">
@@ -1583,14 +1593,19 @@ if L4S is used (scalable congestion control).<a href="#section-3.1-3" class="pil
 <a href="#section-3.2" class="section-number selfRef">3.2. </a><a href="#name-sender-transmission-control" class="section-name selfRef">Sender Transmission Control</a>
         </h3>
 <p id="section-3.2-1">The sender transmission control limits sending rate based on the
-relation of the estimated link throughput (bytes in flight) and the reference window.
-This is achived by applying packet pacing: Even if the send window allows for the transmission
+relation of the estimated link throughput (bytes in flight) and the reference window.<a href="#section-3.2-1" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-3.2-2">
+<pre>
+send_wnd = ref_wnd * REF_WND_OVERHEAD * frame_size - bytes_in_flight
+</pre><a href="#section-3.2-2" class="pilcrow">¶</a>
+</div>
+<p id="section-3.2-3">The respective sending rate is achived by applying packet pacing: Even if the send window allows for the transmission
 of a number of packets, these packets are not transmitted immediately; rather,
 they are transmitted in intervals given by the packet size and the estimated
 link throughput. Packets are generally paced at a higher rate than the target
 bitrate, this makes it possible to transmit occasionally larger video frames in
 a timely manner. Further, this mitigates issues with ACK compression that can cause
-increased jitter and/or packet loss in the media traffic.<a href="#section-3.2-1" class="pilcrow">¶</a></p>
+increased jitter and/or packet loss in the media traffic.<a href="#section-3.2-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="media-rate-control">
@@ -1598,19 +1613,24 @@ increased jitter and/or packet loss in the media traffic.<a href="#section-3.2-1
         <h3 id="name-media-rate-control">
 <a href="#section-3.3" class="section-number selfRef">3.3. </a><a href="#name-media-rate-control" class="section-name selfRef">Media Rate Control</a>
         </h3>
-<p id="section-3.3-1">The media rate control calculates the media rate based on the reference window and RTT.
-The media rate need to ramp up quickly enough to get a fair share of the system resources when link throughput
+<p id="section-3.3-1">The media rate control calculates the media rate based on the reference window and RTT.<a href="#section-3.3-1" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-3.3-2">
+<pre>
+target_bitrate = 8 * ref_wnd / s_rtt
+</pre><a href="#section-3.3-2" class="pilcrow">¶</a>
+</div>
+<p id="section-3.3-3">The media rate need to ramp up quickly enough to get a fair share of the system resources when link throughput
 increases. Further, the reaction to reduced throughput must be prompt in order to avoid getting too
-much data queued in the data unit queue(s) in the sender.<a href="#section-3.3-1" class="pilcrow">¶</a></p>
-<p id="section-3.3-2">For the case that multiple
+much data queued in the data unit queue(s) in the sender.<a href="#section-3.3-3" class="pilcrow">¶</a></p>
+<p id="section-3.3-4">For the case that multiple
 streams are enabled, the media rate among the streams is distrubuted according
-to relative priorities.<a href="#section-3.3-2" class="pilcrow">¶</a></p>
-<p id="section-3.3-3">In cases where the sender's frame queues increase rapidly, such as in the case
+to relative priorities.<a href="#section-3.3-4" class="pilcrow">¶</a></p>
+<p id="section-3.3-5">In cases where the sender's frame queues increase rapidly, such as in the case
 of a Radio Access Type (RAT) handover, the SCReAMv2 sender MAY implement
 additional actions, such as discarding of encoded media frames or frame skipping
 in order to ensure that the data unit queues are drained quickly. Frame skipping
 results in the frame rate being temporarily reduced. Which method to use is a
-design choice and is outside the scope of this algorithm description.<a href="#section-3.3-3" class="pilcrow">¶</a></p>
+design choice and is outside the scope of this algorithm description.<a href="#section-3.3-5" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
