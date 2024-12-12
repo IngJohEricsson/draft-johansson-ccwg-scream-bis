@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2024-12-10T01:46:40.271812+00:00",
+  "timestamp": "2024-12-12T01:44:51.658316+00:00",
   "repo": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
   "labels": [
     {
@@ -1014,6 +1014,438 @@
       },
       "comments": [],
       "reviews": []
+    },
+    {
+      "number": 23,
+      "id": "PR_kwDOK7AJUs6EsKK3",
+      "title": "Adapt structure",
+      "url": "https://github.com/IngJohEricsson/draft-johansson-ccwg-scream-bis/pull/23",
+      "state": "MERGED",
+      "author": "mirjak",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "and remove section on Stream Prioritization",
+      "createdAt": "2024-12-10T11:16:35Z",
+      "updatedAt": "2024-12-10T11:20:49Z",
+      "baseRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
+      "baseRefName": "main",
+      "baseRefOid": "6260772c7a416471bd1c47269b680cca65804e6f",
+      "headRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
+      "headRefName": "mirjak-patch-7",
+      "headRefOid": "730980f9db26d928ce6b9522b7b7317cbaa0dd7f",
+      "closedAt": "2024-12-10T11:20:49Z",
+      "mergedAt": "2024-12-10T11:20:49Z",
+      "mergedBy": "mirjak",
+      "mergeCommit": {
+        "oid": "28d753b1fb08ce401f09d3b40a2de2a774384c67"
+      },
+      "comments": [],
+      "reviews": []
+    },
+    {
+      "number": 24,
+      "id": "PR_kwDOK7AJUs6EsTH-",
+      "title": "Further structure adaptation",
+      "url": "https://github.com/IngJohEricsson/draft-johansson-ccwg-scream-bis/pull/24",
+      "state": "MERGED",
+      "author": "mirjak",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2024-12-10T11:35:40Z",
+      "updatedAt": "2024-12-10T11:38:32Z",
+      "baseRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
+      "baseRefName": "main",
+      "baseRefOid": "28d753b1fb08ce401f09d3b40a2de2a774384c67",
+      "headRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
+      "headRefName": "mirjak-patch-8",
+      "headRefOid": "583cdec5bc6c0d65427284ab29b0427e7376bca2",
+      "closedAt": "2024-12-10T11:38:32Z",
+      "mergedAt": "2024-12-10T11:38:32Z",
+      "mergedBy": "mirjak",
+      "mergeCommit": {
+        "oid": "e0bd0abf033045bff5b1d0ec8e2aa3dfd3a8d008"
+      },
+      "comments": [],
+      "reviews": []
+    },
+    {
+      "number": 25,
+      "id": "PR_kwDOK7AJUs6Etc-3",
+      "title": "figures",
+      "url": "https://github.com/IngJohEricsson/draft-johansson-ccwg-scream-bis/pull/25",
+      "state": "MERGED",
+      "author": "mirjak",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2024-12-10T13:56:20Z",
+      "updatedAt": "2024-12-10T14:22:39Z",
+      "baseRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
+      "baseRefName": "main",
+      "baseRefOid": "e0bd0abf033045bff5b1d0ec8e2aa3dfd3a8d008",
+      "headRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
+      "headRefName": "mirjak-patch-9",
+      "headRefOid": "66cb3565b3701313f637e4276f2ae029557d5fec",
+      "closedAt": "2024-12-10T14:16:47Z",
+      "mergedAt": "2024-12-10T14:16:47Z",
+      "mergedBy": "mirjak",
+      "mergeCommit": {
+        "oid": "0c788a9479887f18bcd6e064b57b3241e52210a1"
+      },
+      "comments": [],
+      "reviews": [
+        {
+          "id": "PRR_kwDOK7AJUs6UkBNo",
+          "commit": {
+            "abbreviatedOid": "66cb356"
+          },
+          "author": "IngJohEricsson",
+          "authorAssociation": "OWNER",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2024-12-10T14:17:22Z",
+          "updatedAt": "2024-12-10T14:17:22Z",
+          "comments": []
+        },
+        {
+          "id": "PRR_kwDOK7AJUs6UkFZR",
+          "commit": {
+            "abbreviatedOid": "c065c1e"
+          },
+          "author": "gloinul",
+          "authorAssociation": "COLLABORATOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2024-12-10T14:22:39Z",
+          "updatedAt": "2024-12-10T14:22:39Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 26,
+      "id": "PR_kwDOK7AJUs6EtiVK",
+      "title": "description of figure",
+      "url": "https://github.com/IngJohEricsson/draft-johansson-ccwg-scream-bis/pull/26",
+      "state": "MERGED",
+      "author": "mirjak",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2024-12-10T14:05:43Z",
+      "updatedAt": "2024-12-10T14:19:03Z",
+      "baseRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
+      "baseRefName": "main",
+      "baseRefOid": "e0bd0abf033045bff5b1d0ec8e2aa3dfd3a8d008",
+      "headRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
+      "headRefName": "mirjak-patch-10",
+      "headRefOid": "dfb5e7733ca3ef7bd52d226d4e7fcb95585fe09a",
+      "closedAt": "2024-12-10T14:18:57Z",
+      "mergedAt": "2024-12-10T14:18:57Z",
+      "mergedBy": "mirjak",
+      "mergeCommit": {
+        "oid": "d7813eed41bd783ec4d8cb86218d60ba06a520fc"
+      },
+      "comments": [],
+      "reviews": [
+        {
+          "id": "PRR_kwDOK7AJUs6UkCii",
+          "commit": {
+            "abbreviatedOid": "dfb5e77"
+          },
+          "author": "IngJohEricsson",
+          "authorAssociation": "OWNER",
+          "state": "COMMENTED",
+          "body": "I think that as the numbers are removed in the figure, so do the numbers need to be removed in the text, right ?",
+          "createdAt": "2024-12-10T14:19:03Z",
+          "updatedAt": "2024-12-10T14:19:03Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 27,
+      "id": "PR_kwDOK7AJUs6EuRUC",
+      "title": "Rearrange overview and variables/constants",
+      "url": "https://github.com/IngJohEricsson/draft-johansson-ccwg-scream-bis/pull/27",
+      "state": "MERGED",
+      "author": "mirjak",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2024-12-10T15:21:59Z",
+      "updatedAt": "2024-12-10T15:25:27Z",
+      "baseRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
+      "baseRefName": "main",
+      "baseRefOid": "d7813eed41bd783ec4d8cb86218d60ba06a520fc",
+      "headRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
+      "headRefName": "mirjak-patch-11",
+      "headRefOid": "4845e54e01eb270caf306d2468cfdb2621695aee",
+      "closedAt": "2024-12-10T15:25:27Z",
+      "mergedAt": "2024-12-10T15:25:27Z",
+      "mergedBy": "mirjak",
+      "mergeCommit": {
+        "oid": "0ea265dca984d8077c16e70ffce1cd2bfd315854"
+      },
+      "comments": [],
+      "reviews": []
+    },
+    {
+      "number": 28,
+      "id": "PR_kwDOK7AJUs6Euj2F",
+      "title": "get variables at the right position",
+      "url": "https://github.com/IngJohEricsson/draft-johansson-ccwg-scream-bis/pull/28",
+      "state": "MERGED",
+      "author": "mirjak",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2024-12-10T15:55:55Z",
+      "updatedAt": "2024-12-10T15:58:43Z",
+      "baseRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
+      "baseRefName": "main",
+      "baseRefOid": "0ea265dca984d8077c16e70ffce1cd2bfd315854",
+      "headRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
+      "headRefName": "mirjak-patch-12",
+      "headRefOid": "584cf0c2affe39ebe33e3e430ba467403a1429b0",
+      "closedAt": "2024-12-10T15:58:43Z",
+      "mergedAt": "2024-12-10T15:58:43Z",
+      "mergedBy": "mirjak",
+      "mergeCommit": {
+        "oid": "5a3749849b3b8e85ca9d618b3f4814ed263d9339"
+      },
+      "comments": [],
+      "reviews": []
+    },
+    {
+      "number": 29,
+      "id": "PR_kwDOK7AJUs6Euoxr",
+      "title": "one more small move-around",
+      "url": "https://github.com/IngJohEricsson/draft-johansson-ccwg-scream-bis/pull/29",
+      "state": "MERGED",
+      "author": "mirjak",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2024-12-10T16:05:23Z",
+      "updatedAt": "2024-12-10T16:06:22Z",
+      "baseRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
+      "baseRefName": "main",
+      "baseRefOid": "5a3749849b3b8e85ca9d618b3f4814ed263d9339",
+      "headRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
+      "headRefName": "mirjak-patch-13",
+      "headRefOid": "8890a86c52d2ec17667d856e0ddc024d591c7e9b",
+      "closedAt": "2024-12-10T16:06:22Z",
+      "mergedAt": "2024-12-10T16:06:22Z",
+      "mergedBy": "mirjak",
+      "mergeCommit": {
+        "oid": "4b124657eb1f93bf22a1406de902d1d73994fbf4"
+      },
+      "comments": [],
+      "reviews": []
+    },
+    {
+      "number": 30,
+      "id": "PR_kwDOK7AJUs6Eu8Nf",
+      "title": "Move competing flow compensation (again)",
+      "url": "https://github.com/IngJohEricsson/draft-johansson-ccwg-scream-bis/pull/30",
+      "state": "MERGED",
+      "author": "mirjak",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2024-12-10T16:40:35Z",
+      "updatedAt": "2024-12-10T16:46:01Z",
+      "baseRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
+      "baseRefName": "main",
+      "baseRefOid": "4b124657eb1f93bf22a1406de902d1d73994fbf4",
+      "headRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
+      "headRefName": "mirjak-patch-14",
+      "headRefOid": "bd09ce899b52263a78e777dae6d58030c824a5ff",
+      "closedAt": "2024-12-10T16:46:01Z",
+      "mergedAt": "2024-12-10T16:46:01Z",
+      "mergedBy": "mirjak",
+      "mergeCommit": {
+        "oid": "611b0efc364a4f07a20c1c38142d1a38daf641d8"
+      },
+      "comments": [],
+      "reviews": [
+        {
+          "id": "PRR_kwDOK7AJUs6Ulzfw",
+          "commit": {
+            "abbreviatedOid": "612b29b"
+          },
+          "author": "mirjak",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-12-10T16:42:58Z",
+          "updatedAt": "2024-12-10T16:42:59Z",
+          "comments": [
+            {
+              "originalPosition": 111,
+              "body": "```suggestion\r\n```",
+              "createdAt": "2024-12-10T16:42:59Z",
+              "updatedAt": "2024-12-10T16:42:59Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "number": 31,
+      "id": "PR_kwDOK7AJUs6EvJa6",
+      "title": "redo figure again a bit",
+      "url": "https://github.com/IngJohEricsson/draft-johansson-ccwg-scream-bis/pull/31",
+      "state": "MERGED",
+      "author": "mirjak",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2024-12-10T17:06:04Z",
+      "updatedAt": "2024-12-10T17:06:56Z",
+      "baseRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
+      "baseRefName": "main",
+      "baseRefOid": "611b0efc364a4f07a20c1c38142d1a38daf641d8",
+      "headRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
+      "headRefName": "mirjak-patch-15",
+      "headRefOid": "5f1c6cbcee0c0bedd5dc4653e1a32d556785abb5",
+      "closedAt": "2024-12-10T17:06:56Z",
+      "mergedAt": "2024-12-10T17:06:56Z",
+      "mergedBy": "mirjak",
+      "mergeCommit": {
+        "oid": "9d07d4684af71d34063dfb4af14431f0784fe6b8"
+      },
+      "comments": [],
+      "reviews": []
+    },
+    {
+      "number": 32,
+      "id": "PR_kwDOK7AJUs6Ev5iH",
+      "title": "Move definition of max_bytes_in_flight",
+      "url": "https://github.com/IngJohEricsson/draft-johansson-ccwg-scream-bis/pull/32",
+      "state": "MERGED",
+      "author": "mirjak",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2024-12-10T18:38:37Z",
+      "updatedAt": "2024-12-10T18:39:42Z",
+      "baseRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
+      "baseRefName": "main",
+      "baseRefOid": "9d07d4684af71d34063dfb4af14431f0784fe6b8",
+      "headRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
+      "headRefName": "mirjak-patch-16",
+      "headRefOid": "c4de1fead6d62bcd08015dccc588ecb6dd382e09",
+      "closedAt": "2024-12-10T18:39:42Z",
+      "mergedAt": "2024-12-10T18:39:42Z",
+      "mergedBy": "mirjak",
+      "mergeCommit": {
+        "oid": "f6228ad8c0901e63dd7562ae20a4d78a2bdd50bd"
+      },
+      "comments": [],
+      "reviews": []
+    },
+    {
+      "number": 33,
+      "id": "PR_kwDOK7AJUs6EwHRn",
+      "title": "frame size calculation in own subsection",
+      "url": "https://github.com/IngJohEricsson/draft-johansson-ccwg-scream-bis/pull/33",
+      "state": "MERGED",
+      "author": "mirjak",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2024-12-10T19:05:43Z",
+      "updatedAt": "2024-12-10T19:06:27Z",
+      "baseRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
+      "baseRefName": "main",
+      "baseRefOid": "f6228ad8c0901e63dd7562ae20a4d78a2bdd50bd",
+      "headRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
+      "headRefName": "mirjak-patch-17",
+      "headRefOid": "1e2ad1fc2d0408552d2e7a71465fcac3a9a2d0fe",
+      "closedAt": "2024-12-10T19:06:27Z",
+      "mergedAt": "2024-12-10T19:06:27Z",
+      "mergedBy": "mirjak",
+      "mergeCommit": {
+        "oid": "d943fe1f13e8b2faa0ed50ad8707ef8d016a1499"
+      },
+      "comments": [],
+      "reviews": []
+    },
+    {
+      "number": 34,
+      "id": "PR_kwDOK7AJUs6EwTJz",
+      "title": "Add high-level equations to overview",
+      "url": "https://github.com/IngJohEricsson/draft-johansson-ccwg-scream-bis/pull/34",
+      "state": "MERGED",
+      "author": "mirjak",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Proposing this as I thought it might help understand the algorithm on a high level.\r\n\r\nHowever, I'm not fully sure about the decrease part. I added qtarget_alpha, which is not defined yet, because it looks like there is only multiplicative decrease but I have to say the whole target_delay related part is a bit confusing to me right now. Need to double-check!\r\n\r\nFurther, it could be good to give some more hinds about the increase part as well but not sure how to summarise it easily in one line of pseudo code...\r\n\r\nDo it help to add this?",
+      "createdAt": "2024-12-10T19:35:03Z",
+      "updatedAt": "2024-12-11T09:12:54Z",
+      "baseRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
+      "baseRefName": "main",
+      "baseRefOid": "cb4819b1bc296105ee943f17141d93b6225088bd",
+      "headRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
+      "headRefName": "mirjak-patch-18",
+      "headRefOid": "91815c6c17d995bc18bf42d8d83124bd9db6b204",
+      "closedAt": "2024-12-11T09:12:53Z",
+      "mergedAt": "2024-12-11T09:12:53Z",
+      "mergedBy": "IngJohEricsson",
+      "mergeCommit": {
+        "oid": "e70c39afcc507289fd589b786e3b32ac92fa229e"
+      },
+      "comments": [],
+      "reviews": [
+        {
+          "id": "PRR_kwDOK7AJUs6UntbT",
+          "commit": {
+            "abbreviatedOid": "73feab8"
+          },
+          "author": "mirjak",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-12-10T19:55:38Z",
+          "updatedAt": "2024-12-10T19:55:39Z",
+          "comments": [
+            {
+              "originalPosition": 11,
+              "body": "```suggestion\r\nref_wnd = BETA_LOSS * (BETA_ECN|l4s_alpha) * qtarget_alpha * ref_wnd\r\n```",
+              "createdAt": "2024-12-10T19:55:39Z",
+              "updatedAt": "2024-12-10T19:55:39Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs6UtJMg",
+          "commit": {
+            "abbreviatedOid": "91815c6"
+          },
+          "author": "IngJohEricsson",
+          "authorAssociation": "OWNER",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2024-12-11T09:12:42Z",
+          "updatedAt": "2024-12-11T09:12:42Z",
+          "comments": []
+        }
+      ]
     }
   ]
 }
