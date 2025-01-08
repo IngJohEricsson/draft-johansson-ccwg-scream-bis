@@ -7,9 +7,9 @@
 *~
 .tags
 /*-[0-9][0-9].xml
+/.*.mk
 /.gems/
 /.refcache
-/.targets.mk
 /.venv/
 /.vscode/
 /lib
@@ -18,7 +18,6 @@
 Gemfile.lock
 archive.json
 draft-johansson-ccwg-rfc8298bis-screamv2.xml
-draft-johansson-ccwg-scream-bis.xml
 package-lock.json
 report.xml
 !requirements.txt
