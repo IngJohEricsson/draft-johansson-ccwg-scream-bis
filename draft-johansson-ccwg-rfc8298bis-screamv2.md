@@ -29,6 +29,7 @@ author:
 
 informative:
    RFC2119:
+   RFC6365:
    RFC7478:
    RFC8298:
    RFC8511:
@@ -147,7 +148,7 @@ SCReAM. The main differences are:
 
 * L4S support added. The L4S algoritm has many similarities with the DCTCP and
   Prague congestion control but has a few extra modifications to make it work
-  well with peridic sources such as video.
+  well with periodic sources such as video.
 
 * The delay based congestion control is changed to implement a pseudo-L4S
   approach, this simplifies the delay based congestion control.
@@ -238,7 +239,7 @@ when, and only when, they appear in all capitals, as shown here.
 
 # Overview of SCReAMv2 Algorithm {#scream-overview}
 
-SCReAMv2 still consists of three main parts: network congestion control, sender
+SCReAMv2 consists of three main parts: network congestion control, sender
 transmission control, and media rate control. All of these parts reside at the
 sender side while the receiver is assumpted to provide acknowledgements of received
 data units and indication of ECN-CE marking, either as an accumulated bytes counter,
@@ -250,7 +251,7 @@ stored for transmission. Figure 1 shows the details when a single media source
 (or stream) is used. Scheduling and priotization of mulitiple streams is not
 covered in this document. However, if multiple flows are sent, each data unit queue can be
 served based on some defined priority or simply in a round-robin fashion. Alternatively,
-a similar approach as coupled congestion control {RFC6365} can be applied.
+a similar approach as coupled congestion control {{RFC6365}} can be applied.
 
 ~~~aasvg
 +--------------------------------------------------------+
@@ -321,19 +322,22 @@ algoritm prefers to build up a queue in the network rather than on the sender
 side. Additional congestion that this causes will reflect back and cause a
 reduction of the reference window.
 
-Reference window is reduced if congestion is detected. Similar as for LEDBAT
-the reference window is reduced either by a fixed fraction in case of packet loss or Classic ECN marking,
-or if the estimated queue delay exceeds a given threshold depending on how much the delay exceeds the threshold.
-SCReAMv2 reduces the reference window in proportion to the fraction of marked packets
-if L4S is used (scalable congestion control).
+Reference window is reduced if congestion is detected. Similar as for
+LEDBAT the reference window is reduced either by a fixed fraction in
+case of packet loss or Classic ECN marking, or if the estimated queue
+delay exceeds a given threshold depending on how much the delay
+exceeds the threshold.  SCReAMv2 reduces the reference window in
+proportion to the fraction of marked packets if L4S is used (scalable
+congestion control).
 
 ~~~
 ref_wnd = BETA_LOSS * (BETA_ECN|l4s_alpha) * qtarget_alpha * ref_wnd
 ~~~
 
-After a congestion event the reference window seeks to increase by one segment per RTT
-until a certain number of RTT elapses. After this initial phase the refrence window
-increases multiplicativly where the increase factor is adjusted relative to a
+After a congestion event the reference window seeks to increase by one
+segment per RTT until a certain number of RTT elapses. After this
+initial congestion avoidance phase the refrence window increases
+multiplicativly where the increase factor is adjusted relative to a
 previous max value and the time elapsed since last congestion event.
 This enables a faster convergence to a higher link speed.
 
