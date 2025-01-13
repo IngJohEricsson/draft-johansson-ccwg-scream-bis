@@ -5,8 +5,8 @@
 CCWG                                                        I. Johansson
 Internet-Draft                                             M. Westerlund
 Obsoletes: 8298 (if approved)                                   Ericsson
-Intended status: Experimental                           10 December 2024
-Expires: 13 June 2025
+Intended status: Experimental                            13 January 2025
+Expires: 17 July 2025
 
 
               Self-Clocked Rate Adaptation for Multimedia
@@ -19,7 +19,7 @@ Abstract
    media streams such as RTP [RFC3550].  SCReAMv2 compromised several
    algorithm simplifications and adds support for L4S.  The algorithm
    supports handling of multiple media streams, typical use cases are
-   streaming for remote control, ARand 3D VR googles.  This
+   streaming for remote control, AR and 3D VR googles.  This
    specification obsoletes RFC 8298.
 
 About This Document
@@ -54,11 +54,11 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 13 June 2025.
+   This Internet-Draft will expire on 17 July 2025.
 
 Copyright Notice
 
-   Copyright (c) 2024 IETF Trust and the persons identified as the
+   Copyright (c) 2025 IETF Trust and the persons identified as the
    document authors.  All rights reserved.
 
    This document is subject to BCP 78 and the IETF Trust's Legal
@@ -88,7 +88,8 @@ Table of Contents
        4.2.2.  Reference Window Update
      4.3.  Sender Transmission Control
        4.3.1.  Send Window Calculation
-       4.3.2.  Packet Pacing
+       4.3.2.  Calculate Frame Size
+       4.3.3.  Packet Pacing
      4.4.  Media Rate Control
        4.4.1.  Handling of systematic errors in video coders
    5.  Receiver Requirements on Feedback Intensity
@@ -129,7 +130,7 @@ Table of Contents
 
    *  L4S support added.  The L4S algoritm has many similarities with
       the DCTCP and Prague congestion control but has a few extra
-      modifications to make it work well with peridic sources such as
+      modifications to make it work well with periodic sources such as
       video.
 
    *  The delay based congestion control is changed to implement a
@@ -231,10 +232,10 @@ Table of Contents
 
 3.  Overview of SCReAMv2 Algorithm
 
-   SCReAMv2 still consists of three main parts: network congestion
-   control, sender transmission control, and media rate control.  All of
-   these parts reside at the sender side while the receiver is assumpted
-   to provide acknowledgements of received data units and indication of
+   SCReAMv2 consists of three main parts: network congestion control,
+   sender transmission control, and media rate control.  All of these
+   parts reside at the sender side while the receiver is assumpted to
+   provide acknowledgements of received data units and indication of
    ECN-CE marking, either as an accumulated bytes counter, or per
    individual data unit.
 
@@ -246,7 +247,7 @@ Table of Contents
    document.  However, if multiple flows are sent, each data unit queue
    can be served based on some defined priority or simply in a round-
    robin fashion.  Alternatively, a similar approach as coupled
-   congestion control {RFC6365} can be applied.
+   congestion control [RFC6365] can be applied.
 
    +--------------------------------------------------------+
    |                       Media encoder                    |
@@ -291,21 +292,21 @@ Table of Contents
    sender transmission controller limits the sending rate so that the
    number of bytes in flight is less than the reference window albeit
    with a slack to avoid that packets are unnecessarily delayed in the
-   data unit queue.  A apcing rate is calculated based on the target
+   data unit queue.  A pacing rate is calculated based on the target
    bitrate provided by the media rate controller.
 
    Feedback about the received bytes as well as metadata to estimatethe
    congestion level or queuing delay are provided to the network
    congestion controller.  The network congestion controller calculated
    reference window and provides it togteher with the bytes in flight to
-   the sender transmission control (7).
+   the sender transmission control.
 
    The reference window and the estimated RTT is further provided to the
    media rate control to compute the appropriate target bitrate.  The
    target bitrate is updated whenever the reference window is updated.
    Additional parameters are also communicated to make the rate control
    more stable when the congestion window is very small or when L4S is
-   not active.  This is described more in detail below.
+   not active.
 
 3.1.  Network Congestion Control
 
@@ -319,13 +320,6 @@ Table of Contents
    causes will reflect back and cause a reduction of the reference
    window.
 
-   After a congestion event the reference window seeks to increase by
-   one segment per RTT until a certain number of RTT elapses.  After
-   this initial phase the refrence window increases multiplicativly
-   where the increase factor is adjusted relative to a previous max
-   value and the time elapsed since last congestion event.  This enables
-   a faster convergence to a higher link speed.
-
    Reference window is reduced if congestion is detected.  Similar as
    for LEDBAT the reference window is reduced either by a fixed fraction
    in case of packet loss or Classic ECN marking, or if the estimated
@@ -334,28 +328,46 @@ Table of Contents
    proportion to the fraction of marked packets if L4S is used (scalable
    congestion control).
 
+   ref_wnd = BETA_LOSS * (BETA_ECN|l4s_alpha) * qtarget_alpha * ref_wnd
+
+   After a congestion event the reference window seeks to increase by
+   one segment per RTT until a certain number of RTT elapses.  After
+   this initial congestion avoidance phase the refrence window increases
+   multiplicativly where the increase factor is adjusted relative to a
+   previous max value and the time elapsed since last congestion event.
+   This enables a faster convergence to a higher link speed.
+
+   ref_wnd = ref_wnd + increment
+
 3.2.  Sender Transmission Control
 
    The sender transmission control limits sending rate based on the
    relation of the estimated link throughput (bytes in flight) and the
-   reference window.  This is achived by applying packet pacing: Even if
-   the send window allows for the transmission of a number of packets,
-   these packets are not transmitted immediately; rather, they are
-   transmitted in intervals given by the packet size and the estimated
-   link throughput.  Packets are generally paced at a higher rate than
-   the target bitrate, this makes it possible to transmit occasionally
-   larger video frames in a timely manner.  Further, this mitigates
-   issues with ACK compression that can cause increased jitter and/or
-   packet loss in the media traffic.
+   reference window.
+
+   send_wnd = ref_wnd * REF_WND_OVERHEAD * frame_size - bytes_in_flight
+
+   The respective sending rate is achived by applying packet pacing:
+   Even if the send window allows for the transmission of a number of
+   packets, these packets are not transmitted immediately; rather, they
+   are transmitted in intervals given by the packet size and the
+   estimated link throughput.  Packets are generally paced at a higher
+   rate than the target bitrate, this makes it possible to transmit
+   occasionally larger video frames in a timely manner.  Further, this
+   mitigates issues with ACK compression that can cause increased jitter
+   and/or packet loss in the media traffic.
 
 3.3.  Media Rate Control
 
    The media rate control calculates the media rate based on the
-   reference window and RTT.  The media rate need to ramp up quickly
-   enough to get a fair share of the system resources when link
-   throughput increases.  Further, the reaction to reduced throughput
-   must be prompt in order to avoid getting too much data queued in the
-   data unit queue(s) in the sender.
+   reference window and RTT.
+
+   target_bitrate = 8 * ref_wnd / s_rtt
+
+   The media rate need to ramp up quickly enough to get a fair share of
+   the system resources when link throughput increases.  Further, the
+   reaction to reduced throughput must be prompt in order to avoid
+   getting too much data queued in the data unit queue(s) in the sender.
 
    For the case that multiple streams are enabled, the media rate among
    the streams is distrubuted according to relative priorities.
@@ -1025,20 +1037,23 @@ Table of Contents
    The send window is updated whenever an data unit is transmitted or an
    feedback messaged is received.
 
+4.3.2.  Calculate Frame Size
+
    The variable rel_framesize_high is based on calculation of the high
    percentile of the frame sizes.  The calculation is based on a
    histogram of the frame sizes relative to the expected frame size
-   given the target bitrate and frame period.  The calculation of
-   rel_framesize_high is done for every new video frame and is outlined
-   roughly with the pseudo code below.  For more detailed code, see
-   [SCReAM-CPP-implementation].
+   given the target bitrate and frame period.
 
    *  rel_framesize_high (1.0): High percentile of frame size,
       normalized by nominal frame size for the given target bitrate
 
    *  frame_period (0.02): The frame period [s].
 
-   # frame_size is that frame size for the last encoded frame
+   *  frame_size: the frame size of the last encoded frame
+
+   The calculation of rel_framesize_high is done for every new video
+   frame and is outlined roughly with the pseudo code below:
+
    tmp_t = frame_size / (target_bitrate * frame_period / 8)
 
    if (tmp_t > 1.0)
@@ -1051,7 +1066,7 @@ Table of Contents
    A 75%-ile is used in [SCReAM-CPP-implementation], the histogram can
    be made leaky such that old samples are gradually forgotten.
 
-4.3.2.  Packet Pacing
+4.3.3.  Packet Pacing
 
    Packet pacing is used in order to mitigate coalescing, i.e., when
    packets are transmitted in bursts, with the risks of increased jitter
@@ -1395,6 +1410,11 @@ Table of Contents
               Requirement Levels", BCP 14, RFC 2119,
               DOI 10.17487/RFC2119, March 1997,
               <https://www.rfc-editor.org/info/rfc2119>.
+
+   [RFC6365]  Hoffman, P. and J. Klensin, "Terminology Used in
+              Internationalization in the IETF", BCP 166, RFC 6365,
+              DOI 10.17487/RFC6365, September 2011,
+              <https://www.rfc-editor.org/info/rfc6365>.
 
    [RFC7478]  Holmberg, C., Hakansson, S., and G. Eriksson, "Web Real-
               Time Communication Use Cases and Requirements", RFC 7478,
