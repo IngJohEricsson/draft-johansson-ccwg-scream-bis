@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2025-01-16T01:26:21.917214+00:00",
+  "timestamp": "2025-01-19T01:39:41.904319+00:00",
   "repo": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
   "labels": [
     {
@@ -1459,7 +1459,7 @@
       "labels": [],
       "body": "",
       "createdAt": "2025-01-13T15:36:29Z",
-      "updatedAt": "2025-01-13T15:36:29Z",
+      "updatedAt": "2025-01-17T15:53:37Z",
       "baseRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
       "baseRefName": "main",
       "baseRefOid": "1e61b0a2c29ce948be24f9af57a39112b2dfebe8",
@@ -1471,7 +1471,48 @@
       "mergedBy": null,
       "mergeCommit": null,
       "comments": [],
-      "reviews": []
+      "reviews": [
+        {
+          "id": "PRR_kwDOK7AJUs6YhnKK",
+          "commit": {
+            "abbreviatedOid": "f1d4496"
+          },
+          "author": "mirjak",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2025-01-17T12:56:04Z",
+          "updatedAt": "2025-01-17T12:56:05Z",
+          "comments": [
+            {
+              "originalPosition": 70,
+              "body": "Why \"initial congestion avoidance phase\"? I think both of these phases are part of congestion avoidance. If we want to name the phase we should come up with new names.",
+              "createdAt": "2025-01-17T12:56:04Z",
+              "updatedAt": "2025-01-17T12:56:05Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs6YjLra",
+          "commit": {
+            "abbreviatedOid": "f1d4496"
+          },
+          "author": "gloinul",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2025-01-17T15:53:37Z",
+          "updatedAt": "2025-01-17T15:53:37Z",
+          "comments": [
+            {
+              "originalPosition": 70,
+              "body": "So first \"congestion avoidance\" might be my missinterpretation here. What does @IngJohEricsson say? Secondly, do we need to coin a term for this phase and explain it better? ",
+              "createdAt": "2025-01-17T15:53:37Z",
+              "updatedAt": "2025-01-17T15:53:38Z"
+            }
+          ]
+        }
+      ]
     }
   ]
 }
