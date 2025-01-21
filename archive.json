@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2025-01-19T01:39:41.904319+00:00",
+  "timestamp": "2025-01-21T01:26:23.804006+00:00",
   "repo": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
   "labels": [
     {
@@ -1459,7 +1459,7 @@
       "labels": [],
       "body": "",
       "createdAt": "2025-01-13T15:36:29Z",
-      "updatedAt": "2025-01-17T15:53:37Z",
+      "updatedAt": "2025-01-20T07:54:35Z",
       "baseRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
       "baseRefName": "main",
       "baseRefOid": "1e61b0a2c29ce948be24f9af57a39112b2dfebe8",
@@ -1509,6 +1509,26 @@
               "body": "So first \"congestion avoidance\" might be my missinterpretation here. What does @IngJohEricsson say? Secondly, do we need to coin a term for this phase and explain it better? ",
               "createdAt": "2025-01-17T15:53:37Z",
               "updatedAt": "2025-01-17T15:53:38Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs6YrpVz",
+          "commit": {
+            "abbreviatedOid": "f1d4496"
+          },
+          "author": "IngJohEricsson",
+          "authorAssociation": "OWNER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2025-01-20T07:54:35Z",
+          "updatedAt": "2025-01-20T07:54:35Z",
+          "comments": [
+            {
+              "originalPosition": 70,
+              "body": "Slow (as always).. One can say that the first time after a congestion event is normal additive increase, while the multiplicative increase gradually kicks in the longer time it goes since the congestion event. \r\nThe increase factor is also limited when the reference window is close the last known max value.\r\n\r\n",
+              "createdAt": "2025-01-20T07:54:35Z",
+              "updatedAt": "2025-01-20T07:54:35Z"
             }
           ]
         }
