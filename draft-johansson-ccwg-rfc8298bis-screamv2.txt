@@ -5,8 +5,8 @@
 CCWG                                                        I. Johansson
 Internet-Draft                                             M. Westerlund
 Obsoletes: 8298 (if approved)                                   Ericsson
-Intended status: Experimental                             8 January 2025
-Expires: 12 July 2025
+Intended status: Experimental                            5 February 2025
+Expires: 9 August 2025
 
 
               Self-Clocked Rate Adaptation for Multimedia
@@ -19,7 +19,7 @@ Abstract
    media streams such as RTP [RFC3550].  SCReAMv2 compromised several
    algorithm simplifications and adds support for L4S.  The algorithm
    supports handling of multiple media streams, typical use cases are
-   streaming for remote control, ARand 3D VR googles.  This
+   streaming for remote control, AR and 3D VR googles.  This
    specification obsoletes RFC 8298.
 
 About This Document
@@ -54,7 +54,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 12 July 2025.
+   This Internet-Draft will expire on 9 August 2025.
 
 Copyright Notice
 
@@ -130,7 +130,7 @@ Table of Contents
 
    *  L4S support added.  The L4S algoritm has many similarities with
       the DCTCP and Prague congestion control but has a few extra
-      modifications to make it work well with peridic sources such as
+      modifications to make it work well with periodic sources such as
       video.
 
    *  The delay based congestion control is changed to implement a
@@ -232,10 +232,10 @@ Table of Contents
 
 3.  Overview of SCReAMv2 Algorithm
 
-   SCReAMv2 still consists of three main parts: network congestion
-   control, sender transmission control, and media rate control.  All of
-   these parts reside at the sender side while the receiver is assumpted
-   to provide acknowledgements of received data units and indication of
+   SCReAMv2 consists of three main parts: network congestion control,
+   sender transmission control, and media rate control.  All of these
+   parts reside at the sender side while the receiver is assumpted to
+   provide acknowledgements of received data units and indication of
    ECN-CE marking, either as an accumulated bytes counter, or per
    individual data unit.
 
@@ -247,7 +247,7 @@ Table of Contents
    document.  However, if multiple flows are sent, each data unit queue
    can be served based on some defined priority or simply in a round-
    robin fashion.  Alternatively, a similar approach as coupled
-   congestion control {RFC6365} can be applied.
+   congestion control [RFC6365] can be applied.
 
    +--------------------------------------------------------+
    |                       Media encoder                    |
@@ -332,10 +332,10 @@ Table of Contents
 
    After a congestion event the reference window seeks to increase by
    one segment per RTT until a certain number of RTT elapses.  After
-   this initial phase the refrence window increases multiplicativly
-   where the increase factor is adjusted relative to a previous max
-   value and the time elapsed since last congestion event.  This enables
-   a faster convergence to a higher link speed.
+   this initial congestion avoidance phase the refrence window increases
+   multiplicativly where the increase factor is adjusted relative to a
+   previous max value and the time elapsed since last congestion event.
+   This enables a faster convergence to a higher link speed.
 
    ref_wnd = ref_wnd + increment
 
@@ -1410,6 +1410,11 @@ Table of Contents
               Requirement Levels", BCP 14, RFC 2119,
               DOI 10.17487/RFC2119, March 1997,
               <https://www.rfc-editor.org/info/rfc2119>.
+
+   [RFC6365]  Hoffman, P. and J. Klensin, "Terminology Used in
+              Internationalization in the IETF", BCP 166, RFC 6365,
+              DOI 10.17487/RFC6365, September 2011,
+              <https://www.rfc-editor.org/info/rfc6365>.
 
    [RFC7478]  Holmberg, C., Hakansson, S., and G. Eriksson, "Web Real-
               Time Communication Use Cases and Requirements", RFC 7478,
