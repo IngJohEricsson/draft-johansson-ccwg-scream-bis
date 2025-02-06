@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2025-02-04T01:26:51.780158+00:00",
+  "timestamp": "2025-02-06T01:36:03.727556+00:00",
   "repo": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
   "labels": [
     {
@@ -1452,25 +1452,35 @@
       "id": "PR_kwDOK7AJUs6HjZSN",
       "title": "Edits on the first three sections. ",
       "url": "https://github.com/IngJohEricsson/draft-johansson-ccwg-scream-bis/pull/35",
-      "state": "OPEN",
+      "state": "MERGED",
       "author": "gloinul",
       "authorAssociation": "COLLABORATOR",
       "assignees": [],
       "labels": [],
       "body": "",
       "createdAt": "2025-01-13T15:36:29Z",
-      "updatedAt": "2025-01-20T07:54:35Z",
+      "updatedAt": "2025-02-05T11:58:59Z",
       "baseRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
       "baseRefName": "main",
       "baseRefOid": "1e61b0a2c29ce948be24f9af57a39112b2dfebe8",
       "headRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
       "headRefName": "mw-edits",
       "headRefOid": "f1d4496be08481730fed70ff5b06a2b6260b1bd8",
-      "closedAt": null,
-      "mergedAt": null,
-      "mergedBy": null,
-      "mergeCommit": null,
-      "comments": [],
+      "closedAt": "2025-02-05T11:58:54Z",
+      "mergedAt": "2025-02-05T11:58:54Z",
+      "mergedBy": "IngJohEricsson",
+      "mergeCommit": {
+        "oid": "1c64207da4662aee23dee10b4937be255d5a5fa4"
+      },
+      "comments": [
+        {
+          "author": "IngJohEricsson",
+          "authorAssociation": "OWNER",
+          "body": "I merge this one, will try with an edit session in a near future",
+          "createdAt": "2025-02-05T11:58:58Z",
+          "updatedAt": "2025-02-05T11:58:58Z"
+        }
+      ],
       "reviews": [
         {
           "id": "PRR_kwDOK7AJUs6YhnKK",
