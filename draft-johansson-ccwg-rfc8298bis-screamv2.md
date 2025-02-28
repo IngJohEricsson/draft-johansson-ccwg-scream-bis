@@ -143,8 +143,8 @@ congestion control functionality in SCReAMv2.
 
 ## Updates compared to SCReAM (version 1) {#sec:changes}
 
-The algorithm in this memo differs greatly against the previous version of
-SCReAM. The main differences are:
+The algorithm in this memo differs considerably compared to the previous version of
+SCReAM in {{RFC8298}}. The main differences are:
 
 * L4S support added. The L4S algoritm has many similarities with the DCTCP and
   Prague congestion control but has a few extra modifications to make it work
@@ -170,10 +170,26 @@ SCReAM. The main differences are:
   that they are unnecessarily queued up on the sender side, but still prevent a
   large network queue.
 
-* The media bitrate calculation is dramatically changed and simplified.
+* The media bitrate calculation is dramatically changed and simplified. In practive
+  it is manifested with a relatively simple relation between the reference window and RTT.
 
 * Additional compensation is added to make SCReAMv2 handle cases such as large
   changing frame sizes.
+
+Algorithm changes since the last draft version -01 are:
+
+ * Slow down reference window growth when close the last know max is disabled
+   when L4S active. This makes SCReAM adhere more closely to 2 marked packets
+   per RTT at steady state.
+
+ * Reference window decrease and increase reduced by up to 50% when ref_wnd/mss
+   is small. This reduces rate oscillations.
+
+ * Target bitrate down adjustment when ref_wnd/mss is small is modified to only
+   help to avoid that the data unit queue grows excessively in certain low
+   bitrate cases.
+
+ * Timing set to multiples of RTTs instead of seconds.
 
 ## Requirements on media and feedback protocol {#requirements-media}
 
@@ -1264,46 +1280,6 @@ This section covers a few discussion points.
 
  * SCReAM has over time been evaluated in a number of different experiments, a
   few examples are found in {{SCReAM-evaluation-L4S}}.
-
-# Algorithm changes {#algorithm-changes}
-
-The algorithm has changed quite considerably since {{RFC8298}}. The main changes are:
-
-* L4S support added. The L4S algoritm has many similarities with the DCTCP and
-  Prague congestion control but has a few extra modifications to make it work
-  well with peridic sources such as video.
-
-* The delay based congestion control is changed to implement a pseudo-L4S
-  approach, this simplifies the delay based congestion control.
-
-* The fast increase mode is removed. The reference window additive increase is
-  replaced with an adaptive multiplicative increase to enhance convergence
-  speed.
-
-* The algorithm is more rate based than self-clocked. The calculated reference
-  window is used mainly to calculate proper media bitrates. Bytes in flight is
-  however allowed to exceeed the reference window.
-
-* The media bitrate calculation is dramatically changed and simplified. In practive
-  it is manifested with a relatively simple relation between the reference window and RTT.
-
-* Additional compensation is added to make SCReAMv2 handle cases such as large
-  changing frame sizes.
-
-Algorithm changes since the last draft version -01 are:
-
- * Slow down reference window growth when close the last know max is disabled
-   when L4S active. This makes SCReAM adhere more closely to 2 marked packets
-   per RTT at steady state.
-
- * Reference window decrease and increase reduced by up to 50% when ref_wnd/mss
-   is small. This reduces rate oscillations.
-
- * Target bitrate down adjustment when ref_wnd/mss is small is modified to only
-   help to avoid that the data unit queue grows excessively in certain low
-   bitrate cases.
-
- * Timing set to multiples of RTTs instead of seconds.
 
 # IANA Considerations {#iana}
 
