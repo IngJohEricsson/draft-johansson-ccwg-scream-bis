@@ -206,9 +206,9 @@ control {{TFWC}} and follows the packet conservation principle. The packet
 conservation principle is described as a key factor behind the protection of
 networks from congestion {{Packet-conservation}}.
 
-The reference window decrase is determined in a way similar as in
-LEDBAT {{RFC6817}}. However, the window increase is not based on the
-delay but uses both a linear increase and multiplicate increase function depending
+The reference window decrease is determined in a way similar to
+LEDBAT {{RFC6817}}. However, the window increase is not based on
+delay estimates but uses both a linear increase and multiplicate increase function depending
 on the time since the last congestion event and introduces use of inflection points in the
 reference window increase calculation to achieve reduced delay jitter.
 Further, other than LEDABT which is a scavenger congestion control mostly designed
