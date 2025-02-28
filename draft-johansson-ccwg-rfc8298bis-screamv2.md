@@ -445,7 +445,7 @@ makes it more likely that an uncongested bytes_in_flight is used.
 
 ### Status Update on Receiving Feedback
 
-The feedback from the receiver is assumed to consist of the following elements.
+The feedback from the receiver is assumed to consist of the following elements:
 
 * data_units_acked and data_units_acked_ce: A list of received data units' sequence numbers and an indication
   if data units are ECN-CE marked. The ECN status can be either per
