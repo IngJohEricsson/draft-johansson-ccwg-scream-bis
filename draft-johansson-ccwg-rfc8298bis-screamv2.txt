@@ -408,10 +408,10 @@ Table of Contents
 
    *  data_unit_size (0): Size [byte] of the last transmitted data unit.
 
-   *  bytes_in_flight: The number of bytes in flight (bytes_in_flight)
-      is computed as the sum of the sizes of the data units ranging from
-      the data unit most recently transmitted, down to but not including
-      the acknowledged data unit with the highest sequence number.
+   *  bytes_in_flight: The number of bytes in flight is computed as the
+      sum of the sizes of the data units ranging from the data unit most
+      recently transmitted, down to but not including the acknowledged
+      data unit with the highest sequence number.
 
    bytes_in_flight can be also seen as the difference between the
    highest transmitted byte sequence number and the highest acknowledged
@@ -426,9 +426,11 @@ Table of Contents
 
    *  bytes_in_flight_ratio (0.0): Ratio between the bytes_in_flight and
       the reference window ref_wnd.  This value should be computed at
-      the beginning of the ACK processing.
+      the beginning of the ACK processing prior to updating the highest
+      received sequence number acked.
 
-   *  ref_wnd_ratio (0.0): Ratio between MSS and ref_wnd.
+   *  ref_wnd_ratio (0.0): Ratio between MSS and ref_wnd capped to not
+      exceed 1.0 (min(1.0, MSS / ref_wnd)).
 
    *  max_bytes_in_flight (0): The maximum number of bytes in flight in
       the current round trip [byte].
@@ -445,8 +447,10 @@ Table of Contents
    The feedback from the receiver is assumed to consist of the following
    elements:
 
-   *  data_units_acked and : A list of received data units' sequence
-      numbers.
+   *  The wall-clock timestamp corresponding to the received data unit
+      with the highest sequence number.
+
+   *  data_units_acked: A list of received data units' sequence numbers.
 
    *  data_units_acked_ce: An indication if data units are ECN-CE
       marked.  The ECN status can be either per data unit or an
@@ -470,22 +474,6 @@ Table of Contents
    similar to bytes_newly_acked, a counter of bytes newly acked with the
    extra condition that they are ECN-CE marked.  The bytes_newly_acked
    and bytes_newly_acked_ce are reset to zero after a ref_wnd update.
-
-   *  qdelay: When the sender receives RTCP feedback, the qdelay is
-      calculated as outlined in [RFC6817].  A qdelay sample is obtained
-      for each received acknowledgement.
-
-   *  last_update_qdelay_avg_time (0): Last time qdelay_avg was updated
-      [s].
-
-   *  loss_event_rate (0.0): The estimated fraction of RTTs with lost
-      data units detected.
-
-   *  s_rtt (0.0): Smoothed RTT [s], computed with a similar method to
-      that described in [RFC6298].
-
-   *  The wall-clock timestamp corresponding to the received data unit
-      with the highest sequence number.
 
 4.2.  Network Congestion Control
 
@@ -561,9 +549,29 @@ Table of Contents
    to a proper value after a long period without congestion.
 
    l4s_alpha is calculated based in number of data units delivered (and
-   marked).  This makes calculation of L4S alpha more accurate at very
-   low bitrates, given that the tail data unit in e.g a video frame is
-   often smaller than MSS.
+   marked) the following way:
+
+   data_units_delivered_this_rtt += data_units_acked
+   data_units_marked_this_rtt += data_units_acked_ce
+   # l4s_alpha is updated at least every 10ms
+   if (now - last_update_l4s_alpha_time >= min(0.01,s_rtt)
+     # l4s_alpha is calculated from data_units marked istf bytes marked
+     fraction_marked_t = data_units_marked_this_rtt/
+                         data_units_delivered_this_rtt
+
+     l4s_alpha = L4S_AVG_G*fraction_marked_t + (1.0-L4S_AVG_G)*l4S_alpha
+
+     last_update_l4s_alpha_time = now
+     data_units_delivered_this_rtt = 0
+     data_units_marked_this_rtt = 0
+     last_fraction_marked = fraction_marked_t
+   end
+
+   This makes calculation of L4S alpha more accurate at very low
+   bitrates, given that the tail data unit in e.g a video frame is often
+   smaller than MSS.
+
+   The following variables are used:
 
    *  l4s_alpha (0.0): Average fraction of marked data units per RTT.
 
@@ -584,22 +592,6 @@ Table of Contents
    *  L4S_AVG_G (1/16): Exponentially Weighted Moving Average (EWMA)
       factor for l4s_alpha
 
-   data_units_delivered_this_rtt += data_units_acked
-   data_units_marked_this_rtt += data_units_acked_ce
-   # l4s_alpha is updated at least every 10ms
-   if (now - last_update_l4s_alpha_time >= min(0.01,s_rtt)
-     # l4s_alpha is calculated from data_units marked istf bytes marked
-     fraction_marked_t = data_units_marked_this_rtt/
-                         data_units_delivered_this_rtt
-
-     l4s_alpha = L4S_AVG_G*fraction_marked_t + (1.0-L4S_AVG_G)*l4S_alpha
-
-     last_update_l4s_alpha_time = now
-     data_units_delivered_this_rtt = 0
-     data_units_marked_this_rtt = 0
-     last_fraction_marked = fraction_marked_t
-   end
-
 4.2.1.4.  Increased queue delay
 
    SCReAMv2 implements a delay-based congestion control approach where
@@ -616,15 +608,10 @@ Table of Contents
    This reduces negative effects of clockdrift, that the delay based
    control can introduce, whenever possible.
 
-   *  qdelay_avg:
-
-   The following constant is used:
-
-   *  QDELAY_AVG_G (1/4): Exponentially Weighted Moving Average (EWMA)
-      factor for qdelay_avg
+   qdelay_avg is updated with a slow attack, fast decay EWMA filter the
+   following way:
 
    if (now - last_update_qdelay_avg_time >= s_rtt)
-     # qdelay_avg is updated with a slow attack, fast decay EWMA filter
      if (qdelay < qdelay_avg)
        qdelay_avg = qdelay
      else
@@ -632,6 +619,23 @@ Table of Contents
      end
      last_update_qdelay_avg_time = now
    end
+
+   The following variables are used:
+
+   *  qdelay: When the sender receives feedback, the qdelay is
+      calculated as outlined in [RFC6817].  A qdelay sample is obtained
+      for each received acknowledgement.
+
+   *  last_update_qdelay_avg_time (0): Last time qdelay_avg was updated
+      [s].
+
+   *  s_rtt (0.0): Smoothed RTT [s], computed with a similar method to
+      that described in [RFC6298].
+
+   The following constant is used:
+
+   *  QDELAY_AVG_G (1/4): Exponentially Weighted Moving Average (EWMA)
+      factor for qdelay_avg
 
 4.2.1.4.1.  Competing Flows Compensation
 
@@ -678,6 +682,11 @@ Table of Contents
      # Apply limits
      qdelay_target = min(QDELAY_TARGET_HI, qdelay_target)
      qdelay_target = max(QDELAY_TARGET_LO, qdelay_target)
+
+   The follwoing variable is used:
+
+   *  loss_event_rate (0.0): The estimated fraction of RTTs with lost
+      data units detected.
 
    Two temporary variables are calculated. qdelay_norm_avg_t is the
    long-term average queue delay, qdelay_norm_var_t is the long-term
