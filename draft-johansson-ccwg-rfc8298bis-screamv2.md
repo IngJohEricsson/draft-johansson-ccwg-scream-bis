@@ -176,7 +176,7 @@ SCReAM in {{RFC8298}}. The main differences are:
 * Additional compensation is added to make SCReAMv2 handle cases such as large
   changing frame sizes.
 
-Algorithm changes since the last draft version -01 are:
+Algorithm changes in draft version -02 were:
 
  * Slow down reference window growth when close to the last known maximum value is disabled
    and when L4S is active. This makes SCReAM adhere more closely to two marked packets
@@ -190,6 +190,40 @@ Algorithm changes since the last draft version -01 are:
    bitrate cases.
 
  * Timing set to multiples of RTTs instead of seconds.
+
+Draft version -03 is mayor editorial pass including removal of some
+outdated or background information and reorganisation of several sections:
+
+* Much shorter abstract and introduction focusing on what's new in SCReAMv2
+
+* Removal of Section 1.1. on "Wireless (LTE and 5G) Access Properties" and
+  Section 1.2. on "Why is it a self-clocked algorithm?"
+
+* New Section on "Updates compared to SCReAM (version 1)" in introduction
+  based on old Section on "Algorithm Changes"
+
+* Section {{ledbat-tfwc}} updated and shortened
+
+* Overview Section {{scream-overview}} revised; now also including the overview
+  figure and the basic algorithms
+
+* Own section on "Constants and variables" removed; instead all variables are now listed
+  in the respective sections that explain the code
+
+* New Section on "Sender Side State" explaining some basic variables
+
+* Pseudo code and the corresponding explanations in Section {{network-cc-2}} on
+  "Network Congestion Control" moved into the respective subsections in
+  section {{reaction-delay-loss-ce}} on "Congestion Detection"
+
+* Separate section on "Sender Transmission Control" introduced
+
+* Section "Lost Data Unit Detection" merged into Section {{reaction-loss}}
+
+* Section "Stream Prioritization" removed
+
+* Section on "Competing Flows Compensation" moved into Section {{reaction-delay-loss-ce}}
+  on "Congestion Detection"
 
 ## Requirements on media and feedback protocol {#requirements-media}
 
