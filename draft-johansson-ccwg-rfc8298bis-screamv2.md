@@ -602,7 +602,6 @@ following way:
 
 ~~~
 if (now - last_update_qdelay_avg_time >= s_rtt)
-  # 
   if (qdelay < qdelay_avg)
     qdelay_avg = qdelay
   else
