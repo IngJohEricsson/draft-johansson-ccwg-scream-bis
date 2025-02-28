@@ -1730,17 +1730,20 @@ makes it more likely that an uncongested bytes_in_flight is used.<a href="#secti
 <p id="section-4.1.2-1">The feedback from the receiver is assumed to consist of the following elements:<a href="#section-4.1.2-1" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-4.1.2-2.1">
-              <p id="section-4.1.2-2.1.1">data_units_acked and data_units_acked_ce: A list of received data units' sequence numbers and an indication
-if data units are ECN-CE marked. The ECN status can be either per
-data unit or an accumulated count of ECN-CE marked data units.<a href="#section-4.1.2-2.1.1" class="pilcrow">¶</a></p>
+              <p id="section-4.1.2-2.1.1">data_units_acked and : A list of received data units' sequence numbers.<a href="#section-4.1.2-2.1.1" class="pilcrow">¶</a></p>
 </li>
             <li class="normal" id="section-4.1.2-2.2">
-              <p id="section-4.1.2-2.2.1">bytes_newly_acked (0): Number of bytes newly ACKed, reset to 0 when congestion
-window is updated [byte].<a href="#section-4.1.2-2.2.1" class="pilcrow">¶</a></p>
+              <p id="section-4.1.2-2.2.1">data_units_acked_ce: An indication if data units are ECN-CE marked.
+The ECN status can be either per data unit or an accumulated count of
+ECN-CE marked data units.<a href="#section-4.1.2-2.2.1" class="pilcrow">¶</a></p>
 </li>
             <li class="normal" id="section-4.1.2-2.3">
-              <p id="section-4.1.2-2.3.1">bytes_newly_acked_ce (0): Number of bytes newly ACKed and CE marked, reset to
-0 when reference window is updated [byte].<a href="#section-4.1.2-2.3.1" class="pilcrow">¶</a></p>
+              <p id="section-4.1.2-2.3.1">bytes_newly_acked (0): Number of bytes newly ACKed, reset to 0 when congestion
+window is updated [byte].<a href="#section-4.1.2-2.3.1" class="pilcrow">¶</a></p>
+</li>
+            <li class="normal" id="section-4.1.2-2.4">
+              <p id="section-4.1.2-2.4.1">bytes_newly_acked_ce (0): Number of bytes newly ACKed and CE marked, reset to
+0 when reference window is updated [byte].<a href="#section-4.1.2-2.4.1" class="pilcrow">¶</a></p>
 </li>
           </ul>
 <p id="section-4.1.2-3">bytes_newly_acked is incremented with a value
