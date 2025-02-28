@@ -1761,23 +1761,12 @@ marked. The bytes_newly_acked and bytes_newly_acked_ce are reset to
 zero after a ref_wnd update.<a href="#section-4.1.2-3" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-4.1.2-4.1">
-              <p id="section-4.1.2-4.1.1">qdelay: When the sender receives RTCP feedback, the qdelay is calculated as outlined in
-<span>[<a href="#RFC6817" class="cite xref">RFC6817</a>]</span>. A qdelay sample is obtained for each received acknowledgement.<a href="#section-4.1.2-4.1.1" class="pilcrow">¶</a></p>
+              <p id="section-4.1.2-4.1.1">loss_event_rate (0.0): The estimated fraction of RTTs with lost data units
+detected.<a href="#section-4.1.2-4.1.1" class="pilcrow">¶</a></p>
 </li>
             <li class="normal" id="section-4.1.2-4.2">
-              <p id="section-4.1.2-4.2.1">last_update_qdelay_avg_time (0): Last time qdelay_avg was updated [s].<a href="#section-4.1.2-4.2.1" class="pilcrow">¶</a></p>
-</li>
-            <li class="normal" id="section-4.1.2-4.3">
-              <p id="section-4.1.2-4.3.1">loss_event_rate (0.0): The estimated fraction of RTTs with lost data units
-detected.<a href="#section-4.1.2-4.3.1" class="pilcrow">¶</a></p>
-</li>
-            <li class="normal" id="section-4.1.2-4.4">
-              <p id="section-4.1.2-4.4.1">s_rtt (0.0): Smoothed RTT [s], computed with a similar method to that
-described in <span>[<a href="#RFC6298" class="cite xref">RFC6298</a>]</span>.<a href="#section-4.1.2-4.4.1" class="pilcrow">¶</a></p>
-</li>
-            <li class="normal" id="section-4.1.2-4.5">
-              <p id="section-4.1.2-4.5.1">The wall-clock timestamp corresponding to the received data unit with the
-highest sequence number.<a href="#section-4.1.2-4.5.1" class="pilcrow">¶</a></p>
+              <p id="section-4.1.2-4.2.1">The wall-clock timestamp corresponding to the received data unit with the
+highest sequence number.<a href="#section-4.1.2-4.2.1" class="pilcrow">¶</a></p>
 </li>
           </ul>
 </section>
@@ -1865,32 +1854,9 @@ reduction reasonably stable, especially when the reference window is only a few
 MSS. In addition, because SCReAMv2 can quite often be source limited, additional
 steps are taken to restore the reference window to a proper value after a long
 period without congestion.<a href="#section-4.2.1.3-1" class="pilcrow">¶</a></p>
-<p id="section-4.2.1.3-2">l4s_alpha is calculated based in number of data units delivered (and marked).
-This makes calculation of L4S alpha more accurate at very low bitrates, given that the tail data unit in e.g a video frame is often smaller than MSS.<a href="#section-4.2.1.3-2" class="pilcrow">¶</a></p>
-<ul class="normal">
-<li class="normal" id="section-4.2.1.3-3.1">
-                <p id="section-4.2.1.3-3.1.1">l4s_alpha (0.0): Average fraction of marked data units per RTT.<a href="#section-4.2.1.3-3.1.1" class="pilcrow">¶</a></p>
-</li>
-              <li class="normal" id="section-4.2.1.3-3.2">
-                <p id="section-4.2.1.3-3.2.1">last_update_l4s_alpha_time (0): Last time l4s_alpha was updated [s].<a href="#section-4.2.1.3-3.2.1" class="pilcrow">¶</a></p>
-</li>
-              <li class="normal" id="section-4.2.1.3-3.3">
-                <p id="section-4.2.1.3-3.3.1">data_units_delivered_this_rtt (0): Counter for delivered data units.<a href="#section-4.2.1.3-3.3.1" class="pilcrow">¶</a></p>
-</li>
-              <li class="normal" id="section-4.2.1.3-3.4">
-                <p id="section-4.2.1.3-3.4.1">data_units_marked_this_rtt (0): Counter delivered and ECN-CE marked data units.<a href="#section-4.2.1.3-3.4.1" class="pilcrow">¶</a></p>
-</li>
-              <li class="normal" id="section-4.2.1.3-3.5">
-                <p id="section-4.2.1.3-3.5.1">last_fraction_marked (0.0): fraction marked data units in last update<a href="#section-4.2.1.3-3.5.1" class="pilcrow">¶</a></p>
-</li>
-            </ul>
-<p id="section-4.2.1.3-4">The following constant is used<a href="#section-4.2.1.3-4" class="pilcrow">¶</a></p>
-<ul class="normal">
-<li class="normal" id="section-4.2.1.3-5.1">
-                <p id="section-4.2.1.3-5.1.1">L4S_AVG_G (1/16): Exponentially Weighted Moving Average (EWMA) factor for l4s_alpha<a href="#section-4.2.1.3-5.1.1" class="pilcrow">¶</a></p>
-</li>
-            </ul>
-<div class="alignLeft art-text artwork" id="section-4.2.1.3-6">
+<p id="section-4.2.1.3-2">l4s_alpha is calculated based in number of data units delivered (and marked)
+the following way:<a href="#section-4.2.1.3-2" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-4.2.1.3-3">
 <pre>
 data_units_delivered_this_rtt += data_units_acked
 data_units_marked_this_rtt += data_units_acked_ce
@@ -1907,8 +1873,34 @@ if (now - last_update_l4s_alpha_time &gt;= min(0.01,s_rtt)
   data_units_marked_this_rtt = 0
   last_fraction_marked = fraction_marked_t
 end
-</pre><a href="#section-4.2.1.3-6" class="pilcrow">¶</a>
+</pre><a href="#section-4.2.1.3-3" class="pilcrow">¶</a>
 </div>
+<p id="section-4.2.1.3-4">This makes calculation of L4S alpha more accurate at very low bitrates,
+given that the tail data unit in e.g a video frame is often smaller than MSS.<a href="#section-4.2.1.3-4" class="pilcrow">¶</a></p>
+<p id="section-4.2.1.3-5">The following variables are used:<a href="#section-4.2.1.3-5" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-4.2.1.3-6.1">
+                <p id="section-4.2.1.3-6.1.1">l4s_alpha (0.0): Average fraction of marked data units per RTT.<a href="#section-4.2.1.3-6.1.1" class="pilcrow">¶</a></p>
+</li>
+              <li class="normal" id="section-4.2.1.3-6.2">
+                <p id="section-4.2.1.3-6.2.1">last_update_l4s_alpha_time (0): Last time l4s_alpha was updated [s].<a href="#section-4.2.1.3-6.2.1" class="pilcrow">¶</a></p>
+</li>
+              <li class="normal" id="section-4.2.1.3-6.3">
+                <p id="section-4.2.1.3-6.3.1">data_units_delivered_this_rtt (0): Counter for delivered data units.<a href="#section-4.2.1.3-6.3.1" class="pilcrow">¶</a></p>
+</li>
+              <li class="normal" id="section-4.2.1.3-6.4">
+                <p id="section-4.2.1.3-6.4.1">data_units_marked_this_rtt (0): Counter delivered and ECN-CE marked data units.<a href="#section-4.2.1.3-6.4.1" class="pilcrow">¶</a></p>
+</li>
+              <li class="normal" id="section-4.2.1.3-6.5">
+                <p id="section-4.2.1.3-6.5.1">last_fraction_marked (0.0): fraction marked data units in last update<a href="#section-4.2.1.3-6.5.1" class="pilcrow">¶</a></p>
+</li>
+            </ul>
+<p id="section-4.2.1.3-7">The following constant is used:<a href="#section-4.2.1.3-7" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-4.2.1.3-8.1">
+                <p id="section-4.2.1.3-8.1.1">L4S_AVG_G (1/16): Exponentially Weighted Moving Average (EWMA) factor for l4s_alpha<a href="#section-4.2.1.3-8.1.1" class="pilcrow">¶</a></p>
+</li>
+            </ul>
 </section>
 </div>
 <div id="reaction-delay">
@@ -1927,21 +1919,11 @@ retransmissions. Furthermore, the delay based congestion control is inactivated
 when it is reasonably certain that L4S is active, i.e. L4S is enabled and
 congested nodes apply L4S marking of data units. This reduces negative effects of
 clockdrift, that the delay based control can introduce, whenever possible.<a href="#section-4.2.1.4-1" class="pilcrow">¶</a></p>
-<ul class="normal">
-<li class="normal" id="section-4.2.1.4-2.1">
-                <p id="section-4.2.1.4-2.1.1">qdelay_avg:<a href="#section-4.2.1.4-2.1.1" class="pilcrow">¶</a></p>
-</li>
-            </ul>
-<p id="section-4.2.1.4-3">The following constant is used:<a href="#section-4.2.1.4-3" class="pilcrow">¶</a></p>
-<ul class="normal">
-<li class="normal" id="section-4.2.1.4-4.1">
-                <p id="section-4.2.1.4-4.1.1">QDELAY_AVG_G (1/4): Exponentially Weighted Moving Average (EWMA) factor for qdelay_avg<a href="#section-4.2.1.4-4.1.1" class="pilcrow">¶</a></p>
-</li>
-            </ul>
-<div class="alignLeft art-text artwork" id="section-4.2.1.4-5">
+<p id="section-4.2.1.4-2">qdelay_avg is updated with a slow attack, fast decay EWMA filter the
+following way:<a href="#section-4.2.1.4-2" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-4.2.1.4-3">
 <pre>
 if (now - last_update_qdelay_avg_time &gt;= s_rtt)
-  # qdelay_avg is updated with a slow attack, fast decay EWMA filter
   if (qdelay &lt; qdelay_avg)
     qdelay_avg = qdelay
   else
@@ -1949,8 +1931,28 @@ if (now - last_update_qdelay_avg_time &gt;= s_rtt)
   end
   last_update_qdelay_avg_time = now
 end
-</pre><a href="#section-4.2.1.4-5" class="pilcrow">¶</a>
+</pre><a href="#section-4.2.1.4-3" class="pilcrow">¶</a>
 </div>
+<p id="section-4.2.1.4-4">The following variables are used:<a href="#section-4.2.1.4-4" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-4.2.1.4-5.1">
+                <p id="section-4.2.1.4-5.1.1">qdelay: When the sender receives RTCP feedback, the qdelay is calculated as outlined in
+<span>[<a href="#RFC6817" class="cite xref">RFC6817</a>]</span>. A qdelay sample is obtained for each received acknowledgement.<a href="#section-4.2.1.4-5.1.1" class="pilcrow">¶</a></p>
+</li>
+              <li class="normal" id="section-4.2.1.4-5.2">
+                <p id="section-4.2.1.4-5.2.1">last_update_qdelay_avg_time (0): Last time qdelay_avg was updated [s].<a href="#section-4.2.1.4-5.2.1" class="pilcrow">¶</a></p>
+</li>
+              <li class="normal" id="section-4.2.1.4-5.3">
+                <p id="section-4.2.1.4-5.3.1">s_rtt (0.0): Smoothed RTT [s], computed with a similar method to that
+described in <span>[<a href="#RFC6298" class="cite xref">RFC6298</a>]</span>.<a href="#section-4.2.1.4-5.3.1" class="pilcrow">¶</a></p>
+</li>
+            </ul>
+<p id="section-4.2.1.4-6">The following constant is used:<a href="#section-4.2.1.4-6" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-4.2.1.4-7.1">
+                <p id="section-4.2.1.4-7.1.1">QDELAY_AVG_G (1/4): Exponentially Weighted Moving Average (EWMA) factor for qdelay_avg<a href="#section-4.2.1.4-7.1.1" class="pilcrow">¶</a></p>
+</li>
+            </ul>
 <div id="competing-flows-compensation">
 <section id="section-4.2.1.4.1">
               <h6 id="name-competing-flows-compensatio">
