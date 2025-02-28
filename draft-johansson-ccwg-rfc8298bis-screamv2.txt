@@ -83,6 +83,8 @@ Table of Contents
      3.3.  Media Rate Control
    4.  Detailed Description of SCReAMv2 sender algorithm
      4.1.  Sender side state
+       4.1.1.  Sending state
+       4.1.2.  Status Update on Receiving Feedback
      4.2.  Network Congestion Control
        4.2.1.  Congestion Detection: Delay, Data unit Loss and ECN-CE
        4.2.2.  Reference Window Update
@@ -388,32 +390,67 @@ Table of Contents
 
 4.1.  Sender side state
 
-   The sender needs to maintain sending state as well as state about the
-   received feedback, covered by the following variables:
+   The sender needs to maintain sending state and state about the
+   received feedback, as explained in the following subsections, as well
+   as the following configuration state:
 
-   *  bytes_in_flight:
+   *  l4s_active (false): Indicates that L4S is enabled and data units
+      are indeed marked.
 
-   *  bytes_in_flight_ratio (0.0): Ratio between the bytes in flight and
-      the reference window.
+4.1.1.  Sending state
+
+   SCReAMv2 is a window-based and byte-oriented congestion control
+   protocol, where the number of bytes transmitted is inferred from the
+   size of the transmitted data units.  Thus, a list of transmitted data
+   units and their respective transmission times (wall-clock time) MUST
+   be kept for further calculation.  Further the following variables are
+   needed:
+
+   *  data_unit_size (0): Size [byte] of the last transmitted data unit.
+
+   *  bytes_in_flight: The number of bytes in flight (bytes_in_flight)
+      is computed as the sum of the sizes of the data units ranging from
+      the data unit most recently transmitted, down to but not including
+      the acknowledged data unit with the highest sequence number.
+
+   bytes_in_flight can be also seen as the difference between the
+   highest transmitted byte sequence number and the highest acknowledged
+   byte sequence number.  As an example: If a data unit with sequence
+   number SN is transmitted and the last acknowledgement indicates SN-5
+   as the highest received sequence number, then bytes_in_flight is
+   computed as the sum of the size of data units with sequence number
+   SN-4, SN-3, SN-2, SN-1, and SN.  It does not matter if, for instance,
+   the data unit with sequence number SN-3 was lost -- the size of data
+   unit with sequence number SN-3 will still be considered in the
+   computation of bytes_in_flight.
+
+   *  bytes_in_flight_ratio (0.0): Ratio between the bytes_in_flight and
+      the reference window ref_wnd.  This value should be computed at
+      the beginning of the ACK processing.
 
    *  ref_wnd_ratio (0.0): Ratio between MSS and ref_wnd.
 
-   *  s_rtt (0.0): Smoothed RTT [s], computed with a similar method to
-      that described in [RFC6298].
-
-   *  qdelay:
-
-   *  last_update_qdelay_avg_time (0): Last time qdelay_avg was updated
-      [s].
-
-   *  loss_event_rate (0.0): The estimated fraction of RTTs with lost
-      data units detected.
-
    *  max_bytes_in_flight (0): The maximum number of bytes in flight in
-      the last round trip [byte].
+      the current round trip [byte].
 
    *  max_bytes_in_flight_prev (0): The maximum number of bytes in
       flight in previous round trip [byte].
+
+   As bytes_in_flight can spike when congestion occurs, using the
+   maximum of max_bytes_in_flight and max_bytes_in_flight_prev makes it
+   more likely that an uncongested bytes_in_flight is used.
+
+4.1.2.  Status Update on Receiving Feedback
+
+   The feedback from the receiver is assumed to consist of the following
+   elements:
+
+   *  data_units_acked and : A list of received data units' sequence
+      numbers.
+
+   *  data_units_acked_ce: An indication if data units are ECN-CE
+      marked.  The ECN status can be either per data unit or an
+      accumulated count of ECN-CE marked data units.
 
    *  bytes_newly_acked (0): Number of bytes newly ACKed, reset to 0
       when congestion window is updated [byte].
@@ -421,75 +458,31 @@ Table of Contents
    *  bytes_newly_acked_ce (0): Number of bytes newly ACKed and CE
       marked, reset to 0 when reference window is updated [byte].
 
-   *  data_unit_size (0): Size [byte] of the last transmitted data unit.
+   bytes_newly_acked is incremented with a value corresponding to how
+   much the highest sequence number has increased since the last
+   feedback.  As an example: If the previous acknowledgement indicated
+   the highest sequence number N and the new acknowledgement indicated
+   N+3, then bytes_newly_acked is incremented by a value equal to the
+   sum of the sizes of data units with sequence number N+1, N+2, and
+   N+3.  Data units that are lost are also included, which means that
+   even though, e.g., data unit N+2 was lost, its size is still included
+   in the update of bytes_newly_acked.  The bytes_newly_acked_ce is,
+   similar to bytes_newly_acked, a counter of bytes newly acked with the
+   extra condition that they are ECN-CE marked.  The bytes_newly_acked
+   and bytes_newly_acked_ce are reset to zero after a ref_wnd update.
 
-   *  data_units_acked:
+   *  qdelay: When the sender receives RTCP feedback, the qdelay is
+      calculated as outlined in [RFC6817].  A qdelay sample is obtained
+      for each received acknowledgement.
 
-   *  data_units_acked_ce:
+   *  last_update_qdelay_avg_time (0): Last time qdelay_avg was updated
+      [s].
 
-   *  l4s_active (false): Indicates that L4S is enabled and data units
-      are indeed marked.
+   *  loss_event_rate (0.0): The estimated fraction of RTTs with lost
+      data units detected.
 
-   SCReAMv2 is a window-based and byte-oriented congestion control
-   protocol, where the number of bytes transmitted is inferred from the
-   size of the transmitted data units.  Thus, a list of transmitted data
-   units and their respective transmission times (wall-clock time) MUST
-   be kept for further calculation.
-
-   The number of bytes in flight (bytes_in_flight) is computed as the
-   sum of the sizes of the data units ranging from the data unit most
-   recently transmitted, down to but not including the acknowledged data
-   unit with the highest sequence number.  This can be translated to the
-   difference between the highest transmitted byte sequence number and
-   the highest acknowledged byte sequence number.  As an example: If a
-   data unit with sequence number SN is transmitted and the last
-   acknowledgement indicates SN-5 as the highest received sequence
-   number, then bytes_in_flight is computed as the sum of the size of
-   data units with sequence number SN-4, SN-3, SN-2, SN-1, and SN.  It
-   does not matter if, for instance, the data unit with sequence number
-   SN-3 was lost -- the size of data unit with sequence number SN-3 will
-   still be considered in the computation of bytes_in_flight.
-
-   bytes_in_flight_ratio is calculated as the ratio between bytes_flight
-   and ref_wnd.  This value should be computed at the beginning of the
-   ACK processing. ref_wnd_ratio is computed as the relation between MSS
-   and ref_wnd.
-
-   The variable max_bytes_in_flight indicates the maximum bytes in
-   flight in the current round trip.  The variable
-   max_bytes_in_flight_prev indicates the maximum bytes in flights in
-   the previous round trip.  As bytes in flight can spike when
-   congestion occurs, using the maximum of max_bytes_in_flight and
-   max_bytes_in_flight_prev makes it more likely that an uncongested
-   bytes in flight is used.
-
-   Furthermore, a variable bytes_newly_acked is incremented with a value
-   corresponding to how much the highest sequence number has increased
-   since the last feedback.  As an example: If the previous
-   acknowledgement indicated the highest sequence number N and the new
-   acknowledgement indicated N+3, then bytes_newly_acked is incremented
-   by a value equal to the sum of the sizes of data units with sequence
-   number N+1, N+2, and N+3.  Data units that are lost are also
-   included, which means that even though, e.g., data unit N+2 was lost,
-   its size is still included in the update of bytes_newly_acked.  The
-   bytes_newly_acked_ce is, similar to bytes_newly_acked, a counter of
-   bytes newly acked with the extra condition that they are ECN-CE
-   marked.  The bytes_newly_acked and bytes_newly_acked_ce are reset to
-   zero after a ref_wnd update.
-
-   When the sender receives RTCP feedback, the qdelay is calculated as
-   outlined in [RFC6817].  A qdelay sample is obtained for each received
-   acknowledgement.
-
-   The smoothed RTT (s_rtt) is computed in a way similar to [RFC6298].
-
-   The feedback from the receiver is assumed to consist of the following
-   elements.
-
-   *  A list of received data units' sequence numbers.  With an
-      indication if data units are ECN-CE marked, the ECN status can be
-      either per data unit or an accumulated count of ECN-CE marked data
-      units.
+   *  s_rtt (0.0): Smoothed RTT [s], computed with a similar method to
+      that described in [RFC6298].
 
    *  The wall-clock timestamp corresponding to the received data unit
       with the highest sequence number.
