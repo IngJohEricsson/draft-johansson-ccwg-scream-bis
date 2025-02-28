@@ -393,30 +393,57 @@ rate control.
 
 ## Sender side state
 
-The sender needs to maintain sending state and state about the received
-feedback, as explained in the following subsections, as well as the following
-configuration state:
+The sender needs to maintain sending state as well as state about the received
+feedback, covered by the following variables:
+
+* bytes_in_flight:
+
+* bytes_in_flight_ratio (0.0): Ratio between the bytes in flight and the
+  reference window.
+
+* ref_wnd_ratio (0.0): Ratio between MSS and ref_wnd.
+
+* s_rtt (0.0): Smoothed RTT [s], computed with a similar method to that
+  described in {{RFC6298}}.
+
+* qdelay:
+
+* last_update_qdelay_avg_time (0): Last time qdelay_avg was updated [s].
+
+* loss_event_rate (0.0): The estimated fraction of RTTs with lost data units
+  detected.
+
+* max_bytes_in_flight (0): The maximum number of bytes in flight in the last
+  round trip [byte].
+
+* max_bytes_in_flight_prev (0): The maximum number of bytes in flight in
+  previous round trip [byte].
+
+* bytes_newly_acked (0): Number of bytes newly ACKed, reset to 0 when congestion
+  window is updated [byte].
+
+* bytes_newly_acked_ce (0): Number of bytes newly ACKed and CE marked, reset to
+  0 when reference window is updated [byte].
+
+* data_unit_size (0): Size [byte] of the last transmitted data unit.
+
+* data_units_acked:
+
+* data_units_acked_ce:
 
 * l4s_active (false): Indicates that L4S is enabled and data units are indeed
   marked.
-
-### Sending state
 
 SCReAMv2 is a window-based and byte-oriented congestion control
 protocol, where the number of bytes transmitted is inferred from the
 size of the transmitted data units. Thus, a list of transmitted data
 units and their respective transmission times (wall-clock time) MUST
-be kept for further calculation. Further the following variables are
-needed:
+be kept for further calculation.
 
-* data_unit_size (0): Size [byte] of the last transmitted data unit.
-
-* bytes_in_flight: The number of bytes in flight (bytes_in_flight) is computed as the sum of the
+The number of bytes in flight (bytes_in_flight) is computed as the sum of the
 sizes of the data units ranging from the data unit most recently transmitted,
 down to but not including the acknowledged data unit with the highest sequence
-number.
-
-bytes_in_flight can be also seen as the difference between the highest transmitted
+number. This can be translated to the difference between the highest transmitted
 byte sequence number and the highest acknowledged byte sequence number. As an
 example: If a data unit with sequence number SN is transmitted and the last
 acknowledgement indicates SN-5 as the highest received sequence number, then
@@ -426,40 +453,17 @@ data unit with sequence number SN-3 was lost -- the size of data unit with
 sequence number SN-3 will still be considered in the computation of
 bytes_in_flight.
 
-* bytes_in_flight_ratio (0.0): Ratio between the bytes_in_flight and the
-  reference window ref_wnd. This value should be computed at the beginning of the ACK
-   processing.
+bytes_in_flight_ratio is calculated as the ratio between bytes_flight and
+ref_wnd. This value should be computed at the beginning of the ACK
+processing. ref_wnd_ratio is computed as the relation between MSS and ref_wnd.
 
-* ref_wnd_ratio (0.0): Ratio between MSS and ref_wnd.
-
-* max_bytes_in_flight (0): The maximum number of bytes in flight in the current
-  round trip [byte].
-
-* max_bytes_in_flight_prev (0): The maximum number of bytes in flight in
-  previous round trip [byte].
-
-As bytes_in_flight can spike
+The variable max_bytes_in_flight indicates the maximum bytes in flight in the
+current round trip. The variable max_bytes_in_flight_prev indicates the
+maximum bytes in flights in the previous round trip. As bytes in flight can spike
 when congestion occurs, using the maximum of max_bytes_in_flight and max_bytes_in_flight_prev
-makes it more likely that an uncongested bytes_in_flight is used.
+makes it more likely that an uncongested bytes in flight is used.
 
-
-### Status Update on Receiving Feedback
-
-The feedback from the receiver is assumed to consist of the following elements:
-
-* data_units_acked and : A list of received data units' sequence numbers.
-
-* data_units_acked_ce: An indication if data units are ECN-CE marked.
-  The ECN status can be either per data unit or an accumulated count of
-  ECN-CE marked data units.
-
-* bytes_newly_acked (0): Number of bytes newly ACKed, reset to 0 when congestion
-  window is updated [byte].
-
-* bytes_newly_acked_ce (0): Number of bytes newly ACKed and CE marked, reset to
-  0 when reference window is updated [byte].
-
-bytes_newly_acked is incremented with a value
+Furthermore, a variable bytes_newly_acked is incremented with a value
 corresponding to how much the highest sequence number has increased
 since the last feedback. As an example: If the previous
 acknowledgement indicated the highest sequence number N and the new
@@ -473,16 +477,16 @@ bytes newly acked with the extra condition that they are ECN-CE
 marked. The bytes_newly_acked and bytes_newly_acked_ce are reset to
 zero after a ref_wnd update.
 
-* qdelay: When the sender receives RTCP feedback, the qdelay is calculated as outlined in
+When the sender receives RTCP feedback, the qdelay is calculated as outlined in
 {{RFC6817}}. A qdelay sample is obtained for each received acknowledgement.
 
-* last_update_qdelay_avg_time (0): Last time qdelay_avg was updated [s].
+The smoothed RTT (s_rtt) is computed in a way similar to {{RFC6298}}.
 
-* loss_event_rate (0.0): The estimated fraction of RTTs with lost data units
-  detected.
+The feedback from the receiver is assumed to consist of the following elements.
 
-* s_rtt (0.0): Smoothed RTT [s], computed with a similar method to that
-  described in {{RFC6298}}.
+* A list of received data units' sequence numbers. With an indication
+  if data units are ECN-CE marked, the ECN status can be either per
+  data unit or an accumulated count of ECN-CE marked data units.
 
 * The wall-clock timestamp corresponding to the received data unit with the
   highest sequence number.
