@@ -185,8 +185,8 @@ Algorithm changes since the last draft version -01 are:
  * Reference window decrease and increase reduced by up to 50% when ref_wnd/mss
    is small. This reduces rate oscillations.
 
- * Target bitrate down adjustment when ref_wnd/mss is small is modified to only
-   help to avoid that the data unit queue grows excessively in certain low
+ * Target bitrate down adjustment when ref_wnd/mss is small is modified to
+   avoid that the data unit queue grows excessively in certain low
    bitrate cases.
 
  * Timing set to multiples of RTTs instead of seconds.
