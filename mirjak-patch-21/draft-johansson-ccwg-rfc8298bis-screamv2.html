@@ -1706,7 +1706,8 @@ reference window ref_wnd. This value should be computed at the beginning of the 
 processing prior to updating the highest received sequence number acked.<a href="#section-4.1.1-4.1.1" class="pilcrow">¶</a></p>
 </li>
             <li class="normal" id="section-4.1.1-4.2">
-              <p id="section-4.1.1-4.2.1">ref_wnd_ratio (0.0): Ratio between MSS and ref_wnd.<a href="#section-4.1.1-4.2.1" class="pilcrow">¶</a></p>
+              <p id="section-4.1.1-4.2.1">ref_wnd_ratio (0.0): Ratio between MSS and ref_wnd capped to not
+exceed 1.0 (min(1.0, MSS / ref_wnd)).<a href="#section-4.1.1-4.2.1" class="pilcrow">¶</a></p>
 </li>
             <li class="normal" id="section-4.1.1-4.3">
               <p id="section-4.1.1-4.3.1">max_bytes_in_flight (0): The maximum number of bytes in flight in the current
