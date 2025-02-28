@@ -428,7 +428,7 @@ bytes_in_flight.
 
 * bytes_in_flight_ratio (0.0): Ratio between the bytes_in_flight and the
   reference window ref_wnd. This value should be computed at the beginning of the ACK
-processing. 
+   processing.
 
 * ref_wnd_ratio (0.0): Ratio between MSS and ref_wnd.
 
