@@ -428,7 +428,7 @@ bytes_in_flight.
 
 * bytes_in_flight_ratio (0.0): Ratio between the bytes_in_flight and the
   reference window ref_wnd. This value should be computed at the beginning of the ACK
-  processing.
+  processing prior to updating the highest received sequence number acked.
 
 * ref_wnd_ratio (0.0): Ratio between MSS and ref_wnd.
 
@@ -613,7 +613,7 @@ end
 
 The following variables are used:
 
-* qdelay: When the sender receives RTCP feedback, the qdelay is calculated as outlined in
+* qdelay: When the sender receives feedback, the qdelay is calculated as outlined in
 {{RFC6817}}. A qdelay sample is obtained for each received acknowledgement.
 
 * last_update_qdelay_avg_time (0): Last time qdelay_avg was updated [s].
