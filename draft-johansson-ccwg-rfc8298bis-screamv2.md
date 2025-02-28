@@ -178,8 +178,8 @@ SCReAM in {{RFC8298}}. The main differences are:
 
 Algorithm changes since the last draft version -01 are:
 
- * Slow down reference window growth when close the last know max is disabled
-   when L4S active. This makes SCReAM adhere more closely to 2 marked packets
+ * Slow down reference window growth when close to the last known maximum value is disabled
+   and when L4S is active. This makes SCReAM adhere more closely to two marked packets
    per RTT at steady state.
 
  * Reference window decrease and increase reduced by up to 50% when ref_wnd/mss
