@@ -430,7 +430,8 @@ bytes_in_flight.
   reference window ref_wnd. This value should be computed at the beginning of the ACK
   processing prior to updating the highest received sequence number acked.
 
-* ref_wnd_ratio (0.0): Ratio between MSS and ref_wnd.
+* ref_wnd_ratio (0.0): Ratio between MSS and ref_wnd capped to not
+  exceed 1.0 (min(1.0, MSS / ref_wnd)).
 
 * max_bytes_in_flight (0): The maximum number of bytes in flight in the current
   round trip [byte].
