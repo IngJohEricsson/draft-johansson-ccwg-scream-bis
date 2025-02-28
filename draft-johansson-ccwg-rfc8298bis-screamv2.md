@@ -447,9 +447,11 @@ makes it more likely that an uncongested bytes_in_flight is used.
 
 The feedback from the receiver is assumed to consist of the following elements:
 
-* data_units_acked and data_units_acked_ce: A list of received data units' sequence numbers and an indication
-  if data units are ECN-CE marked. The ECN status can be either per
-  data unit or an accumulated count of ECN-CE marked data units.
+* data_units_acked and : A list of received data units' sequence numbers.
+
+* data_units_acked_ce: An indication if data units are ECN-CE marked.
+  The ECN status can be either per data unit or an accumulated count of
+  ECN-CE marked data units.
 
 * bytes_newly_acked (0): Number of bytes newly ACKed, reset to 0 when congestion
   window is updated [byte].
