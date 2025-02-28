@@ -5,8 +5,8 @@
 CCWG                                                        I. Johansson
 Internet-Draft                                             M. Westerlund
 Obsoletes: 8298 (if approved)                                   Ericsson
-Intended status: Experimental                            5 February 2025
-Expires: 9 August 2025
+Intended status: Experimental                           28 February 2025
+Expires: 1 September 2025
 
 
               Self-Clocked Rate Adaptation for Multimedia
@@ -54,7 +54,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 9 August 2025.
+   This Internet-Draft will expire on 1 September 2025.
 
 Copyright Notice
 
@@ -194,9 +194,9 @@ Table of Contents
    described as a key factor behind the protection of networks from
    congestion [Packet-conservation].
 
-   The reference window decrase is determined in a way similar as in
-   LEDBAT [RFC6817].  However, the window increase is not based on the
-   delay but uses both a linear increase and multiplicate increase
+   The reference window decrease is determined in a way similar to
+   LEDBAT [RFC6817].  However, the window increase is not based on delay
+   estimates but uses both a linear increase and multiplicate increase
    function depending on the time since the last congestion event and
    introduces use of inflection points in the reference window increase
    calculation to achieve reduced delay jitter.  Further, other than
