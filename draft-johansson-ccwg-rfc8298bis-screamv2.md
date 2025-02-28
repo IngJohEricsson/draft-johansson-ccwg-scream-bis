@@ -473,16 +473,8 @@ bytes newly acked with the extra condition that they are ECN-CE
 marked. The bytes_newly_acked and bytes_newly_acked_ce are reset to
 zero after a ref_wnd update.
 
-* qdelay: When the sender receives RTCP feedback, the qdelay is calculated as outlined in
-{{RFC6817}}. A qdelay sample is obtained for each received acknowledgement.
-
-* last_update_qdelay_avg_time (0): Last time qdelay_avg was updated [s].
-
 * loss_event_rate (0.0): The estimated fraction of RTTs with lost data units
   detected.
-
-* s_rtt (0.0): Smoothed RTT [s], computed with a similar method to that
-  described in {{RFC6298}}.
 
 * The wall-clock timestamp corresponding to the received data unit with the
   highest sequence number.
@@ -552,22 +544,8 @@ MSS. In addition, because SCReAMv2 can quite often be source limited, additional
 steps are taken to restore the reference window to a proper value after a long
 period without congestion.
 
-l4s_alpha is calculated based in number of data units delivered (and marked).
-This makes calculation of L4S alpha more accurate at very low bitrates, given that the tail data unit in e.g a video frame is often smaller than MSS.
-
-* l4s_alpha (0.0): Average fraction of marked data units per RTT.
-
-* last_update_l4s_alpha_time (0): Last time l4s_alpha was updated [s].
-
-* data_units_delivered_this_rtt (0): Counter for delivered data units.
-
-* data_units_marked_this_rtt (0): Counter delivered and ECN-CE marked data units.
-
-* last_fraction_marked (0.0): fraction marked data units in last update
-
-The following constant is used
-
-* L4S_AVG_G (1/16): Exponentially Weighted Moving Average (EWMA) factor for l4s_alpha
+l4s_alpha is calculated based in number of data units delivered (and marked)
+the following way:
 
 ~~~
 data_units_delivered_this_rtt += data_units_acked
@@ -587,6 +565,25 @@ if (now - last_update_l4s_alpha_time >= min(0.01,s_rtt)
 end
 ~~~
 
+This makes calculation of L4S alpha more accurate at very low bitrates,
+given that the tail data unit in e.g a video frame is often smaller than MSS.
+
+The following variables are used:
+
+* l4s_alpha (0.0): Average fraction of marked data units per RTT.
+
+* last_update_l4s_alpha_time (0): Last time l4s_alpha was updated [s].
+
+* data_units_delivered_this_rtt (0): Counter for delivered data units.
+
+* data_units_marked_this_rtt (0): Counter delivered and ECN-CE marked data units.
+
+* last_fraction_marked (0.0): fraction marked data units in last update
+
+The following constant is used:
+
+* L4S_AVG_G (1/16): Exponentially Weighted Moving Average (EWMA) factor for l4s_alpha
+
 #### Increased queue delay {#reaction-delay}
 
 SCReAMv2 implements a delay-based congestion control approach where it mimics
@@ -601,15 +598,11 @@ when it is reasonably certain that L4S is active, i.e. L4S is enabled and
 congested nodes apply L4S marking of data units. This reduces negative effects of
 clockdrift, that the delay based control can introduce, whenever possible.
 
-* qdelay_avg:
-
-The following constant is used:
-
-* QDELAY_AVG_G (1/4): Exponentially Weighted Moving Average (EWMA) factor for qdelay_avg
+qdelay_avg is updated with a slow attack, fast decay EWMA filter the
+following way:
 
 ~~~
 if (now - last_update_qdelay_avg_time >= s_rtt)
-  # qdelay_avg is updated with a slow attack, fast decay EWMA filter
   if (qdelay < qdelay_avg)
     qdelay_avg = qdelay
   else
@@ -618,6 +611,20 @@ if (now - last_update_qdelay_avg_time >= s_rtt)
   last_update_qdelay_avg_time = now
 end
 ~~~
+
+The following variables are used:
+
+* qdelay: When the sender receives RTCP feedback, the qdelay is calculated as outlined in
+{{RFC6817}}. A qdelay sample is obtained for each received acknowledgement.
+
+* last_update_qdelay_avg_time (0): Last time qdelay_avg was updated [s].
+
+* s_rtt (0.0): Smoothed RTT [s], computed with a similar method to that
+  described in {{RFC6298}}.
+
+The following constant is used:
+
+* QDELAY_AVG_G (1/4): Exponentially Weighted Moving Average (EWMA) factor for qdelay_avg
 
 ##### Competing Flows Compensation {#competing-flows-compensation}
 
