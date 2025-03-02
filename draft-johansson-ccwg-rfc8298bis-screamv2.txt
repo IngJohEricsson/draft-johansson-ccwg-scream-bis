@@ -5,8 +5,8 @@
 CCWG                                                        I. Johansson
 Internet-Draft                                             M. Westerlund
 Obsoletes: 8298 (if approved)                                   Ericsson
-Intended status: Experimental                           28 February 2025
-Expires: 1 September 2025
+Intended status: Experimental                               2 March 2025
+Expires: 3 September 2025
 
 
               Self-Clocked Rate Adaptation for Multimedia
@@ -54,7 +54,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 1 September 2025.
+   This Internet-Draft will expire on 3 September 2025.
 
 Copyright Notice
 
@@ -73,20 +73,20 @@ Copyright Notice
 Table of Contents
 
    1.  Introduction
-     1.1.  Updates compared to SCReAM (version 1)
-     1.2.  Requirements on media and feedback protocol
+     1.1.  Updates Compared to SCReAM (version 1)
+     1.2.  Requirements on the Media and Feedback Protocol
      1.3.  Comparison with LEDBAT and TFWC in TCP
    2.  Requirements Language
    3.  Overview of SCReAMv2 Algorithm
      3.1.  Network Congestion Control
      3.2.  Sender Transmission Control
      3.3.  Media Rate Control
-   4.  Detailed Description of SCReAMv2 sender algorithm
-     4.1.  Sender side state
-       4.1.1.  Sending state
+   4.  Detailed Description of SCReAMv2 Sender Algorithm
+     4.1.  Sender Side State
+       4.1.1.  Status Upadte When Sending Data
        4.1.2.  Status Update on Receiving Feedback
      4.2.  Network Congestion Control
-       4.2.1.  Congestion Detection: Delay, Data unit Loss and ECN-CE
+       4.2.1.  Congestion Detection: Delay, Data Unit Loss and ECN-CE
        4.2.2.  Reference Window Update
      4.3.  Sender Transmission Control
        4.3.1.  Send Window Calculation
@@ -124,7 +124,7 @@ Table of Contents
    the network and the hosts.  However, ECN or L4S is not required for
    the basic congestion control functionality in SCReAMv2.
 
-1.1.  Updates compared to SCReAM (version 1)
+1.1.  Updates Compared to SCReAM (version 1)
 
    The algorithm in this memo differs considerably compared to the
    previous version of SCReAM in [RFC8298].  The main differences are:
@@ -179,7 +179,7 @@ Table of Contents
 
    *  Timing set to multiples of RTTs instead of seconds.
 
-1.2.  Requirements on media and feedback protocol
+1.2.  Requirements on the Media and Feedback Protocol
 
    SCReAM was originally designed to with with RTP + RTCP where
    [RFC8888] was used as recommended feedback.  RTP offers unique packet
@@ -398,13 +398,13 @@ Table of Contents
    temporarily reduced.  Which method to use is a design choice and is
    outside the scope of this algorithm description.
 
-4.  Detailed Description of SCReAMv2 sender algorithm
+4.  Detailed Description of SCReAMv2 Sender Algorithm
 
    This section describes the sender-side algorithm in more detail.  It
    is split between the network congestion control, sender transmission
    control, and media rate control.
 
-4.1.  Sender side state
+4.1.  Sender Side State
 
    The sender needs to maintain sending state and state about the
    received feedback, as explained in the following subsections, as well
@@ -413,7 +413,7 @@ Table of Contents
    *  l4s_active (false): Indicates that L4S is enabled and data units
       are indeed marked.
 
-4.1.1.  Sending state
+4.1.1.  Status Upadte When Sending Data
 
    SCReAMv2 is a window-based and byte-oriented congestion control
    protocol, where the number of bytes transmitted is inferred from the
@@ -497,7 +497,7 @@ Table of Contents
    the reference window.  The reference window gives an upper limit to
    the number of bytes in flight.
 
-4.2.1.  Congestion Detection: Delay, Data unit Loss and ECN-CE
+4.2.1.  Congestion Detection: Delay, Data Unit Loss and ECN-CE
 
    Congestion is detected based on three different indicators:
 
@@ -512,7 +512,7 @@ Table of Contents
    event.  This ensures that the reference window is reduced at most
    once per smoothed RTT.
 
-4.2.1.1.  Lost data units
+4.2.1.1.  Detecting Lost Data Units
 
    The reference window back-off due to loss events is deliberately a
    bit less than is the case with TCP Reno, for example.  TCP is
@@ -542,7 +542,7 @@ Table of Contents
    window (indicated by the reordering window) after an data unit with a
    higher sequence number was acknowledged.
 
-4.2.1.2.  ECN-CE and classic ECN
+4.2.1.2.  Receiving ECN-CE with classic ECN
 
    In classic ECN mode the ref_wnd is scaled by a fixed value
    (BETA_ECN).
@@ -552,7 +552,7 @@ Table of Contents
    [RFC8511] to enable ECN marking thresholds lower than the
    corresponding data unit drop thresholds.
 
-4.2.1.3.  ECN-CE and L4S
+4.2.1.3.  Receiving ECN-CE for L4S
 
    The ref_wnd is scaled down in proportion to the fraction of marked
    data units per RTT.  The scale down proportion is given by l4s_alpha,
@@ -608,7 +608,7 @@ Table of Contents
    *  L4S_AVG_G (1/16): Exponentially Weighted Moving Average (EWMA)
       factor for l4s_alpha
 
-4.2.1.4.  Increased queue delay
+4.2.1.4.  Detecting Increased Queue Delay
 
    SCReAMv2 implements a delay-based congestion control approach where
    it mimics L4S congestion marking when the averaged queue delay
@@ -815,7 +815,7 @@ Table of Contents
       fairness such that flows with RTT below VIRTUAL_RTT should get a
       roughly equal share over an L4S path.
 
-4.2.2.1.  reference window reduction
+4.2.2.1.  Reference Window Reduction
 
    # The reference window is updated at least every VIRTUAL_RTT
    if (now - last_congestion_detected_time >= min(VIRTUAL_RTT,s_rtt)
@@ -900,7 +900,7 @@ Table of Contents
      last_congestion_detected_time = now
    end
 
-4.2.2.2.  Reference window increase
+4.2.2.2.  Reference Window Increase
 
   # Delay factor for multiplicative reference window increase
   # after congestion
