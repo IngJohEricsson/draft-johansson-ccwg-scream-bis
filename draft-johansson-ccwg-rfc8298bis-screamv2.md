@@ -141,7 +141,7 @@ throughput (L4S) {{RFC9330}} in cases where ECN or L4S is supported by the
 network and the hosts. However, ECN or L4S is not required for the basic
 congestion control functionality in SCReAMv2.
 
-## Updates compared to SCReAM (version 1) {#sec:changes}
+## Updates Compared to SCReAM (version 1) {#sec:changes}
 
 The algorithm in this memo differs considerably compared to the previous version of
 SCReAM in {{RFC8298}}. The main differences are:
@@ -225,7 +225,8 @@ outdated or background information and reorganisation of several sections:
 * Section on "Competing Flows Compensation" moved into Section {{reaction-delay-loss-ce}}
   on "Congestion Detection"
 
-## Requirements on media and feedback protocol {#requirements-media}
+## Requirements on the Media and Feedback Protocol {#requirements-media}
+
 
 SCReAM was originally designed to with with RTP + RTCP where {{RFC8888}} was
 used as recommended feedback. RTP offers unique packet indication with the
@@ -435,13 +436,13 @@ in order to ensure that the data unit queues are drained quickly. Frame skipping
 results in the frame rate being temporarily reduced. Which method to use is a
 design choice and is outside the scope of this algorithm description.
 
-# Detailed Description of SCReAMv2 sender algorithm {#scream-detailed-description}
+# Detailed Description of SCReAMv2 Sender Algorithm {#scream-detailed-description}
 
 This section describes the sender-side algorithm in more detail. It is split
 between the network congestion control, sender transmission control, and media
 rate control.
 
-## Sender side state
+## Sender Side State
 
 The sender needs to maintain sending state and state about the received
 feedback, as explained in the following subsections, as well as the following
@@ -450,7 +451,7 @@ configuration state:
 * l4s_active (false): Indicates that L4S is enabled and data units are indeed
   marked.
 
-### Sending state
+### Status Upadte When Sending Data
 
 SCReAMv2 is a window-based and byte-oriented congestion control
 protocol, where the number of bytes transmitted is inferred from the
@@ -534,7 +535,7 @@ zero after a ref_wnd update.
 This section explains the network congestion control, which calcultes the
 reference window. The reference window gives an upper limit to the number of bytes in flight.
 
-### Congestion Detection: Delay, Data unit Loss and ECN-CE {#reaction-delay-loss-ce}
+### Congestion Detection: Delay, Data Unit Loss and ECN-CE {#reaction-delay-loss-ce}
 
 Congestion is detected based on three different indicators:
 
@@ -548,7 +549,7 @@ A congestion event occurs if any of the above indicators are true AND it is at
 least min(VIRTUAL_RTT,s_rtt) since the last congestion event. This ensures that
 the reference window is reduced at most once per smoothed RTT.
 
-#### Lost data units  {#reaction-loss}
+#### Detecting Lost Data Units  {#reaction-loss}
 
 The reference window back-off due to loss events is deliberately a bit less than
 is the case with TCP Reno, for example. TCP is generally used to transmit whole
@@ -575,7 +576,7 @@ given data unit is not acknowledged within a time window (indicated by the
 reordering window) after an data unit with a higher sequence number was
 acknowledged.
 
-#### ECN-CE and classic ECN  {#reaction-ecn-ce}
+#### Receiving ECN-CE with classic ECN  {#reaction-ecn-ce}
 
 In classic ECN mode the ref_wnd is scaled by a fixed value (BETA_ECN).
 
@@ -583,7 +584,7 @@ The reference window back-off due to an ECN event MAY be smaller than if a loss
 event occurs. This is in line with the idea outlined in {{RFC8511}} to enable
 ECN marking thresholds lower than the corresponding data unit drop thresholds.
 
-#### ECN-CE and L4S {#reaction-l4s-ce}
+#### Receiving ECN-CE for L4S {#reaction-l4s-ce}
 
 The ref_wnd is scaled down in proportion to the fraction of marked data units per
 RTT. The scale down proportion is given by l4s_alpha, which is an EWMA filtered
@@ -634,7 +635,7 @@ The following constant is used
 
 * L4S_AVG_G (1/16): Exponentially Weighted Moving Average (EWMA) factor for l4s_alpha
 
-#### Increased queue delay {#reaction-delay}
+#### Detecting Increased Queue Delay {#reaction-delay}
 
 SCReAMv2 implements a delay-based congestion control approach where it mimics
 L4S congestion marking when the averaged queue delay exceeds a target
@@ -828,7 +829,7 @@ for the constants are deduced from experiments):
 * VIRTUAL_RTT (0.025): Virtual RTT [s]. This mimics Prague's RTT fairness such that flows with RTT
   below VIRTUAL_RTT should get a roughly equal share over an L4S path.
 
-#### reference window reduction
+#### Reference Window Reduction
 
 ~~~
 # The reference window is updated at least every VIRTUAL_RTT
@@ -916,7 +917,7 @@ end
 ~~~
 
 
-#### Reference window increase
+#### Reference Window Increase
 
 ~~~
 # Delay factor for multiplicative reference window increase
