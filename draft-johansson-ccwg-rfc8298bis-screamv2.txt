@@ -4,9 +4,9 @@
 
 CCWG                                                        I. Johansson
 Internet-Draft                                             M. Westerlund
-Obsoletes: 8298 (if approved)                                   Ericsson
-Intended status: Experimental                               2 March 2025
-Expires: 3 September 2025
+Obsoletes: 8298 (if approved)                               M. Kühlewind
+Intended status: Experimental                                   Ericsson
+Expires: 3 September 2025                                   2 March 2025
 
 
               Self-Clocked Rate Adaptation for Multimedia
@@ -1527,3 +1527,8 @@ Authors' Addresses
    Magnus Westerlund
    Ericsson
    Email: magnus.westerlund@ericsson.com
+
+
+   Mirja Kühlewind
+   Ericsson
+   Email: mirja.kuehlewind@ericsson.com
