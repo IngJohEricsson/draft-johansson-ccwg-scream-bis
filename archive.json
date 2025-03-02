@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2025-02-27T01:39:10.322661+00:00",
+  "timestamp": "2025-03-02T01:43:38.725929+00:00",
   "repo": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
   "labels": [
     {
@@ -226,6 +226,22 @@
       "createdAt": "2024-02-27T11:37:51Z",
       "updatedAt": "2024-02-27T13:00:45Z",
       "closedAt": "2024-02-27T13:00:45Z",
+      "comments": []
+    },
+    {
+      "number": 39,
+      "id": "I_kwDOK7AJUs6sGGzt",
+      "title": "Rewrite Section on Receiver Requirements on Feedback Intensity",
+      "url": "https://github.com/IngJohEricsson/draft-johansson-ccwg-scream-bis/issues/39",
+      "state": "OPEN",
+      "author": "gloinul",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "The current section on  Receiver Requirements on Feedback Intensity is very much written from an RTCP perspective. That RTCP related discussion is useful for protocol with that limitation. However for protocol that allow feedback based on other rules could benefit from a general high level discussion and then protocol specific discussion. ",
+      "createdAt": "2025-02-28T14:21:26Z",
+      "updatedAt": "2025-02-28T14:21:26Z",
+      "closedAt": null,
       "comments": []
     }
   ],
@@ -1543,6 +1559,450 @@
           ]
         }
       ]
+    },
+    {
+      "number": 36,
+      "id": "PR_kwDOK7AJUs6M7iWp",
+      "title": "Remove duplicate \"Algorithmic Changes section\"",
+      "url": "https://github.com/IngJohEricsson/draft-johansson-ccwg-scream-bis/pull/36",
+      "state": "MERGED",
+      "author": "mirjak",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2025-02-28T12:06:58Z",
+      "updatedAt": "2025-02-28T15:24:05Z",
+      "baseRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
+      "baseRefName": "main",
+      "baseRefOid": "dc0af1378898883d2b075e5d6f5341c27e43e66c",
+      "headRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
+      "headRefName": "mirjak-patch-19",
+      "headRefOid": "2719ef0335e6937fd4e093a41bdd4073e361be73",
+      "closedAt": "2025-02-28T15:24:05Z",
+      "mergedAt": "2025-02-28T15:24:05Z",
+      "mergedBy": "mirjak",
+      "mergeCommit": {
+        "oid": "905fc77aca1152daa975346fb29a7ed3d3efe5bf"
+      },
+      "comments": [],
+      "reviews": [
+        {
+          "id": "PRR_kwDOK7AJUs6d_qeY",
+          "commit": {
+            "abbreviatedOid": "f3f3990"
+          },
+          "author": "gloinul",
+          "authorAssociation": "COLLABORATOR",
+          "state": "CHANGES_REQUESTED",
+          "body": "Two sentence needs fixing before merging.",
+          "createdAt": "2025-02-28T13:11:10Z",
+          "updatedAt": "2025-02-28T13:12:39Z",
+          "comments": [
+            {
+              "originalPosition": 24,
+              "body": "This sentence needs fixing. ",
+              "createdAt": "2025-02-28T13:11:10Z",
+              "updatedAt": "2025-02-28T13:12:39Z"
+            },
+            {
+              "originalPosition": 32,
+              "body": "\"to only help to avoid that\" another strange formulation that I don't quite understand.",
+              "createdAt": "2025-02-28T13:12:11Z",
+              "updatedAt": "2025-02-28T13:12:39Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs6d_sCU",
+          "commit": {
+            "abbreviatedOid": "f3f3990"
+          },
+          "author": "gloinul",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2025-02-28T13:14:17Z",
+          "updatedAt": "2025-02-28T13:14:17Z",
+          "comments": [
+            {
+              "originalPosition": 24,
+              "body": "@IngJohEricsson you will have to take a look and clarify the meaning. ",
+              "createdAt": "2025-02-28T13:14:17Z",
+              "updatedAt": "2025-02-28T13:14:17Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs6d_sMU",
+          "commit": {
+            "abbreviatedOid": "f3f3990"
+          },
+          "author": "gloinul",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2025-02-28T13:14:36Z",
+          "updatedAt": "2025-02-28T13:14:36Z",
+          "comments": [
+            {
+              "originalPosition": 32,
+              "body": "@IngJohEricsson can you please help clarify what is intended to mean. ",
+              "createdAt": "2025-02-28T13:14:36Z",
+              "updatedAt": "2025-02-28T13:14:36Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs6d_sUO",
+          "commit": {
+            "abbreviatedOid": "f3f3990"
+          },
+          "author": "mirjak",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2025-02-28T13:14:51Z",
+          "updatedAt": "2025-02-28T13:14:51Z",
+          "comments": [
+            {
+              "originalPosition": 32,
+              "body": "Yes, I assume we can just remove the \"to only help\"\r\n",
+              "createdAt": "2025-02-28T13:14:51Z",
+              "updatedAt": "2025-02-28T13:14:51Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs6d_slF",
+          "commit": {
+            "abbreviatedOid": "f3f3990"
+          },
+          "author": "mirjak",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2025-02-28T13:15:20Z",
+          "updatedAt": "2025-02-28T13:15:21Z",
+          "comments": [
+            {
+              "originalPosition": 32,
+              "body": "```suggestion\r\n * Target bitrate down adjustment when ref_wnd/mss is small is modified to\r\n   avoid that the data unit queue grows excessively in certain low\r\n```",
+              "createdAt": "2025-02-28T13:15:21Z",
+              "updatedAt": "2025-02-28T13:15:21Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs6d_twZ",
+          "commit": {
+            "abbreviatedOid": "f3f3990"
+          },
+          "author": "mirjak",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2025-02-28T13:17:39Z",
+          "updatedAt": "2025-02-28T13:17:40Z",
+          "comments": [
+            {
+              "originalPosition": 24,
+              "body": "At minimum there are some nits but this sentence is not super clear.\r\n",
+              "createdAt": "2025-02-28T13:17:40Z",
+              "updatedAt": "2025-02-28T13:17:40Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs6d_uIO",
+          "commit": {
+            "abbreviatedOid": "f3f3990"
+          },
+          "author": "mirjak",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2025-02-28T13:18:24Z",
+          "updatedAt": "2025-02-28T13:18:25Z",
+          "comments": [
+            {
+              "originalPosition": 25,
+              "body": "```suggestion\r\n * Slow down reference window growth when close to the last known maximum value is disabled\r\n   and when L4S is active. This makes SCReAM adhere more closely to two marked packets\r\n```",
+              "createdAt": "2025-02-28T13:18:24Z",
+              "updatedAt": "2025-02-28T13:18:25Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs6d_ykd",
+          "commit": {
+            "abbreviatedOid": "f3f3990"
+          },
+          "author": "IngJohEricsson",
+          "authorAssociation": "OWNER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2025-02-28T13:26:15Z",
+          "updatedAt": "2025-02-28T13:26:15Z",
+          "comments": [
+            {
+              "originalPosition": 32,
+              "body": "Yes, sounds good to remove \"to only help\"",
+              "createdAt": "2025-02-28T13:26:15Z",
+              "updatedAt": "2025-02-28T13:26:15Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs6d_zkM",
+          "commit": {
+            "abbreviatedOid": "f3f3990"
+          },
+          "author": "IngJohEricsson",
+          "authorAssociation": "OWNER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2025-02-28T13:28:11Z",
+          "updatedAt": "2025-02-28T13:28:11Z",
+          "comments": [
+            {
+              "originalPosition": 25,
+              "body": "Fine with me",
+              "createdAt": "2025-02-28T13:28:11Z",
+              "updatedAt": "2025-02-28T13:28:11Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "number": 37,
+      "id": "PR_kwDOK7AJUs6M7p66",
+      "title": "reorg \"sender state\" section",
+      "url": "https://github.com/IngJohEricsson/draft-johansson-ccwg-scream-bis/pull/37",
+      "state": "MERGED",
+      "author": "mirjak",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2025-02-28T12:24:01Z",
+      "updatedAt": "2025-02-28T13:31:34Z",
+      "baseRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
+      "baseRefName": "main",
+      "baseRefOid": "dc0af1378898883d2b075e5d6f5341c27e43e66c",
+      "headRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
+      "headRefName": "mirjak-patch-20",
+      "headRefOid": "21015653b13ff345e459615de3032ac0c8a5e390",
+      "closedAt": "2025-02-28T13:31:34Z",
+      "mergedAt": "2025-02-28T13:31:34Z",
+      "mergedBy": "IngJohEricsson",
+      "mergeCommit": {
+        "oid": "6568d78a7d4d5baac51e16bf8ed1450c9d2be837"
+      },
+      "comments": [],
+      "reviews": [
+        {
+          "id": "PRR_kwDOK7AJUs6d_oTl",
+          "commit": {
+            "abbreviatedOid": "e949e6e"
+          },
+          "author": "mirjak",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2025-02-28T13:06:50Z",
+          "updatedAt": "2025-02-28T13:06:51Z",
+          "comments": [
+            {
+              "originalPosition": 102,
+              "body": "```suggestion\r\nThe feedback from the receiver is assumed to consist of the following elements:\r\n```",
+              "createdAt": "2025-02-28T13:06:50Z",
+              "updatedAt": "2025-02-28T13:06:51Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs6d_umF",
+          "commit": {
+            "abbreviatedOid": "e806df4"
+          },
+          "author": "mirjak",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2025-02-28T13:19:20Z",
+          "updatedAt": "2025-02-28T13:19:20Z",
+          "comments": [
+            {
+              "originalPosition": 80,
+              "body": "```suggestion\r\n   processing.\r\n```",
+              "createdAt": "2025-02-28T13:19:20Z",
+              "updatedAt": "2025-02-28T13:19:20Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs6d_xKo",
+          "commit": {
+            "abbreviatedOid": "9e683f6"
+          },
+          "author": "mirjak",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2025-02-28T13:23:32Z",
+          "updatedAt": "2025-02-28T13:23:32Z",
+          "comments": [
+            {
+              "originalPosition": 106,
+              "body": "```suggestion\r\n* data_units_acked and : A list of received data units' sequence numbers.\r\n\r\n* data_units_acked_ce: An indication if data units are ECN-CE marked.\r\n  The ECN status can be either per data unit or an accumulated count of\r\n  ECN-CE marked data units.\r\n```",
+              "createdAt": "2025-02-28T13:23:32Z",
+              "updatedAt": "2025-02-28T13:23:32Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs6d_0nO",
+          "commit": {
+            "abbreviatedOid": "2101565"
+          },
+          "author": "IngJohEricsson",
+          "authorAssociation": "OWNER",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2025-02-28T13:30:09Z",
+          "updatedAt": "2025-02-28T13:30:09Z",
+          "comments": []
+        },
+        {
+          "id": "PRR_kwDOK7AJUs6d_1Eq",
+          "commit": {
+            "abbreviatedOid": "2101565"
+          },
+          "author": "IngJohEricsson",
+          "authorAssociation": "OWNER",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2025-02-28T13:30:57Z",
+          "updatedAt": "2025-02-28T13:30:57Z",
+          "comments": []
+        },
+        {
+          "id": "PRR_kwDOK7AJUs6d_1VY",
+          "commit": {
+            "abbreviatedOid": "2101565"
+          },
+          "author": "IngJohEricsson",
+          "authorAssociation": "OWNER",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2025-02-28T13:31:26Z",
+          "updatedAt": "2025-02-28T13:31:26Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 38,
+      "id": "PR_kwDOK7AJUs6M8UNq",
+      "title": "Move some more variables around",
+      "url": "https://github.com/IngJohEricsson/draft-johansson-ccwg-scream-bis/pull/38",
+      "state": "MERGED",
+      "author": "mirjak",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2025-02-28T13:52:14Z",
+      "updatedAt": "2025-02-28T15:23:50Z",
+      "baseRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
+      "baseRefName": "main",
+      "baseRefOid": "6568d78a7d4d5baac51e16bf8ed1450c9d2be837",
+      "headRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
+      "headRefName": "mirjak-patch-21",
+      "headRefOid": "1d6fe3c309668322a52bdc239f46d15f5d54efe7",
+      "closedAt": "2025-02-28T15:23:49Z",
+      "mergedAt": "2025-02-28T15:23:49Z",
+      "mergedBy": "mirjak",
+      "mergeCommit": {
+        "oid": "250466f49f824085a1cba69b05af243e429c16e3"
+      },
+      "comments": [],
+      "reviews": [
+        {
+          "id": "PRR_kwDOK7AJUs6eADwi",
+          "commit": {
+            "abbreviatedOid": "d07472a"
+          },
+          "author": "mirjak",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2025-02-28T13:53:54Z",
+          "updatedAt": "2025-02-28T13:53:54Z",
+          "comments": [
+            {
+              "originalPosition": 133,
+              "body": "```suggestion\r\n```",
+              "createdAt": "2025-02-28T13:53:54Z",
+              "updatedAt": "2025-02-28T13:53:54Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "number": 40,
+      "id": "PR_kwDOK7AJUs6M9pql",
+      "title": "Changes in -03",
+      "url": "https://github.com/IngJohEricsson/draft-johansson-ccwg-scream-bis/pull/40",
+      "state": "OPEN",
+      "author": "mirjak",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2025-02-28T16:33:01Z",
+      "updatedAt": "2025-02-28T16:33:02Z",
+      "baseRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
+      "baseRefName": "main",
+      "baseRefOid": "905fc77aca1152daa975346fb29a7ed3d3efe5bf",
+      "headRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
+      "headRefName": "mirjak-patch-22",
+      "headRefOid": "de3b78ef69d218d38ef9e185e06414207d116f54",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [],
+      "reviews": []
+    },
+    {
+      "number": 41,
+      "id": "PR_kwDOK7AJUs6M9r01",
+      "title": "Update to section headings",
+      "url": "https://github.com/IngJohEricsson/draft-johansson-ccwg-scream-bis/pull/41",
+      "state": "OPEN",
+      "author": "mirjak",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "These are mostly to unify the capitalisation but also updates in the congestion detection section",
+      "createdAt": "2025-02-28T16:38:14Z",
+      "updatedAt": "2025-02-28T16:38:15Z",
+      "baseRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
+      "baseRefName": "main",
+      "baseRefOid": "905fc77aca1152daa975346fb29a7ed3d3efe5bf",
+      "headRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
+      "headRefName": "mirjak-patch-23",
+      "headRefOid": "9b1faedd22f7b640d5cd0d889a150aba648f93aa",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [],
+      "reviews": []
     }
   ]
 }
