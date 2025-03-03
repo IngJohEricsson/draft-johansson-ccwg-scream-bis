@@ -120,7 +120,7 @@ normative:
 
 This memo describes Self-Clocked Rate Adaptation for Multimedia version 2
 (SCReAMv2), an update to SCReAM congestion control for media streams such as RTP
-{{RFC3550}}. SCReAMv2 compromised several algorithm simplifications and adds
+{{RFC3550}}. SCReAMv2 includes several algorithm simplifications and adds
 support for L4S. The algorithm supports handling of multiple media streams,
 typical use cases are streaming for remote control, AR and 3D VR googles.
 This specification obsoletes RFC 8298.
@@ -196,7 +196,7 @@ Algorithm changes in draft version -02 were:
 
  * Timing set to multiples of RTTs instead of seconds.
 
-Draft version -03 is mayor editorial pass including removal of some
+Draft version -03 is major editorial pass including removal of some
 outdated or background information and reorganisation of several sections:
 
 * Much shorter abstract and introduction focusing on what's new in SCReAMv2
@@ -356,7 +356,7 @@ a slack to avoid that packets are unnecessarily delayed in the data unit queue.
 A pacing rate is calculated based on the target bitrate provided by the
 media rate controller.
 
-Feedback about the received bytes as well as metadata to estimatethe congestion
+Feedback about the received bytes as well as metadata to estimate the congestion
 level or queuing delay are provided to the network congestion controller.
 The network congestion controller calculated reference window and provides it
 togteher with the bytes in flight to the sender transmission control.
@@ -410,13 +410,15 @@ relation of the estimated link throughput (bytes in flight) and the reference wi
 send_wnd = ref_wnd * REF_WND_OVERHEAD * frame_size - bytes_in_flight
 ~~~
 
-The respective sending rate is achived by applying packet pacing: Even if the send window allows for the transmission
-of a number of packets, these packets are not transmitted immediately; rather,
-they are transmitted in intervals given by the packet size and the estimated
-link throughput. Packets are generally paced at a higher rate than the target
-bitrate, this makes it possible to transmit occasionally larger video frames in
-a timely manner. Further, this mitigates issues with ACK compression that can cause
-increased jitter and/or packet loss in the media traffic.
+The respective sending rate is achived by applying packet pacing: Even
+if the send window allows for the transmission of a number of packets,
+these packets are not transmitted immediately; rather, they are
+transmitted in intervals given by the packet size and the estimated
+link throughput. Packets are generally paced at a higher rate than the
+target bitrate, this makes it possible to transmit occasionally larger
+video frames in a timely manner. Further, this mitigates issues with
+ACK compression that can cause increased jitter and/or packet loss in
+the media traffic.
 
 ## Media Rate Control {#media-rate-control}
 
@@ -426,9 +428,10 @@ The media rate control calculates the media rate based on the reference window a
 target_bitrate = 8 * ref_wnd / s_rtt
 ~~~
 
-The media rate need to ramp up quickly enough to get a fair share of the system resources when link throughput
-increases. Further, the reaction to reduced throughput must be prompt in order to avoid getting too
-much data queued in the data unit queue(s) in the sender.
+The media rate needs to ramp up quickly enough to get a fair share of
+the system resources when link throughput increases. Further, the
+reaction to reduced throughput must be prompt in order to avoid
+getting too much data queued in the data unit queue(s) in the sender.
 
 For the case that multiple
 streams are enabled, the media rate among the streams is distrubuted according
@@ -456,7 +459,7 @@ configuration state:
 * l4s_active (false): Indicates that L4S is enabled and data units are indeed
   marked.
 
-### Status Upadte When Sending Data
+### Status Update When Sending Data
 
 SCReAMv2 is a window-based and byte-oriented congestion control
 protocol, where the number of bytes transmitted is inferred from the
