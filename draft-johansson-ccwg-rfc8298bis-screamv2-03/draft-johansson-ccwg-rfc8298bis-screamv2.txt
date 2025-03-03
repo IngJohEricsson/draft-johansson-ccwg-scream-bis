@@ -6,7 +6,7 @@ CCWG                                                        I. Johansson
 Internet-Draft                                             M. Westerlund
 Obsoletes: 8298 (if approved)                               M. Kühlewind
 Intended status: Experimental                                   Ericsson
-Expires: 3 September 2025                                   2 March 2025
+Expires: 4 September 2025                                   3 March 2025
 
 
               Self-Clocked Rate Adaptation for Multimedia
@@ -16,7 +16,7 @@ Abstract
 
    This memo describes Self-Clocked Rate Adaptation for Multimedia
    version 2 (SCReAMv2), an update to SCReAM congestion control for
-   media streams such as RTP [RFC3550].  SCReAMv2 compromised several
+   media streams such as RTP [RFC3550].  SCReAMv2 includes several
    algorithm simplifications and adds support for L4S.  The algorithm
    supports handling of multiple media streams, typical use cases are
    streaming for remote control, AR and 3D VR googles.  This
@@ -54,7 +54,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 3 September 2025.
+   This Internet-Draft will expire on 4 September 2025.
 
 Copyright Notice
 
@@ -83,7 +83,7 @@ Table of Contents
      3.3.  Media Rate Control
    4.  Detailed Description of SCReAMv2 Sender Algorithm
      4.1.  Sender Side State
-       4.1.1.  Status Upadte When Sending Data
+       4.1.1.  Status Update When Sending Data
        4.1.2.  Status Update on Receiving Feedback
      4.2.  Network Congestion Control
        4.2.1.  Congestion Detection: Delay, Data Unit Loss and ECN-CE
@@ -179,7 +179,7 @@ Table of Contents
 
    *  Timing set to multiples of RTTs instead of seconds.
 
-   Draft version -03 is mayor editorial pass including removal of some
+   Draft version -03 is major editorial pass including removal of some
    outdated or background information and reorganisation of several
    sections:
 
@@ -353,7 +353,7 @@ Table of Contents
    data unit queue.  A pacing rate is calculated based on the target
    bitrate provided by the media rate controller.
 
-   Feedback about the received bytes as well as metadata to estimatethe
+   Feedback about the received bytes as well as metadata to estimate the
    congestion level or queuing delay are provided to the network
    congestion controller.  The network congestion controller calculated
    reference window and provides it togteher with the bytes in flight to
@@ -422,7 +422,7 @@ Table of Contents
 
    target_bitrate = 8 * ref_wnd / s_rtt
 
-   The media rate need to ramp up quickly enough to get a fair share of
+   The media rate needs to ramp up quickly enough to get a fair share of
    the system resources when link throughput increases.  Further, the
    reaction to reduced throughput must be prompt in order to avoid
    getting too much data queued in the data unit queue(s) in the sender.
@@ -453,7 +453,7 @@ Table of Contents
    *  l4s_active (false): Indicates that L4S is enabled and data units
       are indeed marked.
 
-4.1.1.  Status Upadte When Sending Data
+4.1.1.  Status Update When Sending Data
 
    SCReAMv2 is a window-based and byte-oriented congestion control
    protocol, where the number of bytes transmitted is inferred from the

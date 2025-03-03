@@ -11,15 +11,15 @@
 <meta content="
        This memo describes Self-Clocked Rate Adaptation for Multimedia version 2
 (SCReAMv2), an update to SCReAM congestion control for media streams such as RTP
- . SCReAMv2 compromised several algorithm simplifications and adds
+ . SCReAMv2 includes several algorithm simplifications and adds
 support for L4S. The algorithm supports handling of multiple media streams,
 typical use cases are streaming for remote control, AR and 3D VR googles.
 This specification obsoletes RFC 8298. 
     " name="description">
-<meta content="xml2rfc 3.27.0" name="generator">
+<meta content="xml2rfc 3.28.0" name="generator">
 <meta content="draft-johansson-ccwg-rfc8298bis-screamv2-latest" name="ietf.draft">
 <!-- Generator version information:
-  xml2rfc 3.27.0
+  xml2rfc 3.28.0
     Python 3.12.9
     ConfigArgParse 1.7
     google-i18n-address 3.1.1
@@ -1054,7 +1054,7 @@ svg :is([fill="white"], [fill^="#fff"]) {
 </tr></thead>
 <tfoot><tr>
 <td class="left">Johansson, et al.</td>
-<td class="center">Expires 3 September 2025</td>
+<td class="center">Expires 4 September 2025</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1070,12 +1070,12 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <a href="https://www.rfc-editor.org/rfc/rfc8298" class="eref">8298</a> (if approved)</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2025-03-02" class="published">2 March 2025</time>
+<time datetime="2025-03-03" class="published">3 March 2025</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Experimental</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2025-09-03">3 September 2025</time></dd>
+<dd class="expires"><time datetime="2025-09-04">4 September 2025</time></dd>
 <dt class="label-authors">Authors:</dt>
 <dd class="authors">
 <div class="author">
@@ -1098,7 +1098,7 @@ svg :is([fill="white"], [fill^="#fff"]) {
       <h2 id="abstract"><a href="#abstract" class="selfRef">Abstract</a></h2>
 <p id="section-abstract-1">This memo describes Self-Clocked Rate Adaptation for Multimedia version 2
 (SCReAMv2), an update to SCReAM congestion control for media streams such as RTP
-<span>[<a href="#RFC3550" class="cite xref">RFC3550</a>]</span>. SCReAMv2 compromised several algorithm simplifications and adds
+<span>[<a href="#RFC3550" class="cite xref">RFC3550</a>]</span>. SCReAMv2 includes several algorithm simplifications and adds
 support for L4S. The algorithm supports handling of multiple media streams,
 typical use cases are streaming for remote control, AR and 3D VR googles.
 This specification obsoletes RFC 8298.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
@@ -1137,7 +1137,7 @@ This specification obsoletes RFC 8298.<a href="#section-abstract-1" class="pilcr
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 3 September 2025.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 4 September 2025.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -1204,7 +1204,7 @@ This specification obsoletes RFC 8298.<a href="#section-abstract-1" class="pilcr
                 <p id="section-toc.1-1.4.2.1.1"><a href="#section-4.1" class="auto internal xref">4.1</a>.  <a href="#name-sender-side-state" class="internal xref">Sender Side State</a></p>
 <ul class="compact toc ulBare ulEmpty">
 <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.1.2.1">
-                    <p id="section-toc.1-1.4.2.1.2.1.1"><a href="#section-4.1.1" class="auto internal xref">4.1.1</a>.  <a href="#name-status-upadte-when-sending-" class="internal xref">Status Upadte When Sending Data</a></p>
+                    <p id="section-toc.1-1.4.2.1.2.1.1"><a href="#section-4.1.1" class="auto internal xref">4.1.1</a>.  <a href="#name-status-update-when-sending-" class="internal xref">Status Update When Sending Data</a></p>
 </li>
                   <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.1.2.2">
                     <p id="section-toc.1-1.4.2.1.2.2.1"><a href="#section-4.1.2" class="auto internal xref">4.1.2</a>.  <a href="#name-status-update-on-receiving-" class="internal xref">Status Update on Receiving Feedback</a></p>
@@ -1367,7 +1367,7 @@ bitrate cases.<a href="#section-1.1-4.3.1" class="pilcrow">¶</a></p>
             <p id="section-1.1-4.4.1">Timing set to multiples of RTTs instead of seconds.<a href="#section-1.1-4.4.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
-<p id="section-1.1-5">Draft version -03 is mayor editorial pass including removal of some
+<p id="section-1.1-5">Draft version -03 is major editorial pass including removal of some
 outdated or background information and reorganisation of several sections:<a href="#section-1.1-5" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-1.1-6.1">
@@ -1621,7 +1621,7 @@ that the number of bytes in flight is less than the reference window albeit with
 a slack to avoid that packets are unnecessarily delayed in the data unit queue.
 A pacing rate is calculated based on the target bitrate provided by the
 media rate controller.<a href="#section-3-5" class="pilcrow">¶</a></p>
-<p id="section-3-6">Feedback about the received bytes as well as metadata to estimatethe congestion
+<p id="section-3-6">Feedback about the received bytes as well as metadata to estimate the congestion
 level or queuing delay are provided to the network congestion controller.
 The network congestion controller calculated reference window and provides it
 togteher with the bytes in flight to the sender transmission control.<a href="#section-3-6" class="pilcrow">¶</a></p>
@@ -1680,13 +1680,15 @@ relation of the estimated link throughput (bytes in flight) and the reference wi
 send_wnd = ref_wnd * REF_WND_OVERHEAD * frame_size - bytes_in_flight
 </pre><a href="#section-3.2-2" class="pilcrow">¶</a>
 </div>
-<p id="section-3.2-3">The respective sending rate is achived by applying packet pacing: Even if the send window allows for the transmission
-of a number of packets, these packets are not transmitted immediately; rather,
-they are transmitted in intervals given by the packet size and the estimated
-link throughput. Packets are generally paced at a higher rate than the target
-bitrate, this makes it possible to transmit occasionally larger video frames in
-a timely manner. Further, this mitigates issues with ACK compression that can cause
-increased jitter and/or packet loss in the media traffic.<a href="#section-3.2-3" class="pilcrow">¶</a></p>
+<p id="section-3.2-3">The respective sending rate is achived by applying packet pacing: Even
+if the send window allows for the transmission of a number of packets,
+these packets are not transmitted immediately; rather, they are
+transmitted in intervals given by the packet size and the estimated
+link throughput. Packets are generally paced at a higher rate than the
+target bitrate, this makes it possible to transmit occasionally larger
+video frames in a timely manner. Further, this mitigates issues with
+ACK compression that can cause increased jitter and/or packet loss in
+the media traffic.<a href="#section-3.2-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="media-rate-control">
@@ -1700,9 +1702,10 @@ increased jitter and/or packet loss in the media traffic.<a href="#section-3.2-3
 target_bitrate = 8 * ref_wnd / s_rtt
 </pre><a href="#section-3.3-2" class="pilcrow">¶</a>
 </div>
-<p id="section-3.3-3">The media rate need to ramp up quickly enough to get a fair share of the system resources when link throughput
-increases. Further, the reaction to reduced throughput must be prompt in order to avoid getting too
-much data queued in the data unit queue(s) in the sender.<a href="#section-3.3-3" class="pilcrow">¶</a></p>
+<p id="section-3.3-3">The media rate needs to ramp up quickly enough to get a fair share of
+the system resources when link throughput increases. Further, the
+reaction to reduced throughput must be prompt in order to avoid
+getting too much data queued in the data unit queue(s) in the sender.<a href="#section-3.3-3" class="pilcrow">¶</a></p>
 <p id="section-3.3-4">For the case that multiple
 streams are enabled, the media rate among the streams is distrubuted according
 to relative priorities.<a href="#section-3.3-4" class="pilcrow">¶</a></p>
@@ -1738,10 +1741,10 @@ configuration state:<a href="#section-4.1-1" class="pilcrow">¶</a></p>
 marked.<a href="#section-4.1-2.1.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
-<div id="status-upadte-when-sending-data">
+<div id="status-update-when-sending-data">
 <section id="section-4.1.1">
-          <h4 id="name-status-upadte-when-sending-">
-<a href="#section-4.1.1" class="section-number selfRef">4.1.1. </a><a href="#name-status-upadte-when-sending-" class="section-name selfRef">Status Upadte When Sending Data</a>
+          <h4 id="name-status-update-when-sending-">
+<a href="#section-4.1.1" class="section-number selfRef">4.1.1. </a><a href="#name-status-update-when-sending-" class="section-name selfRef">Status Update When Sending Data</a>
           </h4>
 <p id="section-4.1.1-1">SCReAMv2 is a window-based and byte-oriented congestion control
 protocol, where the number of bytes transmitted is inferred from the
