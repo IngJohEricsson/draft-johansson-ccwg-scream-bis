@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2025-03-02T01:43:38.725929+00:00",
+  "timestamp": "2025-03-04T01:40:34.760672+00:00",
   "repo": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
   "labels": [
     {
@@ -241,6 +241,77 @@
       "body": "The current section on  Receiver Requirements on Feedback Intensity is very much written from an RTCP perspective. That RTCP related discussion is useful for protocol with that limitation. However for protocol that allow feedback based on other rules could benefit from a general high level discussion and then protocol specific discussion. ",
       "createdAt": "2025-02-28T14:21:26Z",
       "updatedAt": "2025-02-28T14:21:26Z",
+      "closedAt": null,
+      "comments": []
+    },
+    {
+      "number": 43,
+      "id": "I_kwDOK7AJUs6sR8er",
+      "title": "Minor nit: Use of the term \"compromized\"",
+      "url": "https://github.com/IngJohEricsson/draft-johansson-ccwg-scream-bis/issues/43",
+      "state": "CLOSED",
+      "author": "IngJohEricsson",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "\"SCReAMv2 compromised several algorithm simplifications and adds support for L4S\", the word \"compromized\" sounds odd in this context",
+      "createdAt": "2025-03-03T07:19:09Z",
+      "updatedAt": "2025-03-03T09:11:39Z",
+      "closedAt": "2025-03-03T09:11:38Z",
+      "comments": [
+        {
+          "author": "gloinul",
+          "authorAssociation": "COLLABORATOR",
+          "body": "Resolved by #46 ",
+          "createdAt": "2025-03-03T09:11:38Z",
+          "updatedAt": "2025-03-03T09:11:38Z"
+        }
+      ]
+    },
+    {
+      "number": 44,
+      "id": "I_kwDOK7AJUs6sR-Ax",
+      "title": "Minor nit: s/mayor/major",
+      "url": "https://github.com/IngJohEricsson/draft-johansson-ccwg-scream-bis/issues/44",
+      "state": "CLOSED",
+      "author": "IngJohEricsson",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "s/mayor/major",
+      "createdAt": "2025-03-03T07:22:46Z",
+      "updatedAt": "2025-03-03T09:11:26Z",
+      "closedAt": "2025-03-03T09:11:24Z",
+      "comments": [
+        {
+          "author": "IngJohEricsson",
+          "authorAssociation": "OWNER",
+          "body": "\ns/mayor/major\ns/estimatethe/estimate the\ns/media rate need to/media rate needs to\ns/Status Upadte When Sending Data/Status Update When Sending Data\n",
+          "createdAt": "2025-03-03T08:13:30Z",
+          "updatedAt": "2025-03-03T08:13:30Z"
+        },
+        {
+          "author": "gloinul",
+          "authorAssociation": "COLLABORATOR",
+          "body": "Resolved by #46 ",
+          "createdAt": "2025-03-03T09:11:24Z",
+          "updatedAt": "2025-03-03T09:11:24Z"
+        }
+      ]
+    },
+    {
+      "number": 45,
+      "id": "I_kwDOK7AJUs6sSaX0",
+      "title": "Some deviations from running code to be fixed",
+      "url": "https://github.com/IngJohEricsson/draft-johansson-ccwg-scream-bis/issues/45",
+      "state": "OPEN",
+      "author": "IngJohEricsson",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "A few good features from the running code on https://github.com/EricssonResearch/scream to be added.\n\nREF_WND_OVERHEAD: defaults to 5.0 in running code. This value should however complemented with a note that recommends a lower value for cases when a media encoder reacts slowly to changes in target bitrate\n\n\"Apply limit to reference window growth when close to last known max value before congestion\": should be applied also when L4S active, and then both for up and down adjustment of ref_wnd\n\nIncrease ref_wnd inhibited when max target bitrate is reached\n\n\"limit bitrate if bytes in flight exceeds is close to or exceeds ref_wnd\" is applied also when L4S active\n\n\n\n",
+      "createdAt": "2025-03-03T08:24:04Z",
+      "updatedAt": "2025-03-03T08:24:04Z",
       "closedAt": null,
       "comments": []
     }
@@ -1957,50 +2028,138 @@
       "id": "PR_kwDOK7AJUs6M9pql",
       "title": "Changes in -03",
       "url": "https://github.com/IngJohEricsson/draft-johansson-ccwg-scream-bis/pull/40",
-      "state": "OPEN",
+      "state": "MERGED",
       "author": "mirjak",
       "authorAssociation": "COLLABORATOR",
       "assignees": [],
       "labels": [],
       "body": "",
       "createdAt": "2025-02-28T16:33:01Z",
-      "updatedAt": "2025-02-28T16:33:02Z",
+      "updatedAt": "2025-03-02T22:49:51Z",
       "baseRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
       "baseRefName": "main",
-      "baseRefOid": "905fc77aca1152daa975346fb29a7ed3d3efe5bf",
+      "baseRefOid": "e5b86460a30fee068f6a70db8db9a9caecee6004",
       "headRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
       "headRefName": "mirjak-patch-22",
-      "headRefOid": "de3b78ef69d218d38ef9e185e06414207d116f54",
-      "closedAt": null,
-      "mergedAt": null,
-      "mergedBy": null,
-      "mergeCommit": null,
+      "headRefOid": "31cc771c023bff139f4ae503ac0d59169dde73cc",
+      "closedAt": "2025-03-02T22:49:51Z",
+      "mergedAt": "2025-03-02T22:49:51Z",
+      "mergedBy": "mirjak",
+      "mergeCommit": {
+        "oid": "0ffdab355039690f2fa8d3883899e0dc5d5bfe31"
+      },
       "comments": [],
-      "reviews": []
+      "reviews": [
+        {
+          "id": "PRR_kwDOK7AJUs6eHTTy",
+          "commit": {
+            "abbreviatedOid": "de3b78e"
+          },
+          "author": "gloinul",
+          "authorAssociation": "COLLABORATOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2025-03-02T12:46:13Z",
+          "updatedAt": "2025-03-02T12:46:13Z",
+          "comments": []
+        }
+      ]
     },
     {
       "number": 41,
       "id": "PR_kwDOK7AJUs6M9r01",
       "title": "Update to section headings",
       "url": "https://github.com/IngJohEricsson/draft-johansson-ccwg-scream-bis/pull/41",
-      "state": "OPEN",
+      "state": "MERGED",
       "author": "mirjak",
       "authorAssociation": "COLLABORATOR",
       "assignees": [],
       "labels": [],
       "body": "These are mostly to unify the capitalisation but also updates in the congestion detection section",
       "createdAt": "2025-02-28T16:38:14Z",
-      "updatedAt": "2025-02-28T16:38:15Z",
+      "updatedAt": "2025-03-02T22:48:25Z",
       "baseRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
       "baseRefName": "main",
       "baseRefOid": "905fc77aca1152daa975346fb29a7ed3d3efe5bf",
       "headRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
       "headRefName": "mirjak-patch-23",
       "headRefOid": "9b1faedd22f7b640d5cd0d889a150aba648f93aa",
-      "closedAt": null,
-      "mergedAt": null,
-      "mergedBy": null,
-      "mergeCommit": null,
+      "closedAt": "2025-03-02T22:48:25Z",
+      "mergedAt": "2025-03-02T22:48:25Z",
+      "mergedBy": "mirjak",
+      "mergeCommit": {
+        "oid": "e5b86460a30fee068f6a70db8db9a9caecee6004"
+      },
+      "comments": [],
+      "reviews": [
+        {
+          "id": "PRR_kwDOK7AJUs6eHTQS",
+          "commit": {
+            "abbreviatedOid": "9b1faed"
+          },
+          "author": "gloinul",
+          "authorAssociation": "COLLABORATOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2025-03-02T12:45:11Z",
+          "updatedAt": "2025-03-02T12:45:11Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 42,
+      "id": "PR_kwDOK7AJUs6NE9fs",
+      "title": "Add Mirja as author",
+      "url": "https://github.com/IngJohEricsson/draft-johansson-ccwg-scream-bis/pull/42",
+      "state": "MERGED",
+      "author": "mirjak",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2025-03-02T22:52:17Z",
+      "updatedAt": "2025-03-02T22:52:46Z",
+      "baseRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
+      "baseRefName": "main",
+      "baseRefOid": "0ffdab355039690f2fa8d3883899e0dc5d5bfe31",
+      "headRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
+      "headRefName": "mirjak-patch-24",
+      "headRefOid": "2e5d96cf8da8a9a6e90b36f572a4368083e31853",
+      "closedAt": "2025-03-02T22:52:46Z",
+      "mergedAt": "2025-03-02T22:52:46Z",
+      "mergedBy": "mirjak",
+      "mergeCommit": {
+        "oid": "91aeaec33fd31de180a7bed2cc6837b2d7a98f67"
+      },
+      "comments": [],
+      "reviews": []
+    },
+    {
+      "number": 46,
+      "id": "PR_kwDOK7AJUs6NHhAL",
+      "title": "Addresses minor nits in issue #43 and issue #44",
+      "url": "https://github.com/IngJohEricsson/draft-johansson-ccwg-scream-bis/pull/46",
+      "state": "MERGED",
+      "author": "gloinul",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Addressing issues #43  and #44 ",
+      "createdAt": "2025-03-03T09:05:02Z",
+      "updatedAt": "2025-03-03T09:05:10Z",
+      "baseRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
+      "baseRefName": "main",
+      "baseRefOid": "91aeaec33fd31de180a7bed2cc6837b2d7a98f67",
+      "headRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
+      "headRefName": "gloinul-issue44",
+      "headRefOid": "1985c764b8ac8eae638f4072df6606ea7555c887",
+      "closedAt": "2025-03-03T09:05:10Z",
+      "mergedAt": "2025-03-03T09:05:10Z",
+      "mergedBy": "gloinul",
+      "mergeCommit": {
+        "oid": "0e60d44e5200ff7ee3c2574b5722a065579430c8"
+      },
       "comments": [],
       "reviews": []
     }
