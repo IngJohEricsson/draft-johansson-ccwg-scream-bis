@@ -823,7 +823,7 @@ for the constants are deduced from experiments):
 
 * MSS (1000): Maximum segment size = Max data unit size [byte].
 
-* REF_WND_OVERHEAD (1.5): Indicates how much bytes in flight is allowed to
+* REF_WND_OVERHEAD (5.0): Indicates how much bytes in flight is allowed to
   exceed ref_wnd.
 
 * POST_CONGESTION_DELAY_RTT (100): Determines how many RTTs after a congestion
@@ -840,6 +840,13 @@ for the constants are deduced from experiments):
 #### Reference Window Reduction
 
 ~~~
+# Compute scaling factor for reference window adjustment
+# when close to the last known max value before congestion
+scl_t = (ref_wnd-ref_wnd_i) / ref_wnd_i
+scl_t *= 8
+scl_t = scl_t * scl_t
+scl_t = max(0.1, min(1.0, scl_t))
+
 # The reference window is updated at least every VIRTUAL_RTT
 if (now - last_congestion_detected_time >= min(VIRTUAL_RTT,s_rtt)
   if (loss detected)
@@ -885,6 +892,12 @@ if (is_ce_t)
 
     # Increase stability for very small ref_wnd
     backOff_t *= max(0.5, 1.0 - ref_wnd_ratio)
+
+    # Scale down backoff if close to the last known max reference window
+    # This is complemented with a scale down of the reference window increase
+    # Don't scale down back off if queue delay is large
+    if (queue_qelay < queue_delay_target * 0.25)
+        backOff *= max(0.25, sclI)
 
     if (now - last_congestion_detected_time >
         100*max(VIRTUAL_RTT,s_rtt))
@@ -954,11 +967,9 @@ increment_t *= tmp_t * tmp_t
 
 # Apply limit to reference window growth when close to last
 # known max value before congestion
-scl_t = (ref_wnd-ref_wnd_i) / ref_wnd_i
-scl_t *= 4
-scl_t = scl_t * scl_t
-scl_t = max(0.1, min(1.0, scl_t))
-if (!is_l4s_active)
+if (is_l4s_active)
+  increment_t *= max(0.25,scl_t)
+else 
   increment_t *= scl_t
 end
 
@@ -980,10 +991,11 @@ increment *= tmp_t
 # Increase ref_wnd only if bytes in flight is large enough
 # Quite a lot of slack is allowed here to avoid that bitrate
 # locks to low values.
+# Increase is inhibited if max target bitrate is reached.
 max_allowed_t = MSS + max(max_bytes_in_flight,
   max_bytes_in_flight_prev) * BYTES_IN_FLIGHT_HEAD_ROOM
 int ref_wnd_t = ref_wnd + increment_t
-if (ref_wnd_t <= max_allowed_t)
+if (ref_wnd_t <= max_allowed_t && target_bitrate < TARGET_BITRATE_MAX)
   ref_wnd = ref_wnd_t
 end
 ~~~
@@ -1182,11 +1194,10 @@ The complete pseudo code for adjustment of the target bitrate is shown below
 ~~~
 tmp_t = 1.0
 
-# limit bitrate if bytes in flight exceeds is close to or
+# Limit bitrate if bytes in flight exceeds is close to or
 # exceeds ref_wnd. This helps to avoid large rate fluctiations and
-# variations in RTT
-# Only applied when L4S is inactive
-if (!l4s_active && bytes_in_flight_ratio > BYTES_IN_FLIGHT_LIMIT)
+# variations in RTT.
+if (queue_delay / queue_delay_target > 0.5 && bytes_in_flight_ratio > BYTES_IN_FLIGHT_LIMIT)
   tmp_t /= min(BYTES_IN_FLIGHT_LIMIT_COMPENSATION,
     bytesInFlightRatio / BYTES_IN_FLIGHT_LIMIT)
 end
@@ -1283,6 +1294,14 @@ This section covers a few discussion points.
   SCReAM implementation resets base delay history when it is determined that
   clock drift becomes too large. This is achieved by reducing the target bitrate
   for a few RTTs.
+
+* REF_WND_OVERHEAD is by default quite high. The intention is to avoid that packets
+  are queued up on the sender side in cases when feedback is delayed or when the media
+  encoder produces very large frames. This is beneficial for cases where link capacity
+  is very high or when congested queues have high statistical multiplexing.
+  It is however recommended to reduce this value in case the media encoder reacts slowly
+  to a reduced target bitrate, because an excessive queue build-up may otherwise occur
+  and the better option may then be to queue up packets on the sender side.
 
 * Clock skipping: The sender or receiver clock can occasionally skip. Handling
   of this is implemented in {{SCReAM-CPP-implementation}}.
