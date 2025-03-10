@@ -968,9 +968,9 @@ increment_t *= tmp_t * tmp_t
 # Apply limit to reference window growth when close to last
 # known max value before congestion
 if (is_l4s_active)
-  increment_t *= max(0.25,scl_t)
-else 
-  increment_t *= scl_t
+   increment_t *= max(0.25,scl_t)
+else
+   increment_t *= scl_t
 end
 
 # Limit on CWND growth speed further for small CWND
