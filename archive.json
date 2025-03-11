@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2025-03-09T01:20:33.230617+00:00",
+  "timestamp": "2025-03-11T01:41:14.231541+00:00",
   "repo": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
   "labels": [
     {
@@ -2160,6 +2160,32 @@
       "mergeCommit": {
         "oid": "0e60d44e5200ff7ee3c2574b5722a065579430c8"
       },
+      "comments": [],
+      "reviews": []
+    },
+    {
+      "number": 47,
+      "id": "PR_kwDOK7AJUs6N_CH_",
+      "title": "Update draft-johansson-ccwg-rfc8298bis-screamv2.md",
+      "url": "https://github.com/IngJohEricsson/draft-johansson-ccwg-scream-bis/pull/47",
+      "state": "OPEN",
+      "author": "IngJohEricsson",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "Fixes issue #45",
+      "createdAt": "2025-03-10T12:18:43Z",
+      "updatedAt": "2025-03-10T12:22:33Z",
+      "baseRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
+      "baseRefName": "main",
+      "baseRefOid": "0e60d44e5200ff7ee3c2574b5722a065579430c8",
+      "headRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
+      "headRefName": "ingo-issue-45",
+      "headRefOid": "0e8dc3a623b46fbbdc6b4ecf8712912ca00e63e9",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
       "comments": [],
       "reviews": []
     }
