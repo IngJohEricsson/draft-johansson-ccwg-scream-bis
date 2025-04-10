@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2025-03-30T01:50:29.990843+00:00",
+  "timestamp": "2025-04-10T01:44:46.243338+00:00",
   "repo": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
   "labels": [
     {
@@ -304,15 +304,15 @@
       "id": "I_kwDOK7AJUs6sSaX0",
       "title": "Some deviations from running code to be fixed",
       "url": "https://github.com/IngJohEricsson/draft-johansson-ccwg-scream-bis/issues/45",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "IngJohEricsson",
       "authorAssociation": "OWNER",
       "assignees": [],
       "labels": [],
       "body": "A few good features from the running code on https://github.com/EricssonResearch/scream to be added.\n\nREF_WND_OVERHEAD: defaults to 5.0 in running code. This value should however complemented with a note that recommends a lower value for cases when a media encoder reacts slowly to changes in target bitrate\n\n\"Apply limit to reference window growth when close to last known max value before congestion\": should be applied also when L4S active, and then both for up and down adjustment of ref_wnd\n\nIncrease ref_wnd inhibited when max target bitrate is reached\n\n\"limit bitrate if bytes in flight exceeds is close to or exceeds ref_wnd\" is applied also when L4S active\n\n\n\n",
       "createdAt": "2025-03-03T08:24:04Z",
-      "updatedAt": "2025-03-03T08:24:04Z",
-      "closedAt": null,
+      "updatedAt": "2025-04-09T18:45:28Z",
+      "closedAt": "2025-04-09T18:45:28Z",
       "comments": []
     }
   ],
@@ -2168,24 +2168,26 @@
       "id": "PR_kwDOK7AJUs6N_CH_",
       "title": "Update draft-johansson-ccwg-rfc8298bis-screamv2.md",
       "url": "https://github.com/IngJohEricsson/draft-johansson-ccwg-scream-bis/pull/47",
-      "state": "OPEN",
+      "state": "MERGED",
       "author": "IngJohEricsson",
       "authorAssociation": "OWNER",
       "assignees": [],
       "labels": [],
       "body": "Fixes issue #45",
       "createdAt": "2025-03-10T12:18:43Z",
-      "updatedAt": "2025-03-10T12:22:33Z",
+      "updatedAt": "2025-04-09T18:44:53Z",
       "baseRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
       "baseRefName": "main",
       "baseRefOid": "0e60d44e5200ff7ee3c2574b5722a065579430c8",
       "headRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
       "headRefName": "ingo-issue-45",
       "headRefOid": "0e8dc3a623b46fbbdc6b4ecf8712912ca00e63e9",
-      "closedAt": null,
-      "mergedAt": null,
-      "mergedBy": null,
-      "mergeCommit": null,
+      "closedAt": "2025-04-09T18:44:53Z",
+      "mergedAt": "2025-04-09T18:44:53Z",
+      "mergedBy": "IngJohEricsson",
+      "mergeCommit": {
+        "oid": "439c2e7d5e501ea4ee4fdd970efe03a7e1ccb114"
+      },
       "comments": [],
       "reviews": []
     }
