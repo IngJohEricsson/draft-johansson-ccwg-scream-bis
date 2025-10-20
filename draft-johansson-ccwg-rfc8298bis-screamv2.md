@@ -166,8 +166,8 @@ SCReAM in {{RFC8298}}. The main differences are:
 
     * The calculated congestion window is mainly used to calculate proper media bitrates. Bytes in flight is
   however allowed to exceeed the reference window. Therefore, The term
-  reference window is used instead of congestion window, as the	reference
-  window does not set an absolute limit on the bytes in	flight.
+  reference window is used instead of congestion window, as the reference
+  window does not set an absolute limit on the bytes in flight.
 
     * The self-clocking now acts more like an emergency break
   as bytes in flight can exceed the reference window only to a certain
