@@ -680,7 +680,7 @@ The following variables are used:
 
 * qdelay: When the sender receives feedback, the qdelay is calculated as outlined in
 {{RFC6817}}. A qdelay sample is obtained for each received acknowledgement.
-It is typically sufficient with one update per received acknowledgement. 
+It is typically sufficient with one update per received acknowledgement.
 
 * last_update_qdelay_avg_time (0): Last time qdelay_avg was updated [s].
 
