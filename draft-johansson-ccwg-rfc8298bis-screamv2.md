@@ -230,8 +230,32 @@ outdated or background information and reorganisation of several sections:
 * Section on "Competing Flows Compensation" moved into Section {{reaction-delay-loss-ce}}
   on "Congestion Detection"
 
-## Requirements on the Media and Feedback Protocol {#requirements-media}
+Draft version -04
 
+* Restructuring of code
+
+* Reduction of target rate when bytes_in_flight is higher than ref_wnd is done also when l4s_active, replaced with requirement that queue_delay is large
+
+* Additional constraint for increase of ref_wnd added
+
+* Discussion on when it is beneficial to reduce REF_WND_OVERHEAD added.
+
+Draft version -05 contains some clarifications based on a review by Per Kjellander
+ and Björn Terelius plus some code modifications and text.
+
+* l4s_active state removed as delay based congestion control is always active
+
+* ref_wnd reduction when long time since congested limited to only limit ref_wnd to last max_bytes_in_flight_prev
+
+* Calculation of l4s_alpha is modified to use a fast attack slow decay EWMA filter
+
+* Congestion backoff downscaling also for virtual L4S marking when ref_wnd is very small
+
+* Congestion backoff is reduced if RTT is higher than VIRTUAL_RTT
+
+* ref_wnd increase is reduced if L4S is likely non-active and queue delay increases
+
+## Requirements on the Media and Feedback Protocol {#requirements-media}
 
 SCReAM was originally designed to with with RTP + RTCP where {{RFC8888}} was
 used as recommended feedback. RTP offers unique packet indication with the
@@ -453,11 +477,7 @@ rate control.
 ## Sender Side State
 
 The sender needs to maintain sending state and state about the received
-feedback, as explained in the following subsections, as well as the following
-configuration state:
-
-* l4s_active (false): Indicates that L4S is enabled and data units are indeed
-  marked.
+feedback, as explained in the following subsections.
 
 ### Status Update When Sending Data
 
@@ -615,7 +635,11 @@ if (now - last_update_l4s_alpha_time >= min(0.01,s_rtt)
   fraction_marked_t = data_units_marked_this_rtt/
                       data_units_delivered_this_rtt
 
-  l4s_alpha = L4S_AVG_G*fraction_marked_t + (1.0-L4S_AVG_G)*l4S_alpha
+  # Apply a fast attack slow decay EWMA
+  if (fraction_marked_t >= l4s_alpha)
+     l4s_alpha = L4S_AVG_G_UP*fraction_marked_t + (1.0-L4S_AVG_G_UP)*l4S_alpha
+  else
+     l4s_alpha = (1.0-L4S_AVG_G_DOWN)*l4S_alpha
 
   last_update_l4s_alpha_time = now
   data_units_delivered_this_rtt = 0
@@ -639,9 +663,14 @@ The following variables are used:
 
 * last_fraction_marked (0.0): fraction marked data units in last update
 
-The following constant is used
+The following constants are used
 
-* L4S_AVG_G (1/16): Exponentially Weighted Moving Average (EWMA) factor for l4s_alpha
+* L4S_AVG_G_UP (1/8): Exponentially Weighted Moving Average (EWMA) factor for l4s_alpha increase
+
+* L4S_AVG_G_DOWN (1/128): Exponentially Weighted Moving Average (EWMA) factor for l4s_alpha decrease
+
+The calculation of l4s_alpha is done with an fast attack slow decay EWMA filter.
+This can give a more stable performance when L4S bottlenecks have high marking thresholds.
 
 #### Detecting Increased Queue Delay {#reaction-delay}
 
@@ -661,7 +690,7 @@ qdelay_avg is updated with a slow attack, fast decay EWMA filter the
 following way:
 
 ~~~
-if (now - last_update_qdelay_avg_time >= s_rtt)
+if (now - last_update_qdelay_avg_time >= min(virtual_rtt,s_rtt)
   if (qdelay < qdelay_avg)
     qdelay_avg = qdelay
   else
@@ -675,6 +704,7 @@ The following variables are used:
 
 * qdelay: When the sender receives feedback, the qdelay is calculated as outlined in
 {{RFC6817}}. A qdelay sample is obtained for each received acknowledgement.
+It is typically sufficient with one update per received acknowledgement.
 
 * last_update_qdelay_avg_time (0): Last time qdelay_avg was updated [s].
 
@@ -797,7 +827,9 @@ The following variables are defined:
   bandwidth over the same bottleneck). The qdelay target is allowed to vary
   between QDELAY_TARGET_LO and QDELAY_TARGET_HI.
 
-* last_congestion_detected_time (0): Last time congestion event occured [s].
+* last_congestion_detected_time (0): Last time congestion detected [s].
+
+* last_reaction_to_congestion_time (0): Last time congestion avoidance occured [s].
 
 * last_ref_wnd_i_update_time (0): Last time ref_wnd_i was updated [s].
 
@@ -815,7 +847,7 @@ for the constants are deduced from experiments):
 
 * MIN_REF_WND (3000): Minimum reference window [byte].
 
-* BYTES_IN_FLIGHT_HEAD_ROOM (2.0): Extra headroom for bytes in flight.
+* BYTES_IN_FLIGHT_HEAD_ROOM (1.5): Extra headroom for bytes in flight.
 
 * BETA_LOSS (0.7): ref_wnd scale factor due to loss event.
 
@@ -824,7 +856,7 @@ for the constants are deduced from experiments):
 * MSS (1000): Maximum segment size = Max data unit size [byte].
 
 * REF_WND_OVERHEAD (5.0): Indicates how much bytes in flight is allowed to
-  exceed ref_wnd.
+  exceed ref_wnd. See section {{discussion}} for recommendations.
 
 * POST_CONGESTION_DELAY_RTT (100): Determines how many RTTs after a congestion
   event the reference window growth should be cautious.
@@ -842,27 +874,35 @@ for the constants are deduced from experiments):
 ~~~
 # Compute scaling factor for reference window adjustment
 # when close to the last known max value before congestion
+# ref_wnd_i is updated before this code
+# loss_detected and data_units_marked indicates that packets
+# are marked or lost since last_reaction_to_congestion_time
 scl_t = (ref_wnd-ref_wnd_i) / ref_wnd_i
 scl_t *= 8
 scl_t = scl_t * scl_t
 scl_t = max(0.1, min(1.0, scl_t))
 
+if (loss_detected || data_units_marked)
+   last_congestion_detected_time = now
+end
+
 # The reference window is updated at least every VIRTUAL_RTT
-if (now - last_congestion_detected_time >= min(VIRTUAL_RTT,s_rtt)
-  if (loss detected)
+if (now - last_reaction_to_congestion_time >= min(VIRTUAL_RTT,s_rtt)
+  if (loss_detected)
     is_loss_t = true
   end
-  if (data units marked)
+  if (data_units_marked)
     is_ce_t = true
   end
-  if (qdelay > qdelay_target/2)
-    # It is expected that l4s_alpha is below a given value,
+  if (qdelay > qdelay_target/2 && !(is_ce_t || is_loss_t))
+    # It is expected that l4s_alpha is below a given value
     l4_alpha_lim_t = 2 / target_bitrate * MSS * 8 / s_rtt
-    if (l4s_alpha < l4_alpha_lim_t || !l4s_active)
+    if (l4s_alpha < l4_alpha_lim_t)
       # L4S does not seem to be active
-      l4s_alpha_v_t = min(1.0, max(0.0,
-         (qdelay_avg - qdelay_target / 2) /
-         (qdelay_target / 2)));
+      l4s_alpha_v_t = min(1.0,2.0*l4_alpha_lim_t*
+         max(0.0,
+            (qdelay_avg - qdelay_target / 2) /
+            (qdelay_target / 2)));
       is_virtual_ce_t = true
     end
   end
@@ -878,7 +918,6 @@ if (is_loss_t || is_ce_t || is_virtual_ce_t)
   end
 end
 
-
 # Either loss, ECN mark or increased qdelay is detected
 if (is_loss_t)
   # Loss is detected
@@ -891,15 +930,19 @@ if (is_ce_t)
     backoff_t = l4s_alpha / 2
 
     # Increase stability for very small ref_wnd
-    backOff_t *= max(0.5, 1.0 - ref_wnd_ratio)
+    backoff_t *= max(0.5, 1.0 - ref_wnd_ratio)
+
+    # Scale down backoff when RTT is high ot avoid overreaction to
+    # congestion
+    backoff_t /= max(1.0, srtt/VIRTUAL_RTT)
 
     # Scale down backoff if close to the last known max reference window
     # This is complemented with a scale down of the reference window increase
     # Don't scale down back off if queue delay is large
-    if (queue_qelay < queue_delay_target * 0.25)
-        backOff *= max(0.25, sclI)
+    if (queue_delay < queue_delay_target * 0.25)
+        backoff *= max(0.25, scl_t)
 
-    if (now - last_congestion_detected_time >
+    if (now - last_reaction_to_congestion_time >
         100*max(VIRTUAL_RTT,s_rtt))
       # A long time (>100 RTTs) since last congested because
       # link throughput exceeds max video bitrate.
@@ -907,19 +950,8 @@ if (is_ce_t)
       # bytes in flight, so we reduce it here to get it better on
       # track and thus the congestion episode is shortened
       ref_wnd = min(ref_wnd, max_bytes_in_flight_prev)
-
-      # Also, we back off a little extra if needed
-      # because alpha is quite likely very low
-      # This can in some cases be an over-reaction
-      # but as this function should kick in relatively seldom
-      # it should not be to too big concern
-      backoff_t = max(backoff_t, 0.25)
-
-      # In addition, bump up l4sAlpha to a more credible value
-      # This may over react but it is better than
-      # excessive queue delay
-      l4sAlpha = 0.25
     end
+
     ref_wnd = (1.0 - backoff_t) * ref_wnd
   else
     # Classic ECN mode
@@ -928,12 +960,20 @@ if (is_ce_t)
 end
 if (is_virtual_ce_t)
   backoff_t = l4s_alpha_v_t / 2
+
+  # Scale down backoff when RTT is high ot avoid overreaction to
+  # congestion
+  backoff_t /= max(1.0, srtt/VIRTUAL_RTT)
+
+  # Increase stability for very small ref_wnd
+  backOff_t *= max(0.5, 1.0 - ref_wnd_ratio)
+
   ref_wnd = (1.0 - backoff_t) * ref_wnd
 end
 ref_wnd = max(MIN_REF_WND, ref_wnd)
 
 if (is_loss_t || is_ce_t || is_virtual_ce_t)
-  last_congestion_detected_time = now
+  last_reaction_to_congestion_time = now
 end
 ~~~
 
@@ -945,12 +985,11 @@ end
 # after congestion
 
 post_congestion_scale_t = max(0.0, min(1.0,
- (now - last_congestion_detected_time) /
+  (now - last_congestion_detected_time) /
   (POST_CONGESTION_DELAY_RTTS * max(VIRTUAL_RTT, s_rtt))))
 
 # Scale factor for ref_wnd update
 ref_wnd_scale_factor_t = 1.0 + (MUL_INCREASE_FACTOR  * ref_wnd) / MSS)
-
 
 # Calculate bytes acked that are not CE marked
 # For the case that only accumulated number of CE marked packets is
@@ -967,16 +1006,17 @@ increment_t *= tmp_t * tmp_t
 
 # Apply limit to reference window growth when close to last
 # known max value before congestion
-if (is_l4s_active)
-   increment_t *= max(0.25,scl_t)
-else
-   increment_t *= scl_t
-end
+increment_t *= max(0.25,scl_t)
 
 # Limit on CWND growth speed further for small CWND
 # This is complemented with a corresponding restriction on CWND
 # reduction
 increment_t *= max(0.5,1.0-ref_wnd_ratio)
+
+# Reduce CWND growth if L4S not enabled or non-functional and queue delay grows
+if (l4sAlpha < 0.0001)
+   increment *= max(0.1, 1.0 - queue_avg / (qdelay_target / 4))
+end
 
 # Scale up increment with multiplicative increase
 # Limit multiplicative increase when congestion occured
@@ -1159,9 +1199,9 @@ updated and calculates the target bitrate:
 
 The following constants are used by the media rate control:
 
-* BYTES_IN_FLIGHT_LIMIT
+* BYTES_IN_FLIGHT_LIMIT (0.9)
 
-* BYTES_IN_FLIGHT_LIMIT_COMPENSATION
+* BYTES_IN_FLIGHT_LIMIT_COMPENSATION (1.5)
 
 * PACKET_OVERHEAD (20) : Estimated packetization overhead [byte]
 
@@ -1194,10 +1234,10 @@ The complete pseudo code for adjustment of the target bitrate is shown below
 ~~~
 tmp_t = 1.0
 
-# Limit bitrate if bytes in flight exceeds is close to or
+# Limit bitrate if bytes in flight is close to or
 # exceeds ref_wnd. This helps to avoid large rate fluctiations and
 # variations in RTT.
-if (queue_delay / queue_delay_target > 0.5 && bytes_in_flight_ratio > BYTES_IN_FLIGHT_LIMIT)
+if (queue_delay / queue_delay_target > 0.25 && bytes_in_flight_ratio > BYTES_IN_FLIGHT_LIMIT)
   tmp_t /= min(BYTES_IN_FLIGHT_LIMIT_COMPENSATION,
     bytesInFlightRatio / BYTES_IN_FLIGHT_LIMIT)
 end
@@ -1293,7 +1333,7 @@ This section covers a few discussion points.
   method is also implemented in {{SCReAM-CPP-implementation}}. Furthermore, the
   SCReAM implementation resets base delay history when it is determined that
   clock drift becomes too large. This is achieved by reducing the target bitrate
-  for a few RTTs.
+  for a few RTTs. More details on this will be provided in a later draft version.
 
 * REF_WND_OVERHEAD is by default quite high. The intention is to avoid that packets
   are queued up on the sender side in cases when feedback is delayed or when the media
@@ -1371,4 +1411,4 @@ SCReAM/SCReAMv2 when no feedback is received.
 Zaheduzzaman Sarker was a co-author of RFC 8298 the previous version
 of scream which this document was based on. We would like to thank the
 following people for their comments, questions, and support during the
-work that led to this memo: Mirja Kuehlewind.
+work that led to this memo: Per Kjellander, Björn Terelius.
