@@ -230,8 +230,32 @@ outdated or background information and reorganisation of several sections:
 * Section on "Competing Flows Compensation" moved into Section {{reaction-delay-loss-ce}}
   on "Congestion Detection"
 
-## Requirements on the Media and Feedback Protocol {#requirements-media}
+Draft version -04
 
+* Restructuring of code
+
+* Reduction of target rate when bytes_in_flight is higher than ref_wnd is done also when l4s_active, replaced with requirement that queue_delay is large
+
+* Additional constraint for increase of ref_wnd added
+
+* Discussion on when it is beneficial to reduce REF_WND_OVERHEAD added.
+  
+Draft version -05 contains some clarifications based on a review by Per Kjellander
+ and Björn Terelius plus some code modifications and text.
+ 
+* l4s_active state removed as delay based congetsion control is always active
+
+* ref_wnd reduction when long time since congested limited to only limit ref_wnd to last max_bytes_in_flight_prev
+  
+* Calculation of l4s_alpha is modified to use a fast attack slow decay EWMA filter
+  
+* Congestion backoff downscaling also for virtual L4S marking when ref_wnd is very small
+
+* Congestion backoff is reduced if RTT is higher than VIRTUAL_RTT
+  
+* ref_wnd increase is reduced if L4S is likely non-active and queue delay increases
+
+## Requirements on the Media and Feedback Protocol {#requirements-media}
 
 SCReAM was originally designed to with with RTP + RTCP where {{RFC8888}} was
 used as recommended feedback. RTP offers unique packet indication with the
@@ -906,13 +930,17 @@ if (is_ce_t)
     backoff_t = l4s_alpha / 2
 
     # Increase stability for very small ref_wnd
-    backOff_t *= max(0.5, 1.0 - ref_wnd_ratio)
+    backoff_t *= max(0.5, 1.0 - ref_wnd_ratio)
+
+    # Scale down backoff when RTT is high ot avoid overreaction to
+    # congestion
+    backoff_t /= max(1.0, srtt/VIRTUAL_RTT)
 
     # Scale down backoff if close to the last known max reference window
     # This is complemented with a scale down of the reference window increase
     # Don't scale down back off if queue delay is large
     if (queue_delay < queue_delay_target * 0.25)
-        backOff *= max(0.25, scl_t)
+        backoff *= max(0.25, scl_t)
 
     if (now - last_reaction_to_congestion_time >
         100*max(VIRTUAL_RTT,s_rtt))
@@ -932,6 +960,10 @@ if (is_ce_t)
 end
 if (is_virtual_ce_t)
   backoff_t = l4s_alpha_v_t / 2
+
+  # Scale down backoff when RTT is high ot avoid overreaction to
+  # congestion
+  backoff_t /= max(1.0, srtt/VIRTUAL_RTT)
 
   # Increase stability for very small ref_wnd
   backOff_t *= max(0.5, 1.0 - ref_wnd_ratio)
@@ -1301,7 +1333,7 @@ This section covers a few discussion points.
   method is also implemented in {{SCReAM-CPP-implementation}}. Furthermore, the
   SCReAM implementation resets base delay history when it is determined that
   clock drift becomes too large. This is achieved by reducing the target bitrate
-  for a few RTTs.
+  for a few RTTs. More details on this will be provided in a later draft version.
 
 * REF_WND_OVERHEAD is by default quite high. The intention is to avoid that packets
   are queued up on the sender side in cases when feedback is delayed or when the media
