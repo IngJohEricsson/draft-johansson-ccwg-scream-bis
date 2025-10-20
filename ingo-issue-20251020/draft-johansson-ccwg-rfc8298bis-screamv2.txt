@@ -236,7 +236,7 @@ Table of Contents
    Per Kjellander and Björn Terelius plus some code modifications and
    text.
 
-   *  l4s_active state removed as delay based congetsion control is
+   *  l4s_active state removed as delay based congestion control is
       always active
 
    *  ref_wnd reduction when long time since congested limited to only
@@ -685,7 +685,7 @@ end
    *  L4S_AVG_G_DOWN (1/128): Exponentially Weighted Moving Average
       (EWMA) factor for l4s_alpha decrease
 
-   The calculation of l4s_alpha is done with an fast attach slow decay
+   The calculation of l4s_alpha is done with an fast attack slow decay
    EWMA filter.  This can give a more stable performance when L4S
    bottlenecks have high marking thresholds.
 

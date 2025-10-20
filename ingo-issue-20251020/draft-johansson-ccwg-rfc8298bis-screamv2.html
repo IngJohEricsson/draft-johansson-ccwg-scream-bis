@@ -1432,7 +1432,7 @@ on "Congestion Detection"<a href="#section-1.1-6.12.1" class="pilcrow">¶</a></p
  and Björn Terelius plus some code modifications and text.<a href="#section-1.1-9" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-1.1-10.1">
-            <p id="section-1.1-10.1.1">l4s_active state removed as delay based congetsion control is always active<a href="#section-1.1-10.1.1" class="pilcrow">¶</a></p>
+            <p id="section-1.1-10.1.1">l4s_active state removed as delay based congestion control is always active<a href="#section-1.1-10.1.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="section-1.1-10.2">
             <p id="section-1.1-10.2.1">ref_wnd reduction when long time since congested limited to only limit ref_wnd to last max_bytes_in_flight_prev<a href="#section-1.1-10.2.1" class="pilcrow">¶</a></p>
@@ -2005,7 +2005,7 @@ given that the tail data unit in e.g a video frame is often smaller than MSS.<a 
                 <p id="section-4.2.1.3-8.2.1">L4S_AVG_G_DOWN (1/128): Exponentially Weighted Moving Average (EWMA) factor for l4s_alpha decrease<a href="#section-4.2.1.3-8.2.1" class="pilcrow">¶</a></p>
 </li>
             </ul>
-<p id="section-4.2.1.3-9">The calculation of l4s_alpha is done with an fast attach slow decay EWMA filter.
+<p id="section-4.2.1.3-9">The calculation of l4s_alpha is done with an fast attack slow decay EWMA filter.
 This can give a more stable performance when L4S bottlenecks have high marking thresholds.<a href="#section-4.2.1.3-9" class="pilcrow">¶</a></p>
 </section>
 </div>
