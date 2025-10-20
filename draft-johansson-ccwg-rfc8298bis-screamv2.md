@@ -239,20 +239,20 @@ Draft version -04
 * Additional constraint for increase of ref_wnd added
 
 * Discussion on when it is beneficial to reduce REF_WND_OVERHEAD added.
-  
+
 Draft version -05 contains some clarifications based on a review by Per Kjellander
  and Björn Terelius plus some code modifications and text.
- 
+
 * l4s_active state removed as delay based congetsion control is always active
 
 * ref_wnd reduction when long time since congested limited to only limit ref_wnd to last max_bytes_in_flight_prev
-  
+
 * Calculation of l4s_alpha is modified to use a fast attack slow decay EWMA filter
-  
+
 * Congestion backoff downscaling also for virtual L4S marking when ref_wnd is very small
 
 * Congestion backoff is reduced if RTT is higher than VIRTUAL_RTT
-  
+
 * ref_wnd increase is reduced if L4S is likely non-active and queue delay increases
 
 ## Requirements on the Media and Feedback Protocol {#requirements-media}
