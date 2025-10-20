@@ -612,7 +612,7 @@ if (now - last_update_l4s_alpha_time >= min(0.01,s_rtt)
                       data_units_delivered_this_rtt
 
   # Apply a fast attack slow decay EWMA
-  if (fraction_marked_t >= l4s_alpha)  
+  if (fraction_marked_t >= l4s_alpha)
      l4s_alpha = L4S_AVG_G_UP*fraction_marked_t + (1.0-L4S_AVG_G_UP)*l4S_alpha
   else
      l4s_alpha = (1.0-L4S_AVG_G_DOWN)*l4S_alpha
@@ -982,7 +982,7 @@ increment_t *= max(0.25,scl_t)
 increment_t *= max(0.5,1.0-ref_wnd_ratio)
 
 # Reduce CWND growth if L4S not enabled or non-functional and queue delay grows
-if (l4sAlpha < 0.0001) {
+if (l4sAlpha < 0.0001)
    increment *= max(0.1, 1.0 - queue_avg / (qdelay_target / 4))
 end
 
