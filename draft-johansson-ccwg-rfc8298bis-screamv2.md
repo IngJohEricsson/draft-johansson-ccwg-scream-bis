@@ -645,7 +645,7 @@ The following constants are used
 
 * L4S_AVG_G_DOWN (1/128): Exponentially Weighted Moving Average (EWMA) factor for l4s_alpha decrease
 
-The calculation of l4s_alpha is done with an fast attach slow decay EWMA filter. 
+The calculation of l4s_alpha is done with an fast attach slow decay EWMA filter.
 This can give a more stable performance when L4S bottlenecks have high marking thresholds.
 
 #### Detecting Increased Queue Delay {#reaction-delay}
