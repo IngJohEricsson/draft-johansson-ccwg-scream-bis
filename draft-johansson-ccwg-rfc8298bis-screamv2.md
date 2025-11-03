@@ -1101,6 +1101,8 @@ in flight and the reference window. This is controlled by the send window:
 * send_wnd (0): Upper limit to how many bytes can currently be
   transmitted. Updated when ref_wnd is updated and when data unit is
   transmitted [byte].
+  
+* ref_wnd_overhead(REF_WND_OVERHEAD_MAX): Indicates how much bytes in flight can exceed ref_wnd.
 
 * ref_wnd_overhead(REF_WND_OVERHEAD_MAX): Indicates how much bytes in flight can exceed ref_wnd.
 
@@ -1142,7 +1144,7 @@ and thus increased e2e delay can be avoided.
 send_wnd = ref_wnd * ref_wnd_overhead * rel_framesize_high + MSS -
            bytes_in_flight
 ~~~
-
+TODO: rel_framesize_high can probably be removed because of the adaptive ref_wnd_overhead
 The send window is updated whenever an data unit is transmitted or an feedback
 messaged is received.
 
