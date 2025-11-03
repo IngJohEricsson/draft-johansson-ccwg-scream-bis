@@ -13,7 +13,7 @@
 (SCReAMv2), an update to SCReAM congestion control for media streams such as RTP
  . SCReAMv2 includes several algorithm simplifications and adds
 support for L4S. The algorithm supports handling of multiple media streams,
-typical use cases are streaming for remote control, AR and 3D VR googles.
+typical use cases are streaming for remote control, AR and 3D VR goggles.
 This specification obsoletes RFC 8298. 
     " name="description">
 <meta content="xml2rfc 3.31.0" name="generator">
@@ -1049,11 +1049,11 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <thead><tr>
 <td class="left">Internet-Draft</td>
 <td class="center">SCReAMv2</td>
-<td class="right">October 2025</td>
+<td class="right">November 2025</td>
 </tr></thead>
 <tfoot><tr>
 <td class="left">Johansson, et al.</td>
-<td class="center">Expires 23 April 2026</td>
+<td class="center">Expires 7 May 2026</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1069,12 +1069,12 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <a href="https://www.rfc-editor.org/rfc/rfc8298" class="eref">8298</a> (if approved)</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2025-10-20" class="published">20 October 2025</time>
+<time datetime="2025-11-03" class="published">3 November 2025</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Experimental</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2026-04-23">23 April 2026</time></dd>
+<dd class="expires"><time datetime="2026-05-07">7 May 2026</time></dd>
 <dt class="label-authors">Authors:</dt>
 <dd class="authors">
 <div class="author">
@@ -1099,7 +1099,7 @@ svg :is([fill="white"], [fill^="#fff"]) {
 (SCReAMv2), an update to SCReAM congestion control for media streams such as RTP
 <span>[<a href="#RFC3550" class="cite xref">RFC3550</a>]</span>. SCReAMv2 includes several algorithm simplifications and adds
 support for L4S. The algorithm supports handling of multiple media streams,
-typical use cases are streaming for remote control, AR and 3D VR googles.
+typical use cases are streaming for remote control, AR and 3D VR goggles.
 This specification obsoletes RFC 8298.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
 </section>
 <section class="note rfcEditorRemove" id="section-note.1">
@@ -1136,7 +1136,7 @@ This specification obsoletes RFC 8298.<a href="#section-abstract-1" class="pilcr
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 23 April 2026.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 7 May 2026.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -1324,7 +1324,7 @@ speed.<a href="#section-1.1-2.3.1" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-1.1-2.4.2.1">
                 <p id="section-1.1-2.4.2.1.1">The calculated congestion window is mainly used to calculate proper media bitrates. Bytes in flight is
-however allowed to exceeed the reference window. Therefore, The term
+however allowed to exceed the reference window. Therefore, The term
 reference window is used instead of congestion window, as the reference
 window does not set an absolute limit on the bytes in flight.<a href="#section-1.1-2.4.2.1.1" class="pilcrow">¶</a></p>
 </li>
@@ -1338,7 +1338,7 @@ large network queue.<a href="#section-1.1-2.4.2.2.1" class="pilcrow">¶</a></p>
             </ul>
 </li>
           <li class="normal" id="section-1.1-2.5">
-            <p id="section-1.1-2.5.1">The media bitrate calculation is dramatically changed and simplified. In practive
+            <p id="section-1.1-2.5.1">The media bitrate calculation is dramatically changed and simplified. In practice
 it is manifested with a relatively simple relation between the reference window and RTT.<a href="#section-1.1-2.5.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="section-1.1-2.6">
@@ -1366,7 +1366,7 @@ bitrate cases.<a href="#section-1.1-4.3.1" class="pilcrow">¶</a></p>
             <p id="section-1.1-4.4.1">Timing set to multiples of RTTs instead of seconds.<a href="#section-1.1-4.4.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
-<p id="section-1.1-5">Draft version -03 is major editorial pass including removal of some
+<p id="section-1.1-5">Draft version -03 is a major editorial pass including removal of some
 outdated or background information and reorganisation of several sections:<a href="#section-1.1-5" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-1.1-6.1">
@@ -1388,7 +1388,7 @@ based on old Section on "Algorithm Changes"<a href="#section-1.1-6.3.1" class="p
 figure and the basic algorithms<a href="#section-1.1-6.5.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="section-1.1-6.6">
-            <p id="section-1.1-6.6.1">Own section on "Constants and variables" removed; instead all variables are now listed
+            <p id="section-1.1-6.6.1">Old section on "Constants and variables" removed; instead all variables are now listed
 in the respective sections that explain the code<a href="#section-1.1-6.6.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="section-1.1-6.7">
@@ -1450,6 +1450,24 @@ on "Congestion Detection"<a href="#section-1.1-6.12.1" class="pilcrow">¶</a></p
             <p id="section-1.1-10.6.1">ref_wnd increase is reduced if L4S is likely non-active and queue delay increases<a href="#section-1.1-10.6.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
+<p id="section-1.1-11">Draft version -06<a href="#section-1.1-11" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-1.1-12.1">
+            <p id="section-1.1-12.1.1">Correction of typos<a href="#section-1.1-12.1.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-1.1-12.2">
+            <p id="section-1.1-12.2.1">Correction of send_wnd calculation<a href="#section-1.1-12.2.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-1.1-12.3">
+            <p id="section-1.1-12.3.1">Additional ref_wnd_overhead varable<a href="#section-1.1-12.3.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-1.1-12.4">
+            <p id="section-1.1-12.4.1">REF_WND_OVERHEAD replaced by REF_WND_OVERHEAD_MIN and REF_WND_OVERHEAD_MAX<a href="#section-1.1-12.4.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-1.1-12.5">
+            <p id="section-1.1-12.5.1">Additional variable srtt_std_dev<a href="#section-1.1-12.5.1" class="pilcrow">¶</a></p>
+</li>
+        </ul>
 </section>
 </div>
 <div id="requirements-media">
@@ -1497,10 +1515,10 @@ conservation principle is described as a key factor behind the protection of
 networks from congestion <span>[<a href="#Packet-conservation" class="cite xref">Packet-conservation</a>]</span>.<a href="#section-1.3-1" class="pilcrow">¶</a></p>
 <p id="section-1.3-2">The reference window decrease is determined in a way similar to
 LEDBAT <span>[<a href="#RFC6817" class="cite xref">RFC6817</a>]</span>. However, the window increase is not based on
-delay estimates but uses both a linear increase and multiplicate increase function depending
+delay estimates but uses both a linear increase and multiplicative increase function depending
 on the time since the last congestion event and introduces use of inflection points in the
 reference window increase calculation to achieve reduced delay jitter.
-Further, other than LEDABT which is a scavenger congestion control mostly designed
+Further, other than LEDBAT which is a scavenger congestion control mostly designed
 for low priority background traffic, SCReAM adjusts the qdelay target to
 compete with other loss-based congestion-controlled flows.<a href="#section-1.3-2" class="pilcrow">¶</a></p>
 <p id="section-1.3-3">SCReAMv2 adds a new reference window validation technique, as the reference window is used as a basis for the
@@ -1544,7 +1562,7 @@ or per individual data unit.<a href="#section-3-1" class="pilcrow">¶</a></p>
 <p id="section-3-2">The sender implements media rate control and an data unit queue for each media
 type or source, where data units containing encoded media frames are temporarily
 stored for transmission. Figure 1 shows the details when a single media source
-(or stream) is used. Scheduling and priotization of mulitiple streams is not
+(or stream) is used. Scheduling and prioritization of mulitiple streams is not
 covered in this document. However, if multiple flows are sent, each data unit queue can be
 served based on some defined priority or simply in a round-robin fashion. Alternatively,
 a similar approach as coupled congestion control <span>[<a href="#RFC6365" class="cite xref">RFC6365</a>]</span> can be applied.<a href="#section-3-2" class="pilcrow">¶</a></p>
@@ -1659,8 +1677,8 @@ A pacing rate is calculated based on the target bitrate provided by the
 media rate controller.<a href="#section-3-5" class="pilcrow">¶</a></p>
 <p id="section-3-6">Feedback about the received bytes as well as metadata to estimate the congestion
 level or queuing delay are provided to the network congestion controller.
-The network congestion controller calculated reference window and provides it
-togteher with the bytes in flight to the sender transmission control.<a href="#section-3-6" class="pilcrow">¶</a></p>
+The network congestion controller calculates the reference window and provides it
+together with the bytes in flight to the sender transmission control.<a href="#section-3-6" class="pilcrow">¶</a></p>
 <p id="section-3-7">The reference window and the estimated RTT is further provided to the media rate
 control to compute the appropriate target bitrate. The target bitrate is
 updated whenever the reference window is updated. Additional parameters are also
@@ -1676,13 +1694,13 @@ which puts an upper limit on how many bytes can be in
 flight, i.e., transmitted but not yet acknowledged. The reference window is
 however not an absolute limit as slack is given to efficiently transmit
 temporary larger media objects, such as video frames. This means that the
-algoritm prefers to build up a queue in the network rather than on the sender
+algorithm prefers to build up a queue in the network rather than on the sender
 side. Additional congestion that this causes will reflect back and cause a
 reduction of the reference window.<a href="#section-3.1-1" class="pilcrow">¶</a></p>
-<p id="section-3.1-2">Reference window is reduced if congestion is detected. Similar as for
-LEDBAT the reference window is reduced either by a fixed fraction in
+<p id="section-3.1-2">The reference window is reduced if congestion is detected. Similar to
+LEDBAT, the reference window is reduced either by a fixed fraction in
 case of packet loss or Classic ECN marking, or if the estimated queue
-delay exceeds a given threshold depending on how much the delay
+delay exceeds a given threshold, depending on how much the delay
 exceeds the threshold.  SCReAMv2 reduces the reference window in
 proportion to the fraction of marked packets if L4S is used (scalable
 congestion control).<a href="#section-3.1-2" class="pilcrow">¶</a></p>
@@ -1693,8 +1711,8 @@ ref_wnd = BETA_LOSS * (BETA_ECN|l4s_alpha) * qtarget_alpha * ref_wnd
 </div>
 <p id="section-3.1-4">After a congestion event the reference window seeks to increase by one
 segment per RTT until a certain number of RTT elapses. After this
-initial congestion avoidance phase the refrence window increases
-multiplicativly where the increase factor is adjusted relative to a
+initial congestion avoidance phase the reference window increases
+multiplicatively where the increase factor is adjusted relative to a
 previous max value and the time elapsed since last congestion event.
 This enables a faster convergence to a higher link speed.<a href="#section-3.1-4" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-3.1-5">
@@ -1713,10 +1731,10 @@ ref_wnd = ref_wnd + increment
 relation of the estimated link throughput (bytes in flight) and the reference window.<a href="#section-3.2-1" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-3.2-2">
 <pre>
-send_wnd = ref_wnd * REF_WND_OVERHEAD * frame_size - bytes_in_flight
+send_wnd = ref_wnd * ref_wnd_overhead * rel_framesize_high + MSS - bytes_in_flight
 </pre><a href="#section-3.2-2" class="pilcrow">¶</a>
 </div>
-<p id="section-3.2-3">The respective sending rate is achived by applying packet pacing: Even
+<p id="section-3.2-3">The respective sending rate is achieved by applying packet pacing: Even
 if the send window allows for the transmission of a number of packets,
 these packets are not transmitted immediately; rather, they are
 transmitted in intervals given by the packet size and the estimated
@@ -1743,7 +1761,7 @@ the system resources when link throughput increases. Further, the
 reaction to reduced throughput must be prompt in order to avoid
 getting too much data queued in the data unit queue(s) in the sender.<a href="#section-3.3-3" class="pilcrow">¶</a></p>
 <p id="section-3.3-4">For the case that multiple
-streams are enabled, the media rate among the streams is distrubuted according
+streams are enabled, the media rate among the streams is distributed according
 to relative priorities.<a href="#section-3.3-4" class="pilcrow">¶</a></p>
 <p id="section-3.3-5">In cases where the sender's frame queues increase rapidly, such as in the case
 of a Radio Access Type (RAT) handover, the SCReAMv2 sender MAY implement
@@ -1875,7 +1893,7 @@ zero after a ref_wnd update.<a href="#section-4.1.2-3" class="pilcrow">¶</a></p
         <h3 id="name-network-congestion-control-2">
 <a href="#section-4.2" class="section-number selfRef">4.2. </a><a href="#name-network-congestion-control-2" class="section-name selfRef">Network Congestion Control</a>
         </h3>
-<p id="section-4.2-1">This section explains the network congestion control, which calcultes the
+<p id="section-4.2-1">This section explains the network congestion control, which calculates the
 reference window. The reference window gives an upper limit to the number of bytes in flight.<a href="#section-4.2-1" class="pilcrow">¶</a></p>
 <div id="reaction-delay-loss-ce">
 <section id="section-4.2.1">
@@ -2166,7 +2184,7 @@ basically zero throughput if competing with loss-based traffic.<a href="#section
           </h4>
 <p id="section-4.2.2-1">The reference window update contains two parts. One that reduces the reference
 window when congestion events (listed above) occur, and one part that
-continously increases the reference window.<a href="#section-4.2.2-1" class="pilcrow">¶</a></p>
+continuously increases the reference window.<a href="#section-4.2.2-1" class="pilcrow">¶</a></p>
 <p id="section-4.2.2-2">The following variables are defined:<a href="#section-4.2.2-2" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-4.2.2-3.1">
@@ -2222,23 +2240,27 @@ and congestion control loops sluggish.<a href="#section-4.2.2-5.2.1" class="pilc
               <p id="section-4.2.2-5.7.1">MSS (1000): Maximum segment size = Max data unit size [byte].<a href="#section-4.2.2-5.7.1" class="pilcrow">¶</a></p>
 </li>
             <li class="normal" id="section-4.2.2-5.8">
-              <p id="section-4.2.2-5.8.1">REF_WND_OVERHEAD (5.0): Indicates how much bytes in flight is allowed to
-exceed ref_wnd. See section <a href="#discussion" class="auto internal xref">Section 6</a> for recommendations.<a href="#section-4.2.2-5.8.1" class="pilcrow">¶</a></p>
+              <p id="section-4.2.2-5.8.1">REF_WND_OVERHEAD_MIN (1.2): Indicates a lower limit how much bytes in flight is allowed to
+exceed ref_wnd.<a href="#section-4.2.2-5.8.1" class="pilcrow">¶</a></p>
 </li>
             <li class="normal" id="section-4.2.2-5.9">
-              <p id="section-4.2.2-5.9.1">POST_CONGESTION_DELAY_RTT (100): Determines how many RTTs after a congestion
-event the reference window growth should be cautious.<a href="#section-4.2.2-5.9.1" class="pilcrow">¶</a></p>
+              <p id="section-4.2.2-5.9.1">REF_WND_OVERHEAD_MAX (5.0): Indicates an upper limit how much bytes in flight is allowed to
+exceed ref_wnd.<a href="#section-4.2.2-5.9.1" class="pilcrow">¶</a></p>
 </li>
             <li class="normal" id="section-4.2.2-5.10">
-              <p id="section-4.2.2-5.10.1">MUL_INCREASE_FACTOR (0.02): Determines how much (as a fraction of ref_wnd)
-that the ref_wnd can increase per RTT.<a href="#section-4.2.2-5.10.1" class="pilcrow">¶</a></p>
+              <p id="section-4.2.2-5.10.1">POST_CONGESTION_DELAY_RTT (100): Determines how many RTTs after a congestion
+event the reference window growth should be cautious.<a href="#section-4.2.2-5.10.1" class="pilcrow">¶</a></p>
 </li>
             <li class="normal" id="section-4.2.2-5.11">
-              <p id="section-4.2.2-5.11.1">IS_L4S (false): Congestion control operates in L4S mode.<a href="#section-4.2.2-5.11.1" class="pilcrow">¶</a></p>
+              <p id="section-4.2.2-5.11.1">MUL_INCREASE_FACTOR (0.02): Determines how much (as a fraction of ref_wnd)
+that the ref_wnd can increase per RTT.<a href="#section-4.2.2-5.11.1" class="pilcrow">¶</a></p>
 </li>
             <li class="normal" id="section-4.2.2-5.12">
-              <p id="section-4.2.2-5.12.1">VIRTUAL_RTT (0.025): Virtual RTT [s]. This mimics Prague's RTT fairness such that flows with RTT
-below VIRTUAL_RTT should get a roughly equal share over an L4S path.<a href="#section-4.2.2-5.12.1" class="pilcrow">¶</a></p>
+              <p id="section-4.2.2-5.12.1">IS_L4S (false): Congestion control operates in L4S mode.<a href="#section-4.2.2-5.12.1" class="pilcrow">¶</a></p>
+</li>
+            <li class="normal" id="section-4.2.2-5.13">
+              <p id="section-4.2.2-5.13.1">VIRTUAL_RTT (0.025): Virtual RTT [s]. This mimics Prague's RTT fairness such that flows with RTT
+below VIRTUAL_RTT should get a roughly equal share over an L4S path.<a href="#section-4.2.2-5.13.1" class="pilcrow">¶</a></p>
 </li>
           </ul>
 <div id="reference-window-reduction">
@@ -2308,7 +2330,7 @@ if (is_ce_t)
     # Increase stability for very small ref_wnd
     backoff_t *= max(0.5, 1.0 - ref_wnd_ratio)
 
-    # Scale down backoff when RTT is high ot avoid overreaction to
+    # Scale down backoff when RTT is high to avoid overreaction to
     # congestion
     backoff_t /= max(1.0, srtt/VIRTUAL_RTT)
 
@@ -2316,7 +2338,7 @@ if (is_ce_t)
     # This is complemented with a scale down of the reference window increase
     # Don't scale down back off if queue delay is large
     if (queue_delay &lt; queue_delay_target * 0.25)
-        backoff *= max(0.25, scl_t)
+        backoff_t *= max(0.25, scl_t)
 
     if (now - last_reaction_to_congestion_time &gt;
         100*max(VIRTUAL_RTT,s_rtt))
@@ -2342,7 +2364,7 @@ if (is_virtual_ce_t)
   backoff_t /= max(1.0, srtt/VIRTUAL_RTT)
 
   # Increase stability for very small ref_wnd
-  backOff_t *= max(0.5, 1.0 - ref_wnd_ratio)
+  backoff_t *= max(0.5, 1.0 - ref_wnd_ratio)
 
   ref_wnd = (1.0 - backoff_t) * ref_wnd
 end
@@ -2395,12 +2417,12 @@ increment_t *= max(0.25,scl_t)
 increment_t *= max(0.5,1.0-ref_wnd_ratio)
 
 # Reduce CWND growth if L4S not enabled or non-functional and queue delay grows
-if (l4sAlpha &lt; 0.0001)
+if (l4s_alpha &lt; 0.0001)
    increment *= max(0.1, 1.0 - queue_avg / (qdelay_target / 4))
 end
 
 # Scale up increment with multiplicative increase
-# Limit multiplicative increase when congestion occured
+# Limit multiplicative increase when congestion occurred
 # recently and when reference window is close to the last
 # known max value
 float tmp_t = ref_wnd_scale_factor_t
@@ -2428,7 +2450,7 @@ increases.<a href="#section-4.2.2.2-2" class="pilcrow">¶</a></p>
 <p id="section-4.2.2.2-3">The multiplicative increase is restricted directly after a congestion event and
 the restriction is gradually relaxed as the time since last congested
 increased. The restriction makes the reference window growth to be no faster
-than additive increase when congestion continusly occurs.  For L4S operation
+than additive increase when congestion continuously occurs.  For L4S operation
 this means that the SCReAMv2 algorithm will adhere to the 2 marked data units per
 RTT equilibrium at steady state congestion, with the exception of the case
 below.<a href="#section-4.2.2.2-3" class="pilcrow">¶</a></p>
@@ -2477,6 +2499,15 @@ in flight and the reference window. This is controlled by the send window:<a hre
 transmitted. Updated when ref_wnd is updated and when data unit is
 transmitted [byte].<a href="#section-4.3-2.1.1" class="pilcrow">¶</a></p>
 </li>
+          <li class="normal" id="section-4.3-2.2">
+            <p id="section-4.3-2.2.1">ref_wnd_overhead(REF_WND_OVERHEAD_MAX): Indicates how much bytes in flight can exceed ref_wnd.<a href="#section-4.3-2.2.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-4.3-2.3">
+            <p id="section-4.3-2.3.1">ref_wnd_overhead(REF_WND_OVERHEAD_MAX): Indicates how much bytes in flight can exceed ref_wnd.<a href="#section-4.3-2.3.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-4.3-2.4">
+            <p id="section-4.3-2.4.1">s_rtt_std_dev: s_rtt standard deviation, normalized to VIRTUAL_RTT<a href="#section-4.3-2.4.1" class="pilcrow">¶</a></p>
+</li>
         </ul>
 <div id="send-window">
 <section id="section-4.3.1">
@@ -2511,19 +2542,28 @@ congestion as the bytes in flight is allowed to exceed ref_wnd.<a href="#section
           </ul>
 <p id="section-4.3.1-3">In SCReAMv2, the send window is given by the relation between the adjusted
 reference window and the amount of bytes in flight according to the pseudocode
-below. The multiplication of ref_wnd with REF_WND_OVERHEAD and
-rel_framesize_high has the effect that bytes in flight is 'around' the ref_wnd
-rather than limited by the ref_wnd when the link is congested.  The
+below. The multiplication of ref_wnd with ref_wnd_overhead has the effect that bytes in flight is 'around' the ref_wnd
+rather than limited by the ref_wnd when the link is congested. The
 implementation allows the data unit queue to be small even when the frame sizes vary
 and thus increased e2e delay can be avoided.<a href="#section-4.3.1-3" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-4.3.1-4">
 <pre>
-send_wnd = ref_wnd * REF_WND_OVERHEAD * rel_framesize_high -
+send_wnd = ref_wnd * ref_wnd_overhead * rel_framesize_high + MSS -
            bytes_in_flight
 </pre><a href="#section-4.3.1-4" class="pilcrow">¶</a>
 </div>
-<p id="section-4.3.1-5">The send window is updated whenever an data unit is transmitted or an feedback
+<p id="section-4.3.1-5">TODO: rel_framesize_high can probably be removed because of the adaptive ref_wnd_overhead
+The send window is updated whenever an data unit is transmitted or an feedback
 messaged is received.<a href="#section-4.3.1-5" class="pilcrow">¶</a></p>
+<p id="section-4.3.1-6">The ref_wnd_overhead is adjusted dynamically. A large overhead is beneficial when the network link is uncongested as it allows to
+transmit large media frames with little transmission delay. A large overhead is also beneficial for cases where network links use virtual queue marking or can temporarly absorb bursts from L4S capable flows.
+If, on the other hand the network link is congested, then it is better to restrict how much bytes in flight exceeds the reference window because is not possible to push data faster than when the reference window allows. This restriction reduces varaitions in RTT caused by self-congestion and improves performance for the cases where media encoders are slow to react to changes in target rate.<a href="#section-4.3.1-6" class="pilcrow">¶</a></p>
+<p id="section-4.3.1-7">The ref_wnd_overhead is calculated as:
+~~~
+ref_wnd_overhead = REF_WND_OVERHEAD_MIN +
+  (REF_WND_OVERHEAD_MAX + REF_WND_OVERHEAD_MIN)*max(0.0,(0.1-s_rtt_std_dev)/0.1)
+~~~<a href="#section-4.3.1-7" class="pilcrow">¶</a></p>
+<p id="section-4.3.1-8">s_rtt_std_dev is calulated as the standard deviation of s_rtt normalized to VIRTUAL_RTT to get an equal restriction of bytes in flight to absolute variations in RTT regardless the min RTT is low or high.<a href="#section-4.3.1-8" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="calculate-frame-size">
@@ -2665,14 +2705,14 @@ L4S mark data units<a href="#section-4.4-9.1.1" class="pilcrow">¶</a></p>
 tmp_t = 1.0
 
 # Limit bitrate if bytes in flight is close to or
-# exceeds ref_wnd. This helps to avoid large rate fluctiations and
+# exceeds ref_wnd. This helps to avoid large rate fluctuations and
 # variations in RTT.
 if (queue_delay / queue_delay_target &gt; 0.25 &amp;&amp; bytes_in_flight_ratio &gt; BYTES_IN_FLIGHT_LIMIT)
   tmp_t /= min(BYTES_IN_FLIGHT_LIMIT_COMPENSATION,
     bytesInFlightRatio / BYTES_IN_FLIGHT_LIMIT)
 end
 
-# Scale down rate slighty when the reference window is very
+# Scale down rate slightly when the reference window is very
 # small compared to MSS
 tmp_t *= 1.0 - min(0.2, max(0.0, ref_wnd_ratio - 0.1))
 
@@ -2694,7 +2734,7 @@ target_bitrate = min(TARGET_BITRATE_MAX,
           </h4>
 <p id="section-4.4.1-1">Some video encoders are prone to systematically generate an output bitrate that
 is systematically larger or smaller than the target bitrate. SCReAMv2 can handle
-some deviation inherently but for larger devation it becomes necessary to
+some deviation inherently but for larger deviations it becomes necessary to
 compensate for this. The algorithm for this is detailed in
 <span>[<a href="#SCReAM-CPP-implementation" class="cite xref">SCReAM-CPP-implementation</a>]</span>.<a href="#section-4.4.1-1" class="pilcrow">¶</a></p>
 <p id="section-4.4.1-2">ToDo: A future draft version will describe this in more detail as it has been
@@ -2770,29 +2810,16 @@ to for instance QUIC.<a href="#section-5-10" class="pilcrow">¶</a></p>
 <p id="section-6-1">This section covers a few discussion points.<a href="#section-6-1" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-6-2.1">
-          <p id="section-6-2.1.1">Clock drift: SCReAM/SCReAMv2 can suffer from the same issues with clock drift
+          <p id="section-6-2.1.1">Clock drift and clock skipping: SCReAM/SCReAMv2 can suffer from the same issues with clock drift
 as is the case with LEDBAT <span>[<a href="#RFC6817" class="cite xref">RFC6817</a>]</span>. However, Appendix A.2 in <span>[<a href="#RFC6817" class="cite xref">RFC6817</a>]</span>
 describes ways to mitigate issues with clock drift. A clockdrift compensation
 method is also implemented in <span>[<a href="#SCReAM-CPP-implementation" class="cite xref">SCReAM-CPP-implementation</a>]</span>. Furthermore, the
 SCReAM implementation resets base delay history when it is determined that
-clock drift becomes too large. This is achieved by reducing the target bitrate
+clock drift or skip becomes too large. This is achieved by reducing the target bitrate
 for a few RTTs. More details on this will be provided in a later draft version.<a href="#section-6-2.1.1" class="pilcrow">¶</a></p>
 </li>
         <li class="normal" id="section-6-2.2">
-          <p id="section-6-2.2.1">REF_WND_OVERHEAD is by default quite high. The intention is to avoid that packets
-are queued up on the sender side in cases when feedback is delayed or when the media
-encoder produces very large frames. This is beneficial for cases where link capacity
-is very high or when congested queues have high statistical multiplexing.
-It is however recommended to reduce this value in case the media encoder reacts slowly
-to a reduced target bitrate, because an excessive queue build-up may otherwise occur
-and the better option may then be to queue up packets on the sender side.<a href="#section-6-2.2.1" class="pilcrow">¶</a></p>
-</li>
-        <li class="normal" id="section-6-2.3">
-          <p id="section-6-2.3.1">Clock skipping: The sender or receiver clock can occasionally skip. Handling
-of this is implemented in <span>[<a href="#SCReAM-CPP-implementation" class="cite xref">SCReAM-CPP-implementation</a>]</span>.<a href="#section-6-2.3.1" class="pilcrow">¶</a></p>
-</li>
-        <li class="normal" id="section-6-2.4">
-          <p id="section-6-2.4.1">The target bitrate given by SCReAMv2 is the bitrate including the data unit and
+          <p id="section-6-2.2.1">The target bitrate given by SCReAMv2 is the bitrate including the data unit and
 Forward Error Correction (FEC) overhead. The media encoder SHOULD take this
 overhead into account when the media bitrate is set. This means that the media
 coder bitrate SHOULD be computed as: media_rate = target_bitrate -
@@ -2800,38 +2827,38 @@ data_unit_plus_fec_overhead_bitrate It is not necessary to make a 100% perfect
 compensation for the overhead, as the SCReAM algorithm will inherently
 compensate for moderate errors. Under-compensating for the overhead has the
 effect of increasing jitter, while overcompensating will cause the bottleneck
-link to become underutilized.<a href="#section-6-2.4.1" class="pilcrow">¶</a></p>
+link to become underutilized.<a href="#section-6-2.2.1" class="pilcrow">¶</a></p>
 </li>
-        <li class="normal" id="section-6-2.5">
-          <p id="section-6-2.5.1">The link utilization with SCReAMv2 can be lower than 100%. There are several
-possible reasons to this:<a href="#section-6-2.5.1" class="pilcrow">¶</a></p>
+        <li class="normal" id="section-6-2.3">
+          <p id="section-6-2.3.1">The link utilization with SCReAMv2 can be lower than 100%. There are several
+possible reasons to this:<a href="#section-6-2.3.1" class="pilcrow">¶</a></p>
 <ul class="normal">
-<li class="normal" id="section-6-2.5.2.1">
-              <p id="section-6-2.5.2.1.1">Large variations in frame sizes: Large variations in frame size makes
+<li class="normal" id="section-6-2.3.2.1">
+              <p id="section-6-2.3.2.1.1">Large variations in frame sizes: Large variations in frame size makes
 SCReAMv2 push down the target_bitrate to give sufficient headroom and avoid
 queue buildup in the network. It is in general recommended to operate video
 coders in low latency mode and enable GDR (Gradual Decoding Refresh) if
-possible to minimize frame size variations.<a href="#section-6-2.5.2.1.1" class="pilcrow">¶</a></p>
+possible to minimize frame size variations.<a href="#section-6-2.3.2.1.1" class="pilcrow">¶</a></p>
 </li>
-            <li class="normal" id="section-6-2.5.2.2">
-              <p id="section-6-2.5.2.2.1">Link layer properties: Media transport in 5G in uplink typically requires to
+            <li class="normal" id="section-6-2.3.2.2">
+              <p id="section-6-2.3.2.2.1">Link layer properties: Media transport in 5G in uplink typically requires to
 transmit a scheduling request (SR) to get persmission to transmit
 data. Because transmission of video is frame based, there is a high
 likelihood that the channel becomes idle between frames (especially with
 L4S), in which case a new SR/grant exchange is needed. This potentially
 means that uplink transmission slots are unused with a lower link
-utilization as a result.<a href="#section-6-2.5.2.2.1" class="pilcrow">¶</a></p>
+utilization as a result.<a href="#section-6-2.3.2.2.1" class="pilcrow">¶</a></p>
 </li>
           </ul>
 </li>
-        <li class="normal" id="section-6-2.6">
-          <p id="section-6-2.6.1">Packet pacing is recommended, it is however possible to operate SCReAMv2 with
+        <li class="normal" id="section-6-2.4">
+          <p id="section-6-2.4.1">Packet pacing is recommended, it is however possible to operate SCReAMv2 with
   packet pacing disabled. The code in <span>[<a href="#SCReAM-CPP-implementation" class="cite xref">SCReAM-CPP-implementation</a>]</span> implements
-  additonal mechanisms to achieve a high link utilization when packet pacing is
-  disabled.<a href="#section-6-2.6.1" class="pilcrow">¶</a></p>
+  additional mechanisms to achieve a high link utilization when packet pacing is
+  disabled.<a href="#section-6-2.4.1" class="pilcrow">¶</a></p>
 </li>
-        <li class="normal" id="section-6-2.7">
-          <p id="section-6-2.7.1">Feedback issues: RTCP feedback packets <span>[<a href="#RFC8888" class="cite xref">RFC8888</a>]</span> can be lost, this means that
+        <li class="normal" id="section-6-2.5">
+          <p id="section-6-2.5.1">Feedback issues: RTCP feedback packets <span>[<a href="#RFC8888" class="cite xref">RFC8888</a>]</span> can be lost, this means that
   the loss detection in SCReAMv2 may trigger even though packets arrive safely
   on the receiver side. <span>[<a href="#SCReAM-CPP-implementation" class="cite xref">SCReAM-CPP-implementation</a>]</span> solves this by using
   overlapping RTCP feedback, i.e RTCP feedback is transmitted no more seldom
@@ -2839,11 +2866,11 @@ utilization as a result.<a href="#section-6-2.5.2.2.1" class="pilcrow">¶</a></p
   received packets. This however creates unnecessary overhead. <span>[<a href="#RFC3550" class="cite xref">RFC3550</a>]</span> RR
   (Receiver Reports) can possibly be another solution to achieve better
   robustness with less overhead. QUIC <span>[<a href="#RFC9000" class="cite xref">RFC9000</a>]</span> overcomes this issue because
-  of inherent design.<a href="#section-6-2.7.1" class="pilcrow">¶</a></p>
+  of inherent design.<a href="#section-6-2.5.1" class="pilcrow">¶</a></p>
 </li>
-        <li class="normal" id="section-6-2.8">
-          <p id="section-6-2.8.1">SCReAM has over time been evaluated in a number of different experiments, a
-  few examples are found in <span>[<a href="#SCReAM-evaluation-L4S" class="cite xref">SCReAM-evaluation-L4S</a>]</span>.<a href="#section-6-2.8.1" class="pilcrow">¶</a></p>
+        <li class="normal" id="section-6-2.6">
+          <p id="section-6-2.6.1">SCReAM has over time been evaluated in a number of different experiments, a
+  few examples are found in <span>[<a href="#SCReAM-evaluation-L4S" class="cite xref">SCReAM-evaluation-L4S</a>]</span>.<a href="#section-6-2.6.1" class="pilcrow">¶</a></p>
 </li>
       </ul>
 </section>
