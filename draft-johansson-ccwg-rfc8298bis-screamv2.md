@@ -1101,7 +1101,7 @@ in flight and the reference window. This is controlled by the send window:
 * send_wnd (0): Upper limit to how many bytes can currently be
   transmitted. Updated when ref_wnd is updated and when data unit is
   transmitted [byte].
-  
+
 * ref_wnd_overhead(REF_WND_OVERHEAD_MAX): Indicates how much bytes in flight can exceed ref_wnd.
 
 * s_rtt_std_dev: s_rtt standard deviation, normalized to VIRTUAL_RTT
