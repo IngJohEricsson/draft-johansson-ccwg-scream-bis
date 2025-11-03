@@ -443,7 +443,7 @@ The sender transmission control limits sending rate based on the
 relation of the estimated link throughput (bytes in flight) and the reference window.
 
 ~~~
-send_wnd = ref_wnd * ref_wnd_overhead * rel_framesize_high + MTU - bytes_in_flight
+send_wnd = ref_wnd * ref_wnd_overhead * rel_framesize_high + MSS - bytes_in_flight
 ~~~
 
 The respective sending rate is achieved by applying packet pacing: Even
@@ -1104,7 +1104,7 @@ in flight and the reference window. This is controlled by the send window:
   
 * ref_wnd_overhead(REF_WND_OVERHEAD_MAX): Indicates how much bytes in flight can exceed ref_wnd.
 
-* s_rtt_std_dev: SRTT standard deviation, normalized to VIRTUAL_RTT
+* s_rtt_std_dev: s_rtt standard deviation, normalized to VIRTUAL_RTT
 
 ### Send Window Calculation {#send-window}
 
@@ -1139,7 +1139,7 @@ implementation allows the data unit queue to be small even when the frame sizes 
 and thus increased e2e delay can be avoided.
 
 ~~~
-send_wnd = ref_wnd * ref_wnd_overhead * rel_framesize_high + MTU -
+send_wnd = ref_wnd * ref_wnd_overhead * rel_framesize_high + MSS -
            bytes_in_flight
 ~~~
 
@@ -1156,8 +1156,7 @@ ref_wnd_overhead = REF_WND_OVERHEAD_MIN +
   (REF_WND_OVERHEAD_MAX + REF_WND_OVERHEAD_MIN)*max(0.0,(0.1-s_rtt_std_dev)/0.1)
 ~~~
 
-s_rtt_std_dev = calulated as the standard deviation of s_rtt normalized to VIRTUAL_RTT to get an equal restriction to absolute variations in RTT regardless the min RTT is low or high.
-
+s_rtt_std_dev is calulated as the standard deviation of s_rtt normalized to VIRTUAL_RTT to get an equal restriction of bytes in flight to absolute variations in RTT regardless the min RTT is low or high.
 
 ### Calculate Frame Size
 
