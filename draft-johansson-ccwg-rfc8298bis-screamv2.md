@@ -122,7 +122,7 @@ This memo describes Self-Clocked Rate Adaptation for Multimedia version 2
 (SCReAMv2), an update to SCReAM congestion control for media streams such as RTP
 {{RFC3550}}. SCReAMv2 includes several algorithm simplifications and adds
 support for L4S. The algorithm supports handling of multiple media streams,
-typical use cases are streaming for remote control, AR and 3D VR googles.
+typical use cases are streaming for remote control, AR and 3D VR goggles.
 This specification obsoletes RFC 8298.
 
 --- middle
@@ -165,7 +165,7 @@ SCReAM in {{RFC8298}}. The main differences are:
 * The algorithm is more rate based than self-clocked:
 
     * The calculated congestion window is mainly used to calculate proper media bitrates. Bytes in flight is
-  however allowed to exceeed the reference window. Therefore, The term
+  however allowed to exceed the reference window. Therefore, The term
   reference window is used instead of congestion window, as the	reference
   window does not set an absolute limit on the bytes in	flight.
 
@@ -175,7 +175,7 @@ SCReAM in {{RFC8298}}. The main differences are:
   that they are unnecessarily queued up on the sender side, but still prevent a
   large network queue.
 
-* The media bitrate calculation is dramatically changed and simplified. In practive
+* The media bitrate calculation is dramatically changed and simplified. In practice
   it is manifested with a relatively simple relation between the reference window and RTT.
 
 * Additional compensation is added to make SCReAMv2 handle cases such as large
@@ -196,7 +196,7 @@ Algorithm changes in draft version -02 were:
 
  * Timing set to multiples of RTTs instead of seconds.
 
-Draft version -03 is major editorial pass including removal of some
+Draft version -03 is a major editorial pass including removal of some
 outdated or background information and reorganisation of several sections:
 
 * Much shorter abstract and introduction focusing on what's new in SCReAMv2
@@ -212,7 +212,7 @@ outdated or background information and reorganisation of several sections:
 * Overview Section {{scream-overview}} revised; now also including the overview
   figure and the basic algorithms
 
-* Own section on "Constants and variables" removed; instead all variables are now listed
+* Old section on "Constants and variables" removed; instead all variables are now listed
   in the respective sections that explain the code
 
 * New Section on "Sender Side State" explaining some basic variables
@@ -255,7 +255,7 @@ Draft version -05 contains some clarifications based on a review by Per Kjelland
 
 * ref_wnd increase is reduced if L4S is likely non-active and queue delay increases
 
-Draft version -05
+Draft version -06
 
 * Correction of typos
 
@@ -263,9 +263,9 @@ Draft version -05
 
 * Additional ref_wnd_overhead varable
 
-* REF_WND_OVERHEAD replaced by REF_WND_OVERHEAD_MIN and  REF_WND_OVERHEAD_MAX
+* REF_WND_OVERHEAD replaced by REF_WND_OVERHEAD_MIN and REF_WND_OVERHEAD_MAX
 
-* Additional variable srtt_std_dev  
+* Additional variable srtt_std_dev
 
 ## Requirements on the Media and Feedback Protocol {#requirements-media}
 
@@ -300,10 +300,10 @@ networks from congestion {{Packet-conservation}}.
 
 The reference window decrease is determined in a way similar to
 LEDBAT {{RFC6817}}. However, the window increase is not based on
-delay estimates but uses both a linear increase and multiplicate increase function depending
+delay estimates but uses both a linear increase and multiplicative increase function depending
 on the time since the last congestion event and introduces use of inflection points in the
 reference window increase calculation to achieve reduced delay jitter.
-Further, other than LEDABT which is a scavenger congestion control mostly designed
+Further, other than LEDBAT which is a scavenger congestion control mostly designed
 for low priority background traffic, SCReAM adjusts the qdelay target to
 compete with other loss-based congestion-controlled flows.
 
@@ -340,7 +340,7 @@ or per individual data unit.
 The sender implements media rate control and an data unit queue for each media
 type or source, where data units containing encoded media frames are temporarily
 stored for transmission. Figure 1 shows the details when a single media source
-(or stream) is used. Scheduling and priotization of mulitiple streams is not
+(or stream) is used. Scheduling and prioritization of mulitiple streams is not
 covered in this document. However, if multiple flows are sent, each data unit queue can be
 served based on some defined priority or simply in a round-robin fashion. Alternatively,
 a similar approach as coupled congestion control {{RFC6365}} can be applied.
@@ -394,8 +394,8 @@ media rate controller.
 
 Feedback about the received bytes as well as metadata to estimate the congestion
 level or queuing delay are provided to the network congestion controller.
-The network congestion controller calculated reference window and provides it
-togteher with the bytes in flight to the sender transmission control.
+The network congestion controller calculates the reference window and provides it
+together with the bytes in flight to the sender transmission control.
 
 The reference window and the estimated RTT is further provided to the media rate
 control to compute the appropriate target bitrate. The target bitrate is
@@ -410,14 +410,14 @@ which puts an upper limit on how many bytes can be in
 flight, i.e., transmitted but not yet acknowledged. The reference window is
 however not an absolute limit as slack is given to efficiently transmit
 temporary larger media objects, such as video frames. This means that the
-algoritm prefers to build up a queue in the network rather than on the sender
+algorithm prefers to build up a queue in the network rather than on the sender
 side. Additional congestion that this causes will reflect back and cause a
 reduction of the reference window.
 
-Reference window is reduced if congestion is detected. Similar as for
-LEDBAT the reference window is reduced either by a fixed fraction in
+The reference window is reduced if congestion is detected. Similar to
+LEDBAT, the reference window is reduced either by a fixed fraction in
 case of packet loss or Classic ECN marking, or if the estimated queue
-delay exceeds a given threshold depending on how much the delay
+delay exceeds a given threshold, depending on how much the delay
 exceeds the threshold.  SCReAMv2 reduces the reference window in
 proportion to the fraction of marked packets if L4S is used (scalable
 congestion control).
@@ -428,8 +428,8 @@ ref_wnd = BETA_LOSS * (BETA_ECN|l4s_alpha) * qtarget_alpha * ref_wnd
 
 After a congestion event the reference window seeks to increase by one
 segment per RTT until a certain number of RTT elapses. After this
-initial congestion avoidance phase the refrence window increases
-multiplicativly where the increase factor is adjusted relative to a
+initial congestion avoidance phase the reference window increases
+multiplicatively where the increase factor is adjusted relative to a
 previous max value and the time elapsed since last congestion event.
 This enables a faster convergence to a higher link speed.
 
@@ -443,10 +443,10 @@ The sender transmission control limits sending rate based on the
 relation of the estimated link throughput (bytes in flight) and the reference window.
 
 ~~~
-send_wnd = ref_wnd * ref_wnd_overhead * frame_size - bytes_in_flight
+send_wnd = ref_wnd * ref_wnd_overhead * rel_framesize_high + MSS - bytes_in_flight
 ~~~
 
-The respective sending rate is achived by applying packet pacing: Even
+The respective sending rate is achieved by applying packet pacing: Even
 if the send window allows for the transmission of a number of packets,
 these packets are not transmitted immediately; rather, they are
 transmitted in intervals given by the packet size and the estimated
@@ -470,7 +470,7 @@ reaction to reduced throughput must be prompt in order to avoid
 getting too much data queued in the data unit queue(s) in the sender.
 
 For the case that multiple
-streams are enabled, the media rate among the streams is distrubuted according
+streams are enabled, the media rate among the streams is distributed according
 to relative priorities.
 
 In cases where the sender's frame queues increase rapidly, such as in the case
@@ -572,7 +572,7 @@ zero after a ref_wnd update.
 
 ## Network Congestion Control {#network-cc-2}
 
-This section explains the network congestion control, which calcultes the
+This section explains the network congestion control, which calculates the
 reference window. The reference window gives an upper limit to the number of bytes in flight.
 
 ### Congestion Detection: Delay, Data Unit Loss and ECN-CE {#reaction-delay-loss-ce}
@@ -825,7 +825,7 @@ basically zero throughput if competing with loss-based traffic.
 
 The reference window update contains two parts. One that reduces the reference
 window when congestion events (listed above) occur, and one part that
-continously increases the reference window.
+continuously increases the reference window.
 
 The following variables are defined:
 
@@ -868,10 +868,10 @@ for the constants are deduced from experiments):
 * MSS (1000): Maximum segment size = Max data unit size [byte].
 
 * REF_WND_OVERHEAD_MIN (1.2): Indicates a lower limit how much bytes in flight is allowed to
-  exceed ref_wnd. 
+  exceed ref_wnd.
 
 * REF_WND_OVERHEAD_MAX (5.0): Indicates an upper limit how much bytes in flight is allowed to
-  exceed ref_wnd. 
+  exceed ref_wnd.
 
 * POST_CONGESTION_DELAY_RTT (100): Determines how many RTTs after a congestion
   event the reference window growth should be cautious.
@@ -947,7 +947,7 @@ if (is_ce_t)
     # Increase stability for very small ref_wnd
     backoff_t *= max(0.5, 1.0 - ref_wnd_ratio)
 
-    # Scale down backoff when RTT is high ot avoid overreaction to
+    # Scale down backoff when RTT is high to avoid overreaction to
     # congestion
     backoff_t /= max(1.0, srtt/VIRTUAL_RTT)
 
@@ -955,7 +955,7 @@ if (is_ce_t)
     # This is complemented with a scale down of the reference window increase
     # Don't scale down back off if queue delay is large
     if (queue_delay < queue_delay_target * 0.25)
-        backoff *= max(0.25, scl_t)
+        backoff_t *= max(0.25, scl_t)
 
     if (now - last_reaction_to_congestion_time >
         100*max(VIRTUAL_RTT,s_rtt))
@@ -981,7 +981,7 @@ if (is_virtual_ce_t)
   backoff_t /= max(1.0, srtt/VIRTUAL_RTT)
 
   # Increase stability for very small ref_wnd
-  backOff_t *= max(0.5, 1.0 - ref_wnd_ratio)
+  backoff_t *= max(0.5, 1.0 - ref_wnd_ratio)
 
   ref_wnd = (1.0 - backoff_t) * ref_wnd
 end
@@ -1029,12 +1029,12 @@ increment_t *= max(0.25,scl_t)
 increment_t *= max(0.5,1.0-ref_wnd_ratio)
 
 # Reduce CWND growth if L4S not enabled or non-functional and queue delay grows
-if (l4sAlpha < 0.0001)
+if (l4s_alpha < 0.0001)
    increment *= max(0.1, 1.0 - queue_avg / (qdelay_target / 4))
 end
 
 # Scale up increment with multiplicative increase
-# Limit multiplicative increase when congestion occured
+# Limit multiplicative increase when congestion occurred
 # recently and when reference window is close to the last
 # known max value
 float tmp_t = ref_wnd_scale_factor_t
@@ -1063,7 +1063,7 @@ increases.
 The multiplicative increase is restricted directly after a congestion event and
 the restriction is gradually relaxed as the time since last congested
 increased. The restriction makes the reference window growth to be no faster
-than additive increase when congestion continusly occurs.  For L4S operation
+than additive increase when congestion continuously occurs.  For L4S operation
 this means that the SCReAMv2 algorithm will adhere to the 2 marked data units per
 RTT equilibrium at steady state congestion, with the exception of the case
 below.
@@ -1101,8 +1101,12 @@ in flight and the reference window. This is controlled by the send window:
 * send_wnd (0): Upper limit to how many bytes can currently be
   transmitted. Updated when ref_wnd is updated and when data unit is
   transmitted [byte].
-  
+
 * ref_wnd_overhead(REF_WND_OVERHEAD_MAX): Indicates how much bytes in flight can exceed ref_wnd.
+
+* ref_wnd_overhead(REF_WND_OVERHEAD_MAX): Indicates how much bytes in flight can exceed ref_wnd.
+
+* s_rtt_std_dev: s_rtt standard deviation, normalized to VIRTUAL_RTT
 
 ### Send Window Calculation {#send-window}
 
@@ -1131,14 +1135,13 @@ optimally:
 
 In SCReAMv2, the send window is given by the relation between the adjusted
 reference window and the amount of bytes in flight according to the pseudocode
-below. The multiplication of ref_wnd with ref_wnd_overhead and
-rel_framesize_high has the effect that bytes in flight is 'around' the ref_wnd
-rather than limited by the ref_wnd when the link is congested.  The
+below. The multiplication of ref_wnd with ref_wnd_overhead has the effect that bytes in flight is 'around' the ref_wnd
+rather than limited by the ref_wnd when the link is congested. The
 implementation allows the data unit queue to be small even when the frame sizes vary
 and thus increased e2e delay can be avoided.
 
 ~~~
-send_wnd = ref_wnd * ref_wnd_overhead * rel_framesize_high -
+send_wnd = ref_wnd * ref_wnd_overhead * rel_framesize_high + MSS -
            bytes_in_flight
 ~~~
 TODO: rel_framesize_high can probably be removed because of the adaptive ref_wnd_overhead
@@ -1147,7 +1150,6 @@ messaged is received.
 
 The ref_wnd_overhead is adjusted dynamically. A large overhead is beneficial when the network link is uncongested as it allows to
 transmit large media frames with little transmission delay. A large overhead is also beneficial for cases where network links use virtual queue marking or can temporarly absorb bursts from L4S capable flows.
-
 If, on the other hand the network link is congested, then it is better to restrict how much bytes in flight exceeds the reference window because is not possible to push data faster than when the reference window allows. This restriction reduces varaitions in RTT caused by self-congestion and improves performance for the cases where media encoders are slow to react to changes in target rate.
 
 The ref_wnd_overhead is calculated as:
@@ -1156,7 +1158,7 @@ ref_wnd_overhead = REF_WND_OVERHEAD_MIN +
   (REF_WND_OVERHEAD_MAX + REF_WND_OVERHEAD_MIN)*max(0.0,(0.1-s_rtt_std_dev)/0.1)
 ~~~
 
-s_rtt_std_dev = calulated as the standard deviation of s_rtt normalized to VIRTUAL_RTT to get an equal restriction to absolute variations in RTT regardless the min RTT is low or high.
+s_rtt_std_dev is calulated as the standard deviation of s_rtt normalized to VIRTUAL_RTT to get an equal restriction of bytes in flight to absolute variations in RTT regardless the min RTT is low or high.
 
 ### Calculate Frame Size
 
@@ -1265,14 +1267,14 @@ The complete pseudo code for adjustment of the target bitrate is shown below
 tmp_t = 1.0
 
 # Limit bitrate if bytes in flight is close to or
-# exceeds ref_wnd. This helps to avoid large rate fluctiations and
+# exceeds ref_wnd. This helps to avoid large rate fluctuations and
 # variations in RTT.
 if (queue_delay / queue_delay_target > 0.25 && bytes_in_flight_ratio > BYTES_IN_FLIGHT_LIMIT)
   tmp_t /= min(BYTES_IN_FLIGHT_LIMIT_COMPENSATION,
     bytesInFlightRatio / BYTES_IN_FLIGHT_LIMIT)
 end
 
-# Scale down rate slighty when the reference window is very
+# Scale down rate slightly when the reference window is very
 # small compared to MSS
 tmp_t *= 1.0 - min(0.2, max(0.0, ref_wnd_ratio - 0.1))
 
@@ -1291,7 +1293,7 @@ target_bitrate = min(TARGET_BITRATE_MAX,
 
 Some video encoders are prone to systematically generate an output bitrate that
 is systematically larger or smaller than the target bitrate. SCReAMv2 can handle
-some deviation inherently but for larger devation it becomes necessary to
+some deviation inherently but for larger deviations it becomes necessary to
 compensate for this. The algorithm for this is detailed in
 {{SCReAM-CPP-implementation}}.
 
@@ -1357,16 +1359,13 @@ to for instance QUIC.
 
 This section covers a few discussion points.
 
-* Clock drift: SCReAM/SCReAMv2 can suffer from the same issues with clock drift
+* Clock drift and clock skipping: SCReAM/SCReAMv2 can suffer from the same issues with clock drift
   as is the case with LEDBAT {{RFC6817}}. However, Appendix A.2 in {{RFC6817}}
   describes ways to mitigate issues with clock drift. A clockdrift compensation
   method is also implemented in {{SCReAM-CPP-implementation}}. Furthermore, the
   SCReAM implementation resets base delay history when it is determined that
-  clock drift becomes too large. This is achieved by reducing the target bitrate
+  clock drift or skip becomes too large. This is achieved by reducing the target bitrate
   for a few RTTs. More details on this will be provided in a later draft version.
-
-* Clock skipping: The sender or receiver clock can occasionally skip. Handling
-  of this is implemented in {{SCReAM-CPP-implementation}}.
 
 * The target bitrate given by SCReAMv2 is the bitrate including the data unit and
   Forward Error Correction (FEC) overhead. The media encoder SHOULD take this
@@ -1397,7 +1396,7 @@ This section covers a few discussion points.
 
  * Packet pacing is recommended, it is however possible to operate SCReAMv2 with
   packet pacing disabled. The code in {{SCReAM-CPP-implementation}} implements
-  additonal mechanisms to achieve a high link utilization when packet pacing is
+  additional mechanisms to achieve a high link utilization when packet pacing is
   disabled.
 
  * Feedback issues: RTCP feedback packets {{RFC8888}} can be lost, this means that
