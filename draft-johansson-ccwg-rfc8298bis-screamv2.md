@@ -255,6 +255,18 @@ Draft version -05 contains some clarifications based on a review by Per Kjelland
 
 * ref_wnd increase is reduced if L4S is likely non-active and queue delay increases
 
+Draft version -06
+
+* Correction of typos
+
+* Correction of send_wnd calculation
+
+* Additional ref_wnd_overhead varable
+
+* REF_WND_OVERHEAD replaced by REF_WND_OVERHEAD_MIN and REF_WND_OVERHEAD_MAX
+
+* Additional variable srtt_std_dev  
+
 ## Requirements on the Media and Feedback Protocol {#requirements-media}
 
 SCReAM was originally designed to with with RTP + RTCP where {{RFC8888}} was
@@ -431,7 +443,7 @@ The sender transmission control limits sending rate based on the
 relation of the estimated link throughput (bytes in flight) and the reference window.
 
 ~~~
-send_wnd = ref_wnd * REF_WND_OVERHEAD + MTU - bytes_in_flight
+send_wnd = ref_wnd * ref_wnd_overhead * rel_framesize_high + MTU - bytes_in_flight
 ~~~
 
 The respective sending rate is achieved by applying packet pacing: Even
@@ -855,8 +867,11 @@ for the constants are deduced from experiments):
 
 * MSS (1000): Maximum segment size = Max data unit size [byte].
 
-* REF_WND_OVERHEAD (5.0): Indicates how much bytes in flight is allowed to
-  exceed ref_wnd. See section {{discussion}} for recommendations.
+* REF_WND_OVERHEAD_MIN (1.2): Indicates a lower limit how much bytes in flight is allowed to
+  exceed ref_wnd.
+
+* REF_WND_OVERHEAD_MAX (5.0): Indicates an upper limit how much bytes in flight is allowed to
+  exceed ref_wnd.
 
 * POST_CONGESTION_DELAY_RTT (100): Determines how many RTTs after a congestion
   event the reference window growth should be cautious.
@@ -1086,6 +1101,10 @@ in flight and the reference window. This is controlled by the send window:
 * send_wnd (0): Upper limit to how many bytes can currently be
   transmitted. Updated when ref_wnd is updated and when data unit is
   transmitted [byte].
+  
+* ref_wnd_overhead(REF_WND_OVERHEAD_MAX): Indicates how much bytes in flight can exceed ref_wnd.
+
+* s_rtt_std_dev: SRTT standard deviation, normalized to VIRTUAL_RTT
 
 ### Send Window Calculation {#send-window}
 
@@ -1114,19 +1133,31 @@ optimally:
 
 In SCReAMv2, the send window is given by the relation between the adjusted
 reference window and the amount of bytes in flight according to the pseudocode
-below. The multiplication of ref_wnd with REF_WND_OVERHEAD and
-rel_framesize_high has the effect that bytes in flight is 'around' the ref_wnd
-rather than limited by the ref_wnd when the link is congested.  The
+below. The multiplication of ref_wnd with ref_wnd_overhead has the effect that bytes in flight is 'around' the ref_wnd
+rather than limited by the ref_wnd when the link is congested. The
 implementation allows the data unit queue to be small even when the frame sizes vary
 and thus increased e2e delay can be avoided.
 
 ~~~
-send_wnd = ref_wnd * REF_WND_OVERHEAD * rel_framesize_high -
+send_wnd = ref_wnd * ref_wnd_overhead * rel_framesize_high + mtu -
            bytes_in_flight
 ~~~
 
 The send window is updated whenever an data unit is transmitted or an feedback
 messaged is received.
+
+The ref_wnd_overhead is adjusted dynamically. A large overhead is beneficial when the network link is uncongested as it allows to
+transmit large media frames with little transmission delay. A large overhead is also beneficial for cases where network links use virtual queue marking or can temporarly absorb bursts from L4S capable flows.
+If, on the other hand the network link is congested, then it is better to restrict how much bytes in flight exceeds the reference window because is not possible to push data faster than when the reference window allows. This restriction reduces varaitions in RTT caused by self-congestion and improves performance for the cases where media encoders are slow to react to changes in target rate.
+
+The ref_wnd_overhead is calculated as:
+~~~
+ref_wnd_overhead = REF_WND_OVERHEAD_MIN +
+  (REF_WND_OVERHEAD_MAX + REF_WND_OVERHEAD_MIN)*max(0.0,(0.1-s_rtt_std_dev)/0.1)
+~~~
+
+s_rtt_std_dev = calulated as the standard deviation of s_rtt normalized to VIRTUAL_RTT to get an equal restriction to absolute variations in RTT regardless the min RTT is low or high.
+
 
 ### Calculate Frame Size
 
@@ -1327,24 +1358,13 @@ to for instance QUIC.
 
 This section covers a few discussion points.
 
-* Clock drift: SCReAM/SCReAMv2 can suffer from the same issues with clock drift
+* Clock drift and clock skipping: SCReAM/SCReAMv2 can suffer from the same issues with clock drift
   as is the case with LEDBAT {{RFC6817}}. However, Appendix A.2 in {{RFC6817}}
   describes ways to mitigate issues with clock drift. A clockdrift compensation
   method is also implemented in {{SCReAM-CPP-implementation}}. Furthermore, the
   SCReAM implementation resets base delay history when it is determined that
-  clock drift becomes too large. This is achieved by reducing the target bitrate
+  clock drift or skip becomes too large. This is achieved by reducing the target bitrate
   for a few RTTs. More details on this will be provided in a later draft version.
-
-* REF_WND_OVERHEAD is by default quite high. The intention is to avoid that packets
-  are queued up on the sender side in cases when feedback is delayed or when the media
-  encoder produces very large frames. This is beneficial for cases where link capacity
-  is very high or when congested queues have high statistical multiplexing.
-  It is however recommended to reduce this value in case the media encoder reacts slowly
-  to a reduced target bitrate, because an excessive queue build-up may otherwise occur
-  and the better option may then be to queue up packets on the sender side.
-
-* Clock skipping: The sender or receiver clock can occasionally skip. Handling
-  of this is implemented in {{SCReAM-CPP-implementation}}.
 
 * The target bitrate given by SCReAMv2 is the bitrate including the data unit and
   Forward Error Correction (FEC) overhead. The media encoder SHOULD take this
