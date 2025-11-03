@@ -1139,7 +1139,7 @@ implementation allows the data unit queue to be small even when the frame sizes 
 and thus increased e2e delay can be avoided.
 
 ~~~
-send_wnd = ref_wnd * ref_wnd_overhead * rel_framesize_high + mtu -
+send_wnd = ref_wnd * ref_wnd_overhead * rel_framesize_high + MTU -
            bytes_in_flight
 ~~~
 
