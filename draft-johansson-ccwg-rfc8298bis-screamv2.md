@@ -265,7 +265,7 @@ Draft version -06
 
 * REF_WND_OVERHEAD replaced by REF_WND_OVERHEAD_MIN and REF_WND_OVERHEAD_MAX
 
-* Additional variable srtt_std_dev  
+* Additional variable srtt_std_dev
 
 ## Requirements on the Media and Feedback Protocol {#requirements-media}
 
