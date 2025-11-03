@@ -1137,6 +1137,9 @@ end
    *  ref_wnd_overhead(REF_WND_OVERHEAD_MAX): Indicates how much bytes
       in flight can exceed ref_wnd.
 
+   *  ref_wnd_overhead(REF_WND_OVERHEAD_MAX): Indicates how much bytes
+      in flight can exceed ref_wnd.
+
    *  s_rtt_std_dev: s_rtt standard deviation, normalized to VIRTUAL_RTT
 
 4.3.1.  Send Window Calculation
@@ -1179,8 +1182,9 @@ end
    send_wnd = ref_wnd * ref_wnd_overhead * rel_framesize_high + MSS -
               bytes_in_flight
 
-   The send window is updated whenever an data unit is transmitted or an
-   feedback messaged is received.
+   TODO: rel_framesize_high can probably be removed because of the
+   adaptive ref_wnd_overhead The send window is updated whenever an data
+   unit is transmitted or an feedback messaged is received.
 
    The ref_wnd_overhead is adjusted dynamically.  A large overhead is
    beneficial when the network link is uncongested as it allows to

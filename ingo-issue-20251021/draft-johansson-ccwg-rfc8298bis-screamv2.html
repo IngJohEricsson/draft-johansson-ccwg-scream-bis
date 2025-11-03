@@ -2503,7 +2503,10 @@ transmitted [byte].<a href="#section-4.3-2.1.1" class="pilcrow">¶</a></p>
             <p id="section-4.3-2.2.1">ref_wnd_overhead(REF_WND_OVERHEAD_MAX): Indicates how much bytes in flight can exceed ref_wnd.<a href="#section-4.3-2.2.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="section-4.3-2.3">
-            <p id="section-4.3-2.3.1">s_rtt_std_dev: s_rtt standard deviation, normalized to VIRTUAL_RTT<a href="#section-4.3-2.3.1" class="pilcrow">¶</a></p>
+            <p id="section-4.3-2.3.1">ref_wnd_overhead(REF_WND_OVERHEAD_MAX): Indicates how much bytes in flight can exceed ref_wnd.<a href="#section-4.3-2.3.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-4.3-2.4">
+            <p id="section-4.3-2.4.1">s_rtt_std_dev: s_rtt standard deviation, normalized to VIRTUAL_RTT<a href="#section-4.3-2.4.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
 <div id="send-window">
@@ -2549,7 +2552,8 @@ send_wnd = ref_wnd * ref_wnd_overhead * rel_framesize_high + MSS -
            bytes_in_flight
 </pre><a href="#section-4.3.1-4" class="pilcrow">¶</a>
 </div>
-<p id="section-4.3.1-5">The send window is updated whenever an data unit is transmitted or an feedback
+<p id="section-4.3.1-5">TODO: rel_framesize_high can probably be removed because of the adaptive ref_wnd_overhead
+The send window is updated whenever an data unit is transmitted or an feedback
 messaged is received.<a href="#section-4.3.1-5" class="pilcrow">¶</a></p>
 <p id="section-4.3.1-6">The ref_wnd_overhead is adjusted dynamically. A large overhead is beneficial when the network link is uncongested as it allows to
 transmit large media frames with little transmission delay. A large overhead is also beneficial for cases where network links use virtual queue marking or can temporarly absorb bursts from L4S capable flows.
