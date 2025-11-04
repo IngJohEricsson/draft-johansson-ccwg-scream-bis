@@ -6,7 +6,7 @@ CCWG                                                        I. Johansson
 Internet-Draft                                             M. Westerlund
 Obsoletes: 8298 (if approved)                               M. Kühlewind
 Intended status: Experimental                                   Ericsson
-Expires: 7 May 2026                                      3 November 2025
+Expires: 8 May 2026                                      4 November 2025
 
 
               Self-Clocked Rate Adaptation for Multimedia
@@ -54,7 +54,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 7 May 2026.
+   This Internet-Draft will expire on 8 May 2026.
 
 Copyright Notice
 
@@ -1140,7 +1140,7 @@ end
    *  ref_wnd_overhead(REF_WND_OVERHEAD_MAX): Indicates how much bytes
       in flight can exceed ref_wnd.
 
-   *  s_rtt_std_dev: s_rtt standard deviation, normalized to VIRTUAL_RTT
+   *  rtt_dev: rtt standard deviation, normalized to VIRTUAL_RTT
 
 4.3.1.  Send Window Calculation
 
@@ -1200,12 +1200,13 @@ end
 
    The ref_wnd_overhead is calculated as: ~~~ ref_wnd_overhead =
    REF_WND_OVERHEAD_MIN + (REF_WND_OVERHEAD_MAX +
-   REF_WND_OVERHEAD_MIN)*max(0.0,(0.1-s_rtt_std_dev)/0.1) ~~~
+   REF_WND_OVERHEAD_MIN)*max(0.0,(0.1-rtt_dev)/0.1) ~~~
 
-   s_rtt_std_dev is calulated as the standard deviation of s_rtt
-   normalized to VIRTUAL_RTT to get an equal restriction of bytes in
-   flight to absolute variations in RTT regardless the min RTT is low or
-   high.
+   rtt_dev is calulated as the standard deviation of RTT normalized to
+   VIRTUAL_RTT to get an equal restriction of bytes in flight to
+   absolute variations in RTT, regardless if the min RTT is low or high.
+   A long averaging window (8 times the averaging window for s_rtt) is
+   recommended, to avoid too rapid variations in the ref_wnd_overhead.
 
 4.3.2.  Calculate Frame Size
 
