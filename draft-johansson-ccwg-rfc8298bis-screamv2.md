@@ -1106,7 +1106,7 @@ in flight and the reference window. This is controlled by the send window:
 
 * ref_wnd_overhead(REF_WND_OVERHEAD_MAX): Indicates how much bytes in flight can exceed ref_wnd.
 
-* s_rtt_std_dev: s_rtt standard deviation, normalized to VIRTUAL_RTT
+* rtt_dev: rtt standard deviation, normalized to VIRTUAL_RTT
 
 ### Send Window Calculation {#send-window}
 
@@ -1155,10 +1155,10 @@ If, on the other hand the network link is congested, then it is better to restri
 The ref_wnd_overhead is calculated as:
 ~~~
 ref_wnd_overhead = REF_WND_OVERHEAD_MIN +
-  (REF_WND_OVERHEAD_MAX + REF_WND_OVERHEAD_MIN)*max(0.0,(0.1-s_rtt_std_dev)/0.1)
+  (REF_WND_OVERHEAD_MAX + REF_WND_OVERHEAD_MIN)*max(0.0,(0.1-rtt_dev)/0.1)
 ~~~
 
-s_rtt_std_dev is calulated as the standard deviation of s_rtt normalized to VIRTUAL_RTT to get an equal restriction of bytes in flight to absolute variations in RTT regardless the min RTT is low or high.
+rtt_dev is calulated as the standard deviation of RTT normalized to VIRTUAL_RTT to get an equal restriction of bytes in flight to absolute variations in RTT, regardless if the min RTT is low or high. A long averaging window (8 times the averaging window for s_rtt) is recommended, to avoid too rapid variations in the ref_wnd_overhead.
 
 ### Calculate Frame Size
 
