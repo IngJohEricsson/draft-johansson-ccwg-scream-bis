@@ -1209,6 +1209,8 @@ pace_bitrate = max(RATE_PACE_MIN, target_bitrate) *
 nominal_rate_t = target_bitrate/TARGET_BITRATE_MAX
 pace_rate_scale_t = min(1.0,
   (nominal_rate_t-RELAXED_PACING_LIMIT_LOW)/(1.0 - RELAXED_PACING_LIMIT_LOW))
+pace_rate_scale_t = min(1.0,
+  max(1.0 / MAX_RELAXED_PACING_FACTOR, 1.0 - pace_rate_scale_t))
 pace_bitrate /= pace_rate_scale_t
 
 t_pace = data_unit_size * 8 / pace_bitrate
