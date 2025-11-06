@@ -1220,9 +1220,10 @@ end
    self-congestion and improves performance for the cases where media
    encoders are slow to react to changes in target rate.
 
-   The ref_wnd_overhead is calculated as: ~~~ ref_wnd_overhead =
-   REF_WND_OVERHEAD_MIN + (REF_WND_OVERHEAD_MAX +
-   REF_WND_OVERHEAD_MIN)*max(0.0,(0.1-qdelay_dev_norm)/0.1) ~~~
+   The ref_wnd_overhead is calculated as:
+
+ref_wnd_overhead = REF_WND_OVERHEAD_MIN +
+  (REF_WND_OVERHEAD_MAX + REF_WND_OVERHEAD_MIN)*max(0.0,(0.1-qdelay_dev_norm)/0.1)
 
 4.3.2.  Packet Pacing
 
