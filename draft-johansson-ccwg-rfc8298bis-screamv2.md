@@ -1162,6 +1162,7 @@ and thus increased e2e delay can be avoided.
 send_wnd = ref_wnd * ref_wnd_overhead * rel_framesize_high + MSS -
            bytes_in_flight
 ~~~
+
 The send window is updated whenever an data unit is transmitted or an feedback
 messaged is received.
 
@@ -1170,6 +1171,7 @@ transmit large media frames with little transmission delay. A large overhead is 
 If, on the other hand the network link is congested, then it is better to restrict how much bytes in flight exceeds the reference window because is not possible to push data faster than the reference window allows. This restriction reduces varaitions in RTT caused by self-congestion and improves performance for the cases where media encoders are slow to react to changes in target rate.
 
 The ref_wnd_overhead is calculated as:
+
 ~~~
 ref_wnd_overhead = REF_WND_OVERHEAD_MIN +
   (REF_WND_OVERHEAD_MAX + REF_WND_OVERHEAD_MIN)*max(0.0,(0.1-qdelay_dev_norm)/0.1)
