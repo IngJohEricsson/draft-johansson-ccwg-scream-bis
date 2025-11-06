@@ -199,74 +199,80 @@ Algorithm changes in draft version -02 were:
 Draft version -03 is a major editorial pass including removal of some
 outdated or background information and reorganisation of several sections:
 
-* Much shorter abstract and introduction focusing on what's new in SCReAMv2
+* Much shorter abstract and introduction focusing on what's new in SCReAMv2.
 
 * Removal of Section 1.1. on "Wireless (LTE and 5G) Access Properties" and
   Section 1.2. on "Why is it a self-clocked algorithm?"
 
 * New Section on "Updates compared to SCReAM (version 1)" in introduction
-  based on old Section on "Algorithm Changes"
+  based on old Section on "Algorithm Changes".
 
-* Section {{ledbat-tfwc}} updated and shortened
+* Section {{ledbat-tfwc}} updated and shortened.
 
 * Overview Section {{scream-overview}} revised; now also including the overview
-  figure and the basic algorithms
+  figure and the basic algorithms.
 
 * Old section on "Constants and variables" removed; instead all variables are now listed
-  in the respective sections that explain the code
+  in the respective sections that explain the code.
 
-* New Section on "Sender Side State" explaining some basic variables
+* New Section on "Sender Side State" explaining some basic variables.
 
 * Pseudo code and the corresponding explanations in Section {{network-cc-2}} on
   "Network Congestion Control" moved into the respective subsections in
-  section {{reaction-delay-loss-ce}} on "Congestion Detection"
+  section {{reaction-delay-loss-ce}} on "Congestion Detection".
 
-* Separate section on "Sender Transmission Control" introduced
+* Separate section on "Sender Transmission Control" introduced.
 
-* Section "Lost Data Unit Detection" merged into Section {{reaction-loss}}
+* Section "Lost Data Unit Detection" merged into Section {{reaction-loss}}.
 
-* Section "Stream Prioritization" removed
+* Section "Stream Prioritization" removed.
 
 * Section on "Competing Flows Compensation" moved into Section {{reaction-delay-loss-ce}}
-  on "Congestion Detection"
+  on "Congestion Detection".
 
 Draft version -04
 
-* Restructuring of code
+* Restructuring of code.
 
-* Reduction of target rate when bytes_in_flight is higher than ref_wnd is done also when l4s_active, replaced with requirement that queue_delay is large
+* Reduction of target rate when bytes_in_flight is higher than ref_wnd is done also when l4s_active, replaced with requirement that queue_delay is large.
 
-* Additional constraint for increase of ref_wnd added
+* Additional constraint for increase of ref_wnd added.
 
 * Discussion on when it is beneficial to reduce REF_WND_OVERHEAD added.
 
 Draft version -05 contains some clarifications based on a review by Per Kjellander
  and Björn Terelius plus some code modifications and text.
 
-* l4s_active state removed as delay based congestion control is always active
+* l4s_active state removed as delay based congestion control is always active.
 
-* ref_wnd reduction when long time since congested limited to only limit ref_wnd to last max_bytes_in_flight_prev
+* ref_wnd reduction when long time since congested limited to only limit ref_wnd to last max_bytes_in_flight_prev.
 
-* Calculation of l4s_alpha is modified to use a fast attack slow decay EWMA filter
+* Calculation of l4s_alpha is modified to use a fast attack slow decay EWMA filter.
 
-* Congestion backoff downscaling also for virtual L4S marking when ref_wnd is very small
+* Congestion backoff downscaling also for virtual L4S marking when ref_wnd is very small.
 
-* Congestion backoff is reduced if RTT is higher than VIRTUAL_RTT
+* Congestion backoff is reduced if RTT is higher than VIRTUAL_RTT.
 
-* ref_wnd increase is reduced if L4S is likely non-active and queue delay increases
+* ref_wnd increase is reduced if L4S is likely non-active and queue delay increases.
 
 Draft version -06
 
-* Correction of typos
+* Correction of typos.
 
-* Correction of send_wnd calculation
+* Correction of send_wnd calculation.
 
-* Additional ref_wnd_overhead varable
+* Additional variable qdelay_dev_norm that indicated how much the queue delay varies.
 
-* REF_WND_OVERHEAD replaced by REF_WND_OVERHEAD_MIN and REF_WND_OVERHEAD_MAX
+* Additional ref_wnd_overhead varable to limit how much bytes in flight can exceed the reference window in congested situations.
 
-* Additional variable srtt_std_dev
+* REF_WND_OVERHEAD replaced by REF_WND_OVERHEAD_MIN and REF_WND_OVERHEAD_MAX.
 
+* Reference window increase is restricted additionally when queue delay varies a lot.
+
+* rel_framesize_high calculation is removed.
+
+* Reduction of target bitrate when bytes in flight is high is removed because it is not helpful when media coders are sluggish.
+ 
 ## Requirements on the Media and Feedback Protocol {#requirements-media}
 
 SCReAM was originally designed to with with RTP + RTCP where {{RFC8888}} was
@@ -443,7 +449,7 @@ The sender transmission control limits sending rate based on the
 relation of the estimated link throughput (bytes in flight) and the reference window.
 
 ~~~
-send_wnd = ref_wnd * ref_wnd_overhead * rel_framesize_high + MSS - bytes_in_flight
+send_wnd = ref_wnd * ref_wnd_overhead + MSS - bytes_in_flight
 ~~~
 
 The respective sending rate is achieved by applying packet pacing: Even
@@ -567,8 +573,6 @@ bytes_newly_acked_ce is, similar to bytes_newly_acked, a counter of
 bytes newly acked with the extra condition that they are ECN-CE
 marked. The bytes_newly_acked and bytes_newly_acked_ce are reset to
 zero after a ref_wnd update.
-
-
 
 ## Network Congestion Control {#network-cc-2}
 
@@ -698,9 +702,8 @@ when it is reasonably certain that L4S is active, i.e. L4S is enabled and
 congested nodes apply L4S marking of data units. This reduces negative effects of
 clockdrift, that the delay based control can introduce, whenever possible.
 
-qdelay_avg is updated with a slow attack, fast decay EWMA filter the
-following way:
-
+qdelay_avg is updated with a slow attack, fast decay EWMA filter as described below. The
+variable qdelay_dev_norm indicates how much the queue delay varies.
 ~~~
 if (now - last_update_qdelay_avg_time >= min(virtual_rtt,s_rtt)
   if (qdelay < qdelay_avg)
@@ -708,15 +711,19 @@ if (now - last_update_qdelay_avg_time >= min(virtual_rtt,s_rtt)
   else
     qdelay_avg = QDELAY_AVG_G*qdelay + (1.0-QDELAY_AVG_G)*qdelay_avg
   end
+  qdelay_dev_norm = QDELAY_DEV_AVG_G*(qdelay - qdelay_avg) +
+     (1.0-QDELAY_DEV_AVG_G)*qdelay_dev_norm 
   last_update_qdelay_avg_time = now
 end
 ~~~
 
 The following variables are used:
 
-* qdelay: When the sender receives feedback, the qdelay is calculated as outlined in
+* qdelay (0): When the sender receives feedback, the qdelay is calculated as outlined in
 {{RFC6817}}. A qdelay sample is obtained for each received acknowledgement.
 It is typically sufficient with one update per received acknowledgement.
+
+* qdelay_dev_norm (0) : The normalized to QDELAY_DEV_NORM std deviation of the queue delay
 
 * last_update_qdelay_avg_time (0): Last time qdelay_avg was updated [s].
 
@@ -726,6 +733,10 @@ It is typically sufficient with one update per received acknowledgement.
 The following constant is used:
 
 * QDELAY_AVG_G (1/4): Exponentially Weighted Moving Average (EWMA) factor for qdelay_avg
+
+* QDELAY_DEV_NORM (0.025): The normalization factor for qdelay_dev_norm
+
+* QDELAY_DEV_AVG_G (1/64): Exponentially Weighted Moving Average (EWMA) factor for qdelay_dev_norm
 
 ##### Competing Flows Compensation {#competing-flows-compensation}
 
@@ -870,7 +881,7 @@ for the constants are deduced from experiments):
 * REF_WND_OVERHEAD_MIN (1.2): Indicates a lower limit how much bytes in flight is allowed to
   exceed ref_wnd.
 
-* REF_WND_OVERHEAD_MAX (5.0): Indicates an upper limit how much bytes in flight is allowed to
+* REF_WND_OVERHEAD_MAX (4.0): Indicates an upper limit how much bytes in flight is allowed to
   exceed ref_wnd.
 
 * POST_CONGESTION_DELAY_RTT (100): Determines how many RTTs after a congestion
@@ -951,11 +962,18 @@ if (is_ce_t)
     # congestion
     backoff_t /= max(1.0, srtt/VIRTUAL_RTT)
 
-    # Scale down backoff if close to the last known max reference window
-    # This is complemented with a scale down of the reference window increase
-    # Don't scale down back off if queue delay is large
     if (queue_delay < queue_delay_target * 0.25)
+        # Scale down backoff if close to the last known max reference window
+        # This is complemented with a scale down of the reference window increase
+        # Don't scale down back off if queue delay is large
         backoff_t *= max(0.25, scl_t)
+
+        # Counteract the limitation in CWND increase when the queue delay varies
+        # This helps to avoid starvation in the presence of
+        # competing TCP Prague flows
+        # Don't scale down back off if queue delay is large
+        backoff_t *= Math.max(0.1, (0.1 - queue_delay_dev_norm) / 0.1)
+    end
 
     if (now - last_reaction_to_congestion_time >
         100*max(VIRTUAL_RTT,s_rtt))
@@ -991,7 +1009,6 @@ if (is_loss_t || is_ce_t || is_virtual_ce_t)
   last_reaction_to_congestion_time = now
 end
 ~~~
-
 
 #### Reference Window Increase
 
@@ -1033,10 +1050,15 @@ if (l4s_alpha < 0.0001)
    increment *= max(0.1, 1.0 - queue_avg / (qdelay_target / 4))
 end
 
+# Put a additional restriction on reference window growth if rtt varies a lot.
+# Better to enforce a slow increase in reference window and get
+# a more stable bitrate.
+increment *= max(0.1, (0.1 - queue_delay_dev_norm) / 0.1)
+
 # Scale up increment with multiplicative increase
 # Limit multiplicative increase when congestion occurred
 # recently and when reference window is close to the last
-# known max value
+# known max value.
 float tmp_t = ref_wnd_scale_factor_t
 if (tmp_t > 1.0)
   tmp_t = 1.0 + (tmp_t - 1.0) * post_congestion_scale_t * scl_t;
@@ -1104,10 +1126,6 @@ in flight and the reference window. This is controlled by the send window:
 
 * ref_wnd_overhead(REF_WND_OVERHEAD_MAX): Indicates how much bytes in flight can exceed ref_wnd.
 
-* ref_wnd_overhead(REF_WND_OVERHEAD_MAX): Indicates how much bytes in flight can exceed ref_wnd.
-
-* rtt_dev: rtt standard deviation, normalized to VIRTUAL_RTT
-
 ### Send Window Calculation {#send-window}
 
 The basic design principle behind data unit transmission in SCReAM was to allow
@@ -1144,53 +1162,18 @@ and thus increased e2e delay can be avoided.
 send_wnd = ref_wnd * ref_wnd_overhead * rel_framesize_high + MSS -
            bytes_in_flight
 ~~~
-TODO: rel_framesize_high can probably be removed because of the adaptive ref_wnd_overhead
 The send window is updated whenever an data unit is transmitted or an feedback
 messaged is received.
 
 The ref_wnd_overhead is adjusted dynamically. A large overhead is beneficial when the network link is uncongested as it allows to
 transmit large media frames with little transmission delay. A large overhead is also beneficial for cases where network links use virtual queue marking or can temporarly absorb bursts from L4S capable flows.
-If, on the other hand the network link is congested, then it is better to restrict how much bytes in flight exceeds the reference window because is not possible to push data faster than when the reference window allows. This restriction reduces varaitions in RTT caused by self-congestion and improves performance for the cases where media encoders are slow to react to changes in target rate.
+If, on the other hand the network link is congested, then it is better to restrict how much bytes in flight exceeds the reference window because is not possible to push data faster than the reference window allows. This restriction reduces varaitions in RTT caused by self-congestion and improves performance for the cases where media encoders are slow to react to changes in target rate.
 
 The ref_wnd_overhead is calculated as:
 ~~~
 ref_wnd_overhead = REF_WND_OVERHEAD_MIN +
-  (REF_WND_OVERHEAD_MAX + REF_WND_OVERHEAD_MIN)*max(0.0,(0.1-rtt_dev)/0.1)
+  (REF_WND_OVERHEAD_MAX + REF_WND_OVERHEAD_MIN)*max(0.0,(0.1-qdelay_dev_norm)/0.1)
 ~~~
-
-rtt_dev is calulated as the standard deviation of RTT normalized to VIRTUAL_RTT to get an equal restriction of bytes in flight to absolute variations in RTT, regardless if the min RTT is low or high. A long averaging window (8 times the averaging window for s_rtt) is recommended, to avoid too rapid variations in the ref_wnd_overhead.
-
-### Calculate Frame Size
-
-The variable rel_framesize_high is based on calculation of the high percentile
-of the frame sizes. The calculation is based on a histogram of the frame sizes
-relative to the expected frame size given the target bitrate and frame
-period.
-
-* rel_framesize_high (1.0): High percentile of frame size, normalized by nominal
-  frame size for the given target bitrate
-
-* frame_period (0.02): The frame period [s].
-
-* frame_size: the frame size of the last encoded frame
-
-The calculation of rel_framesize_high is done for every new video frame
-and is outlined roughly with the pseudo code below:
-
-~~~
-tmp_t = frame_size / (target_bitrate * frame_period / 8)
-
-if (tmp_t > 1.0)
-  # Insert sample into histogram
-  insert_into_histogram(tmp_t)
-  # Get high percentile
-  rel_framesize_high = get_histogram_high_percentile()
-end
-~~~
-
-A 75%-ile is used in {{SCReAM-CPP-implementation}}, the histogram can be made
-leaky such that old samples are gradually forgotten.
-
 
 ### Packet Pacing {#packet-pacing}
 
@@ -1198,7 +1181,8 @@ Packet pacing is used in order to mitigate coalescing, i.e., when packets are
 transmitted in bursts, with the risks of increased jitter and potentially
 increased packet loss. Packet pacing is also recommended to be used with L4S and
 also mitigates possible issues with queue overflow due to key-frame generation
-in video coders.
+in video coders. However, when the link is congested it is beneficial to relax
+the packet pacing and allow frames to be transmitted faster.
 
 * pace_bitrate (1e6): Data unit pacing rate [bps].
 
@@ -1210,12 +1194,23 @@ The following constants are used by the packet pacing:
 
 * PACKET_PACING_HEADROOM (1.5): Extra head room for packet pacing.
 
+* MAX_RELAXED_PACING_FACTOR (4.0): Max extra packet pacing when the media coder reaches the max bitrate. This should be roughly equal to REF_WND_OVERHEAD_MAX.
+
+* RELAXED_PACING_LIMIT_LOW (0.8): Nominal bitrate at which the pacing should be increasingly relaxed.
+
 The time interval between consecutive data unit transmissions is
 greater than or equal to t_pace, where t_pace is given by the equations below:
 
 ~~~
 pace_bitrate = max(RATE_PACE_MIN, target_bitrate) *
                PACKET_PACING_HEADROOM
+
+# Calculate and apply relaxed pacing
+nominal_rate_t = target_bitrate/TARGET_BITRATE_MAX
+pace_rate_scale_t = min(1.0,
+  (nominal_rate_t-RELAXED_PACING_LIMIT_LOW)/(1.0 - RELAXED_PACING_LIMIT_LOW))
+pace_bitrate /= pace_rate_scale_t
+
 t_pace = data_unit_size * 8 / pace_bitrate
 ~~~
 
@@ -1266,14 +1261,6 @@ The complete pseudo code for adjustment of the target bitrate is shown below
 ~~~
 tmp_t = 1.0
 
-# Limit bitrate if bytes in flight is close to or
-# exceeds ref_wnd. This helps to avoid large rate fluctuations and
-# variations in RTT.
-if (queue_delay / queue_delay_target > 0.25 && bytes_in_flight_ratio > BYTES_IN_FLIGHT_LIMIT)
-  tmp_t /= min(BYTES_IN_FLIGHT_LIMIT_COMPENSATION,
-    bytesInFlightRatio / BYTES_IN_FLIGHT_LIMIT)
-end
-
 # Scale down rate slightly when the reference window is very
 # small compared to MSS
 tmp_t *= 1.0 - min(0.2, max(0.0, ref_wnd_ratio - 0.1))
@@ -1281,6 +1268,10 @@ tmp_t *= 1.0 - min(0.2, max(0.0, ref_wnd_ratio - 0.1))
 # Additional compensation for packetization overhead,
 # important when MSS is small
 tmp_t_ *= mss/(mss + PACKET_OVERHEAD)
+
+# An additional downscaling is needed to avoid unnecessary
+# sender queue build-up
+tmp_t /= 1.1
 
 # Calculate target bitrate and limit to min and max allowed
 # values
