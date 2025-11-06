@@ -272,7 +272,7 @@ Draft version -06
 * rel_framesize_high calculation is removed.
 
 * Reduction of target bitrate when bytes in flight is high is removed because it is not helpful when media coders are sluggish.
- 
+
 ## Requirements on the Media and Feedback Protocol {#requirements-media}
 
 SCReAM was originally designed to with with RTP + RTCP where {{RFC8888}} was
