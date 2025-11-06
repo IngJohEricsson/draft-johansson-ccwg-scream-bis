@@ -712,7 +712,7 @@ if (now - last_update_qdelay_avg_time >= min(virtual_rtt,s_rtt)
     qdelay_avg = QDELAY_AVG_G*qdelay + (1.0-QDELAY_AVG_G)*qdelay_avg
   end
   qdelay_dev_norm = QDELAY_DEV_AVG_G*(qdelay - qdelay_avg) +
-     (1.0-QDELAY_DEV_AVG_G)*qdelay_dev_norm 
+     (1.0-QDELAY_DEV_AVG_G)*qdelay_dev_norm
   last_update_qdelay_avg_time = now
 end
 ~~~
