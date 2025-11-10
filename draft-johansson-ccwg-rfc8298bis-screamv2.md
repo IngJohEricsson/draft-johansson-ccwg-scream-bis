@@ -273,6 +273,8 @@ Draft version -06
 
 * Reduction of target bitrate when bytes in flight is high is removed because it is not helpful when media coders are sluggish.
 
+* Calculation of l4s_alpha_v_t simplified, l4s_alpha_lim_t removed.
+
 ## Requirements on the Media and Feedback Protocol {#requirements-media}
 
 SCReAM was originally designed to with with RTP + RTCP where {{RFC8888}} was
