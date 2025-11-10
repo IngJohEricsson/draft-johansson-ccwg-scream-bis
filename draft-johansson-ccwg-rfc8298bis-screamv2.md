@@ -878,7 +878,7 @@ for the constants are deduced from experiments):
 
 * MSS (1000): Maximum segment size = Max data unit size [byte].
 
-* REF_WND_OVERHEAD_MIN (1.2): Indicates a lower limit how much bytes in flight is allowed to
+* REF_WND_OVERHEAD_MIN (1.5): Indicates a lower limit how much bytes in flight is allowed to
   exceed ref_wnd.
 
 * REF_WND_OVERHEAD_MAX (4.0): Indicates an upper limit how much bytes in flight is allowed to
@@ -968,8 +968,8 @@ if (is_ce_t)
         # Don't scale down back off if queue delay is large
         backoff_t *= max(0.25, scl_t)
 
-        # Counteract the limitation in CWND increase when the queue delay varies
-        # This helps to avoid starvation in the presence of
+        # Counterbalance the limitation in CWND increase when the queue
+        # delay varies. This helps to avoid starvation in the presence of
         # competing TCP Prague flows
         # Don't scale down back off if queue delay is large
         backoff_t *= Math.max(0.1, (0.1 - queue_delay_dev_norm) / 0.1)
