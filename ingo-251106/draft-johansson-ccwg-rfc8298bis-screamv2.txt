@@ -958,16 +958,10 @@ if (now - last_reaction_to_congestion_time >= min(VIRTUAL_RTT,s_rtt)
     is_ce_t = true
   end
   if (qdelay > qdelay_target/2 && !(is_ce_t || is_loss_t))
-    # It is expected that l4s_alpha is below a given value
-    l4_alpha_lim_t = 2 / target_bitrate * MSS * 8 / s_rtt
-    if (l4s_alpha < l4_alpha_lim_t)
-      # L4S does not seem to be active
-      l4s_alpha_v_t = min(1.0,2.0*l4_alpha_lim_t*
-         max(0.0,
+    l4s_alpha_v_t = min(1.0, max(0.0,
             (qdelay_avg - qdelay_target / 2) /
             (qdelay_target / 2)));
-      is_virtual_ce_t = true
-    end
+    is_virtual_ce_t = true
   end
 end
 
@@ -1030,7 +1024,6 @@ if (is_ce_t)
 end
 if (is_virtual_ce_t)
   backoff_t = l4s_alpha_v_t / 2
-
   # Scale down backoff when RTT is high ot avoid overreaction to
   # congestion
   backoff_t /= max(1.0, srtt/VIRTUAL_RTT)
