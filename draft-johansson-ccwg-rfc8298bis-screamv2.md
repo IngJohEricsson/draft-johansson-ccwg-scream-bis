@@ -433,7 +433,7 @@ congestion control).
 ~~~
 ref_wnd = BETA_LOSS * (BETA_ECN|(1-l4s_alpha/2) * qtarget_alpha * ref_wnd
 ~~~
-The equation above indicates that ref_wnd is scaled back by BETA_LOSS when packet loss is detected, by BETA_ECN when ECN marking is detected, bý (1-l4s_alpha/2) when L4S congestion is detected or by a qtarget_alpha when delay increase is detected. 
+The equation above indicates that ref_wnd is scaled back by BETA_LOSS when packet loss is detected, by BETA_ECN when ECN marking is detected, bý (1-l4s_alpha/2) when L4S congestion is detected or by a qtarget_alpha when delay increase is detected.
 
 After a congestion event the reference window seeks to increase by one
 segment per RTT until a certain number of RTT elapses. After this
