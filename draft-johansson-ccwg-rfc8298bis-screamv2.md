@@ -433,6 +433,7 @@ congestion control).
 ~~~
 ref_wnd = BETA_LOSS * (BETA_ECN|(1-l4s_alpha/2) * qtarget_alpha * ref_wnd
 ~~~
+The equation above indicates that ref_wnd is scaled back by BETA_LOSS when packet loss is detected, by BETA_ECN when ECN marking is detected, bý (1-l4s_alpha/2) when L4S congestion is detected or by a qtarget_alpha when delay increase is detected. 
 
 After a congestion event the reference window seeks to increase by one
 segment per RTT until a certain number of RTT elapses. After this
@@ -919,7 +920,7 @@ if (now - last_reaction_to_congestion_time >= min(VIRTUAL_RTT,s_rtt)
   if (loss_detected)
     is_loss_t = true
   end
-  if (data_units_marked)
+  if (data_units_marked && !is_loss_t)
     is_ce_t = true
   end
   # The calculation of l4s_alpha_v_t is based on qdelay_avg to reduce
@@ -971,7 +972,7 @@ if (is_ce_t)
         # delay varies. This helps to avoid starvation in the presence of
         # competing TCP Prague flows
         # Don't scale down back off if queue delay is large
-        backoff_t *= Math.max(0.1, (0.1 - queue_delay_dev_norm) / 0.1)
+        backoff_t *= Math.max(0.1, (0.1 - qdelay_dev_norm) / 0.1)
     end
 
     if (now - last_reaction_to_congestion_time >
@@ -1051,7 +1052,7 @@ end
 # Put a additional restriction on reference window growth if rtt varies a lot.
 # Better to enforce a slow increase in reference window and get
 # a more stable bitrate.
-increment_t *= max(0.1, (0.1 - queue_delay_dev_norm) / 0.1)
+increment_t *= max(0.1, (0.1 - qdelay_dev_norm) / 0.1)
 
 # Scale up increment with multiplicative increase
 # Limit multiplicative increase when congestion occurred
@@ -1196,7 +1197,7 @@ The following constants are used by the packet pacing:
 
 * MAX_RELAXED_PACING_FACTOR (4.0): Max extra packet pacing when the media coder reaches the max bitrate. This should be roughly equal to REF_WND_OVERHEAD_MAX.
 
-* RELAXED_PACING_LIMIT_LOW (0.8): Nominal bitrate at which the pacing should be increasingly relaxed.
+* RELAXED_PACING_LIMIT_LOW (0.8): Nominal bitrate fraction of TARGET_BITRATE_MAX at which the pacing should be increasingly relaxed.
 
 The time interval between consecutive data unit transmissions is
 greater than or equal to t_pace, where t_pace is given by the equations below:
