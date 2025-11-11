@@ -2347,7 +2347,7 @@ if (is_ce_t)
 
     # Scale down backoff when RTT is high to avoid overreaction to
     # congestion
-    backoff_t /= max(1.0, srtt/VIRTUAL_RTT)
+    backoff_t /= max(1.0, s_rtt/VIRTUAL_RTT)
 
     if (queue_delay &lt; queue_delay_target * 0.25)
         # Scale down backoff if close to the last known max reference window
@@ -2382,7 +2382,7 @@ if (is_virtual_ce_t)
   backoff_t = l4s_alpha_v_t / 2
   # Scale down backoff when RTT is high ot avoid overreaction to
   # congestion
-  backoff_t /= max(1.0, srtt/VIRTUAL_RTT)
+  backoff_t /= max(1.0, s_rtt/VIRTUAL_RTT)
 
   # Increase stability for very small ref_wnd
   backoff_t *= max(0.5, 1.0 - ref_wnd_ratio)
@@ -2413,7 +2413,7 @@ post_congestion_scale_t = max(0.0, min(1.0,
   (POST_CONGESTION_DELAY_RTTS * max(VIRTUAL_RTT, s_rtt))))
 
 # Scale factor for ref_wnd update
-ref_wnd_scale_factor_t = 1.0 + (MUL_INCREASE_FACTOR  * ref_wnd) / MSS)
+ref_wnd_scale_factor_t = 1.0 + (MUL_INCREASE_FACTOR  * ref_wnd) / MSS
 
 # Calculate bytes acked that are not CE marked
 # For the case that only accumulated number of CE marked packets is
@@ -2439,13 +2439,13 @@ increment_t *= max(0.5,1.0-ref_wnd_ratio)
 
 # Reduce ref_wnd growth if L4S not enabled or non-functional and queue delay grows
 if (l4s_alpha &lt; 0.0001)
-   increment *= max(0.1, 1.0 - queue_avg / (qdelay_target / 4))
+   increment_t *= max(0.1, 1.0 - queue_avg / (qdelay_target / 4))
 end
 
 # Put a additional restriction on reference window growth if rtt varies a lot.
 # Better to enforce a slow increase in reference window and get
 # a more stable bitrate.
-increment *= max(0.1, (0.1 - queue_delay_dev_norm) / 0.1)
+increment_t *= max(0.1, (0.1 - queue_delay_dev_norm) / 0.1)
 
 # Scale up increment with multiplicative increase
 # Limit multiplicative increase when congestion occurred
@@ -2455,7 +2455,7 @@ float tmp_t = ref_wnd_scale_factor_t
 if (tmp_t &gt; 1.0)
   tmp_t = 1.0 + (tmp_t - 1.0) * post_congestion_scale_t * scl_t;
 end
-increment *= tmp_t
+increment_t *= tmp_t
 
 # Increase ref_wnd only if bytes in flight is large enough
 # Quite a lot of slack is allowed here to avoid that bitrate
