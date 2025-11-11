@@ -924,7 +924,7 @@ if (now - last_reaction_to_congestion_time >= min(VIRTUAL_RTT,s_rtt)
   end
   # The calculation of l4s_alpha_v_t is based on qdelay_avg to reduce
   # sensitivity to sudden non-congestion related delay spikes that can
-  # occur to lower protocol retransmissions or cell change   
+  # occur due to lower protocol retransmissions or cell change
   if (qdelay_avg > qdelay_target/2 && !(is_ce_t || is_loss_t))
     l4s_alpha_v_t = min(1.0, max(0.0,
             (qdelay_avg - qdelay_target / 2) /
