@@ -431,7 +431,7 @@ proportion to the fraction of marked packets if L4S is used (scalable
 congestion control).
 
 ~~~
-ref_wnd = BETA_LOSS * (BETA_ECN|l4s_alpha) * qtarget_alpha * ref_wnd
+ref_wnd = BETA_LOSS * (BETA_ECN|(1-l4s_alpha/2) * qtarget_alpha * ref_wnd
 ~~~
 
 After a congestion event the reference window seeks to increase by one
@@ -922,7 +922,10 @@ if (now - last_reaction_to_congestion_time >= min(VIRTUAL_RTT,s_rtt)
   if (data_units_marked)
     is_ce_t = true
   end
-  if (qdelay > qdelay_target/2 && !(is_ce_t || is_loss_t))
+  # The calculation of l4s_alpha_v_t is based on qdelay_avg to reduce
+  # sensitivity to sudden non-congestion related delay spikes that can
+  # occur to lower protocol retransmissions or cell change   
+  if (qdelay_avg > qdelay_target/2 && !(is_ce_t || is_loss_t))
     l4s_alpha_v_t = min(1.0, max(0.0,
             (qdelay_avg - qdelay_target / 2) /
             (qdelay_target / 2)));
@@ -1035,12 +1038,12 @@ increment_t *= tmp_t * tmp_t
 # known max value before congestion
 increment_t *= max(0.25,scl_t)
 
-# Limit on CWND growth speed further for small CWND
-# This is complemented with a corresponding restriction on CWND
+# Limit on ref_wnd growth speed further for small ref_wnd
+# This is complemented with a corresponding restriction on ref_wnd
 # reduction
 increment_t *= max(0.5,1.0-ref_wnd_ratio)
 
-# Reduce CWND growth if L4S not enabled or non-functional and queue delay grows
+# Reduce ref_wnd growth if L4S not enabled or non-functional and queue delay grows
 if (l4s_alpha < 0.0001)
    increment *= max(0.1, 1.0 - queue_avg / (qdelay_target / 4))
 end
