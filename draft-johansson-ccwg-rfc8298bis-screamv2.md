@@ -436,13 +436,14 @@ congestion control). The flow chart below is a simplified view how the reference
  +-------+------+
          |
          v
- +--------------+  Yes  +--------------------+
- |Loss detected?|------>|ref_wnd *= LOSS_BETA|--------+
- +-------+------+       +--------------------+        |
+ +--------------+  Yes  +-----------+
+ |Loss detected?+------>|ref_wnd *= +-----------------+
+ +-------+------+       | LOSS_BETA |                 |
+         |              +-----------+                 |
          | No                                         |
          v                                            |
 +----------------+  Yes  +-----------------+          |
-|ECN CE detected?|------>|   ECN or L4S ?  |          |
+|ECN CE detected?+------>|   ECN or L4S ?  |          |
 +--------+-------+       +-+-------------+-+          |
          | No          ECN |             | L4S        |
          |                 v             v            |
@@ -454,7 +455,7 @@ congestion control). The flow chart below is a simplified view how the reference
          v                 +-----------------+--------+
  +--------------+       +---------------+      |
  |Delay increase|  Yes  |ref_wnd *=     |      |
- | detected?    |------>| 1-vL4sAlpha/2 |      |
+ | detected?    +------>| 1-vL4sAlpha/2 |      |
  +--------+-----+       +--------+------+      |
           | No                   |             |
           +----------------------+-------------+
