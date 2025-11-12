@@ -428,12 +428,42 @@ case of packet loss or Classic ECN marking, or if the estimated queue
 delay exceeds a given threshold, depending on how much the delay
 exceeds the threshold.  SCReAMv2 reduces the reference window in
 proportion to the fraction of marked packets if L4S is used (scalable
-congestion control).
+congestion control). The flow chart below is a simplified view how the reference window is updated
 
+~~~aasvg
+ +--------------+
+ | For each RTT |
+ +-------+------+
+         |
+         v
+ +--------------+  Yes  +--------------------+
+ |Loss detected?|------>|ref_wnd *= LOSS_BETA|--------+
+ +-------+------+       +--------------------+        |
+         | No                                         |
+         v                                            | 
++----------------+  Yes  +-----------------+          |
+|ECN CE detected?|------>|   ECN or L4S ?  |          |
++--------+-------+       +-+-------------+-+          |
+         | No          ECN |             | L4S        |
+         |                 v             v            |
+         |           +-----------+  +---------------+ |
+         |           |ref_wnd *= |  |ref_wnd *=     | |
+         |           | ECN_BETA  |  |  1-l4sAlpha/2 | |
+         |           +-----+-----+  +--------+------+ |
+         |                 |                 |        |
+         v                 +-----------------+--------+
+ +--------------+       +---------------+      |
+ |Delay increase|  Yes  |ref_wnd *=     |      |
+ | detected?    |------>| 1-vL4sAlpha/2 |      |
+ +--------+-----+       +--------+------+      |
+          | No                   |             |
+          +----------------------+-------------+
+          v
+ +----------------+
+ |  ref_wnd += X  |
+ +----------------+
 ~~~
-ref_wnd = BETA_LOSS * (BETA_ECN|(1-l4s_alpha/2) * qtarget_alpha * ref_wnd
-~~~
-The equation above indicates that ref_wnd is scaled back by BETA_LOSS when packet loss is detected, by BETA_ECN when ECN marking is detected, bý (1-l4s_alpha/2) when L4S congestion is detected or by a qtarget_alpha when delay increase is detected.
+{: #fig-network-cc title="Network congestion control flow chart"}
 
 After a congestion event the reference window seeks to increase by one
 segment per RTT until a certain number of RTT elapses. After this
@@ -442,9 +472,6 @@ multiplicatively where the increase factor is adjusted relative to a
 previous max value and the time elapsed since last congestion event.
 This enables a faster convergence to a higher link speed.
 
-~~~
-ref_wnd = ref_wnd + increment
-~~~
 
 ## Sender Transmission Control {#sender-tc}
 
