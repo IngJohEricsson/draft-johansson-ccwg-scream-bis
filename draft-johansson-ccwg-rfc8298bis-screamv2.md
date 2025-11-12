@@ -432,49 +432,19 @@ exceeds the threshold.  SCReAMv2 reduces the reference window in
 proportion to the fraction of marked packets if L4S is used (scalable
 congestion control). The flow chart below is a simplified view how the reference window is updated.
 
-~~~aasvg
- +--------------+
- | For each RTT |
- +-------+------+
-         |
-         v
- +--------------+  Yes  +-----------+
- |Loss detected?+------>|ref_wnd *= +-----------------+
- +-------+------+       | LOSS_BETA |                 |
-         |              +-----------+                 |
-         | No                                         |
-         v                                            |
-+----------------+  Yes  +-----------------+          |
-|ECN CE detected?+------>|   ECN or L4S ?  |          |
-+--------+-------+       +-+-------------+-+          |
-         | No          ECN |             | L4S        |
-         |                 v             v            |
-         |           +-----------+  +---------------+ |
-         |           |ref_wnd *= |  |ref_wnd *=     | |
-         |           | ECN_BETA  |  |  1-l4sAlpha/2 | |
-         |           +-----+-----+  +--------+------+ |
-         |                 |                 |        |
-         v                 +-----------------+--------+
- +--------------+       +---------------+    |
- |Delay increase|  Yes  |ref_wnd *=     |    |
- | detected?    +------>| 1-vL4sAlpha/2 |    |
- +--------+-----+       +--------+------+    |
-          | No                   |           |
-          +----------------------+-----------+
-          v
- +----------------+
- |  ref_wnd += X  |
- +----------------+
-~~~
-{: #fig-network-cc title="Network congestion control flow chart"}
+In each RTT ref_wnd will be reduced at most once if congestion is detected based on the following conditions: 
 
-After a congestion event the reference window seeks to increase by one
-segment per RTT until a certain number of RTT elapses. After this
-initial congestion avoidance phase the reference window increases
-multiplicatively where the increase factor is adjusted relative to a
-previous max value and the time elapsed since last congestion event.
+a) on loss: ref_wnd *=  LOSS_BETA
+
+b) classic ECN CE: ref_wnd *=  ECN_BETA
+
+b) on L4S ECN CE or increased delay: ref_wnd *=  1-l4sAlpha/2
+
+Independent of the congestion detection, ref_wnd is increased by a fix increment for each RTT.
+
+The reference window increases multiplicatively after a number of congestion free RTTs. The increase factor is adjusted
+relative to aprevious max value and the time elapsed since last congestion event.
 This enables a faster convergence to a higher link speed.
-
 
 ## Sender Transmission Control {#sender-tc}
 
