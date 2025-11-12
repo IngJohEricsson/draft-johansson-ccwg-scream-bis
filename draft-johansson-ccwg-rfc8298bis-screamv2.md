@@ -440,7 +440,7 @@ congestion control). The flow chart below is a simplified view how the reference
  |Loss detected?|------>|ref_wnd *= LOSS_BETA|--------+
  +-------+------+       +--------------------+        |
          | No                                         |
-         v                                            | 
+         v                                            |
 +----------------+  Yes  +-----------------+          |
 |ECN CE detected?|------>|   ECN or L4S ?  |          |
 +--------+-------+       +-+-------------+-+          |
