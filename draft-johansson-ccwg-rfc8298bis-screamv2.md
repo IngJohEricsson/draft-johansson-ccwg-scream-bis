@@ -432,7 +432,7 @@ exceeds the threshold.  SCReAMv2 reduces the reference window in
 proportion to the fraction of marked packets if L4S is used (scalable
 congestion control). The flow chart below is a simplified view how the reference window is updated.
 
-In each RTT ref_wnd will be reduced at most once if congestion is detected based on the following conditions: 
+In each RTT ref_wnd will be reduced at most once if congestion is detected based on the following conditions:
 
 a) on loss: ref_wnd *=  LOSS_BETA
 
