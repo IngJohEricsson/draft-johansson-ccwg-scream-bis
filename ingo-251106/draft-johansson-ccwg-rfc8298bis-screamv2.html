@@ -1476,6 +1476,9 @@ on "Congestion Detection".<a href="#section-1.1-6.12.1" class="pilcrow">¶</a></
           <li class="normal" id="section-1.1-12.9">
             <p id="section-1.1-12.9.1">Calculation of l4s_alpha_v_t simplified, l4s_alpha_lim_t removed.<a href="#section-1.1-12.9.1" class="pilcrow">¶</a></p>
 </li>
+          <li class="normal" id="section-1.1-12.10">
+            <p id="section-1.1-12.10.1">Bug in condition for calculation of l4s_alpha_v_t fixed.<a href="#section-1.1-12.10.1" class="pilcrow">¶</a></p>
+</li>
         </ul>
 </section>
 </div>
@@ -1585,18 +1588,22 @@ a similar approach as coupled congestion control <span>[<a href="#RFC6365" class
               <path d="M 8,320 L 8,384" fill="none" stroke="black"></path>
               <path d="M 8,480 L 8,512" fill="none" stroke="black"></path>
               <path d="M 64,72 L 64,96" fill="none" stroke="black"></path>
-              <path d="M 64,120 L 64,152" fill="none" stroke="black"></path>
+              <path d="M 64,120 L 64,160" fill="none" stroke="black"></path>
               <path d="M 64,232 L 64,256" fill="none" stroke="black"></path>
+              <path d="M 64,304 L 64,320" fill="none" stroke="black"></path>
               <path d="M 64,392 L 64,416" fill="none" stroke="black"></path>
+              <path d="M 64,464 L 64,480" fill="none" stroke="black"></path>
               <path d="M 112,160 L 112,224" fill="none" stroke="black"></path>
               <path d="M 112,320 L 112,384" fill="none" stroke="black"></path>
               <path d="M 240,192 L 240,224" fill="none" stroke="black"></path>
               <path d="M 240,248 L 240,336" fill="none" stroke="black"></path>
               <path d="M 336,320 L 336,384" fill="none" stroke="black"></path>
               <path d="M 344,144 L 344,240" fill="none" stroke="black"></path>
+              <path d="M 384,64 L 384,80" fill="none" stroke="black"></path>
               <path d="M 384,128 L 384,136" fill="none" stroke="black"></path>
+              <path d="M 392,240 L 392,256" fill="none" stroke="black"></path>
               <path d="M 392,288 L 392,312" fill="none" stroke="black"></path>
-              <path d="M 392,392 L 392,416" fill="none" stroke="black"></path>
+              <path d="M 392,384 L 392,416" fill="none" stroke="black"></path>
               <path d="M 392,448 L 392,472" fill="none" stroke="black"></path>
               <path d="M 440,144 L 440,240" fill="none" stroke="black"></path>
               <path d="M 456,320 L 456,384" fill="none" stroke="black"></path>
@@ -1606,7 +1613,7 @@ a similar approach as coupled congestion control <span>[<a href="#RFC6365" class
               <path d="M 8,64 L 464,64" fill="none" stroke="black"></path>
               <path d="M 344,144 L 440,144" fill="none" stroke="black"></path>
               <path d="M 8,160 L 112,160" fill="none" stroke="black"></path>
-              <path d="M 120,192 L 240,192" fill="none" stroke="black"></path>
+              <path d="M 112,192 L 240,192" fill="none" stroke="black"></path>
               <path d="M 8,224 L 112,224" fill="none" stroke="black"></path>
               <path d="M 344,240 L 440,240" fill="none" stroke="black"></path>
               <path d="M 8,320 L 112,320" fill="none" stroke="black"></path>
@@ -1628,7 +1635,6 @@ a similar approach as coupled congestion control <span>[<a href="#RFC6365" class
               <g class="text">
                 <text x="216" y="52">Media</text>
                 <text x="272" y="52">encoder</text>
-                <text x="384" y="84">|</text>
                 <text x="372" y="100">Data</text>
                 <text x="412" y="100">unit</text>
                 <text x="68" y="116">target_bitrate</text>
@@ -1640,12 +1646,10 @@ a similar approach as coupled congestion control <span>[<a href="#RFC6365" class
                 <text x="64" y="212">Control</text>
                 <text x="392" y="212">Units</text>
                 <text x="244" y="244">target_bitrate</text>
-                <text x="392" y="260">|</text>
                 <text x="64" y="276">ref_wnd</text>
                 <text x="380" y="276">Data</text>
                 <text x="420" y="276">unit</text>
                 <text x="64" y="292">RTT</text>
-                <text x="64" y="308">|</text>
                 <text x="56" y="340">Network</text>
                 <text x="396" y="340">Sender</text>
                 <text x="60" y="356">Congestion</text>
@@ -1663,7 +1667,6 @@ a similar approach as coupled congestion control <span>[<a href="#RFC6365" class
                 <text x="40" y="452">Bytes</text>
                 <text x="76" y="452">in</text>
                 <text x="116" y="452">flight</text>
-                <text x="64" y="468">|</text>
                 <text x="216" y="500">UDP</text>
                 <text x="260" y="500">socket</text>
               </g>
@@ -1712,7 +1715,7 @@ case of packet loss or Classic ECN marking, or if the estimated queue
 delay exceeds a given threshold, depending on how much the delay
 exceeds the threshold.  SCReAMv2 reduces the reference window in
 proportion to the fraction of marked packets if L4S is used (scalable
-congestion control). The flow chart below is a simplified view how the reference window is updated<a href="#section-3.1-2" class="pilcrow">¶</a></p>
+congestion control). The flow chart below is a simplified view how the reference window is updated.<a href="#section-3.1-2" class="pilcrow">¶</a></p>
 <span id="name-network-congestion-control-"></span><div id="fig-network-cc">
 <figure id="figure-2">
           <div id="section-3.1-3.1">
@@ -1847,7 +1850,7 @@ This enables a faster convergence to a higher link speed.<a href="#section-3.1-4
 relation of the estimated link throughput (bytes in flight) and the reference window.<a href="#section-3.2-1" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-3.2-2">
 <pre>
-send_wnd = ref_wnd * ref_wnd_overhead + MSS - bytes_in_flight
+send_wnd = ref_wnd * ref_wnd_overhead - bytes_in_flight
 </pre><a href="#section-3.2-2" class="pilcrow">¶</a>
 </div>
 <p id="section-3.2-3">The respective sending rate is achieved by applying packet pacing: Even
@@ -2160,7 +2163,7 @@ when it is reasonably certain that L4S is active, i.e. L4S is enabled and
 congested nodes apply L4S marking of data units. This reduces negative effects of
 clockdrift, that the delay based control can introduce, whenever possible.<a href="#section-4.2.1.4-1" class="pilcrow">¶</a></p>
 <p id="section-4.2.1.4-2">qdelay_avg is updated with a slow attack, fast decay EWMA filter as described below. The
-variable qdelay_dev_norm indicates how much the queue delay varies.
+variable qdelay_dev_norm indicates how much the queue delay varies, this is calculated normalized to QDELAY_DEV_NORM.
 ~~~
 if (now - last_update_qdelay_avg_time &gt;= min(virtual_rtt,s_rtt)
   if (qdelay &lt; qdelay_avg)
@@ -2168,7 +2171,7 @@ if (now - last_update_qdelay_avg_time &gt;= min(virtual_rtt,s_rtt)
   else
     qdelay_avg = QDELAY_AVG_G<em>qdelay + (1.0-QDELAY_AVG_G)</em>qdelay_avg
   end
-  qdelay_dev_norm = QDELAY_DEV_AVG_G<em>(qdelay - qdelay_avg) +
+  qdelay_dev_norm = QDELAY_DEV_AVG_G<em>(qdelay - qdelay_avg)/QDELAY_DEV_NORM +
      (1.0-QDELAY_DEV_AVG_G)</em>qdelay_dev_norm
   last_update_qdelay_avg_time = now
 end
@@ -2181,14 +2184,11 @@ end
 It is typically sufficient with one update per received acknowledgement.<a href="#section-4.2.1.4-4.1.1" class="pilcrow">¶</a></p>
 </li>
               <li class="normal" id="section-4.2.1.4-4.2">
-                <p id="section-4.2.1.4-4.2.1">qdelay_dev_norm (0) : The normalized to QDELAY_DEV_NORM std deviation of the queue delay<a href="#section-4.2.1.4-4.2.1" class="pilcrow">¶</a></p>
+                <p id="section-4.2.1.4-4.2.1">last_update_qdelay_avg_time (0): Last time qdelay_avg was updated [s].<a href="#section-4.2.1.4-4.2.1" class="pilcrow">¶</a></p>
 </li>
               <li class="normal" id="section-4.2.1.4-4.3">
-                <p id="section-4.2.1.4-4.3.1">last_update_qdelay_avg_time (0): Last time qdelay_avg was updated [s].<a href="#section-4.2.1.4-4.3.1" class="pilcrow">¶</a></p>
-</li>
-              <li class="normal" id="section-4.2.1.4-4.4">
-                <p id="section-4.2.1.4-4.4.1">s_rtt (0.0): Smoothed RTT [s], computed with a similar method to that
-described in <span>[<a href="#RFC6298" class="cite xref">RFC6298</a>]</span>.<a href="#section-4.2.1.4-4.4.1" class="pilcrow">¶</a></p>
+                <p id="section-4.2.1.4-4.3.1">s_rtt (0.0): Smoothed RTT [s], computed with a similar method to that
+described in <span>[<a href="#RFC6298" class="cite xref">RFC6298</a>]</span>.<a href="#section-4.2.1.4-4.3.1" class="pilcrow">¶</a></p>
 </li>
             </ul>
 <p id="section-4.2.1.4-5">The following constant is used:<a href="#section-4.2.1.4-5" class="pilcrow">¶</a></p>
@@ -2365,27 +2365,19 @@ and congestion control loops sluggish.<a href="#section-4.2.2-5.2.1" class="pilc
               <p id="section-4.2.2-5.7.1">MSS (1000): Maximum segment size = Max data unit size [byte].<a href="#section-4.2.2-5.7.1" class="pilcrow">¶</a></p>
 </li>
             <li class="normal" id="section-4.2.2-5.8">
-              <p id="section-4.2.2-5.8.1">REF_WND_OVERHEAD_MIN (1.5): Indicates a lower limit how much bytes in flight is allowed to
-exceed ref_wnd.<a href="#section-4.2.2-5.8.1" class="pilcrow">¶</a></p>
+              <p id="section-4.2.2-5.8.1">POST_CONGESTION_DELAY_RTT (100): Determines how many RTTs after a congestion
+event the reference window growth should be cautious.<a href="#section-4.2.2-5.8.1" class="pilcrow">¶</a></p>
 </li>
             <li class="normal" id="section-4.2.2-5.9">
-              <p id="section-4.2.2-5.9.1">REF_WND_OVERHEAD_MAX (4.0): Indicates an upper limit how much bytes in flight is allowed to
-exceed ref_wnd.<a href="#section-4.2.2-5.9.1" class="pilcrow">¶</a></p>
+              <p id="section-4.2.2-5.9.1">MUL_INCREASE_FACTOR (0.02): Determines how much (as a fraction of ref_wnd)
+that the ref_wnd can increase per RTT.<a href="#section-4.2.2-5.9.1" class="pilcrow">¶</a></p>
 </li>
             <li class="normal" id="section-4.2.2-5.10">
-              <p id="section-4.2.2-5.10.1">POST_CONGESTION_DELAY_RTT (100): Determines how many RTTs after a congestion
-event the reference window growth should be cautious.<a href="#section-4.2.2-5.10.1" class="pilcrow">¶</a></p>
+              <p id="section-4.2.2-5.10.1">IS_L4S (false): Congestion control operates in L4S mode.<a href="#section-4.2.2-5.10.1" class="pilcrow">¶</a></p>
 </li>
             <li class="normal" id="section-4.2.2-5.11">
-              <p id="section-4.2.2-5.11.1">MUL_INCREASE_FACTOR (0.02): Determines how much (as a fraction of ref_wnd)
-that the ref_wnd can increase per RTT.<a href="#section-4.2.2-5.11.1" class="pilcrow">¶</a></p>
-</li>
-            <li class="normal" id="section-4.2.2-5.12">
-              <p id="section-4.2.2-5.12.1">IS_L4S (false): Congestion control operates in L4S mode.<a href="#section-4.2.2-5.12.1" class="pilcrow">¶</a></p>
-</li>
-            <li class="normal" id="section-4.2.2-5.13">
-              <p id="section-4.2.2-5.13.1">VIRTUAL_RTT (0.025): Virtual RTT [s]. This mimics Prague's RTT fairness such that flows with RTT
-below VIRTUAL_RTT should get a roughly equal share over an L4S path.<a href="#section-4.2.2-5.13.1" class="pilcrow">¶</a></p>
+              <p id="section-4.2.2-5.11.1">VIRTUAL_RTT (0.025): Virtual RTT [s]. This mimics Prague's RTT fairness such that flows with RTT
+below VIRTUAL_RTT should get a roughly equal share over an L4S path.<a href="#section-4.2.2-5.11.1" class="pilcrow">¶</a></p>
 </li>
           </ul>
 <div id="reference-window-reduction">
@@ -2413,14 +2405,12 @@ end
 if (now - last_reaction_to_congestion_time &gt;= min(VIRTUAL_RTT,s_rtt)
   if (loss_detected)
     is_loss_t = true
-  end
-  if (data_units_marked &amp;&amp; !is_loss_t)
+  else if (data_units_marked)
     is_ce_t = true
-  end
-  # The calculation of l4s_alpha_v_t is based on qdelay_avg to reduce
-  # sensitivity to sudden non-congestion related delay spikes that can
-  # occur due to lower protocol retransmissions or cell change
-  if (qdelay_avg &gt; qdelay_target/2 &amp;&amp; !(is_ce_t || is_loss_t))
+  else if (qdelay_avg &gt; qdelay_target/2 &amp;&amp; !(is_ce_t || is_loss_t))
+    # The calculation of l4s_alpha_v_t is based on qdelay_avg to reduce
+    # sensitivity to sudden non-congestion related delay spikes that can
+    # occur due to lower protocol retransmissions or cell change
     l4s_alpha_v_t = min(1.0, max(0.0,
             (qdelay_avg - qdelay_target / 2) /
             (qdelay_target / 2)));
@@ -2466,7 +2456,7 @@ if (is_ce_t)
         # delay varies. This helps to avoid starvation in the presence of
         # competing TCP Prague flows
         # Don't scale down back off if queue delay is large
-        backoff_t *= Math.max(0.1, (0.1 - qdelay_dev_norm) / 0.1)
+        backoff_t *= max(0.1, (0.1 - qdelay_dev_norm) / 0.1)
     end
 
     if (now - last_reaction_to_congestion_time &gt;
@@ -2487,6 +2477,7 @@ if (is_ce_t)
 end
 if (is_virtual_ce_t)
   backoff_t = l4s_alpha_v_t / 2
+
   # Scale down backoff when RTT is high ot avoid overreaction to
   # congestion
   backoff_t /= max(1.0, s_rtt/VIRTUAL_RTT)
@@ -2632,9 +2623,6 @@ in flight and the reference window. This is controlled by the send window:<a hre
 transmitted. Updated when ref_wnd is updated and when data unit is
 transmitted [byte].<a href="#section-4.3-2.1.1" class="pilcrow">¶</a></p>
 </li>
-          <li class="normal" id="section-4.3-2.2">
-            <p id="section-4.3-2.2.1">ref_wnd_overhead(REF_WND_OVERHEAD_MAX): Indicates how much bytes in flight can exceed ref_wnd.<a href="#section-4.3-2.2.1" class="pilcrow">¶</a></p>
-</li>
         </ul>
 <div id="send-window">
 <section id="section-4.3.1">
@@ -2663,20 +2651,19 @@ media bitrate increases very slowly or not at all.<a href="#section-4.3.1-2.1.1"
 buffer-bloated networks, the one-way delay in the reverse direction can jump
 due to congestion. The effect is that the acknowledgements are delayed, and
 the self-clocking is temporarily halted, even though the forward path is not
-congested. The REF_WND_OVERHEAD allows for some degree of reverse path
+congested. The ref_wnd_overhead allows for some degree of reverse path
 congestion as the bytes in flight is allowed to exceed ref_wnd.<a href="#section-4.3.1-2.2.1" class="pilcrow">¶</a></p>
 </li>
           </ul>
 <p id="section-4.3.1-3">In SCReAMv2, the send window is given by the relation between the adjusted
 reference window and the amount of bytes in flight according to the pseudocode
 below. The multiplication of ref_wnd with ref_wnd_overhead has the effect that bytes in flight is 'around' the ref_wnd
-rather than limited by the ref_wnd when the link is congested. The
+rather than limited by the ref_wnd. The
 implementation allows the data unit queue to be small even when the frame sizes vary
 and thus increased e2e delay can be avoided.<a href="#section-4.3.1-3" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-4.3.1-4">
 <pre>
-send_wnd = ref_wnd * ref_wnd_overhead * rel_framesize_high + MSS -
-           bytes_in_flight
+send_wnd = ref_wnd * ref_wnd_overhead - bytes_in_flight
 </pre><a href="#section-4.3.1-4" class="pilcrow">¶</a>
 </div>
 <p id="section-4.3.1-5">The send window is updated whenever an data unit is transmitted or an feedback
@@ -2684,12 +2671,23 @@ messaged is received.<a href="#section-4.3.1-5" class="pilcrow">¶</a></p>
 <p id="section-4.3.1-6">The ref_wnd_overhead is adjusted dynamically. A large overhead is beneficial when the network link is uncongested as it allows to
 transmit large media frames with little transmission delay. A large overhead is also beneficial for cases where network links use virtual queue marking or can temporarly absorb bursts from L4S capable flows.
 If, on the other hand the network link is congested, then it is better to restrict how much bytes in flight exceeds the reference window because is not possible to push data faster than the reference window allows. This restriction reduces varaitions in RTT caused by self-congestion and improves performance for the cases where media encoders are slow to react to changes in target rate.<a href="#section-4.3.1-6" class="pilcrow">¶</a></p>
-<p id="section-4.3.1-7">The ref_wnd_overhead is calculated as:<a href="#section-4.3.1-7" class="pilcrow">¶</a></p>
-<div class="alignLeft art-text artwork" id="section-4.3.1-8">
+<p id="section-4.3.1-7">The following constants are used (the RECOMMENDED values, within parentheses "()",
+for the constants are deduced from experiments):<a href="#section-4.3.1-7" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-4.3.1-8.1">
+              <p id="section-4.3.1-8.1.1">REF_WND_OVERHEAD_MIN (1.5): Indicates a lower limit how much bytes in flight is allowed to
+exceed ref_wnd.<a href="#section-4.3.1-8.1.1" class="pilcrow">¶</a></p>
+</li>
+            <li class="normal" id="section-4.3.1-8.2">
+              <p id="section-4.3.1-8.2.1">REF_WND_OVERHEAD_MAX (4.0): Indicates an upper limit how much bytes in flight is allowed to exceed ref_wnd. This is roughly equal to MAX_RELAXED_PACING_FACTOR to allow that media frames can be transmitted quickly when the transmission channel is uncongested.<a href="#section-4.3.1-8.2.1" class="pilcrow">¶</a></p>
+</li>
+          </ul>
+<p id="section-4.3.1-9">The ref_wnd_overhead is calculated as:<a href="#section-4.3.1-9" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-4.3.1-10">
 <pre>
 ref_wnd_overhead = REF_WND_OVERHEAD_MIN +
   (REF_WND_OVERHEAD_MAX + REF_WND_OVERHEAD_MIN)*max(0.0,(0.1-qdelay_dev_norm)/0.1)
-</pre><a href="#section-4.3.1-8" class="pilcrow">¶</a>
+</pre><a href="#section-4.3.1-10" class="pilcrow">¶</a>
 </div>
 </section>
 </div>
@@ -2817,7 +2815,8 @@ tmp_t *= 1.0 - min(0.2, max(0.0, ref_wnd_ratio - 0.1))
 tmp_t_ *= mss/(mss + PACKET_OVERHEAD)
 
 # An additional downscaling is needed to avoid unnecessary
-# sender queue build-up
+# sender queue build-up, better to set the target bitrate
+# slightly lower than what ref_wnd and s_rtt
 tmp_t /= 1.1
 
 # Calculate target bitrate and limit to min and max allowed
