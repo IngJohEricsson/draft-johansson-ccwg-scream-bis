@@ -1183,7 +1183,7 @@ The following constants are used by the packet pacing:
 
 * RATE_PACE_MIN (50000): Minimum pacing rate in [bps].
 
-* PACKET_PACING_HEADROOM (1.5): Extra head room for packet pacing.
+* PACKET_PACING_HEADROOM (1.5): Headroom for packet pacing.
 
 * MAX_RELAXED_PACING_FACTOR (4.0): Max extra packet pacing when the media coder reaches the max bitrate. This should be roughly equal to REF_WND_OVERHEAD_MAX.
 
@@ -1378,7 +1378,7 @@ This section covers a few discussion points.
  * Packet pacing is recommended, it is however possible to operate SCReAMv2 with
   packet pacing disabled. The code in {{SCReAM-CPP-implementation}} implements
   additional mechanisms to achieve a high link utilization when packet pacing is
-  disabled.
+  disabled. Additional packet pacing headroom can be beneficial if unusually large media frames are generated, this can reduce unnecessary queue build-up in the data unit queue.
 
  * Feedback issues: RTCP feedback packets {{RFC8888}} can be lost, this means that
   the loss detection in SCReAMv2 may trigger even though packets arrive safely
