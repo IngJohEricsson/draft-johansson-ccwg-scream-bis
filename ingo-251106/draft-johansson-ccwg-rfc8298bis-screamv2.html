@@ -2596,7 +2596,7 @@ the packet pacing and allow frames to be transmitted faster.<a href="#section-4.
               <p id="section-4.3.2-4.1.1">RATE_PACE_MIN (50000): Minimum pacing rate in [bps].<a href="#section-4.3.2-4.1.1" class="pilcrow">¶</a></p>
 </li>
             <li class="normal" id="section-4.3.2-4.2">
-              <p id="section-4.3.2-4.2.1">PACKET_PACING_HEADROOM (1.5): Extra head room for packet pacing.<a href="#section-4.3.2-4.2.1" class="pilcrow">¶</a></p>
+              <p id="section-4.3.2-4.2.1">PACKET_PACING_HEADROOM (1.5): Headroom for packet pacing.<a href="#section-4.3.2-4.2.1" class="pilcrow">¶</a></p>
 </li>
             <li class="normal" id="section-4.3.2-4.3">
               <p id="section-4.3.2-4.3.1">MAX_RELAXED_PACING_FACTOR (4.0): Max extra packet pacing when the media coder reaches the max bitrate. This should be roughly equal to REF_WND_OVERHEAD_MAX.<a href="#section-4.3.2-4.3.1" class="pilcrow">¶</a></p>
@@ -2828,7 +2828,7 @@ utilization as a result.<a href="#section-6-2.3.2.2.1" class="pilcrow">¶</a></p
           <p id="section-6-2.4.1">Packet pacing is recommended, it is however possible to operate SCReAMv2 with
   packet pacing disabled. The code in <span>[<a href="#SCReAM-CPP-implementation" class="cite xref">SCReAM-CPP-implementation</a>]</span> implements
   additional mechanisms to achieve a high link utilization when packet pacing is
-  disabled.<a href="#section-6-2.4.1" class="pilcrow">¶</a></p>
+  disabled. Additional packet pacing headroom can be beneficial if unusually large media frames are generated, this can reduce unnecessary queue build-up in the data unit queue.<a href="#section-6-2.4.1" class="pilcrow">¶</a></p>
 </li>
         <li class="normal" id="section-6-2.5">
           <p id="section-6-2.5.1">Feedback issues: RTCP feedback packets <span>[<a href="#RFC8888" class="cite xref">RFC8888</a>]</span> can be lost, this means that
