@@ -277,6 +277,8 @@ Draft version -06
 
 * Bug in condition for calculation of l4s_alpha_v_t fixed.
 
+* bytes_in_flight_ratio removed.
+
 ## Requirements on the Media and Feedback Protocol {#requirements-media}
 
 SCReAM was originally designed to with with RTP + RTCP where {{RFC8888}} was
@@ -442,9 +444,7 @@ b) on L4S ECN CE or increased delay: ref_wnd *=  1-l4sAlpha/2
 
 Independent of the congestion detection, ref_wnd is increased by a fix increment for each RTT.
 
-The reference window increases multiplicatively after a number of congestion free RTTs. The increase factor is adjusted
-relative to aprevious max value and the time elapsed since last congestion event.
-This enables a faster convergence to a higher link speed.
+The reference window increases multiplicatively after a number of congestion free RTTs, this enables a faster convergence to a higher link speed. The increase factor is also adjusted relative to a previous max value.
 
 ## Sender Transmission Control {#sender-tc}
 
@@ -525,10 +525,6 @@ number SN-4, SN-3, SN-2, SN-1, and SN. It does not matter if, for instance, the
 data unit with sequence number SN-3 was lost -- the size of data unit with
 sequence number SN-3 will still be considered in the computation of
 bytes_in_flight.
-
-* bytes_in_flight_ratio (0.0): Ratio between the bytes_in_flight and the
-  reference window ref_wnd. This value should be computed at the beginning of the ACK
-  processing prior to updating the highest received sequence number acked.
 
 * ref_wnd_ratio (0.0): Ratio between MSS and ref_wnd capped to not
   exceed 1.0 (min(1.0, MSS / ref_wnd)).
@@ -700,13 +696,11 @@ factor (l4s_alpha_v) increases linearly from 0 to 100% as qdelay_avg goes from
 qdelay_target/2 to qdelay_target. The averaged qdelay (qdelay_avg) is used to
 avoid that the SCReAMv2 congestion control over-reacts to scheduling jitter,
 sudden delay spikes due to e.g. handover or link layer
-retransmissions. Furthermore, the delay based congestion control is inactivated
-when it is reasonably certain that L4S is active, i.e. L4S is enabled and
-congested nodes apply L4S marking of data units. This reduces negative effects of
-clockdrift, that the delay based control can introduce, whenever possible.
+retransmissions.
 
 qdelay_avg is updated with a slow attack, fast decay EWMA filter as described below. The
 variable qdelay_dev_norm indicates how much the queue delay varies, this is calculated normalized to QDELAY_DEV_NORM.
+
 ~~~
 if (now - last_update_qdelay_avg_time >= min(virtual_rtt,s_rtt)
   if (qdelay < qdelay_avg)
@@ -919,7 +913,7 @@ if (now - last_reaction_to_congestion_time >= min(VIRTUAL_RTT,s_rtt)
     # occur due to lower protocol retransmissions or cell change
     l4s_alpha_v_t = min(1.0, max(0.0,
             (qdelay_avg - qdelay_target / 2) /
-            (qdelay_target / 2)));
+            (qdelay_target / 2)))
     is_virtual_ce_t = true
   end
 end
@@ -984,7 +978,7 @@ end
 if (is_virtual_ce_t)
   backoff_t = l4s_alpha_v_t / 2
 
-  # Scale down backoff when RTT is high ot avoid overreaction to
+  # Scale down backoff when RTT is high to avoid overreaction to
   # congestion
   backoff_t /= max(1.0, s_rtt/VIRTUAL_RTT)
 
@@ -1051,7 +1045,7 @@ increment_t *= max(0.1, (0.1 - qdelay_dev_norm) / 0.1)
 # known max value.
 float tmp_t = ref_wnd_scale_factor_t
 if (tmp_t > 1.0)
-  tmp_t = 1.0 + (tmp_t - 1.0) * post_congestion_scale_t * scl_t;
+  tmp_t = 1.0 + (tmp_t - 1.0) * post_congestion_scale_t * scl_t
 end
 increment_t *= tmp_t
 
@@ -1225,11 +1219,7 @@ updated and calculates the target bitrate:
 
 The following constants are used by the media rate control:
 
-* BYTES_IN_FLIGHT_LIMIT (0.9)
-
-* BYTES_IN_FLIGHT_LIMIT_COMPENSATION (1.5)
-
-* PACKET_OVERHEAD (20) : Estimated packetization overhead [byte]
+* PACKET_OVERHEAD (20) : Estimated packetization overhead [byte].
 
 * TARGET_BITRATE_MIN: Minimum target bitrate in [bps] (bits per second).
 
@@ -1266,11 +1256,11 @@ tmp_t *= 1.0 - min(0.2, max(0.0, ref_wnd_ratio - 0.1))
 
 # Additional compensation for packetization overhead,
 # important when MSS is small
-tmp_t_ *= mss/(mss + PACKET_OVERHEAD)
+tmp_t_ *= MSS/(MSS + PACKET_OVERHEAD)
 
 # An additional downscaling is needed to avoid unnecessary
 # sender queue build-up, better to set the target bitrate
-# slightly lower than what ref_wnd and s_rtt
+# slightly lower than what ref_wnd and s_rtt indicates
 tmp_t /= 1.1
 
 # Calculate target bitrate and limit to min and max allowed
@@ -1318,7 +1308,7 @@ expresses the feedback rate:
 
 ~~~
 # Assume 100 byte feedback packets
-rate_fb = 0.02 * [average received rate] / (100.0 * 8.0);
+rate_fb = 0.02 * [average received rate] / (100.0 * 8.0)
 rate_fb = min(1000, max(10, rate_fb))
 
 # Calculate feedback intervals
