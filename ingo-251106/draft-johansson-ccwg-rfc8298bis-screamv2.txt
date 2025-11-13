@@ -6,7 +6,7 @@ CCWG                                                        I. Johansson
 Internet-Draft                                             M. Westerlund
 Obsoletes: 8298 (if approved)                               M. Kühlewind
 Intended status: Experimental                                   Ericsson
-Expires: 16 May 2026                                    12 November 2025
+Expires: 17 May 2026                                    13 November 2025
 
 
               Self-Clocked Rate Adaptation for Multimedia
@@ -54,7 +54,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 16 May 2026.
+   This Internet-Draft will expire on 17 May 2026.
 
 Copyright Notice
 
@@ -280,6 +280,8 @@ Table of Contents
 
    *  Bug in condition for calculation of l4s_alpha_v_t fixed.
 
+   *  bytes_in_flight_ratio removed.
+
 1.2.  Requirements on the Media and Feedback Protocol
 
    SCReAM was originally designed to with with RTP + RTCP where
@@ -461,9 +463,9 @@ Table of Contents
    fix increment for each RTT.
 
    The reference window increases multiplicatively after a number of
-   congestion free RTTs.  The increase factor is adjusted relative to
-   aprevious max value and the time elapsed since last congestion event.
-   This enables a faster convergence to a higher link speed.
+   congestion free RTTs, this enables a faster convergence to a higher
+   link speed.  The increase factor is also adjusted relative to a
+   previous max value.
 
 3.2.  Sender Transmission Control
 
@@ -543,11 +545,6 @@ Table of Contents
    the data unit with sequence number SN-3 was lost -- the size of data
    unit with sequence number SN-3 will still be considered in the
    computation of bytes_in_flight.
-
-   *  bytes_in_flight_ratio (0.0): Ratio between the bytes_in_flight and
-      the reference window ref_wnd.  This value should be computed at
-      the beginning of the ACK processing prior to updating the highest
-      received sequence number acked.
 
    *  ref_wnd_ratio (0.0): Ratio between MSS and ref_wnd capped to not
       exceed 1.0 (min(1.0, MSS / ref_wnd)).
@@ -733,21 +730,22 @@ end
    qdelay_target.  The averaged qdelay (qdelay_avg) is used to avoid
    that the SCReAMv2 congestion control over-reacts to scheduling
    jitter, sudden delay spikes due to e.g. handover or link layer
-   retransmissions.  Furthermore, the delay based congestion control is
-   inactivated when it is reasonably certain that L4S is active, i.e.
-   L4S is enabled and congested nodes apply L4S marking of data units.
-   This reduces negative effects of clockdrift, that the delay based
-   control can introduce, whenever possible.
+   retransmissions.
 
    qdelay_avg is updated with a slow attack, fast decay EWMA filter as
    described below.  The variable qdelay_dev_norm indicates how much the
    queue delay varies, this is calculated normalized to QDELAY_DEV_NORM.
-   ~~~ if (now - last_update_qdelay_avg_time >= min(virtual_rtt,s_rtt)
-   if (qdelay < qdelay_avg) qdelay_avg = qdelay else qdelay_avg =
-   QDELAY_AVG_G_qdelay + (1.0-QDELAY_AVG_G)_qdelay_avg end
-   qdelay_dev_norm = QDELAY_DEV_AVG_G_(qdelay -
-   qdelay_avg)/QDELAY_DEV_NORM + (1.0-QDELAY_DEV_AVG_G)_qdelay_dev_norm
-   last_update_qdelay_avg_time = now end ~~~
+
+if (now - last_update_qdelay_avg_time >= min(virtual_rtt,s_rtt)
+  if (qdelay < qdelay_avg)
+    qdelay_avg = qdelay
+  else
+    qdelay_avg = QDELAY_AVG_G*qdelay + (1.0-QDELAY_AVG_G)*qdelay_avg
+  end
+  qdelay_dev_norm = QDELAY_DEV_AVG_G*(qdelay - qdelay_avg)/QDELAY_DEV_NORM +
+     (1.0-QDELAY_DEV_AVG_G)*qdelay_dev_norm
+  last_update_qdelay_avg_time = now
+end
 
    The following variables are used:
 
@@ -963,7 +961,7 @@ if (now - last_reaction_to_congestion_time >= min(VIRTUAL_RTT,s_rtt)
     # occur due to lower protocol retransmissions or cell change
     l4s_alpha_v_t = min(1.0, max(0.0,
             (qdelay_avg - qdelay_target / 2) /
-            (qdelay_target / 2)));
+            (qdelay_target / 2)))
     is_virtual_ce_t = true
   end
 end
@@ -1028,7 +1026,7 @@ end
 if (is_virtual_ce_t)
   backoff_t = l4s_alpha_v_t / 2
 
-  # Scale down backoff when RTT is high ot avoid overreaction to
+  # Scale down backoff when RTT is high to avoid overreaction to
   # congestion
   backoff_t /= max(1.0, s_rtt/VIRTUAL_RTT)
 
@@ -1093,7 +1091,7 @@ increment_t *= max(0.1, (0.1 - qdelay_dev_norm) / 0.1)
 # known max value.
 float tmp_t = ref_wnd_scale_factor_t
 if (tmp_t > 1.0)
-  tmp_t = 1.0 + (tmp_t - 1.0) * post_congestion_scale_t * scl_t;
+  tmp_t = 1.0 + (tmp_t - 1.0) * post_congestion_scale_t * scl_t
 end
 increment_t *= tmp_t
 
@@ -1286,11 +1284,7 @@ t_pace = data_unit_size * 8 / pace_bitrate
 
    The following constants are used by the media rate control:
 
-   *  BYTES_IN_FLIGHT_LIMIT (0.9)
-
-   *  BYTES_IN_FLIGHT_LIMIT_COMPENSATION (1.5)
-
-   *  PACKET_OVERHEAD (20) : Estimated packetization overhead [byte]
+   *  PACKET_OVERHEAD (20) : Estimated packetization overhead [byte].
 
    *  TARGET_BITRATE_MIN: Minimum target bitrate in [bps] (bits per
       second).
@@ -1327,11 +1321,11 @@ t_pace = data_unit_size * 8 / pace_bitrate
 
    # Additional compensation for packetization overhead,
    # important when MSS is small
-   tmp_t_ *= mss/(mss + PACKET_OVERHEAD)
+   tmp_t_ *= MSS/(MSS + PACKET_OVERHEAD)
 
    # An additional downscaling is needed to avoid unnecessary
    # sender queue build-up, better to set the target bitrate
-   # slightly lower than what ref_wnd and s_rtt
+   # slightly lower than what ref_wnd and s_rtt indicates
    tmp_t /= 1.1
 
    # Calculate target bitrate and limit to min and max allowed
@@ -1380,7 +1374,7 @@ t_pace = data_unit_size * 8 / pace_bitrate
    The following equation expresses the feedback rate:
 
    # Assume 100 byte feedback packets
-   rate_fb = 0.02 * [average received rate] / (100.0 * 8.0);
+   rate_fb = 0.02 * [average received rate] / (100.0 * 8.0)
    rate_fb = min(1000, max(10, rate_fb))
 
    # Calculate feedback intervals
