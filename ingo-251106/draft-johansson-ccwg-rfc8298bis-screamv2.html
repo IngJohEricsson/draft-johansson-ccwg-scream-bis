@@ -1731,8 +1731,8 @@ makes it more likely that an uncongested bytes_in_flight is used.<a href="#secti
 <p id="section-4.1.2-1">The feedback from the receiver is assumed to consist of the following elements:<a href="#section-4.1.2-1" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-4.1.2-2.1">
-              <p id="section-4.1.2-2.1.1">The wall-clock timestamp corresponding to the received data unit with the
-highest sequence number.<a href="#section-4.1.2-2.1.1" class="pilcrow">¶</a></p>
+              <p id="section-4.1.2-2.1.1">The receiver wall-clock timestamp corresponding to the reception
+time of the data unit with the highest sequence number.<a href="#section-4.1.2-2.1.1" class="pilcrow">¶</a></p>
 </li>
             <li class="normal" id="section-4.1.2-2.2">
               <p id="section-4.1.2-2.2.1">data_units_acked: A list of received data units' sequence numbers.<a href="#section-4.1.2-2.2.1" class="pilcrow">¶</a></p>
@@ -1841,14 +1841,16 @@ ECN marking thresholds lower than the corresponding data unit drop thresholds.<a
             <h5 id="name-receiving-ecn-ce-for-l4s">
 <a href="#section-4.2.1.3" class="section-number selfRef">4.2.1.3. </a><a href="#name-receiving-ecn-ce-for-l4s" class="section-name selfRef">Receiving ECN-CE for L4S</a>
             </h5>
-<p id="section-4.2.1.3-1">The ref_wnd is scaled down in proportion to the fraction of marked data units per
-RTT. The scale down proportion is given by l4s_alpha, which is an EWMA filtered
-version of the fraction of marked data units per RTT. This is inline with how DCTCP
-works <span>[<a href="#RFC8257" class="cite xref">RFC8257</a>]</span>. Additional methods are applied to make the reference window
-reduction reasonably stable, especially when the reference window is only a few
-MSS. In addition, because SCReAMv2 can quite often be source limited, additional
-steps are taken to restore the reference window to a proper value after a long
-period without congestion.<a href="#section-4.2.1.3-1" class="pilcrow">¶</a></p>
+<p id="section-4.2.1.3-1">The ref_wnd is scaled down in proportion to the fraction of marked
+data units per RTT. The scale down proportion is given by l4s_alpha,
+which is an Exponentially Weighted Moving Average (EWMA) filtered
+version of the fraction of marked data units per RTT. This is inline
+with how DCTCP works <span>[<a href="#RFC8257" class="cite xref">RFC8257</a>]</span>. Additional methods are applied to
+make the reference window reduction reasonably stable, especially when
+the reference window is only a few MSS. In addition, because SCReAMv2
+can quite often be source limited, additional steps are taken to
+restore the reference window to a proper value after a long period
+without congestion.<a href="#section-4.2.1.3-1" class="pilcrow">¶</a></p>
 <p id="section-4.2.1.3-2">l4s_alpha is calculated based in number of data units delivered (and marked)
 the following way:<a href="#section-4.2.1.3-2" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-4.2.1.3-3">
