@@ -6,7 +6,7 @@ CCWG                                                        I. Johansson
 Internet-Draft                                             M. Westerlund
 Obsoletes: 8298 (if approved)                               M. Kühlewind
 Intended status: Experimental                                   Ericsson
-Expires: 8 May 2026                                      4 November 2025
+Expires: 29 May 2026                                    25 November 2025
 
 
               Self-Clocked Rate Adaptation for Multimedia
@@ -54,7 +54,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 8 May 2026.
+   This Internet-Draft will expire on 29 May 2026.
 
 Copyright Notice
 
@@ -146,15 +146,16 @@ Table of Contents
 
       -  The calculated congestion window is mainly used to calculate
          proper media bitrates.  Bytes in flight is however allowed to
-         exceed the reference window.  Therefore, The term reference
+         exceed the reference window.  Therefore, the term reference
          window is used instead of congestion window, as the reference
          window does not set an absolute limit on the bytes in flight.
 
-      -  The self-clocking now acts more like an emergency break as
-         bytes in flight can exceed the reference window only to a
-         certain degree.  The rationale is to be able to transmit large
-         video frames and avoid that they are unnecessarily queued up on
-         the sender side, but still prevent a large network queue.
+         o  The self-clocking now acts more like an emergency break as
+            bytes in flight can exceed the reference window only to a
+            certain degree.  The rationale is to be able to transmit
+            large video frames and avoid that they are unnecessarily
+            queued up on the sender side, but still prevent a large
+            network queue.
 
    *  The media bitrate calculation is dramatically changed and
       simplified.  In practice it is manifested with a relatively simple
