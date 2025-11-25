@@ -438,7 +438,7 @@ bytes_in_flight.
 * max_bytes_in_flight_prev (0): The maximum number of bytes in flight in
   previous round trip [byte].
 
-As bytes_in_flight can spike when congestion occurs, using the maximum of
+As bytes_in_flight can spike when congestion occurs, using the minimum of
 max_bytes_in_flight and max_bytes_in_flight_prev
 makes it more likely that an uncongested bytes_in_flight is used.
 
