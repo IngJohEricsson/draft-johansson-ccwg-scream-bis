@@ -1269,7 +1269,27 @@ This specification obsoletes RFC 8298.<a href="#section-abstract-1" class="pilcr
             <p id="section-toc.1-1.10.1"><a href="#appendix-A" class="auto internal xref">Appendix A</a>.  <a href="#name-acknowledgments" class="internal xref">Acknowledgments</a></p>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.11">
-            <p id="section-toc.1-1.11.1"><a href="#appendix-B" class="auto internal xref"></a><a href="#name-authors-addresses" class="internal xref">Authors' Addresses</a></p>
+            <p id="section-toc.1-1.11.1"><a href="#appendix-B" class="auto internal xref">Appendix B</a>.  <a href="#name-changes-in-the-draft-versio" class="internal xref">Changes in the draft versions</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.11.2.1">
+                <p id="section-toc.1-1.11.2.1.1"><a href="#appendix-B.1" class="auto internal xref">B.1</a>.  <a href="#name-changes-in-draft-version-02" class="internal xref">Changes in draft version -02</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.11.2.2">
+                <p id="section-toc.1-1.11.2.2.1"><a href="#appendix-B.2" class="auto internal xref">B.2</a>.  <a href="#name-changes-in-draft-version-03" class="internal xref">Changes in Draft version -03</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.11.2.3">
+                <p id="section-toc.1-1.11.2.3.1"><a href="#appendix-B.3" class="auto internal xref">B.3</a>.  <a href="#name-changes-in-draft-version-04" class="internal xref">Changes in Draft version -04</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.11.2.4">
+                <p id="section-toc.1-1.11.2.4.1"><a href="#appendix-B.4" class="auto internal xref">B.4</a>.  <a href="#name-changes-in-draft-version-05" class="internal xref">Changes in Draft version -05</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.11.2.5">
+                <p id="section-toc.1-1.11.2.5.1"><a href="#appendix-B.5" class="auto internal xref">B.5</a>.  <a href="#name-changes-in-draft-version-06" class="internal xref">Changes in Draft version -06</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.12">
+            <p id="section-toc.1-1.12.1"><a href="#appendix-C" class="auto internal xref"></a><a href="#name-authors-addresses" class="internal xref">Authors' Addresses</a></p>
 </li>
         </ul>
 </nav>
@@ -1283,7 +1303,7 @@ This specification obsoletes RFC 8298.<a href="#section-abstract-1" class="pilcr
 <p id="section-1-1">This memo describes Self-Clocked Rate Adaptation for Multimedia version 2
 (SCReAMv2). This specification replaces the previous experimental version <span>[<a href="#RFC8298" class="cite xref">RFC8298</a>]</span> of
 SCReAM with SCReAMv2. There are many and fairly significant changes to the
-original SCReAM algorithm as desribed in section <a href="#sec_changes" class="auto internal xref">Section 1.1</a>.<a href="#section-1-1" class="pilcrow">¶</a></p>
+original SCReAM algorithm as desribed in <a href="#sec_changes" class="auto internal xref">Section 1.1</a>.<a href="#section-1-1" class="pilcrow">¶</a></p>
 <p id="section-1-2">Both SCReAM and SCReAMv2 estimates the forward queue delay in the same way as Low
 Extra Delay Background Transport (LEDBAT) <span>[<a href="#RFC6817" class="cite xref">RFC6817</a>]</span>.
 However, while SCReAM is based on the self-clocking principle of TCP,
@@ -1343,146 +1363,6 @@ it is manifested with a relatively simple relation between the reference window 
 changing frame sizes.<a href="#section-1.1-2.6.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
-<p id="section-1.1-3">Algorithm changes in draft version -02 were:<a href="#section-1.1-3" class="pilcrow">¶</a></p>
-<ul class="normal">
-<li class="normal" id="section-1.1-4.1">
-            <p id="section-1.1-4.1.1">Slow down reference window growth when close to the last known maximum value is disabled
-and when L4S is active. This makes SCReAM adhere more closely to two marked packets
-per RTT at steady state.<a href="#section-1.1-4.1.1" class="pilcrow">¶</a></p>
-</li>
-          <li class="normal" id="section-1.1-4.2">
-            <p id="section-1.1-4.2.1">Reference window decrease and increase reduced by up to 50% when ref_wnd/mss
-is small. This reduces rate oscillations.<a href="#section-1.1-4.2.1" class="pilcrow">¶</a></p>
-</li>
-          <li class="normal" id="section-1.1-4.3">
-            <p id="section-1.1-4.3.1">Target bitrate down adjustment when ref_wnd/mss is small is modified to
-avoid that the data unit queue grows excessively in certain low
-bitrate cases.<a href="#section-1.1-4.3.1" class="pilcrow">¶</a></p>
-</li>
-          <li class="normal" id="section-1.1-4.4">
-            <p id="section-1.1-4.4.1">Timing set to multiples of RTTs instead of seconds.<a href="#section-1.1-4.4.1" class="pilcrow">¶</a></p>
-</li>
-        </ul>
-<p id="section-1.1-5">Draft version -03 is a major editorial pass including removal of some
-outdated or background information and reorganisation of several sections:<a href="#section-1.1-5" class="pilcrow">¶</a></p>
-<ul class="normal">
-<li class="normal" id="section-1.1-6.1">
-            <p id="section-1.1-6.1.1">Much shorter abstract and introduction focusing on what's new in SCReAMv2.<a href="#section-1.1-6.1.1" class="pilcrow">¶</a></p>
-</li>
-          <li class="normal" id="section-1.1-6.2">
-            <p id="section-1.1-6.2.1">Removal of Section 1.1. on "Wireless (LTE and 5G) Access Properties" and
-Section 1.2. on "Why is it a self-clocked algorithm?"<a href="#section-1.1-6.2.1" class="pilcrow">¶</a></p>
-</li>
-          <li class="normal" id="section-1.1-6.3">
-            <p id="section-1.1-6.3.1">New Section on "Updates compared to SCReAM (version 1)" in introduction
-based on old Section on "Algorithm Changes".<a href="#section-1.1-6.3.1" class="pilcrow">¶</a></p>
-</li>
-          <li class="normal" id="section-1.1-6.4">
-            <p id="section-1.1-6.4.1">Section <a href="#ledbat-tfwc" class="auto internal xref">Section 1.3</a> updated and shortened.<a href="#section-1.1-6.4.1" class="pilcrow">¶</a></p>
-</li>
-          <li class="normal" id="section-1.1-6.5">
-            <p id="section-1.1-6.5.1">Overview Section <a href="#scream-overview" class="auto internal xref">Section 3</a> revised; now also including the overview
-figure and the basic algorithms.<a href="#section-1.1-6.5.1" class="pilcrow">¶</a></p>
-</li>
-          <li class="normal" id="section-1.1-6.6">
-            <p id="section-1.1-6.6.1">Old section on "Constants and variables" removed; instead all variables are now listed
-in the respective sections that explain the code.<a href="#section-1.1-6.6.1" class="pilcrow">¶</a></p>
-</li>
-          <li class="normal" id="section-1.1-6.7">
-            <p id="section-1.1-6.7.1">New Section on "Sender Side State" explaining some basic variables.<a href="#section-1.1-6.7.1" class="pilcrow">¶</a></p>
-</li>
-          <li class="normal" id="section-1.1-6.8">
-            <p id="section-1.1-6.8.1">Pseudo code and the corresponding explanations in Section <a href="#network-cc-2" class="auto internal xref">Section 4.2</a> on
-"Network Congestion Control" moved into the respective subsections in
-section <a href="#reaction-delay-loss-ce" class="auto internal xref">Section 4.2.1</a> on "Congestion Detection".<a href="#section-1.1-6.8.1" class="pilcrow">¶</a></p>
-</li>
-          <li class="normal" id="section-1.1-6.9">
-            <p id="section-1.1-6.9.1">Separate section on "Sender Transmission Control" introduced.<a href="#section-1.1-6.9.1" class="pilcrow">¶</a></p>
-</li>
-          <li class="normal" id="section-1.1-6.10">
-            <p id="section-1.1-6.10.1">Section "Lost Data Unit Detection" merged into Section <a href="#reaction-loss" class="auto internal xref">Section 4.2.1.1</a>.<a href="#section-1.1-6.10.1" class="pilcrow">¶</a></p>
-</li>
-          <li class="normal" id="section-1.1-6.11">
-            <p id="section-1.1-6.11.1">Section "Stream Prioritization" removed.<a href="#section-1.1-6.11.1" class="pilcrow">¶</a></p>
-</li>
-          <li class="normal" id="section-1.1-6.12">
-            <p id="section-1.1-6.12.1">Section on "Competing Flows Compensation" moved into Section <a href="#reaction-delay-loss-ce" class="auto internal xref">Section 4.2.1</a>
-on "Congestion Detection".<a href="#section-1.1-6.12.1" class="pilcrow">¶</a></p>
-</li>
-        </ul>
-<p id="section-1.1-7">Draft version -04<a href="#section-1.1-7" class="pilcrow">¶</a></p>
-<ul class="normal">
-<li class="normal" id="section-1.1-8.1">
-            <p id="section-1.1-8.1.1">Restructuring of code.<a href="#section-1.1-8.1.1" class="pilcrow">¶</a></p>
-</li>
-          <li class="normal" id="section-1.1-8.2">
-            <p id="section-1.1-8.2.1">Reduction of target rate when bytes_in_flight is higher than ref_wnd is done also when l4s_active, replaced with requirement that queue_delay is large.<a href="#section-1.1-8.2.1" class="pilcrow">¶</a></p>
-</li>
-          <li class="normal" id="section-1.1-8.3">
-            <p id="section-1.1-8.3.1">Additional constraint for increase of ref_wnd added.<a href="#section-1.1-8.3.1" class="pilcrow">¶</a></p>
-</li>
-          <li class="normal" id="section-1.1-8.4">
-            <p id="section-1.1-8.4.1">Discussion on when it is beneficial to reduce REF_WND_OVERHEAD added.<a href="#section-1.1-8.4.1" class="pilcrow">¶</a></p>
-</li>
-        </ul>
-<p id="section-1.1-9">Draft version -05 contains some clarifications based on a review by Per Kjellander
- and Björn Terelius plus some code modifications and text.<a href="#section-1.1-9" class="pilcrow">¶</a></p>
-<ul class="normal">
-<li class="normal" id="section-1.1-10.1">
-            <p id="section-1.1-10.1.1">l4s_active state removed as delay based congestion control is always active.<a href="#section-1.1-10.1.1" class="pilcrow">¶</a></p>
-</li>
-          <li class="normal" id="section-1.1-10.2">
-            <p id="section-1.1-10.2.1">ref_wnd reduction when long time since congested limited to only limit ref_wnd to last max_bytes_in_flight_prev.<a href="#section-1.1-10.2.1" class="pilcrow">¶</a></p>
-</li>
-          <li class="normal" id="section-1.1-10.3">
-            <p id="section-1.1-10.3.1">Calculation of l4s_alpha is modified to use a fast attack slow decay EWMA filter.<a href="#section-1.1-10.3.1" class="pilcrow">¶</a></p>
-</li>
-          <li class="normal" id="section-1.1-10.4">
-            <p id="section-1.1-10.4.1">Congestion backoff downscaling also for virtual L4S marking when ref_wnd is very small.<a href="#section-1.1-10.4.1" class="pilcrow">¶</a></p>
-</li>
-          <li class="normal" id="section-1.1-10.5">
-            <p id="section-1.1-10.5.1">Congestion backoff is reduced if RTT is higher than VIRTUAL_RTT.<a href="#section-1.1-10.5.1" class="pilcrow">¶</a></p>
-</li>
-          <li class="normal" id="section-1.1-10.6">
-            <p id="section-1.1-10.6.1">ref_wnd increase is reduced if L4S is likely non-active and queue delay increases.<a href="#section-1.1-10.6.1" class="pilcrow">¶</a></p>
-</li>
-        </ul>
-<p id="section-1.1-11">Draft version -06<a href="#section-1.1-11" class="pilcrow">¶</a></p>
-<ul class="normal">
-<li class="normal" id="section-1.1-12.1">
-            <p id="section-1.1-12.1.1">Correction of typos.<a href="#section-1.1-12.1.1" class="pilcrow">¶</a></p>
-</li>
-          <li class="normal" id="section-1.1-12.2">
-            <p id="section-1.1-12.2.1">Correction of send_wnd calculation.<a href="#section-1.1-12.2.1" class="pilcrow">¶</a></p>
-</li>
-          <li class="normal" id="section-1.1-12.3">
-            <p id="section-1.1-12.3.1">Additional variable qdelay_dev_norm that indicated how much the queue delay varies.<a href="#section-1.1-12.3.1" class="pilcrow">¶</a></p>
-</li>
-          <li class="normal" id="section-1.1-12.4">
-            <p id="section-1.1-12.4.1">Additional ref_wnd_overhead varable to limit how much bytes in flight can exceed the reference window in congested situations.<a href="#section-1.1-12.4.1" class="pilcrow">¶</a></p>
-</li>
-          <li class="normal" id="section-1.1-12.5">
-            <p id="section-1.1-12.5.1">REF_WND_OVERHEAD replaced by REF_WND_OVERHEAD_MIN and REF_WND_OVERHEAD_MAX.<a href="#section-1.1-12.5.1" class="pilcrow">¶</a></p>
-</li>
-          <li class="normal" id="section-1.1-12.6">
-            <p id="section-1.1-12.6.1">Reference window increase is restricted additionally when queue delay varies a lot.<a href="#section-1.1-12.6.1" class="pilcrow">¶</a></p>
-</li>
-          <li class="normal" id="section-1.1-12.7">
-            <p id="section-1.1-12.7.1">rel_framesize_high calculation is removed.<a href="#section-1.1-12.7.1" class="pilcrow">¶</a></p>
-</li>
-          <li class="normal" id="section-1.1-12.8">
-            <p id="section-1.1-12.8.1">Reduction of target bitrate when bytes in flight is high is removed because it is not helpful when media coders are sluggish.<a href="#section-1.1-12.8.1" class="pilcrow">¶</a></p>
-</li>
-          <li class="normal" id="section-1.1-12.9">
-            <p id="section-1.1-12.9.1">Calculation of l4s_alpha_v_t simplified, l4s_alpha_lim_t removed.<a href="#section-1.1-12.9.1" class="pilcrow">¶</a></p>
-</li>
-          <li class="normal" id="section-1.1-12.10">
-            <p id="section-1.1-12.10.1">Bug in condition for calculation of l4s_alpha_v_t fixed.<a href="#section-1.1-12.10.1" class="pilcrow">¶</a></p>
-</li>
-          <li class="normal" id="section-1.1-12.11">
-            <p id="section-1.1-12.11.1">bytes_in_flight_ratio removed.<a href="#section-1.1-12.11.1" class="pilcrow">¶</a></p>
-</li>
-        </ul>
 </section>
 </div>
 <div id="requirements-media">
@@ -1533,7 +1413,7 @@ LEDBAT <span>[<a href="#RFC6817" class="cite xref">RFC6817</a>]</span>. However,
 delay estimates but uses both a linear increase and multiplicative increase function depending
 on the time since the last congestion event and introduces use of inflection points in the
 reference window increase calculation to achieve reduced delay jitter.
-Further, other than LEDBAT which is a scavenger congestion control mostly designed
+Further, unlike LEDBAT which is a scavenger congestion control mostly designed
 for low priority background traffic, SCReAM adjusts the qdelay target to
 compete with other loss-based congestion-controlled flows.<a href="#section-1.3-2" class="pilcrow">¶</a></p>
 <p id="section-1.3-3">SCReAMv2 adds a new reference window validation technique, as the reference window is used as a basis for the
@@ -3009,8 +2889,191 @@ following people for their comments, questions, and support during the
 work that led to this memo: Per Kjellander, Björn Terelius.<a href="#appendix-A-1" class="pilcrow">¶</a></p>
 </section>
 </div>
-<div id="authors-addresses">
+<div id="changes-in-the-draft-versions">
 <section id="appendix-B">
+      <h2 id="name-changes-in-the-draft-versio">
+<a href="#appendix-B" class="section-number selfRef">Appendix B. </a><a href="#name-changes-in-the-draft-versio" class="section-name selfRef">Changes in the draft versions</a>
+      </h2>
+<div id="changes-in-draft-version-02">
+<section id="appendix-B.1">
+        <h3 id="name-changes-in-draft-version-02">
+<a href="#appendix-B.1" class="section-number selfRef">B.1. </a><a href="#name-changes-in-draft-version-02" class="section-name selfRef">Changes in draft version -02</a>
+        </h3>
+<p id="appendix-B.1-1">Algorithm changes in draft version -02 were:<a href="#appendix-B.1-1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="appendix-B.1-2.1">
+            <p id="appendix-B.1-2.1.1">Slow down reference window growth when close to the last known maximum value is disabled
+and when L4S is active. This makes SCReAM adhere more closely to two marked packets
+per RTT at steady state.<a href="#appendix-B.1-2.1.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="appendix-B.1-2.2">
+            <p id="appendix-B.1-2.2.1">Reference window decrease and increase reduced by up to 50% when ref_wnd/mss
+is small. This reduces rate oscillations.<a href="#appendix-B.1-2.2.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="appendix-B.1-2.3">
+            <p id="appendix-B.1-2.3.1">Target bitrate down adjustment when ref_wnd/mss is small is modified to
+avoid that the data unit queue grows excessively in certain low
+bitrate cases.<a href="#appendix-B.1-2.3.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="appendix-B.1-2.4">
+            <p id="appendix-B.1-2.4.1">Timing set to multiples of RTTs instead of seconds.<a href="#appendix-B.1-2.4.1" class="pilcrow">¶</a></p>
+</li>
+        </ul>
+</section>
+</div>
+<div id="changes-in-draft-version-03">
+<section id="appendix-B.2">
+        <h3 id="name-changes-in-draft-version-03">
+<a href="#appendix-B.2" class="section-number selfRef">B.2. </a><a href="#name-changes-in-draft-version-03" class="section-name selfRef">Changes in Draft version -03</a>
+        </h3>
+<p id="appendix-B.2-1">Draft version -03 is a major editorial pass including removal of some
+outdated or background information and reorganisation of several sections:<a href="#appendix-B.2-1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="appendix-B.2-2.1">
+            <p id="appendix-B.2-2.1.1">Much shorter abstract and introduction focusing on what's new in SCReAMv2.<a href="#appendix-B.2-2.1.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="appendix-B.2-2.2">
+            <p id="appendix-B.2-2.2.1">Removal of Section 1.1. on "Wireless (LTE and 5G) Access Properties" and
+Section 1.2. on "Why is it a self-clocked algorithm?"<a href="#appendix-B.2-2.2.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="appendix-B.2-2.3">
+            <p id="appendix-B.2-2.3.1">New Section on "Updates compared to SCReAM (version 1)" in introduction
+based on old Section on "Algorithm Changes".<a href="#appendix-B.2-2.3.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="appendix-B.2-2.4">
+            <p id="appendix-B.2-2.4.1">Section <a href="#ledbat-tfwc" class="auto internal xref">Section 1.3</a> updated and shortened.<a href="#appendix-B.2-2.4.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="appendix-B.2-2.5">
+            <p id="appendix-B.2-2.5.1">Overview Section <a href="#scream-overview" class="auto internal xref">Section 3</a> revised; now also including the overview
+figure and the basic algorithms.<a href="#appendix-B.2-2.5.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="appendix-B.2-2.6">
+            <p id="appendix-B.2-2.6.1">Old section on "Constants and variables" removed; instead all variables are now listed
+in the respective sections that explain the code.<a href="#appendix-B.2-2.6.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="appendix-B.2-2.7">
+            <p id="appendix-B.2-2.7.1">New Section on "Sender Side State" explaining some basic variables.<a href="#appendix-B.2-2.7.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="appendix-B.2-2.8">
+            <p id="appendix-B.2-2.8.1">Pseudo code and the corresponding explanations in Section <a href="#network-cc-2" class="auto internal xref">Section 4.2</a> on
+"Network Congestion Control" moved into the respective subsections in
+section <a href="#reaction-delay-loss-ce" class="auto internal xref">Section 4.2.1</a> on "Congestion Detection".<a href="#appendix-B.2-2.8.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="appendix-B.2-2.9">
+            <p id="appendix-B.2-2.9.1">Separate section on "Sender Transmission Control" introduced.<a href="#appendix-B.2-2.9.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="appendix-B.2-2.10">
+            <p id="appendix-B.2-2.10.1">Section "Lost Data Unit Detection" merged into Section <a href="#reaction-loss" class="auto internal xref">Section 4.2.1.1</a>.<a href="#appendix-B.2-2.10.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="appendix-B.2-2.11">
+            <p id="appendix-B.2-2.11.1">Section "Stream Prioritization" removed.<a href="#appendix-B.2-2.11.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="appendix-B.2-2.12">
+            <p id="appendix-B.2-2.12.1">Section on "Competing Flows Compensation" moved into Section <a href="#reaction-delay-loss-ce" class="auto internal xref">Section 4.2.1</a>
+on "Congestion Detection".<a href="#appendix-B.2-2.12.1" class="pilcrow">¶</a></p>
+</li>
+        </ul>
+</section>
+</div>
+<div id="changes-in-draft-version-04">
+<section id="appendix-B.3">
+        <h3 id="name-changes-in-draft-version-04">
+<a href="#appendix-B.3" class="section-number selfRef">B.3. </a><a href="#name-changes-in-draft-version-04" class="section-name selfRef">Changes in Draft version -04</a>
+        </h3>
+<ul class="normal">
+<li class="normal" id="appendix-B.3-1.1">
+            <p id="appendix-B.3-1.1.1">Restructuring of code.<a href="#appendix-B.3-1.1.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="appendix-B.3-1.2">
+            <p id="appendix-B.3-1.2.1">Reduction of target rate when bytes_in_flight is higher than ref_wnd is done also when l4s_active, replaced with requirement that queue_delay is large.<a href="#appendix-B.3-1.2.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="appendix-B.3-1.3">
+            <p id="appendix-B.3-1.3.1">Additional constraint for increase of ref_wnd added.<a href="#appendix-B.3-1.3.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="appendix-B.3-1.4">
+            <p id="appendix-B.3-1.4.1">Discussion on when it is beneficial to reduce REF_WND_OVERHEAD added.<a href="#appendix-B.3-1.4.1" class="pilcrow">¶</a></p>
+</li>
+        </ul>
+</section>
+</div>
+<div id="changes-in-draft-version-05">
+<section id="appendix-B.4">
+        <h3 id="name-changes-in-draft-version-05">
+<a href="#appendix-B.4" class="section-number selfRef">B.4. </a><a href="#name-changes-in-draft-version-05" class="section-name selfRef">Changes in Draft version -05</a>
+        </h3>
+<p id="appendix-B.4-1">Draft version -05 contains some clarifications based on a review by Per Kjellander
+ and Björn Terelius plus some code modifications and text.<a href="#appendix-B.4-1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="appendix-B.4-2.1">
+            <p id="appendix-B.4-2.1.1">l4s_active state removed as delay based congestion control is always active.<a href="#appendix-B.4-2.1.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="appendix-B.4-2.2">
+            <p id="appendix-B.4-2.2.1">ref_wnd reduction when long time since congested limited to only limit ref_wnd to last max_bytes_in_flight_prev.<a href="#appendix-B.4-2.2.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="appendix-B.4-2.3">
+            <p id="appendix-B.4-2.3.1">Calculation of l4s_alpha is modified to use a fast attack slow decay EWMA filter.<a href="#appendix-B.4-2.3.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="appendix-B.4-2.4">
+            <p id="appendix-B.4-2.4.1">Congestion backoff downscaling also for virtual L4S marking when ref_wnd is very small.<a href="#appendix-B.4-2.4.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="appendix-B.4-2.5">
+            <p id="appendix-B.4-2.5.1">Congestion backoff is reduced if RTT is higher than VIRTUAL_RTT.<a href="#appendix-B.4-2.5.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="appendix-B.4-2.6">
+            <p id="appendix-B.4-2.6.1">ref_wnd increase is reduced if L4S is likely non-active and queue delay increases.<a href="#appendix-B.4-2.6.1" class="pilcrow">¶</a></p>
+</li>
+        </ul>
+</section>
+</div>
+<div id="changes-in-draft-version-06">
+<section id="appendix-B.5">
+        <h3 id="name-changes-in-draft-version-06">
+<a href="#appendix-B.5" class="section-number selfRef">B.5. </a><a href="#name-changes-in-draft-version-06" class="section-name selfRef">Changes in Draft version -06</a>
+        </h3>
+<ul class="normal">
+<li class="normal" id="appendix-B.5-1.1">
+            <p id="appendix-B.5-1.1.1">Correction of typos.<a href="#appendix-B.5-1.1.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="appendix-B.5-1.2">
+            <p id="appendix-B.5-1.2.1">Correction of send_wnd calculation.<a href="#appendix-B.5-1.2.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="appendix-B.5-1.3">
+            <p id="appendix-B.5-1.3.1">Additional variable qdelay_dev_norm that indicated how much the queue delay varies.<a href="#appendix-B.5-1.3.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="appendix-B.5-1.4">
+            <p id="appendix-B.5-1.4.1">Additional ref_wnd_overhead varable to limit how much bytes in flight can exceed the reference window in congested situations.<a href="#appendix-B.5-1.4.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="appendix-B.5-1.5">
+            <p id="appendix-B.5-1.5.1">REF_WND_OVERHEAD replaced by REF_WND_OVERHEAD_MIN and REF_WND_OVERHEAD_MAX.<a href="#appendix-B.5-1.5.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="appendix-B.5-1.6">
+            <p id="appendix-B.5-1.6.1">Reference window increase is restricted additionally when queue delay varies a lot.<a href="#appendix-B.5-1.6.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="appendix-B.5-1.7">
+            <p id="appendix-B.5-1.7.1">rel_framesize_high calculation is removed.<a href="#appendix-B.5-1.7.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="appendix-B.5-1.8">
+            <p id="appendix-B.5-1.8.1">Reduction of target bitrate when bytes in flight is high is removed because it is not helpful when media coders are sluggish.<a href="#appendix-B.5-1.8.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="appendix-B.5-1.9">
+            <p id="appendix-B.5-1.9.1">Calculation of l4s_alpha_v_t simplified, l4s_alpha_lim_t removed.<a href="#appendix-B.5-1.9.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="appendix-B.5-1.10">
+            <p id="appendix-B.5-1.10.1">Bug in condition for calculation of l4s_alpha_v_t fixed.<a href="#appendix-B.5-1.10.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="appendix-B.5-1.11">
+            <p id="appendix-B.5-1.11.1">bytes_in_flight_ratio removed.<a href="#appendix-B.5-1.11.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="appendix-B.5-1.12">
+            <p id="appendix-B.5-1.12.1">Moved Changes per draft version to this appendix.<a href="#appendix-B.5-1.12.1" class="pilcrow">¶</a></p>
+</li>
+        </ul>
+</section>
+</div>
+</section>
+</div>
+<div id="authors-addresses">
+<section id="appendix-C">
       <h2 id="name-authors-addresses">
 <a href="#name-authors-addresses" class="section-name selfRef">Authors' Addresses</a>
       </h2>
