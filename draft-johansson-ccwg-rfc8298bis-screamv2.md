@@ -447,8 +447,8 @@ makes it more likely that an uncongested bytes_in_flight is used.
 
 The feedback from the receiver is assumed to consist of the following elements:
 
-* The wall-clock timestamp corresponding to the received data unit with the
-  highest sequence number.
+* The receiver wall-clock timestamp corresponding to the reception
+  time of the data unit with the highest sequence number.
 
 * data_units_acked: A list of received data units' sequence numbers.
 
@@ -532,14 +532,16 @@ ECN marking thresholds lower than the corresponding data unit drop thresholds.
 
 #### Receiving ECN-CE for L4S {#reaction-l4s-ce}
 
-The ref_wnd is scaled down in proportion to the fraction of marked data units per
-RTT. The scale down proportion is given by l4s_alpha, which is an EWMA filtered
-version of the fraction of marked data units per RTT. This is inline with how DCTCP
-works {{RFC8257}}. Additional methods are applied to make the reference window
-reduction reasonably stable, especially when the reference window is only a few
-MSS. In addition, because SCReAMv2 can quite often be source limited, additional
-steps are taken to restore the reference window to a proper value after a long
-period without congestion.
+The ref_wnd is scaled down in proportion to the fraction of marked
+data units per RTT. The scale down proportion is given by l4s_alpha,
+which is an Exponentially Weighted Moving Average (EWMA) filtered
+version of the fraction of marked data units per RTT. This is inline
+with how DCTCP works {{RFC8257}}. Additional methods are applied to
+make the reference window reduction reasonably stable, especially when
+the reference window is only a few MSS. In addition, because SCReAMv2
+can quite often be source limited, additional steps are taken to
+restore the reference window to a proper value after a long period
+without congestion.
 
 l4s_alpha is calculated based in number of data units delivered (and marked)
 the following way:
