@@ -1163,7 +1163,7 @@ The ref_wnd_overhead is calculated as:
 
 ~~~
 ref_wnd_overhead = REF_WND_OVERHEAD_MIN +
-  (REF_WND_OVERHEAD_MAX + REF_WND_OVERHEAD_MIN)*max(0.0,(0.1-qdelay_dev_norm)/0.1)
+  (REF_WND_OVERHEAD_MAX - REF_WND_OVERHEAD_MIN)*max(0.0,(0.1-qdelay_dev_norm)/0.1)
 ~~~
 
 ### Packet Pacing {#packet-pacing}
