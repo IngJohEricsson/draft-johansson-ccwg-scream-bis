@@ -132,7 +132,7 @@ This specification obsoletes RFC 8298.
 This memo describes Self-Clocked Rate Adaptation for Multimedia version 2
 (SCReAMv2). This specification replaces the previous experimental version {{RFC8298}} of
 SCReAM with SCReAMv2. There are many and fairly significant changes to the
-original SCReAM algorithm as desribed in section {{sec:changes}}.
+original SCReAM algorithm as desribed in {{sec:changes}}.
 
 Both SCReAM and SCReAMv2 estimates the forward queue delay in the same way as Low
 Extra Delay Background Transport (LEDBAT) {{RFC6817}}.
@@ -181,103 +181,6 @@ SCReAM in {{RFC8298}}. The main differences are:
 * Additional compensation is added to make SCReAMv2 handle cases such as large
   changing frame sizes.
 
-Algorithm changes in draft version -02 were:
-
- * Slow down reference window growth when close to the last known maximum value is disabled
-   and when L4S is active. This makes SCReAM adhere more closely to two marked packets
-   per RTT at steady state.
-
- * Reference window decrease and increase reduced by up to 50% when ref_wnd/mss
-   is small. This reduces rate oscillations.
-
- * Target bitrate down adjustment when ref_wnd/mss is small is modified to
-   avoid that the data unit queue grows excessively in certain low
-   bitrate cases.
-
- * Timing set to multiples of RTTs instead of seconds.
-
-Draft version -03 is a major editorial pass including removal of some
-outdated or background information and reorganisation of several sections:
-
-* Much shorter abstract and introduction focusing on what's new in SCReAMv2.
-
-* Removal of Section 1.1. on "Wireless (LTE and 5G) Access Properties" and
-  Section 1.2. on "Why is it a self-clocked algorithm?"
-
-* New Section on "Updates compared to SCReAM (version 1)" in introduction
-  based on old Section on "Algorithm Changes".
-
-* Section {{ledbat-tfwc}} updated and shortened.
-
-* Overview Section {{scream-overview}} revised; now also including the overview
-  figure and the basic algorithms.
-
-* Old section on "Constants and variables" removed; instead all variables are now listed
-  in the respective sections that explain the code.
-
-* New Section on "Sender Side State" explaining some basic variables.
-
-* Pseudo code and the corresponding explanations in Section {{network-cc-2}} on
-  "Network Congestion Control" moved into the respective subsections in
-  section {{reaction-delay-loss-ce}} on "Congestion Detection".
-
-* Separate section on "Sender Transmission Control" introduced.
-
-* Section "Lost Data Unit Detection" merged into Section {{reaction-loss}}.
-
-* Section "Stream Prioritization" removed.
-
-* Section on "Competing Flows Compensation" moved into Section {{reaction-delay-loss-ce}}
-  on "Congestion Detection".
-
-Draft version -04
-
-* Restructuring of code.
-
-* Reduction of target rate when bytes_in_flight is higher than ref_wnd is done also when l4s_active, replaced with requirement that queue_delay is large.
-
-* Additional constraint for increase of ref_wnd added.
-
-* Discussion on when it is beneficial to reduce REF_WND_OVERHEAD added.
-
-Draft version -05 contains some clarifications based on a review by Per Kjellander
- and Björn Terelius plus some code modifications and text.
-
-* l4s_active state removed as delay based congestion control is always active.
-
-* ref_wnd reduction when long time since congested limited to only limit ref_wnd to last max_bytes_in_flight_prev.
-
-* Calculation of l4s_alpha is modified to use a fast attack slow decay EWMA filter.
-
-* Congestion backoff downscaling also for virtual L4S marking when ref_wnd is very small.
-
-* Congestion backoff is reduced if RTT is higher than VIRTUAL_RTT.
-
-* ref_wnd increase is reduced if L4S is likely non-active and queue delay increases.
-
-Draft version -06
-
-* Correction of typos.
-
-* Correction of send_wnd calculation.
-
-* Additional variable qdelay_dev_norm that indicated how much the queue delay varies.
-
-* Additional ref_wnd_overhead varable to limit how much bytes in flight can exceed the reference window in congested situations.
-
-* REF_WND_OVERHEAD replaced by REF_WND_OVERHEAD_MIN and REF_WND_OVERHEAD_MAX.
-
-* Reference window increase is restricted additionally when queue delay varies a lot.
-
-* rel_framesize_high calculation is removed.
-
-* Reduction of target bitrate when bytes in flight is high is removed because it is not helpful when media coders are sluggish.
-
-* Calculation of l4s_alpha_v_t simplified, l4s_alpha_lim_t removed.
-
-* Bug in condition for calculation of l4s_alpha_v_t fixed.
-
-* bytes_in_flight_ratio removed.
 
 ## Requirements on the Media and Feedback Protocol {#requirements-media}
 
@@ -315,7 +218,7 @@ LEDBAT {{RFC6817}}. However, the window increase is not based on
 delay estimates but uses both a linear increase and multiplicative increase function depending
 on the time since the last congestion event and introduces use of inflection points in the
 reference window increase calculation to achieve reduced delay jitter.
-Further, other than LEDBAT which is a scavenger congestion control mostly designed
+Further, unlike LEDBAT which is a scavenger congestion control mostly designed
 for low priority background traffic, SCReAM adjusts the qdelay target to
 compete with other loss-based congestion-controlled flows.
 
@@ -1414,3 +1317,113 @@ Zaheduzzaman Sarker was a co-author of RFC 8298 the previous version
 of scream which this document was based on. We would like to thank the
 following people for their comments, questions, and support during the
 work that led to this memo: Per Kjellander, Björn Terelius.
+
+# Changes in the draft versions
+
+## Changes in draft version -02
+
+Algorithm changes in draft version -02 were:
+
+ * Slow down reference window growth when close to the last known maximum value is disabled
+   and when L4S is active. This makes SCReAM adhere more closely to two marked packets
+   per RTT at steady state.
+
+ * Reference window decrease and increase reduced by up to 50% when ref_wnd/mss
+   is small. This reduces rate oscillations.
+
+ * Target bitrate down adjustment when ref_wnd/mss is small is modified to
+   avoid that the data unit queue grows excessively in certain low
+   bitrate cases.
+
+ * Timing set to multiples of RTTs instead of seconds.
+
+## Changes in Draft version -03
+
+Draft version -03 is a major editorial pass including removal of some
+outdated or background information and reorganisation of several sections:
+
+* Much shorter abstract and introduction focusing on what's new in SCReAMv2.
+
+* Removal of Section 1.1. on "Wireless (LTE and 5G) Access Properties" and
+  Section 1.2. on "Why is it a self-clocked algorithm?"
+
+* New Section on "Updates compared to SCReAM (version 1)" in introduction
+  based on old Section on "Algorithm Changes".
+
+* Section {{ledbat-tfwc}} updated and shortened.
+
+* Overview Section {{scream-overview}} revised; now also including the overview
+  figure and the basic algorithms.
+
+* Old section on "Constants and variables" removed; instead all variables are now listed
+  in the respective sections that explain the code.
+
+* New Section on "Sender Side State" explaining some basic variables.
+
+* Pseudo code and the corresponding explanations in Section {{network-cc-2}} on
+  "Network Congestion Control" moved into the respective subsections in
+  section {{reaction-delay-loss-ce}} on "Congestion Detection".
+
+* Separate section on "Sender Transmission Control" introduced.
+
+* Section "Lost Data Unit Detection" merged into Section {{reaction-loss}}.
+
+* Section "Stream Prioritization" removed.
+
+* Section on "Competing Flows Compensation" moved into Section {{reaction-delay-loss-ce}}
+  on "Congestion Detection".
+
+## Changes in Draft version -04
+
+* Restructuring of code.
+
+* Reduction of target rate when bytes_in_flight is higher than ref_wnd is done also when l4s_active, replaced with requirement that queue_delay is large.
+
+* Additional constraint for increase of ref_wnd added.
+
+* Discussion on when it is beneficial to reduce REF_WND_OVERHEAD added.
+
+## Changes in Draft version -05
+
+Draft version -05 contains some clarifications based on a review by Per Kjellander
+ and Björn Terelius plus some code modifications and text.
+
+* l4s_active state removed as delay based congestion control is always active.
+
+* ref_wnd reduction when long time since congested limited to only limit ref_wnd to last max_bytes_in_flight_prev.
+
+* Calculation of l4s_alpha is modified to use a fast attack slow decay EWMA filter.
+
+* Congestion backoff downscaling also for virtual L4S marking when ref_wnd is very small.
+
+* Congestion backoff is reduced if RTT is higher than VIRTUAL_RTT.
+
+* ref_wnd increase is reduced if L4S is likely non-active and queue delay increases.
+
+## Changes in Draft version -06
+
+* Correction of typos.
+
+* Correction of send_wnd calculation.
+
+* Additional variable qdelay_dev_norm that indicated how much the queue delay varies.
+
+* Additional ref_wnd_overhead varable to limit how much bytes in flight can exceed the reference window in congested situations.
+
+* REF_WND_OVERHEAD replaced by REF_WND_OVERHEAD_MIN and REF_WND_OVERHEAD_MAX.
+
+* Reference window increase is restricted additionally when queue delay varies a lot.
+
+* rel_framesize_high calculation is removed.
+
+* Reduction of target bitrate when bytes in flight is high is removed because it is not helpful when media coders are sluggish.
+
+* Calculation of l4s_alpha_v_t simplified, l4s_alpha_lim_t removed.
+
+* Bug in condition for calculation of l4s_alpha_v_t fixed.
+
+* bytes_in_flight_ratio removed.
+
+* Moved Changes per draft version to this appendix.
+
+
