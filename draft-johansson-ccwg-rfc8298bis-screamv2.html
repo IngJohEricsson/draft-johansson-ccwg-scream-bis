@@ -1600,7 +1600,7 @@ case of packet loss or Classic ECN marking, or if the estimated queue
 delay exceeds a given threshold, depending on how much the delay
 exceeds the threshold.  SCReAMv2 reduces the reference window in
 proportion to the fraction of marked packets if L4S is used (scalable
-congestion control). The flow chart below is a simplified view how the reference window is updated.<a href="#section-3.1-2" class="pilcrow">¶</a></p>
+congestion control).<a href="#section-3.1-2" class="pilcrow">¶</a></p>
 <p id="section-3.1-3">In each RTT ref_wnd will be reduced at most once if congestion is detected based on the following conditions:<a href="#section-3.1-3" class="pilcrow">¶</a></p>
 <p id="section-3.1-4">a) on loss: ref_wnd *=  LOSS_BETA<a href="#section-3.1-4" class="pilcrow">¶</a></p>
 <p id="section-3.1-5">b) classic ECN CE: ref_wnd *=  ECN_BETA<a href="#section-3.1-5" class="pilcrow">¶</a></p>
