@@ -1184,7 +1184,7 @@ rate_adjust_factor = min(0.5, max(0.0, rate_adjust_factor)
 # the given bitrate and frame period.
 # Cap values in range [0.0 0.2]
 framesize_nom = target_bitrate * frame_period / 8
-deviation = max(0.0,(frame_size-frame_size_nom)/frame_size_nom
+deviation = max(0.0,(frame_size-frame_size_nom)/frame_size_nom)
 frame_size_dev = min(0.2,(1-FRAME_SIZE_DEV_ALPHA) * frame_size_dev +
    FRAME_SIZE_DEV_ALPHA * deviation)
 
@@ -1232,7 +1232,13 @@ bandwidth. The requirements on the feedback elements and the feedback interval
 are described below.
 
 SCReAMv2 benefits from relatively frequent feedback. It is RECOMMENDED that a
-SCReAMv2 implementation follows the guidelines below.
+SCReAMv2 implementation follows the guidelines below. Feedback should forcibly be transmitted in any of these cases:
+
+* More than N data units received since last feedback has been transmitted. N=16 has been tested with good results.
+
+* A data unit with marker bit set or other last data unit for media frame is received.
+
+* A max defined interval between feedback reports. Values such as 40 ms has been tested with good results.
 
 The feedback interval depends on the media bitrate. At low bitrates, it is
 sufficient with a feedback every frame; while at high bitrates, a feedback
@@ -1241,25 +1247,6 @@ feedback intervals MAY be needed in order to keep the self-clocking in SCReAMv2
 working well. One indication that feedback is too sparse is that the SCReAMv2
 implementation cannot reach high bitrates, even in uncongested links. More
 frequent feedback might solve this issue.
-
-The numbers above can be formulated as a feedback interval function that can be
-useful for the computation of the desired RTCP bandwidth. The following equation
-expresses the feedback rate:
-
-~~~
-# Assume 100 byte feedback packets
-rate_fb = 0.02 * [average received rate] / (100.0 * 8.0)
-rate_fb = min(1000, max(10, rate_fb))
-
-# Calculate feedback intervals
-fb_int = 1.0/rate_fb
-~~~
-
-Feedback should also forcibly be transmitted in any of these cases:
-
-* More than N data units received since last feedback has been transmitted
-
-* A data unit with marker bit set or other last data unit for media frame is received
 
 The transmission interval is not critical. So, in the case of multi-stream
 handling between two hosts, the feedback for two or more synchronization sources
@@ -1465,8 +1452,10 @@ Draft version -05 contains some clarifications based on a review by Per Kjelland
 
 ## Changes in Draft version -07
 
-* Additional restriction of ref_wnd increase and ref_wnd_overhead when ref_wnd/MSS is very low
+* Additional restriction of ref_wnd increase and ref_wnd_overhead when ref_wnd/MSS is very low.
 
-* Additional compensation for increased media queue delay and frame size variation when calculating target bitrate
+* Additional compensation for increased media queue delay and frame size variation when calculating target bitrate.
+
+* Changes in text on feedback.
 
 
