@@ -1132,7 +1132,7 @@ updated and calculates the target bitrate:
 
 * frame_size_dev (0): Frame size deviation.
 
-* frame_period (0.02): An estimated frame period. 
+* frame_period (0.02): An estimated frame period.
 
 The following constants are used by the media rate control:
 
