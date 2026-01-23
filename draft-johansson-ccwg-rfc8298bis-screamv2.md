@@ -604,7 +604,8 @@ sudden delay spikes due to e.g. handover or link layer
 retransmissions.
 
 qdelay_avg is updated with a slow attack, fast decay EWMA filter as described below. The
-variable qdelay_dev_norm indicates how much the queue delay varies, this is calculated normalized to QDELAY_DEV_NORM.
+variable qdelay_dev_norm indicates how much the queue delay varies, this is calculated normalized to QDELAY_DEV_NORM. A small margin QDELAY_DEV_NORM/4 is implemented to avoid sensitivity to scheduling jitter. 
+The variable qdelay_dev_norm_th implements an adaptive threshold that increases the restriction on the ref_wnd growth as well as the ref_wnd_overhead when ref_wnd/MSS is small. This reduces delay and rate varaitions at very low link bitrates.
 
 ~~~
 if (now - last_update_qdelay_avg_time >= min(virtual_rtt,s_rtt)
@@ -613,9 +614,10 @@ if (now - last_update_qdelay_avg_time >= min(virtual_rtt,s_rtt)
   else
     qdelay_avg = QDELAY_AVG_G*qdelay + (1.0-QDELAY_AVG_G)*qdelay_avg
   end
-  qdelay_dev_norm = QDELAY_DEV_AVG_G*(qdelay - qdelay_avg)/QDELAY_DEV_NORM +
+  qdelay_dev_norm = QDELAY_DEV_AVG_G*max(0,min(0.2,(qdelay-QDELAY_DEV_NORM/4)/QDELAY_DEV_NORM)) +
      (1.0-QDELAY_DEV_AVG_G)*qdelay_dev_norm
-  last_update_qdelay_avg_time = now
+  last_update_qdelay_avg_time = now  
+  qdelay_dev_norm_th = max(0.05, 0.1*(1.0-ref_wnd_ratio/0.1))
 end
 ~~~
 
@@ -861,7 +863,7 @@ if (is_ce_t)
         # delay varies. This helps to avoid starvation in the presence of
         # competing TCP Prague flows
         # Don't scale down back off if queue delay is large
-        backoff_t *= max(0.1, (0.1 - qdelay_dev_norm) / 0.1)
+        backoff_t *= max(0.1, (qdelay_dev_norm_th - qdelay_dev_norm) / qdelay_dev_norm_th)
     end
 
     if (now - last_reaction_to_congestion_time >
@@ -942,7 +944,7 @@ end
 # Put a additional restriction on reference window growth if rtt varies a lot.
 # Better to enforce a slow increase in reference window and get
 # a more stable bitrate.
-increment_t *= max(0.1, (0.1 - qdelay_dev_norm) / 0.1)
+increment_t *= max(0.1, (qdelay_dev_norm_th - qdelay_dev_norm) / qdelay_dev_norm_th)
 
 # Scale up increment with multiplicative increase
 # Limit multiplicative increase when congestion occurred
@@ -1062,13 +1064,13 @@ for the constants are deduced from experiments):
 * REF_WND_OVERHEAD_MIN (1.5): Indicates a lower limit how much bytes in flight is allowed to
   exceed ref_wnd.
 
-* REF_WND_OVERHEAD_MAX (4.0): Indicates an upper limit how much bytes in flight is allowed to exceed ref_wnd. This is roughly equal to MAX_RELAXED_PACING_FACTOR to allow that media frames can be transmitted quickly when the transmission channel is uncongested.
+* REF_WND_OVERHEAD_MAX (3.0): Indicates an upper limit how much bytes in flight is allowed to exceed ref_wnd. This is roughly equal to MAX_RELAXED_PACING_FACTOR to allow that media frames can be transmitted quickly when the transmission channel is uncongested.
 
 The ref_wnd_overhead is calculated as:
 
 ~~~
 ref_wnd_overhead = REF_WND_OVERHEAD_MIN +
-  (REF_WND_OVERHEAD_MAX - REF_WND_OVERHEAD_MIN)*max(0.0,(0.1-qdelay_dev_norm)/0.1)
+  (REF_WND_OVERHEAD_MAX - REF_WND_OVERHEAD_MIN)*max(0.0,(qdelay_dev_norm_th-qdelay_dev_norm)/qdelay_dev_norm_th)
 ~~~
 
 ### Packet Pacing {#packet-pacing}
@@ -1122,6 +1124,12 @@ updated and calculates the target bitrate:
 
 * target_bitrate (0): Media target bitrate [bps].
 
+* rate_adjust_factor (0): Adjustment factor to avoid unnecessary media queue buildup.
+
+* frame_size_dev (0): Frame size deviation.
+
+* frame_period (0.02): An estimated frame period. 
+
 The following constants are used by the media rate control:
 
 * PACKET_OVERHEAD (20) : Estimated packetization overhead [byte].
@@ -1130,8 +1138,11 @@ The following constants are used by the media rate control:
 
 * TARGET_BITRATE_MAX: Maximum target bitrate in [bps].
 
-The target bitrate is essentiatlly based
-on the reference window ref_wnd and the (smoothed) RTT s_rtt according to
+* RATE_ADJUST_GAIN (1/16): Adjustment gain for rate adjustment to compensate for media queue buildup.
+
+* FRAME_SIZE_DEV_ALPHA (1/64): Time constant to compensate for varying frame sizes.
+
+The target bitrate is essentiatlly based on the reference window ref_wnd and the (smoothed) RTT s_rtt according to
 
 ~~~
 target_bitrate = 8 * ref_wnd / s_rtt
@@ -1145,14 +1156,25 @@ updated based on loss, ECN-CE and delay, so does the target rate also update.
 The code above however needs some modifications to work fine in a number of
 scenarios
 
-* L4S is inactive, i.e L4S is either not enabled or congested bottlenecks do not
-  L4S mark data units
-
 * ref_wnd is very small, just a few MSS or smaller
+
+* The media queue grows large, which can result in large e2e delay
+
+* The frame sizes vary much, which can result in larger e2e delay if not compensated for
 
 The complete pseudo code for adjustment of the target bitrate is shown below
 
 ~~~
+# Calculate the rate_adjust_factor and the frame_size_dev for each new media frame
+# The rate adjust factor is updated with an I (integration) controller.
+# The media_queue_delay is the elapsed time the oldest media packet has 
+# been in the media queue. Cap values in range [0.0 0.5]
+error = (rtp_queue_delay - frame_period/4)/frame_period
+rate_adjust_factor += error*RATE_ADJUST_GAIN
+rate_adjust_factor = min(0.5, max(0.0, rate_adjust_factor)
+ 
+
+
 tmp_t = 1.0
 
 # Scale down rate slightly when the reference window is very
@@ -1166,7 +1188,7 @@ tmp_t_ *= MSS/(MSS + PACKET_OVERHEAD)
 # An additional downscaling is needed to avoid unnecessary
 # sender queue build-up, better to set the target bitrate
 # slightly lower than what ref_wnd and s_rtt indicates
-tmp_t /= 1.1
+tmp_t /= 1.2 + 
 
 # Calculate target bitrate and limit to min and max allowed
 # values
