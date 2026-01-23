@@ -609,14 +609,18 @@ The variable qdelay_dev_norm_th implements an adaptive threshold that increases 
 
 ~~~
 if (now - last_update_qdelay_avg_time >= min(virtual_rtt,s_rtt)
+  # Calculate qdelay_avg
   if (qdelay < qdelay_avg)
     qdelay_avg = qdelay
   else
     qdelay_avg = QDELAY_AVG_G*qdelay + (1.0-QDELAY_AVG_G)*qdelay_avg
   end
-  qdelay_dev_norm = QDELAY_DEV_AVG_G*max(0,min(0.2,(qdelay-QDELAY_DEV_NORM/4)/QDELAY_DEV_NORM)) +
-     (1.0-QDELAY_DEV_AVG_G)*qdelay_dev_norm
-  last_update_qdelay_avg_time = now  
+  # Calculate qdelay_dev_norm and cap in range [0.0 0.2]
+  tmp = max(0, min(0.2, (qdelay-QDELAY_DEV_NORM/4)/QDELAY_DEV_NORM))
+  qdelay_dev_norm = (1.0-QDELAY_DEV_AVG_G) * qdelay_dev_norm +
+     QDELAY_DEV_AVG_G * tmp
+  last_update_qdelay_avg_time = now
+  # Calculate qdelay_dev_norm_th
   qdelay_dev_norm_th = max(0.05, 0.1*(1.0-ref_wnd_ratio/0.1))
 end
 ~~~
@@ -1165,15 +1169,24 @@ scenarios
 The complete pseudo code for adjustment of the target bitrate is shown below
 
 ~~~
-# Calculate the rate_adjust_factor and the frame_size_dev for each new media frame
+# Calculate the rate_adjust_factor and the frame_size_dev for each new media frame.
+# The input variables are media_queue_delay [s] and frame_size [byte].
+# The media_queue_delay is the elapsed time the oldest media packet has
+# been in the media queue.
+
 # The rate adjust factor is updated with an I (integration) controller.
-# The media_queue_delay is the elapsed time the oldest media packet has 
-# been in the media queue. Cap values in range [0.0 0.5]
-error = (rtp_queue_delay - frame_period/4)/frame_period
+# Cap values in range [0.0 0.5]
+error = (media_queue_delay - frame_period/4)/frame_period
 rate_adjust_factor += error*RATE_ADJUST_GAIN
 rate_adjust_factor = min(0.5, max(0.0, rate_adjust_factor)
- 
 
+# The frame_size_dev estimates the deviation from the nominal frame size for
+# the given bitrate and frame period.
+# Cap values in range [0.0 0.2]
+framesize_nom = target_bitrate * frame_period / 8
+deviation = max(0.0,(frame_size-frame_size_nom)/frame_size_nom
+frame_size_dev = min(0.2,(1-FRAME_SIZE_DEV_ALPHA) * frame_size_dev +
+   FRAME_SIZE_DEV_ALPHA * deviation)
 
 tmp_t = 1.0
 
@@ -1188,7 +1201,7 @@ tmp_t_ *= MSS/(MSS + PACKET_OVERHEAD)
 # An additional downscaling is needed to avoid unnecessary
 # sender queue build-up, better to set the target bitrate
 # slightly lower than what ref_wnd and s_rtt indicates
-tmp_t /= 1.2 + 
+tmp_t /= 1.2 + rate_adjust_factor + frame_size_dev
 
 # Calculate target bitrate and limit to min and max allowed
 # values
