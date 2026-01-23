@@ -2603,7 +2603,7 @@ rate_adjust_factor = min(0.5, max(0.0, rate_adjust_factor)
 # the given bitrate and frame period.
 # Cap values in range [0.0 0.2]
 framesize_nom = target_bitrate * frame_period / 8
-deviation = max(0.0,(frame_size-frame_size_nom)/frame_size_nom
+deviation = max(0.0,(frame_size-frame_size_nom)/frame_size_nom)
 frame_size_dev = min(0.2,(1-FRAME_SIZE_DEV_ALPHA) * frame_size_dev +
    FRAME_SIZE_DEV_ALPHA * deviation)
 
@@ -2660,48 +2660,37 @@ message. The frequency of the feedback message depends on the available RTCP
 bandwidth. The requirements on the feedback elements and the feedback interval
 are described below.<a href="#section-5-1" class="pilcrow">¶</a></p>
 <p id="section-5-2">SCReAMv2 benefits from relatively frequent feedback. It is RECOMMENDED that a
-SCReAMv2 implementation follows the guidelines below.<a href="#section-5-2" class="pilcrow">¶</a></p>
-<p id="section-5-3">The feedback interval depends on the media bitrate. At low bitrates, it is
+SCReAMv2 implementation follows the guidelines below. Feedback should forcibly be transmitted in any of these cases:<a href="#section-5-2" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-5-3.1">
+          <p id="section-5-3.1.1">More than N data units received since last feedback has been transmitted. N=16 has been tested with good results.<a href="#section-5-3.1.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-5-3.2">
+          <p id="section-5-3.2.1">A data unit with marker bit set or other last data unit for media frame is received.<a href="#section-5-3.2.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-5-3.3">
+          <p id="section-5-3.3.1">A max defined interval between feedback reports. Values such as 40 ms has been tested with good results.<a href="#section-5-3.3.1" class="pilcrow">¶</a></p>
+</li>
+      </ul>
+<p id="section-5-4">The feedback interval depends on the media bitrate. At low bitrates, it is
 sufficient with a feedback every frame; while at high bitrates, a feedback
 interval of roughly 5ms is preferred. At very high bitrates, even shorter
 feedback intervals MAY be needed in order to keep the self-clocking in SCReAMv2
 working well. One indication that feedback is too sparse is that the SCReAMv2
 implementation cannot reach high bitrates, even in uncongested links. More
-frequent feedback might solve this issue.<a href="#section-5-3" class="pilcrow">¶</a></p>
-<p id="section-5-4">The numbers above can be formulated as a feedback interval function that can be
-useful for the computation of the desired RTCP bandwidth. The following equation
-expresses the feedback rate:<a href="#section-5-4" class="pilcrow">¶</a></p>
-<div class="alignLeft art-text artwork" id="section-5-5">
-<pre>
-# Assume 100 byte feedback packets
-rate_fb = 0.02 * [average received rate] / (100.0 * 8.0)
-rate_fb = min(1000, max(10, rate_fb))
-
-# Calculate feedback intervals
-fb_int = 1.0/rate_fb
-</pre><a href="#section-5-5" class="pilcrow">¶</a>
-</div>
-<p id="section-5-6">Feedback should also forcibly be transmitted in any of these cases:<a href="#section-5-6" class="pilcrow">¶</a></p>
-<ul class="normal">
-<li class="normal" id="section-5-7.1">
-          <p id="section-5-7.1.1">More than N data units received since last feedback has been transmitted<a href="#section-5-7.1.1" class="pilcrow">¶</a></p>
-</li>
-        <li class="normal" id="section-5-7.2">
-          <p id="section-5-7.2.1">A data unit with marker bit set or other last data unit for media frame is received<a href="#section-5-7.2.1" class="pilcrow">¶</a></p>
-</li>
-      </ul>
-<p id="section-5-8">The transmission interval is not critical. So, in the case of multi-stream
+frequent feedback might solve this issue.<a href="#section-5-4" class="pilcrow">¶</a></p>
+<p id="section-5-5">The transmission interval is not critical. So, in the case of multi-stream
 handling between two hosts, the feedback for two or more synchronization sources
 (SSRCs) can be bundled to save UDP/IP overhead. However, the final realized
 feedback interval SHOULD NOT exceed 2*fb_int in such cases, meaning that a
-scheduled feedback transmission event should not be delayed more than fb_int.<a href="#section-5-8" class="pilcrow">¶</a></p>
-<p id="section-5-9">SCReAMv2 works with AVPF regular mode; immediate or early mode is not required
+scheduled feedback transmission event should not be delayed more than fb_int.<a href="#section-5-5" class="pilcrow">¶</a></p>
+<p id="section-5-6">SCReAMv2 works with AVPF regular mode; immediate or early mode is not required
 by SCReAMv2 but can nonetheless be useful for RTCP messages not directly related
 to SCReAMv2, such as those specified in <span>[<a href="#RFC4585" class="cite xref">RFC4585</a>]</span>. It is RECOMMENDED to use
 reduced-size RTCP <span>[<a href="#RFC5506" class="cite xref">RFC5506</a>]</span>, where regular full compound RTCP transmission is
-controlled by trr-int as described in <span>[<a href="#RFC4585" class="cite xref">RFC4585</a>]</span>.<a href="#section-5-9" class="pilcrow">¶</a></p>
-<p id="section-5-10">While the guidelines above are somewhat RTCP specific, similar principles apply
-to for instance QUIC.<a href="#section-5-10" class="pilcrow">¶</a></p>
+controlled by trr-int as described in <span>[<a href="#RFC4585" class="cite xref">RFC4585</a>]</span>.<a href="#section-5-6" class="pilcrow">¶</a></p>
+<p id="section-5-7">While the guidelines above are somewhat RTCP specific, similar principles apply
+to for instance QUIC.<a href="#section-5-7" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="discussion">
@@ -3126,10 +3115,13 @@ on "Congestion Detection".<a href="#appendix-B.2-2.12.1" class="pilcrow">¶</a><
         </h3>
 <ul class="normal">
 <li class="normal" id="appendix-B.6-1.1">
-            <p id="appendix-B.6-1.1.1">Additional restriction of ref_wnd increase and ref_wnd_overhead when ref_wnd/MSS is very low<a href="#appendix-B.6-1.1.1" class="pilcrow">¶</a></p>
+            <p id="appendix-B.6-1.1.1">Additional restriction of ref_wnd increase and ref_wnd_overhead when ref_wnd/MSS is very low.<a href="#appendix-B.6-1.1.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="appendix-B.6-1.2">
-            <p id="appendix-B.6-1.2.1">Additional compensation for increased media queue delay and frame size variation when calculating target bitrate<a href="#appendix-B.6-1.2.1" class="pilcrow">¶</a></p>
+            <p id="appendix-B.6-1.2.1">Additional compensation for increased media queue delay and frame size variation when calculating target bitrate.<a href="#appendix-B.6-1.2.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="appendix-B.6-1.3">
+            <p id="appendix-B.6-1.3.1">Changes in text on feedback.<a href="#appendix-B.6-1.3.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
 </section>
