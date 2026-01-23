@@ -107,6 +107,7 @@ Table of Contents
      B.3.  Changes in Draft version -04
      B.4.  Changes in Draft version -05
      B.5.  Changes in Draft version -06
+     B.6.  Changes in Draft version -07
    Authors' Addresses
 
 1.  Introduction
@@ -1692,6 +1693,14 @@ B.5.  Changes in Draft version -06
    *  bytes_in_flight_ratio removed.
 
    *  Moved Changes per draft version to this appendix.
+
+B.6.  Changes in Draft version -07
+
+   *  Additional restriction of ref_wnd increase and ref_wnd_overhead
+      when ref_wnd/MSS is very low
+
+   *  Additional compensation for increased media queue delay and frame
+      size variation when calculating target bitrate
 
 Authors' Addresses
 
