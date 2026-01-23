@@ -1463,4 +1463,10 @@ Draft version -05 contains some clarifications based on a review by Per Kjelland
 
 * Moved Changes per draft version to this appendix.
 
+## Changes in Draft version -07
+
+* Additional restriction of ref_wnd increase and ref_wnd_overhead when ref_wnd/MSS is very low
+
+* Additional compensation for increased media queue delay and frame size variation when calculating target bitrate
+
 
