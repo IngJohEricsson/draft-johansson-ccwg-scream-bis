@@ -1217,9 +1217,9 @@ SCReAM can suffer from the same issues with clock drift as is the case with LEDB
 The steps for the clockdrift compensation is as follows:
 
 * Store the min qdelay (qdelay_min) during one RTT.
-  
+
 * When an RTT has elapsed:
-  
+
 ~~~
 # Update delay_min_avg
 delay_min_avg = (1 - QUEUE_DELAY_MIN_AVG_ALPHA) * delay_min_avg +
