@@ -1283,22 +1283,32 @@ target_bitrate = min(TARGET_BITRATE_MAX,
    case with LEDBAT [RFC6817].  However, Appendix A.2 in [RFC6817]
    describes ways to mitigate issues with clock drift.  A clockdrift
    compensation method is also implemented in
-   [SCReAM-CPP-implementation].  Furthermore, the SCReAM implementation
-   resets base delay history when it is determined that clock drift or
-   skip becomes too large.  This is achieved by reducing the target
-   bitrate for a few RTTs.  The steps for the clockdrift compensation is
-   as follows:
+   [SCReAM-CPP-implementation].  The SCReAM implementation resets base
+   delay history when it is determined that clock drift or skip becomes
+   too large.  This is achieved by reducing the target bitrate for a few
+   RTTs.
+
+   The variables and constants are: * delay_min_avg (0): A long term
+   averaged min queue delay [s].
+
+   *  qdelay_min (MAX_VALUE): The min queue delay measured during an RTT
+      [s], initialized to a very high value.
+
+   *  QUEUE_DELAY_MIN_AVG_ALPHA (1/256): Slow EWMA time constant for
+      delay_min_avg.
+
+   The steps for the clockdrift compensation is as follows:
 
    *  Store the min qdelay (qdelay_min) during one RTT.
 
    *  When an RTT has elapsed:
 
 # Update delay_min_avg
-delay_min_avg = (1 - QUEUE_DELAY_MIN_AVG_ALPHA) * delay_min_avg +
+qdelay_min_avg = (1 - QUEUE_DELAY_MIN_AVG_ALPHA) * qdelay_min_avg +
   QUEUE_DELAY_MIN_AVG_ALPHA * qdelay_min
 qdelay_min = MAX_VALUE # set qdelay_min to a very high value
-if delay_min_avg > qdelay_target
-  delay_min_avg = 0
+if qdelay_min_avg > qdelay_target
+  qdelay_min_avg = 0
   # Implement the following actions
   # 1. Reset queue delay history
   # 2. Scale down target bitrate by 50% for a period of max(5 * s_rtt, 0.2)
@@ -1418,6 +1428,9 @@ end
 
    *  SCReAM has over time been evaluated in a number of different
       experiments, a few examples are found in [SCReAM-evaluation-L4S].
+
+   *  SCReAM is currently being integrated in chrome, nightly Chrome
+      Canary builds are available at [SCReAM-Chrome-Canary].
 
 7.  IANA Considerations
 
@@ -1565,6 +1578,10 @@ end
               Ericsson Research, "SCReAM - evaluations with L4S", n.d.,
               <https://github.com/EricssonResearch/scream/blob/master/
               L4S-Results.pdf?raw=true>.
+
+   [SCReAM-Chrome-Canary]
+              "SCReAM - Chrome Canary nightly builds", n.d.,
+              <https://www.google.com/chrome/canary/>.
 
    [TFWC]     Choi, S. and M. Handley, "Fairer TCP-Friendly Congestion
               Control Protocol for Multimedia Streaming Applications",
