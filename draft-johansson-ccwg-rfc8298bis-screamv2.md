@@ -304,6 +304,7 @@ scheduler) sends the data units to the UDP socket. The sender transmission
 controller limits the sending rate so
 that the number of bytes in flight is less than the reference window albeit with
 a slack to avoid that packets are unnecessarily delayed in the data unit queue.
+The slack has the benefit that unnecessary delays in data unit queue is avoided when the link is uncongested. The number if bytes in flight however becomes more restrained in congested situations, to avoid large variations in queue delay and bitrate.
 A pacing rate is calculated based on the target bitrate provided by the
 media rate controller.
 
@@ -605,7 +606,7 @@ retransmissions.
 
 qdelay_avg is updated with a slow attack, fast decay EWMA filter as described below. The
 variable qdelay_dev_norm indicates how much the queue delay varies, this is calculated normalized to QDELAY_DEV_NORM. A small margin QDELAY_DEV_NORM/4 is implemented to avoid sensitivity to scheduling jitter.
-The variable qdelay_dev_norm_th implements an adaptive threshold that increases the restriction on the ref_wnd growth as well as the ref_wnd_overhead when ref_wnd/MSS is small. This reduces delay and rate varaitions at very low link bitrates.
+The variable qdelay_dev_norm_th implements an adaptive threshold that increases the restriction on the ref_wnd growth as well as the ref_wnd_overhead when ref_wnd/MSS is small. This reduces delay and rate varaitions at very low ref_wnd caused by the relatively fast roughly MSS per RTT.
 
 ~~~
 if (now - last_update_qdelay_avg_time >= min(virtual_rtt,s_rtt)
@@ -987,8 +988,7 @@ below.
 
 The reference window increase is restricted to values as small as 0.1MSS/RTT
 when the reference window is close to the last known max value (ref_wnd_i). This
-increases stability and reduces periodic overshoot. This restriction is applied
-in full only for small reference windows when in L4S operation.
+increases stability and reduces periodic overshoot.
 
 It is particularly important that the reference window reflects the transmitted
 bitrate especially in L4S mode operation. An inflated ref_wnd takes extra RTTs
@@ -1166,7 +1166,8 @@ scenarios
 
 * The frame sizes vary much, which can result in larger e2e delay if not compensated for
 
-The complete pseudo code for adjustment of the target bitrate is shown below
+The rate_adjust_factor helps to reduce the target rate when the delay in the data unit increases beyond frame_period/4, this allows for some modest queue buildup to ensure a good link utilization. The frame_size_dev calculates for the positive deviation in frame sizes from the nominal, this helps compensate for larger variations in frame size, systematic errors in media encoder output bitrate and also to some extent sluggish media rate control loops where the media coder rate lags behind the target bitrate.  
+The complete pseudo code for adjustment of the target bitrate is shown below.
 
 ~~~
 # Calculate the rate_adjust_factor and the frame_size_dev for each new media frame.
@@ -1176,16 +1177,16 @@ The complete pseudo code for adjustment of the target bitrate is shown below
 
 # The rate adjust factor is updated with an I (integration) controller.
 # Cap values in range [0.0 0.5]
-error = (media_queue_delay - frame_period/4)/frame_period
-rate_adjust_factor += error*RATE_ADJUST_GAIN
+error = (media_queue_delay - frame_period / 4) / frame_period
+rate_adjust_factor += error * RATE_ADJUST_GAIN
 rate_adjust_factor = min(0.5, max(0.0, rate_adjust_factor)
 
 # The frame_size_dev estimates the deviation from the nominal frame size for
 # the given bitrate and frame period.
 # Cap values in range [0.0 0.2]
 framesize_nom = target_bitrate * frame_period / 8
-deviation = max(0.0,(frame_size-frame_size_nom)/frame_size_nom)
-frame_size_dev = min(0.2,(1-FRAME_SIZE_DEV_ALPHA) * frame_size_dev +
+deviation = max(0.0, (frame_size - frame_size_nom) / frame_size_nom)
+frame_size_dev = min(0.2, (1 - FRAME_SIZE_DEV_ALPHA) * frame_size_dev +
    FRAME_SIZE_DEV_ALPHA * deviation)
 
 tmp_t = 1.0
@@ -1196,7 +1197,7 @@ tmp_t *= 1.0 - min(0.2, max(0.0, ref_wnd_ratio - 0.1))
 
 # Additional compensation for packetization overhead,
 # important when MSS is small
-tmp_t_ *= MSS/(MSS + PACKET_OVERHEAD)
+tmp_t_ *= MSS / (MSS + PACKET_OVERHEAD)
 
 # An additional downscaling is needed to avoid unnecessary
 # sender queue build-up, better to set the target bitrate
@@ -1207,19 +1208,30 @@ tmp_t /= 1.2 + rate_adjust_factor + frame_size_dev
 # values
 target_bitrate = tmp_t * 8 * ref_wnd / s_rtt
 target_bitrate = min(TARGET_BITRATE_MAX,
-  max(TARGET_BITRATE_MIN,target_bitrate))
+  max(TARGET_BITRATE_MIN, target_bitrate))
 ~~~
 
-### Handling of systematic errors in video coders {#coder-errors}
+## Clock drift issues and remedies
 
-Some video encoders are prone to systematically generate an output bitrate that
-is systematically larger or smaller than the target bitrate. SCReAMv2 can handle
-some deviation inherently but for larger deviations it becomes necessary to
-compensate for this. The algorithm for this is detailed in
-{{SCReAM-CPP-implementation}}.
+SCReAM can suffer from the same issues with clock drift as is the case with LEDBAT {{RFC6817}}. However, Appendix A.2 in {{RFC6817}} describes ways to mitigate issues with clock drift. A clockdrift compensation method is also implemented in {{SCReAM-CPP-implementation}}. Furthermore, the SCReAM implementation resets base delay history when it is determined that clock drift or skip becomes too large. This is achieved by reducing the target bitrate for a few RTTs.
+The steps for the clockdrift compensation is as follows:
 
-ToDo: A future draft version will describe this in more detail as it has been
-fully integrated into SCReAMv2.
+* Store the min qdelay (qdelay_min) during one RTT.
+  
+* When an RTT has elapsed:
+  
+~~~
+# Update delay_min_avg
+delay_min_avg = (1 - QUEUE_DELAY_MIN_AVG_ALPHA) * delay_min_avg +
+  QUEUE_DELAY_MIN_AVG_ALPHA * qdelay_min
+qdelay_min = MAX_VALUE # set qdelay_min to a very high value
+if delay_min_avg > qdelay_target
+  delay_min_avg = 0
+  # Implement the following actions
+  # 1. Reset queue delay history
+  # 2. Scale down target bitrate by 50% for a period of max(5 * s_rtt, 0.2)
+end
+~~~
 
 #  Receiver Requirements on Feedback Intensity {#scream-receiver}
 
@@ -1242,17 +1254,14 @@ SCReAMv2 implementation follows the guidelines below. Feedback should forcibly b
 
 The feedback interval depends on the media bitrate. At low bitrates, it is
 sufficient with a feedback every frame; while at high bitrates, a feedback
-interval of roughly 5ms is preferred. At very high bitrates, even shorter
-feedback intervals MAY be needed in order to keep the self-clocking in SCReAMv2
+shorther feedback interval is recommended to keep the self-clocking in SCReAMv2
 working well. One indication that feedback is too sparse is that the SCReAMv2
 implementation cannot reach high bitrates, even in uncongested links. More
 frequent feedback might solve this issue.
 
 The transmission interval is not critical. So, in the case of multi-stream
 handling between two hosts, the feedback for two or more synchronization sources
-(SSRCs) can be bundled to save UDP/IP overhead. However, the final realized
-feedback interval SHOULD NOT exceed 2*fb_int in such cases, meaning that a
-scheduled feedback transmission event should not be delayed more than fb_int.
+(SSRCs) can be bundled to save UDP/IP overhead. 
 
 SCReAMv2 works with AVPF regular mode; immediate or early mode is not required
 by SCReAMv2 but can nonetheless be useful for RTCP messages not directly related
@@ -1266,14 +1275,6 @@ to for instance QUIC.
 # Discussion {#discussion}
 
 This section covers a few discussion points.
-
-* Clock drift and clock skipping: SCReAM/SCReAMv2 can suffer from the same issues with clock drift
-  as is the case with LEDBAT {{RFC6817}}. However, Appendix A.2 in {{RFC6817}}
-  describes ways to mitigate issues with clock drift. A clockdrift compensation
-  method is also implemented in {{SCReAM-CPP-implementation}}. Furthermore, the
-  SCReAM implementation resets base delay history when it is determined that
-  clock drift or skip becomes too large. This is achieved by reducing the target bitrate
-  for a few RTTs. More details on this will be provided in a later draft version.
 
 * The target bitrate given by SCReAMv2 is the bitrate including the data unit and
   Forward Error Correction (FEC) overhead. The media encoder SHOULD take this
@@ -1316,6 +1317,8 @@ This section covers a few discussion points.
   (Receiver Reports) can possibly be another solution to achieve better
   robustness with less overhead. QUIC {{RFC9000}} overcomes this issue because
   of inherent design.
+
+ * SCReAM has been designed to target 2 marked packets per RTT in steady state when L4S is enabled. There are however a few measures taken in the calculation of the ref_wnd and the target_bitrate, that are necessary to get a stable bitrate and lower queue delay, that make SCReAM settle for a lower number of marked packets per RTT. The result of this is that SCReAM may get a lower share of the link capacity when competing against e.g. a large file transfer with TCP Prague congestion control. 
 
  * SCReAM has over time been evaluated in a number of different experiments, a
   few examples are found in {{SCReAM-evaluation-L4S}}.
@@ -1457,5 +1460,9 @@ Draft version -05 contains some clarifications based on a review by Per Kjelland
 * Additional compensation for increased media queue delay and frame size variation when calculating target bitrate.
 
 * Changes in text on feedback.
+
+* Section on handling of systematic error in media encoder output bitrate removed as this is adressed in section Media Rate Control.
+
+* Added section Clock drift issues and remedies.
 
 
