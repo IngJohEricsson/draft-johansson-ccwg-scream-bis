@@ -92,6 +92,12 @@ informative:
             ins: Ericsson Research
       target: https://github.com/EricssonResearch/scream/blob/master/L4S-Results.pdf?raw=true
 
+   SCReAM-Chrome-Canary:
+      title: SCReAM - Chrome Canary nightly builds
+      author:
+        - Google
+      target: https://www.google.com/chrome/canary/
+
    TFWC:
       title: "Fairer TCP-Friendly Congestion Control Protocol for Multimedia Streaming Applications"
       author:
@@ -1213,7 +1219,15 @@ target_bitrate = min(TARGET_BITRATE_MAX,
 
 ## Clock drift issues and remedies
 
-SCReAM can suffer from the same issues with clock drift as is the case with LEDBAT {{RFC6817}}. However, Appendix A.2 in {{RFC6817}} describes ways to mitigate issues with clock drift. A clockdrift compensation method is also implemented in {{SCReAM-CPP-implementation}}. Furthermore, the SCReAM implementation resets base delay history when it is determined that clock drift or skip becomes too large. This is achieved by reducing the target bitrate for a few RTTs.
+SCReAM can suffer from the same issues with clock drift as is the case with LEDBAT {{RFC6817}}. However, Appendix A.2 in {{RFC6817}} describes ways to mitigate issues with clock drift. A clockdrift compensation method is also implemented in {{SCReAM-CPP-implementation}}. The SCReAM implementation resets base delay history when it is determined that clock drift or skip becomes too large. This is achieved by reducing the target bitrate for a few RTTs.
+
+The variables and constants are:
+* delay_min_avg (0): A long term averaged min queue delay [s].
+
+* qdelay_min (MAX_VALUE): The min queue delay measured during an RTT [s], initialized to a very high value.
+
+* QUEUE_DELAY_MIN_AVG_ALPHA (1/256): Slow EWMA time constant for delay_min_avg.
+
 The steps for the clockdrift compensation is as follows:
 
 * Store the min qdelay (qdelay_min) during one RTT.
@@ -1222,11 +1236,11 @@ The steps for the clockdrift compensation is as follows:
 
 ~~~
 # Update delay_min_avg
-delay_min_avg = (1 - QUEUE_DELAY_MIN_AVG_ALPHA) * delay_min_avg +
+qdelay_min_avg = (1 - QUEUE_DELAY_MIN_AVG_ALPHA) * qdelay_min_avg +
   QUEUE_DELAY_MIN_AVG_ALPHA * qdelay_min
 qdelay_min = MAX_VALUE # set qdelay_min to a very high value
-if delay_min_avg > qdelay_target
-  delay_min_avg = 0
+if qdelay_min_avg > qdelay_target
+  qdelay_min_avg = 0
   # Implement the following actions
   # 1. Reset queue delay history
   # 2. Scale down target bitrate by 50% for a period of max(5 * s_rtt, 0.2)
@@ -1301,12 +1315,12 @@ This section covers a few discussion points.
     means that uplink transmission slots are unused with a lower link
     utilization as a result.
 
- * Packet pacing is recommended, it is however possible to operate SCReAMv2 with
+* Packet pacing is recommended, it is however possible to operate SCReAMv2 with
   packet pacing disabled. The code in {{SCReAM-CPP-implementation}} implements
   additional mechanisms to achieve a high link utilization when packet pacing is
   disabled. Additional packet pacing headroom can be beneficial if unusually large media frames are generated, this can reduce unnecessary queue build-up in the data unit queue.
 
- * Feedback issues: RTCP feedback packets {{RFC8888}} can be lost, this means that
+* Feedback issues: RTCP feedback packets {{RFC8888}} can be lost, this means that
   the loss detection in SCReAMv2 may trigger even though packets arrive safely
   on the receiver side. {{SCReAM-CPP-implementation}} solves this by using
   overlapping RTCP feedback, i.e RTCP feedback is transmitted no more seldom
@@ -1316,10 +1330,12 @@ This section covers a few discussion points.
   robustness with less overhead. QUIC {{RFC9000}} overcomes this issue because
   of inherent design.
 
- * SCReAM has been designed to target 2 marked packets per RTT in steady state when L4S is enabled. There are however a few measures taken in the calculation of the ref_wnd and the target_bitrate, that are necessary to get a stable bitrate and lower queue delay, that make SCReAM settle for a lower number of marked packets per RTT in steady state. The result of this is that SCReAM may get a lower share of the link capacity when competing against e.g. a large file transfer with TCP Prague congestion control.
+* SCReAM has been designed to target 2 marked packets per RTT in steady state when L4S is enabled. There are however a few measures taken in the calculation of the ref_wnd and the target_bitrate, that are necessary to get a stable bitrate and lower queue delay, that make SCReAM settle for a lower number of marked packets per RTT in steady state. The result of this is that SCReAM may get a lower share of the link capacity when competing against e.g. a large file transfer with TCP Prague congestion control.
 
- * SCReAM has over time been evaluated in a number of different experiments, a
+* SCReAM has over time been evaluated in a number of different experiments, a
   few examples are found in {{SCReAM-evaluation-L4S}}.
+
+* SCReAM is currently being integrated in chrome, nightly Chrome Canary builds are available at {{SCReAM-Chrome-Canary}}.
 
 # IANA Considerations {#iana}
 
