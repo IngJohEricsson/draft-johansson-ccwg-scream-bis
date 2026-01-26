@@ -1260,8 +1260,7 @@ implementation cannot reach high bitrates, even in uncongested links. More
 frequent feedback might solve this issue.
 
 The transmission interval is not critical. So, in the case of multi-stream
-handling between two hosts, the feedback for two or more synchronization sources
-(SSRCs) can be bundled to save UDP/IP overhead. 
+handling between two hosts, the feedback for two or more synchronization sources (SSRCs) can be bundled to save UDP/IP overhead. 
 
 SCReAMv2 works with AVPF regular mode; immediate or early mode is not required
 by SCReAMv2 but can nonetheless be useful for RTCP messages not directly related
