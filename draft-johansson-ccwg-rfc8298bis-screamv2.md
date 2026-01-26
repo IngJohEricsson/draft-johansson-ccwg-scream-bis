@@ -94,8 +94,6 @@ informative:
 
    SCReAM-Chrome-Canary:
       title: SCReAM - Chrome Canary nightly builds
-      author:
-        - Google
       target: https://www.google.com/chrome/canary/
 
    TFWC:
