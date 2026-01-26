@@ -967,7 +967,7 @@ increment_t = bytes_newly_acked_minus_ce_t*ref_wnd_ratio
 
 # Reduce increment for small RTTs
 tmp_t = min(1.0, s_rtt / VIRTUAL_RTT)
-increment_t *= tmp_t * tmp_t
+increment_t *= tmp_t
 
 # Apply limit to reference window growth when close to last
 # known max value before congestion
@@ -1307,7 +1307,7 @@ target_bitrate = min(TARGET_BITRATE_MAX,
 qdelay_min_avg = (1 - QUEUE_DELAY_MIN_AVG_ALPHA) * qdelay_min_avg +
   QUEUE_DELAY_MIN_AVG_ALPHA * qdelay_min
 qdelay_min = MAX_VALUE # set qdelay_min to a very high value
-if qdelay_min_avg > qdelay_target
+if qdelay_min_avg > qdelay_target / 4
   qdelay_min_avg = 0
   # Implement the following actions
   # 1. Reset queue delay history
