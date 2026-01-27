@@ -6,7 +6,7 @@ CCWG                                                        I. Johansson
 Internet-Draft                                             M. Westerlund
 Obsoletes: 8298 (if approved)                               M. Kühlewind
 Intended status: Experimental                                   Ericsson
-Expires: 30 July 2026                                    26 January 2026
+Expires: 31 July 2026                                    27 January 2026
 
 
               Self-Clocked Rate Adaptation for Multimedia
@@ -54,7 +54,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 30 July 2026.
+   This Internet-Draft will expire on 31 July 2026.
 
 Copyright Notice
 
@@ -1429,7 +1429,8 @@ end
    *  SCReAM has over time been evaluated in a number of different
       experiments, a few examples are found in [SCReAM-evaluation-L4S].
 
-   *  SCReAM is currently being integrated in chrome, nightly Chrome
+   *  SCReAM (+L4S) is currently being integrated in chrome for
+      performance evaluation and comparison against GCC, nightly Chrome
       Canary builds are available at [SCReAM-Chrome-Canary].
 
 7.  IANA Considerations
