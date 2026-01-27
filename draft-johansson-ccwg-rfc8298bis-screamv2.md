@@ -1333,7 +1333,7 @@ This section covers a few discussion points.
 * SCReAM has over time been evaluated in a number of different experiments, a
   few examples are found in {{SCReAM-evaluation-L4S}}.
 
-* SCReAM is currently being integrated in chrome, nightly Chrome Canary builds are available at {{SCReAM-Chrome-Canary}}.
+* SCReAM (+L4S) is currently being integrated in chrome for performance evaluation and comparison against GCC, nightly Chrome Canary builds are available at {{SCReAM-Chrome-Canary}}.
 
 # IANA Considerations {#iana}
 
