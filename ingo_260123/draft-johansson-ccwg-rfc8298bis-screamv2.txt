@@ -6,7 +6,7 @@ CCWG                                                        I. Johansson
 Internet-Draft                                             M. Westerlund
 Obsoletes: 8298 (if approved)                               M. Kühlewind
 Intended status: Experimental                                   Ericsson
-Expires: 31 July 2026                                    27 January 2026
+Expires: 7 August 2026                                   3 February 2026
 
 
               Self-Clocked Rate Adaptation for Multimedia
@@ -54,7 +54,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 31 July 2026.
+   This Internet-Draft will expire on 7 August 2026.
 
 Copyright Notice
 
@@ -897,7 +897,7 @@ if (is_ce_t)
     # congestion
     backoff_t /= max(1.0, s_rtt/VIRTUAL_RTT)
 
-    if (queue_delay < queue_delay_target * 0.25)
+    if (qdelay < qdelay_target * 0.25)
         # Scale down backoff if close to the last known max reference window
         # This is complemented with a scale down of the reference window increase
         # Don't scale down back off if queue delay is large
@@ -980,7 +980,7 @@ increment_t *= max(0.5,1.0-ref_wnd_ratio)
 
 # Reduce ref_wnd growth if L4S not enabled or non-functional and queue delay grows
 if (l4s_alpha < 0.0001)
-   increment_t *= max(0.1, 1.0 - queue_avg / (qdelay_target / 4))
+   increment_t *= max(0.1, 1.0 - qdelay_avg / (qdelay_target / 4))
 end
 
 # Put a additional restriction on reference window growth if rtt varies a lot.
@@ -1238,13 +1238,13 @@ t_pace = data_unit_size * 8 / pace_bitrate
    adjustment of the target bitrate is shown below.
 
 # Calculate the rate_adjust_factor and the frame_size_dev for each new media frame.
-# The input variables are media_queue_delay [s] and frame_size [byte].
-# The media_queue_delay is the elapsed time the oldest media packet has
+# The input variables are media_qdelay [s] and frame_size [byte].
+# The media_qdelay is the elapsed time the oldest media packet has
 # been in the media queue.
 
 # The rate adjust factor is updated with an I (integration) controller.
 # Cap values in range [0.0 0.5]
-error = (media_queue_delay - frame_period / 4) / frame_period
+error = (media_qdelay - frame_period / 4) / frame_period
 rate_adjust_factor += error * RATE_ADJUST_GAIN
 rate_adjust_factor = min(0.5, max(0.0, rate_adjust_factor)
 
@@ -1294,7 +1294,7 @@ target_bitrate = min(TARGET_BITRATE_MAX,
    *  qdelay_min (MAX_VALUE): The min queue delay measured during an RTT
       [s], initialized to a very high value.
 
-   *  QUEUE_DELAY_MIN_AVG_ALPHA (1/256): Slow EWMA time constant for
+   *  QDELAY_MIN_AVG_ALPHA (1/256): Slow EWMA time constant for
       delay_min_avg.
 
    The steps for the clockdrift compensation is as follows:
@@ -1304,8 +1304,8 @@ target_bitrate = min(TARGET_BITRATE_MAX,
    *  When an RTT has elapsed:
 
 # Update delay_min_avg
-qdelay_min_avg = (1 - QUEUE_DELAY_MIN_AVG_ALPHA) * qdelay_min_avg +
-  QUEUE_DELAY_MIN_AVG_ALPHA * qdelay_min
+qdelay_min_avg = (1 - QDELAY_MIN_AVG_ALPHA) * qdelay_min_avg +
+  QDELAY_MIN_AVG_ALPHA * qdelay_min
 qdelay_min = MAX_VALUE # set qdelay_min to a very high value
 if qdelay_min_avg > qdelay_target / 4
   qdelay_min_avg = 0
