@@ -6,7 +6,7 @@ CCWG                                                        I. Johansson
 Internet-Draft                                             M. Westerlund
 Obsoletes: 8298 (if approved)                               M. Kühlewind
 Intended status: Experimental                                   Ericsson
-Expires: 7 August 2026                                   3 February 2026
+Expires: 13 August 2026                                  9 February 2026
 
 
               Self-Clocked Rate Adaptation for Multimedia
@@ -54,7 +54,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 7 August 2026.
+   This Internet-Draft will expire on 13 August 2026.
 
 Copyright Notice
 
@@ -1133,7 +1133,7 @@ ref_wnd_overhead = REF_WND_OVERHEAD_MIN +
 
    Packet pacing is used in order to mitigate coalescing, i.e., when
    packets are transmitted in bursts, with the risks of increased jitter
-   and potentially increased packet loss.  Packet pacing is also
+   and potentially increased packet loss.  Packet pacing is also highly
    recommended to be used with L4S and also mitigates possible issues
    with queue overflow due to key-frame generation in video coders.
    However, when the link is congested it is beneficial to relax the
