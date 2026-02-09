@@ -1085,7 +1085,7 @@ ref_wnd_overhead = REF_WND_OVERHEAD_MIN +
 
 Packet pacing is used in order to mitigate coalescing, i.e., when packets are
 transmitted in bursts, with the risks of increased jitter and potentially
-increased packet loss. Packet pacing is also recommended to be used with L4S and
+increased packet loss. Packet pacing is also highly recommended to be used with L4S and
 also mitigates possible issues with queue overflow due to key-frame generation
 in video coders. However, when the link is congested it is beneficial to relax
 the packet pacing and allow frames to be transmitted faster.
