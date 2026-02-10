@@ -309,7 +309,7 @@ The sender transmission controller (in case of multiple flows a transmission
 scheduler) sends the data units to the UDP socket. The sender transmission
 controller limits the sending rate so
 that the number of bytes in flight is less than the reference window albeit with
-a slack to avoid that packets are unnecessarily delayed in the data unit queue.
+a slack to avoid that packets are unnecessarily delayed in the Data Units Queue.
 The slack avoids unnecessary delays in the Data Units Queue when the link is uncongested. The bytes in flight however become more restrained in congested situations, to avoid large variations in queue delay and bitrate.
 A pacing rate is calculated based on the target bitrate provided by the
 media rate controller.
