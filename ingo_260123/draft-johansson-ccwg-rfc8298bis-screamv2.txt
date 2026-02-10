@@ -267,9 +267,7 @@ Table of Contents
           |                                       V
           |                                  +-----------+
    +------+-----+                            |           |
-   |    Media   |                            |   Queue   |
-   |    Rate    +---------------+            |   Data    |
-   |    Media   |                            |  Data    |
+   |    Media   |                            |   Data    |
    |    Rate    +---------------+            |   Units   |
    |   Control  |               |            |   Queue   |
    +------------+               |            |           |
