@@ -276,7 +276,9 @@ a similar approach as coupled congestion control {{RFC6365}} can be applied.
 +------+-----+                            |           |
 |    Media   |                            |   Queue   |
 |    Rate    +---------------+            |   Data    |
-|   Control  |               |            |   Units   |
+|    Media   |                            |  Data    |
+|    Rate    +---------------+            |   Units   |
+|   Control  |               |            |   Queue   |
 +------------+               |            |           |
        ^               target_bitrate     +-----+-----+
        |                     |                  |
