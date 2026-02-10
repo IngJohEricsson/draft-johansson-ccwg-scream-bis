@@ -274,9 +274,7 @@ a similar approach as coupled congestion control {{RFC6365}} can be applied.
        |                                       V
        |                                  +-----------+
 +------+-----+                            |           |
-|    Media   |                            |   Queue   |
-|    Rate    +---------------+            |   Data    |
-|    Media   |                            |  Data    |
+|    Media   |                            |   Data    |
 |    Rate    +---------------+            |   Units   |
 |   Control  |               |            |   Queue   |
 +------------+               |            |           |
