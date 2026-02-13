@@ -1416,15 +1416,14 @@ end
       to achieve better robustness with less overhead.  QUIC [RFC9000]
       overcomes this issue because of inherent design.
 
-   *  SCReAM has been designed to target 2 marked packets per RTT in
-      steady state when L4S is enabled.  There are however a few
+   *  SCReAM has been designed to target two marked packets per RTT in
+      steady state when L4S is enabled.  However, SCReAM can settle for
+      a lower number of marked packets per RTT in steady state due to
       measures taken in the calculation of the ref_wnd and the
-      target_bitrate, that are necessary to get a stable bitrate and
-      lower queue delay, that make SCReAM settle for a lower number of
-      marked packets per RTT in steady state.  The result of this is
-      that SCReAM may get a lower share of the link capacity when
-      competing against e.g. a large file transfer with TCP Prague
-      congestion control.
+      target_bitrate that are necessary to get a stable bitrate and
+      lower queue delay.  In those cases SCReAM may get a lower share of
+      the link capacity when competing against e.g. a large file
+      transfer with TCP Prague congestion control.
 
    *  SCReAM has over time been evaluated in a number of different
       experiments, a few examples are found in [SCReAM-evaluation-L4S].
