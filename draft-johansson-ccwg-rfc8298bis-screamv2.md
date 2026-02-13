@@ -612,7 +612,7 @@ qdelay_avg is updated with a slow attack, fast decay EWMA filter as described be
 variable qdelay_dev_norm indicates how much the queue delay varies,
 normalized to QDELAY_DEV_NORM. A small margin QDELAY_DEV_NORM/4
 is implemented to avoid sensitivity to scheduling jitter.
-The variable qdelay_dev_norm_th implements an adaptive threshold that increases the restriction on the ref_wnd growth as well as the ref_wnd_overhead when ref_wnd/MSS is small. This reduces delay and rate varaitions at very low ref_wnd caused by the relatively fast roughly MSS per RTT.
+The variable qdelay_dev_norm_th implements an adaptive threshold that increases the restriction on the ref_wnd growth as well as the ref_wnd_overhead when ref_wnd/MSS is small. This reduces delay and rate variations at very low ref_wnd caused by the relatively fast roughly MSS per RTT.
 
 ~~~
 if (now - last_update_qdelay_avg_time >= min(virtual_rtt,s_rtt)
