@@ -608,11 +608,7 @@ avoid that the SCReAMv2 congestion control over-reacts to scheduling jitter,
 sudden delay spikes due to e.g. handover or link layer
 retransmissions.
 
-qdelay_avg is updated with a slow attack, fast decay EWMA filter as described below. The
-variable qdelay_dev_norm indicates how much the queue delay varies,
-normalized to QDELAY_DEV_NORM. A small margin QDELAY_DEV_NORM/4
-is implemented to avoid sensitivity to scheduling jitter.
-The variable qdelay_dev_norm_th implements an adaptive threshold that increases the restriction on the ref_wnd growth as well as the ref_wnd_overhead when ref_wnd/MSS is small. This reduces delay and rate variations at very low ref_wnd caused by the relatively fast roughly MSS per RTT.
+qdelay_avg is updated with a slow attack, fast decay EWMA filter as described below. 
 
 ~~~
 if (now - last_update_qdelay_avg_time >= min(virtual_rtt,s_rtt)
@@ -622,13 +618,6 @@ if (now - last_update_qdelay_avg_time >= min(virtual_rtt,s_rtt)
   else
     qdelay_avg = QDELAY_AVG_G*qdelay + (1.0-QDELAY_AVG_G)*qdelay_avg
   end
-  # Calculate qdelay_dev_norm and cap in range [0.0 0.2]
-  tmp = max(0, min(0.2, (qdelay-QDELAY_DEV_NORM/4)/QDELAY_DEV_NORM))
-  qdelay_dev_norm = (1.0-QDELAY_DEV_AVG_G) * qdelay_dev_norm +
-     QDELAY_DEV_AVG_G * tmp
-  last_update_qdelay_avg_time = now
-  # Calculate qdelay_dev_norm_th
-  qdelay_dev_norm_th = max(0.05, 0.1*(1.0-ref_wnd_ratio/0.1))
 end
 ~~~
 
@@ -647,9 +636,29 @@ The following constant is used:
 
 * QDELAY_AVG_G (1/4): Exponentially Weighted Moving Average (EWMA) factor for qdelay_avg
 
-* QDELAY_DEV_NORM (0.025): The normalization factor for qdelay_dev_norm
+The SCReAM algorithm can be further improved for a greater rate stability. The outline is to take varaitions in qdelay into consideration, the challenge is to discriminate between delay variations caused by e.g. link layer related scheduling, and actual queue delay caused by congestion. The example code below is a simple implementation but more advanced statistical analysis can be considered.
+
+The variable qdelay_dev_norm indicates how much the queue delay varies,
+normalized to QDELAY_DEV_NORM. A small margin QDELAY_DEV_NORM/4 is implemented to avoid sensitivity to scheduling jitter.
+The variable qdelay_dev_norm_th implements an adaptive threshold that increases the restriction on the ref_wnd growth as well as the ref_wnd_overhead when ref_wnd/MSS is small. This reduces delay and rate variations at very low ref_wnd caused by the relatively fast roughly MSS per RTT.  
+
+~~~
+  # Additional code to be included in the if-clause above
+  # Calculate qdelay_dev_norm and cap in range [0.0 0.2]
+  tmp = max(0, min(0.2, (qdelay-QDELAY_DEV_NORM/4)/QDELAY_DEV_NORM))
+  qdelay_dev_norm = (1.0-QDELAY_DEV_AVG_G) * qdelay_dev_norm +
+     QDELAY_DEV_AVG_G * tmp
+  last_update_qdelay_avg_time = now
+  # Calculate qdelay_dev_norm_th
+  qdelay_dev_norm_th = max(0.05, 0.1*(1.0-ref_wnd_ratio/0.1))
+~~~
+
+The following constants are used:
 
 * QDELAY_DEV_AVG_G (1/64): Exponentially Weighted Moving Average (EWMA) factor for qdelay_dev_norm
+
+* QDELAY_DEV_NORM (0.025): The normalization factor for qdelay_dev_norm
+
 
 ##### Competing Flows Compensation {#competing-flows-compensation}
 
@@ -867,13 +876,12 @@ if (is_ce_t)
     if (qdelay < qdelay_target * 0.25)
         # Scale down backoff if close to the last known max reference window
         # This is complemented with a scale down of the reference window increase
-        # Don't scale down back off if queue delay is large
         backoff_t *= max(0.25, scl_t)
 
+        # Optional additional code for increased rate stability
         # Counterbalance the limitation in CWND increase when the queue
         # delay varies. This helps to avoid starvation in the presence of
         # competing TCP Prague flows
-        # Don't scale down back off if queue delay is large
         backoff_t *= max(0.1, (qdelay_dev_norm_th - qdelay_dev_norm) / qdelay_dev_norm_th)
     end
 
@@ -952,7 +960,8 @@ if (l4s_alpha < 0.0001)
    increment_t *= max(0.1, 1.0 - qdelay_avg / (qdelay_target / 4))
 end
 
-# Put a additional restriction on reference window growth if rtt varies a lot.
+# Optional additional code for increased rate stability
+# Put a additional restriction on reference window growth if qdelay varies a lot.
 # Better to enforce a slow increase in reference window and get
 # a more stable bitrate.
 increment_t *= max(0.1, (qdelay_dev_norm_th - qdelay_dev_norm) / qdelay_dev_norm_th)
@@ -1173,7 +1182,7 @@ scenarios
 * The frame sizes vary much, which can result in larger e2e delay if not compensated for
 
 The rate_adjust_factor helps to reduce the target rate when the delay in the data unit increases beyond frame_period/4, this allows for some modest queue buildup to ensure a good link utilization. The frame_size_dev calculates the positive deviation in frame sizes from the nominal, this helps compensate for larger variations in frame size, systematic errors in media encoder output bitrate and also to some extent sluggish media rate control loops where the media coder rate lags behind the target bitrate.
-The complete pseudo code for adjustment of the target bitrate is shown below.
+The complete pseudo code for adjustment of the target bitrate is shown below. The algorithm parts for rate_adjust_factor and frame_size_dev are suggested examples how to compensate for that frames sized deviate from the nominal.
 
 ~~~
 # Calculate the rate_adjust_factor and the frame_size_dev for each new media frame.
