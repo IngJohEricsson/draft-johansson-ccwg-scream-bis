@@ -657,19 +657,19 @@ end
    The SCReAM algorithm can be further improved for a greater rate
    stability.  The outline is to take varaitions in qdelay into
    consideration, the challenge is to discriminate between delay
-   variations caused by e.g. link layer related scheduling, and actual
-   queue delay caused by congestion.  The example code below is a simple
-   implementation but more advanced statistical analysis can be
-   considered.
+   variations caused by e.g. link layer related scheduling and
+   retransmissions from actual queue delay caused by congestion.  The
+   example code below is a simple implementation but more advanced
+   statistical analysis can be considered.
 
    The variable qdelay_dev_norm indicates how much the queue delay
    varies, normalized to QDELAY_DEV_NORM.  A small margin
-   QDELAY_DEV_NORM/4 is implemented to avoid sensitivity to scheduling
-   jitter.  The variable qdelay_dev_norm_th implements an adaptive
-   threshold that increases the restriction on the ref_wnd growth as
-   well as the ref_wnd_overhead when ref_wnd/MSS is small.  This reduces
-   delay and rate variations at very low ref_wnd caused by the
-   relatively fast roughly MSS per RTT.
+   QDELAY_DEV_NORM/4 is implemented to reduce sensitivity to link layer
+   scheduling jitter and retransmissions.  The variable
+   qdelay_dev_norm_th implements an adaptive threshold that increases
+   the restriction on the ref_wnd growth as well as the ref_wnd_overhead
+   when ref_wnd/MSS is small.  This reduces delay and rate variations at
+   very low ref_wnd caused by the relatively fast roughly MSS per RTT.
 
      # Additional code to be included in the if-clause above
      # Calculate qdelay_dev_norm and cap in range [0.0 0.2]
