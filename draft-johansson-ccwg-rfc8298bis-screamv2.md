@@ -866,9 +866,6 @@ if (is_ce_t)
     # L4S mode
     backoff_t = l4s_alpha / 2
 
-    # Increase stability for very small ref_wnd
-    backoff_t *= max(0.5, 1.0 - ref_wnd_ratio)
-
     # Scale down backoff when RTT is high to avoid overreaction to
     # congestion
     backoff_t /= max(1.0, s_rtt/VIRTUAL_RTT)
@@ -908,9 +905,6 @@ if (is_virtual_ce_t)
   # congestion
   backoff_t /= max(1.0, s_rtt/VIRTUAL_RTT)
 
-  # Increase stability for very small ref_wnd
-  backoff_t *= max(0.5, 1.0 - ref_wnd_ratio)
-
   ref_wnd = (1.0 - backoff_t) * ref_wnd
 end
 ref_wnd = max(MIN_REF_WND, ref_wnd)
@@ -949,11 +943,6 @@ increment_t *= tmp_t
 # Apply limit to reference window growth when close to last
 # known max value before congestion
 increment_t *= max(0.25,scl_t)
-
-# Limit on ref_wnd growth speed further for small ref_wnd
-# This is complemented with a corresponding restriction on ref_wnd
-# reduction
-increment_t *= max(0.5,1.0-ref_wnd_ratio)
 
 # Reduce ref_wnd growth if L4S not enabled or non-functional and queue delay grows
 if (l4s_alpha < 0.0001)
@@ -1493,4 +1482,4 @@ Draft version -05 contains some clarifications based on a review by Per Kjelland
 
 * Added section Clock drift issues and remedies.
 
-
+* Removed '*= max(0.5,1.0-ref_wnd_ratio)' as this function is replaced by qdelay_dev_norm related restriction on reference window growth.
