@@ -1435,6 +1435,21 @@ end
       performance evaluation and comparison against GCC, nightly Chrome
       Canary builds are available at [SCReAM-Chrome-Canary].
 
+   *  The addition of the optional qdelay_dev_norm related restriction
+      on ref_wnd increase can cause the rate increase to go slower when
+      the non-congestion related jitter is high.  Non-congestion related
+      jitter can occur for instance in 5G where the amount of scheduling
+      delay jitter depends of factors like TDD (Time Division Duplex)
+      patterns an overall load in a cell.  Improved methods to take
+      delay jitter and compensate for that can remedy this.  The
+      objective is to avoid the restriction when the delay jitter is not
+      congestion related.  Discriminating between non-congestion related
+      delay jitter and congestion related ditto is however not an easy
+      task.  One method to to estimate the jitter when link is known to
+      be uncongested.  A challenge is that congestion related jitter
+      emerges already as the application bitrate gets near the
+      congestion point and this can make distinction more difficult.
+
 7.  IANA Considerations
 
    This document does not require any IANA actions.
@@ -1751,6 +1766,10 @@ B.6.  Changes in Draft version -07
    *  Removed extra selective restriction on ref_wnd growth when L4S is
       not enabled as this function is replaced by qdelay_dev_norm
       related restriction on reference window growth.
+
+   *  Additional wording on the improvement of the optional
+      qdelay_dev_norm related restriction based on extimation of the
+      non-congestion related delay jitter.
 
 Authors' Addresses
 

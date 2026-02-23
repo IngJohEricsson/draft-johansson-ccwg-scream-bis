@@ -2782,6 +2782,9 @@ few examples are found in <span>[<a href="#SCReAM-evaluation-L4S" class="cite xr
         <li class="normal" id="section-6-2.7">
           <p id="section-6-2.7.1">SCReAM (+L4S) is currently being integrated in chrome for performance evaluation and comparison against GCC, nightly Chrome Canary builds are available at <span>[<a href="#SCReAM-Chrome-Canary" class="cite xref">SCReAM-Chrome-Canary</a>]</span>.<a href="#section-6-2.7.1" class="pilcrow">¶</a></p>
 </li>
+        <li class="normal" id="section-6-2.8">
+          <p id="section-6-2.8.1">The addition of the optional qdelay_dev_norm related restriction on ref_wnd increase can cause the rate increase to go slower when the non-congestion related jitter is high. Non-congestion related jitter can occur for instance in 5G where the amount of scheduling delay jitter depends of factors like TDD (Time Division Duplex) patterns an overall load in a cell. Improved methods to take delay jitter and compensate for that can remedy this. The objective is to avoid the restriction when the delay jitter is not congestion related. Discriminating between non-congestion related delay jitter and congestion related ditto is however not an easy task. One method to to estimate the jitter when link is known to be uncongested. A challenge is that congestion related jitter emerges already as the application bitrate gets near the congestion point and this can make distinction more difficult.<a href="#section-6-2.8.1" class="pilcrow">¶</a></p>
+</li>
       </ul>
 </section>
 </div>
@@ -3157,6 +3160,9 @@ on "Congestion Detection".<a href="#appendix-B.2-2.12.1" class="pilcrow">¶</a><
 </li>
           <li class="normal" id="appendix-B.6-1.7">
             <p id="appendix-B.6-1.7.1">Removed extra selective restriction on ref_wnd growth when L4S is not enabled as this function is replaced by qdelay_dev_norm related restriction on reference window growth.<a href="#appendix-B.6-1.7.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="appendix-B.6-1.8">
+            <p id="appendix-B.6-1.8.1">Additional wording on the improvement of the optional qdelay_dev_norm related restriction based on extimation of the non-congestion related delay jitter.<a href="#appendix-B.6-1.8.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
 </section>
