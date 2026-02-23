@@ -639,18 +639,19 @@ The following constant is used:
 The SCReAM algorithm can be further improved for a greater rate stability. The outline is to take varaitions in qdelay into consideration, the challenge is to discriminate between delay variations caused by e.g. link layer related scheduling and retransmissions from actual queue delay caused by congestion. The example code below is a simple implementation but more advanced statistical analysis can be considered.
 
 The variable qdelay_dev_norm indicates how much the queue delay varies,
-normalized to QDELAY_DEV_NORM. A small margin QDELAY_DEV_NORM/4 is implemented to reduce sensitivity to link layer scheduling jitter and retransmissions.
+normalized to QDELAY_DEV_NORM. A small margin QDELAY_DEV_NORM/4 is implemented to reduce sensitivity to link layer scheduling jitter and retransmissions. In addition, the metric is capped to avoid that qdelay_dev_norm winds up to very large values in cases of severe congestion. 
 The variable qdelay_dev_norm_th implements an adaptive threshold that increases the restriction on the ref_wnd growth as well as the ref_wnd_overhead when ref_wnd/MSS is small. This reduces delay and rate variations at very low ref_wnd caused by the relatively fast roughly MSS per RTT.
 
 ~~~
   # Additional code to be included in the if-clause above
+  # Calculate qdelay_dev_norm_th
+  qdelay_dev_norm_th = max(0.05, 0.1*(1.0-ref_wnd_ratio/0.1))
+
   # Calculate qdelay_dev_norm and cap in range [0.0 0.2]
-  tmp = max(0, min(0.2, (qdelay-QDELAY_DEV_NORM/4)/QDELAY_DEV_NORM))
+  tmp = max(0, min(qdelay_dev_norm_th*1.5, (qdelay-QDELAY_DEV_NORM/4)/QDELAY_DEV_NORM))
   qdelay_dev_norm = (1.0-QDELAY_DEV_AVG_G) * qdelay_dev_norm +
      QDELAY_DEV_AVG_G * tmp
   last_update_qdelay_avg_time = now
-  # Calculate qdelay_dev_norm_th
-  qdelay_dev_norm_th = max(0.05, 0.1*(1.0-ref_wnd_ratio/0.1))
 ~~~
 
 The following constants are used:
@@ -943,11 +944,6 @@ increment_t *= tmp_t
 # Apply limit to reference window growth when close to last
 # known max value before congestion
 increment_t *= max(0.25,scl_t)
-
-# Reduce ref_wnd growth if L4S not enabled or non-functional and queue delay grows
-if (l4s_alpha < 0.0001)
-   increment_t *= max(0.1, 1.0 - qdelay_avg / (qdelay_target / 4))
-end
 
 # Optional additional code for increased rate stability
 # Put a additional restriction on reference window growth if qdelay varies a lot.
@@ -1483,3 +1479,5 @@ Draft version -05 contains some clarifications based on a review by Per Kjelland
 * Added section Clock drift issues and remedies.
 
 * Removed '*= max(0.5,1.0-ref_wnd_ratio)' as this function is replaced by qdelay_dev_norm related restriction on reference window growth.
+
+* Removed extra selective restriction on ref_wnd growth when L4S is not enabled as this function is replaced by qdelay_dev_norm related restriction on reference window growth.
