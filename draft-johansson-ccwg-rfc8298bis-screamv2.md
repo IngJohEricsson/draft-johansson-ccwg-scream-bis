@@ -618,6 +618,12 @@ if (now - last_update_qdelay_avg_time >= min(virtual_rtt,s_rtt)
   else
     qdelay_avg = QDELAY_AVG_G*qdelay + (1.0-QDELAY_AVG_G)*qdelay_avg
   end
+
+  # Optional code to calculate the variation on queue delay, which is an
+  # Indication of congestion or near congestion.
+  calculate_qdelay_norm()
+
+  last_update_qdelay_avg_time = now
 end
 ~~~
 
@@ -636,15 +642,14 @@ The following constant is used:
 
 * QDELAY_AVG_G (1/4): Exponentially Weighted Moving Average (EWMA) factor for qdelay_avg
 
-The SCReAM algorithm can be further improved for a greater rate stability. The outline is to take varaitions in qdelay into consideration, the challenge is to discriminate between delay variations caused by e.g. link layer related scheduling and retransmissions from actual queue delay caused by congestion. The example code below is a simple implementation but more advanced statistical analysis can be considered.
+The SCReAM algorithm can be further improved for a greater rate stability. The outline is to take varaitions in qdelay into consideration, the challenge is to discriminate between delay variations caused by e.g. link layer related scheduling and retransmissions from actual queue delay caused by congestion. The example code below is a simple implementation but more advanced statistical analysis can be considered. 
 
 The variable qdelay_dev_norm indicates how much the queue delay varies,
 normalized to QDELAY_DEV_NORM. A small margin QDELAY_DEV_NORM/4 is implemented to reduce sensitivity to link layer scheduling jitter and retransmissions. In addition, the metric is capped to avoid that qdelay_dev_norm winds up to very large values in cases of severe congestion.
 The variable qdelay_dev_norm_th implements an adaptive threshold that increases the restriction on the ref_wnd growth as well as the ref_wnd_overhead when ref_wnd/MSS is small. This reduces delay and rate variations at very low ref_wnd caused by the relatively fast roughly MSS per RTT. The threshold is 0.1 or less, which means that a the restriction is applied in full when the standard deviation of the delay jitter exceeds the threshold.
 
 ~~~
-  # Additional code to be included in the if-clause above'
-
+function calculate_qdelay_norm()
   # Calculate qdelay_dev_norm_th. The threshold is 0.1 when ref_wnd > 10*MSS and is gradually
   # decreased to 0.05 when ref_wnd < 10*MSS
   qdelay_dev_norm_th = max(0.05, 0.1*(1.0-ref_wnd_ratio/0.1))
@@ -653,7 +658,7 @@ The variable qdelay_dev_norm_th implements an adaptive threshold that increases 
   tmp = max(0, min(qdelay_dev_norm_th*1.5, (qdelay-QDELAY_DEV_NORM/4)/QDELAY_DEV_NORM))
   qdelay_dev_norm = (1.0-QDELAY_DEV_AVG_G) * qdelay_dev_norm +
      QDELAY_DEV_AVG_G * tmp
-  last_update_qdelay_avg_time = now
+end
 ~~~
 
 The following constants are used:
@@ -1347,7 +1352,7 @@ This section covers a few discussion points.
 
 * SCReAM (+L4S) is currently being integrated in chrome for performance evaluation and comparison against GCC, nightly Chrome Canary builds are available at {{SCReAM-Chrome-Canary}}.
 
-* The addition of the optional qdelay_dev_norm related restriction on ref_wnd increase can cause the rate increase to go slower when the non-congestion related jitter is high. Non-congestion related jitter can occur for instance in 5G where the amount of scheduling delay jitter depends of factors like TDD (Time Division Duplex) patterns an overall load in a cell. Improved methods to take delay jitter and compensate for that can remedy this. The objective is to avoid the restriction when the delay jitter is not congestion related. Discriminating between non-congestion related delay jitter and congestion related ditto is however not an easy task. One method to to estimate the jitter when link is known to be uncongested. A challenge is that congestion related jitter emerges already as the application bitrate gets near the congestion point and this can make distinction more difficult.
+* The addition of the optional qdelay_dev_norm related restriction on ref_wnd increase can cause the rate increase to go slower when the non-congestion related jitter is high. Non-congestion related jitter can occur for instance in 5G where the amount of scheduling delay jitter depends of factors like TDD (Time Division Duplex) patterns an overall load in a cell. Improved methods to take delay jitter and compensate for that can remedy this. The objective is to avoid the restriction when the delay jitter is not congestion related. Discriminating between non-congestion related delay jitter and congestion related ditto is however not an easy task. One method to to estimate the jitter when link is known to be uncongested. A challenge is that congestion related jitter emerges already as the application bitrate gets near the congestion point and this can make distinction more difficult. The example algorithm in the draft is expected to be modified in a future draft version.
 
 # IANA Considerations {#iana}
 
