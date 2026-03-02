@@ -668,6 +668,7 @@ The following variables are used:¶
 * qdelay_dev_norm (0): indicates how much the queue delay varies, normalized to QDELAY_DEV_NORM.
 
 * qdelay_dev_norm_th (1.0): an adaptive threshold that limits ref_wnd growth and  ref_wnd_overhead.
+
 The following constants are used:
 
 * QDELAY_DEV_AVG_G (1/64): Exponentially Weighted Moving Average (EWMA) factor for qdelay_dev_norm
