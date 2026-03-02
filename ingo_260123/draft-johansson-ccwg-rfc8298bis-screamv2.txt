@@ -677,14 +677,14 @@ end
    cases of severe congestion.  This limit is relative to
    qdelay_dev_norm_th.  qdelay_dev_norm_th is an adaptive threshold that
    limits ref_wnd growth and ref_wnd_overhead and increases if ref_wnd/
-   MSS is small.  This reduces delay and rate variations at very low
-   ref_wnd caused by the relatively fast roughly MSS per RTT.  The
+   MSS is small.  This reduces delay and rate variations caused by the
+   relatively fast roughly MSS per RTT when the ref_wnd is small.  The
    threshold is limited to a maximum value of 0.1 which is applied when
    the standard deviation of the delay jitter exceeds the threshold.
 
 function calculate_qdelay_norm()
   # Calculate qdelay_dev_norm_th. The threshold is 0.1 when ref_wnd > 10*MSS and is gradually
-  # decreased to 0.05 when ref_wnd < 10*MSS
+  # decreased to 0.05 when ref_wnd < 10*MSS, the values 0.1 and 0.05 are based on experimentation.
   qdelay_dev_norm_th = max(0.05, 0.1*(1.0-ref_wnd_ratio/0.1))
 
   # Calculate qdelay_dev_norm and cap in range [0.0 qdelay_dev_norm_th*1.5]
@@ -926,9 +926,7 @@ if (is_ce_t)
 
     # Jitter is considered large if the qdelay is larger than qdelay_target/4
     # when L4S is enabled
-    is_large_jitter = qdelay < qdelay_target * 0.25
-
-    if (is_large_jitter)
+    if (qdelay < qdelay_target * 0.25)
         # Scale down backoff if close to the last known max reference window
         # This is complemented with a scale down of the reference window increase
         backoff_t *= max(0.25, scl_t)
