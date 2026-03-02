@@ -639,7 +639,7 @@ It is typically sufficient with one update per received acknowledgement.
 * s_rtt (0.0): Smoothed RTT [s], computed with a similar method to that
   described in {{RFC6298}}.
 
-The following constant is used:
+The following constants are used:
 
 * QDELAY_AVG_G (1/4): Exponentially Weighted Moving Average (EWMA) factor for qdelay_avg
 
