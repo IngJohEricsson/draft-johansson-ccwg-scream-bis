@@ -621,9 +621,9 @@ if (now - last_update_qdelay_avg_time >= min(virtual_rtt,s_rtt)
 
   # Optional code to calculate the variation on queue delay, which is an
   # Indication of congestion or near congestion.
- if (REDUCE_JITTER == true)
+  if (REDUCE_JITTER == true)
      calculate_qdelay_norm()
-
+  end
   last_update_qdelay_avg_time = now
 end
 ~~~
@@ -654,7 +654,7 @@ function calculate_qdelay_norm()
   # decreased to 0.05 when ref_wnd < 10*MSS, the values 0.1 and 0.05 are based on experimentation.
   qdelay_dev_norm_th = max(0.05, 0.1*(1.0-ref_wnd_ratio/0.1))
 
-  # Calculate qdelay_dev_norm and cap in range [0.0 qdelay_dev_norm_th*1.5]
+  # Calculate qdelay_dev_norm and cap in range [0.0, qdelay_dev_norm_th*1.5]
   tmp = max(0, min(qdelay_dev_norm_th*1.5, (qdelay-QDELAY_DEV_NORM/4)/QDELAY_DEV_NORM))
   qdelay_dev_norm = (1.0-QDELAY_DEV_AVG_G) * qdelay_dev_norm +
      QDELAY_DEV_AVG_G * tmp
