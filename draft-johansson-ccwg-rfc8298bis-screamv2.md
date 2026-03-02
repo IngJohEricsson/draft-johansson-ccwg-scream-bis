@@ -1106,7 +1106,7 @@ Packet pacing is used in order to mitigate coalescing, i.e., when packets are
 transmitted in bursts, with the risks of increased jitter and potentially
 increased packet loss. Packet pacing is also highly recommended to be used with L4S and
 also mitigates possible issues with queue overflow due to key-frame generation
-in video coders. However, when the link is congested it is beneficial to relax
+in video coders. However, when the link is uncongested, it is beneficial to relax
 the packet pacing and allow frames to be transmitted faster.
 
 * pace_bitrate (1e6): Data unit pacing rate [bps].
