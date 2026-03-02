@@ -1968,6 +1968,9 @@ described in <span>[<a href="#RFC6298" class="cite xref">RFC6298</a>]</span>.<a 
 <li class="normal" id="section-4.2.1.4-7.1">
                 <p id="section-4.2.1.4-7.1.1">QDELAY_AVG_G (1/4): Exponentially Weighted Moving Average (EWMA) factor for qdelay_avg<a href="#section-4.2.1.4-7.1.1" class="pilcrow">¶</a></p>
 </li>
+              <li class="normal" id="section-4.2.1.4-7.2">
+                <p id="section-4.2.1.4-7.2.1">REDUCE_JITTER (false): (optional) config knob to enable jitter filtering<a href="#section-4.2.1.4-7.2.1" class="pilcrow">¶</a></p>
+</li>
             </ul>
 <p id="section-4.2.1.4-8">The SCReAM algorithm can be further improved for a greater rate stability by taking variations in qdelay into consideration. The goal is to react less to delay variations, caused by e.g. link layer related scheduling and retransmissions, but still be reactive to actual queue delay, caused by congestion. The code below provides a example implementation but more advanced statistical analysis can be considered.<a href="#section-4.2.1.4-8" class="pilcrow">¶</a></p>
 <p id="section-4.2.1.4-9">The variable qdelay_dev_norm indicates how much the queue delay varies,
