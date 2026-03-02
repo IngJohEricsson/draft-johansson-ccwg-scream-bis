@@ -1168,7 +1168,8 @@ ref_wnd_overhead = REF_WND_OVERHEAD_MIN +
    recommended to be used with L4S and also mitigates possible issues
    with queue overflow due to key-frame generation in video coders.
    However, when the link is uncongested, it is beneficial to relax the
-   packet pacing and allow frames to be transmitted faster.
+   packet pacing and allow frames to be transmitted faster, to reduce
+   end to end delay on the application layer.
 
    *  pace_bitrate (1e6): Data unit pacing rate [bps].
 
