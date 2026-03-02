@@ -637,7 +637,8 @@ if (now - last_update_qdelay_avg_time >= min(virtual_rtt,s_rtt)
 
   # Optional code to calculate the variation on queue delay, which is an
   # Indication of congestion or near congestion.
-  calculate_qdelay_norm()
+ if (REDUCE_JITTER == true)
+     calculate_qdelay_norm()
 
   last_update_qdelay_avg_time = now
 end
