@@ -941,6 +941,7 @@ if (is_ce_t)
         backoff_t *= max(0.25, scl_t)
 
         # Optional additional code for increased rate stability
+        # qdelay_dev_norm is zero if REDUCE_JITTER is false
         # Counterbalance the limitation in CWND increase when the queue
         # delay varies. This helps to avoid starvation in the presence of
         # competing TCP Prague flows
