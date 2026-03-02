@@ -937,6 +937,7 @@ if (is_ce_t)
         # Counterbalance the limitation in CWND increase when the queue
         # delay varies. This helps to avoid starvation in the presence of
         # competing TCP Prague flows
+        # Code has no effect if REDUCE_JITTER == false
         backoff_t *= max(MIN_QUEUE_DELAY_DEV_SCALE,
           (qdelay_dev_norm_th - qdelay_dev_norm) / qdelay_dev_norm_th)
     end
@@ -1005,7 +1006,8 @@ increment_t *= max(0.25,scl_t)
 # Put a additional restriction on reference window growth if qdelay varies a lot.
 # Better to enforce a slow increase in reference window and get
 # a more stable bitrate. Restriction is limited by MIN_QUEUE_DELAY_DEV_SCALE to avoid that
-# ref_wnd growth gets zero.
+# ref_wnd growth becomes zero.
+# Code has no effect if REDUCE_JITTER == false
 increment_t *= max(MIN_QUEUE_DELAY_DEV_SCALE,
   (qdelay_dev_norm_th - qdelay_dev_norm) / qdelay_dev_norm_th)
 
