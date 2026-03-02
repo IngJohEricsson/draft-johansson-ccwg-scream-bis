@@ -1107,7 +1107,7 @@ transmitted in bursts, with the risks of increased jitter and potentially
 increased packet loss. Packet pacing is also highly recommended to be used with L4S and
 also mitigates possible issues with queue overflow due to key-frame generation
 in video coders. However, when the link is uncongested, it is beneficial to relax
-the packet pacing and allow frames to be transmitted faster.
+the packet pacing and allow frames to be transmitted faster, to reduce end to end delay on the application layer.
 
 * pace_bitrate (1e6): Data unit pacing rate [bps].
 
