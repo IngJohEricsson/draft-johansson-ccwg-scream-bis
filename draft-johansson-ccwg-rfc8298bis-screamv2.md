@@ -642,11 +642,10 @@ The following constant is used:
 
 * QDELAY_AVG_G (1/4): Exponentially Weighted Moving Average (EWMA) factor for qdelay_avg
 
-The SCReAM algorithm can be further improved for a greater rate stability. The outline is to take varaitions in qdelay into consideration, the challenge is to discriminate between delay variations caused by e.g. link layer related scheduling and retransmissions from actual queue delay caused by congestion. The example code below is a simple implementation but more advanced statistical analysis can be considered. 
+The SCReAM algorithm can be further improved for a greater rate stability. The outline is to take varaitions in qdelay into consideration, the challenge is to discriminate between delay variations caused by e.g. link layer related scheduling and retransmissions from actual queue delay caused by congestion. The example code below is a simple implementation but more advanced statistical analysis can be considered.
 
 The variable qdelay_dev_norm indicates how much the queue delay varies,
-normalized to QDELAY_DEV_NORM. A small margin QDELAY_DEV_NORM/4 is implemented to reduce sensitivity to link layer scheduling jitter and retransmissions. In addition, the metric is capped to avoid that qdelay_dev_norm winds up to very large values in cases of severe congestion.
-The variable qdelay_dev_norm_th implements an adaptive threshold that increases the restriction on the ref_wnd growth as well as the ref_wnd_overhead when ref_wnd/MSS is small. This reduces delay and rate variations at very low ref_wnd caused by the relatively fast roughly MSS per RTT. The threshold is 0.1 or less, which means that a the restriction is applied in full when the standard deviation of the delay jitter exceeds the threshold.
+normalized to QDELAY_DEV_NORM. A small margin QDELAY_DEV_NORM/4 is implemented to reduce sensitivity to link layer scheduling jitter and retransmissions. In addition, the metric is capped to avoid that qdelay_dev_norm winds up to very large values in cases of severe congestion, this limit is relative to qdelay_dev_norm_th, which is an adaptive threshold that increases the restriction on the ref_wnd growth as well as the ref_wnd_overhead when ref_wnd/MSS is small. This reduces delay and rate variations at very low ref_wnd caused by the relatively fast roughly MSS per RTT. The threshold is 0.1 or less, which means that a the restriction is applied in full when the standard deviation of the delay jitter exceeds the threshold.
 
 ~~~
 function calculate_qdelay_norm()
