@@ -640,14 +640,16 @@ The SCReAM algorithm can be further improved for a greater rate stability. The o
 
 The variable qdelay_dev_norm indicates how much the queue delay varies,
 normalized to QDELAY_DEV_NORM. A small margin QDELAY_DEV_NORM/4 is implemented to reduce sensitivity to link layer scheduling jitter and retransmissions. In addition, the metric is capped to avoid that qdelay_dev_norm winds up to very large values in cases of severe congestion.
-The variable qdelay_dev_norm_th implements an adaptive threshold that increases the restriction on the ref_wnd growth as well as the ref_wnd_overhead when ref_wnd/MSS is small. This reduces delay and rate variations at very low ref_wnd caused by the relatively fast roughly MSS per RTT.
+The variable qdelay_dev_norm_th implements an adaptive threshold that increases the restriction on the ref_wnd growth as well as the ref_wnd_overhead when ref_wnd/MSS is small. This reduces delay and rate variations at very low ref_wnd caused by the relatively fast roughly MSS per RTT. The threshold is 0.1 or less, which means that a the restriction is applied in full when the standard deviation of the delay jitter exceeds the threshold.
 
 ~~~
-  # Additional code to be included in the if-clause above
-  # Calculate qdelay_dev_norm_th
+  # Additional code to be included in the if-clause above'
+
+  # Calculate qdelay_dev_norm_th. The threshold is 0.1 when ref_wnd > 10*MSS and is gradually
+  # decreased to 0.05 when ref_wnd < 10*MSS
   qdelay_dev_norm_th = max(0.05, 0.1*(1.0-ref_wnd_ratio/0.1))
 
-  # Calculate qdelay_dev_norm and cap in range [0.0 0.2]
+  # Calculate qdelay_dev_norm and cap in range [0.0 qdelay_dev_norm_th*1.5]
   tmp = max(0, min(qdelay_dev_norm_th*1.5, (qdelay-QDELAY_DEV_NORM/4)/QDELAY_DEV_NORM))
   qdelay_dev_norm = (1.0-QDELAY_DEV_AVG_G) * qdelay_dev_norm +
      QDELAY_DEV_AVG_G * tmp
@@ -811,6 +813,8 @@ for the constants are deduced from experiments):
 
 * VIRTUAL_RTT (0.025): Virtual RTT [s]. This mimics Prague's RTT fairness such that flows with RTT
   below VIRTUAL_RTT should get a roughly equal share over an L4S path.
+  
+* MIN_QUEUE_DELAY_DEV_SCALE (0.1): Min allowed scaling of ref_wnd backoff and increase due to large qdelay_dev_norm.
 
 #### Reference Window Reduction
 
@@ -871,7 +875,11 @@ if (is_ce_t)
     # congestion
     backoff_t /= max(1.0, s_rtt/VIRTUAL_RTT)
 
-    if (qdelay < qdelay_target * 0.25)
+    # Jitter is considered large if the qdelay is larger than qdelay_target/4
+    # when L4S is enabled
+    is_large_jitter = qdelay < qdelay_target * 0.25
+
+    if (is_large_jitter)
         # Scale down backoff if close to the last known max reference window
         # This is complemented with a scale down of the reference window increase
         backoff_t *= max(0.25, scl_t)
@@ -880,7 +888,8 @@ if (is_ce_t)
         # Counterbalance the limitation in CWND increase when the queue
         # delay varies. This helps to avoid starvation in the presence of
         # competing TCP Prague flows
-        backoff_t *= max(0.1, (qdelay_dev_norm_th - qdelay_dev_norm) / qdelay_dev_norm_th)
+        backoff_t *= max(MIN_QUEUE_DELAY_DEV_SCALE,
+          (qdelay_dev_norm_th - qdelay_dev_norm) / qdelay_dev_norm_th)
     end
 
     if (now - last_reaction_to_congestion_time >
@@ -948,8 +957,10 @@ increment_t *= max(0.25,scl_t)
 # Optional additional code for increased rate stability
 # Put a additional restriction on reference window growth if qdelay varies a lot.
 # Better to enforce a slow increase in reference window and get
-# a more stable bitrate.
-increment_t *= max(0.1, (qdelay_dev_norm_th - qdelay_dev_norm) / qdelay_dev_norm_th)
+# a more stable bitrate. Restriction is limited by MIN_QUEUE_DELAY_DEV_SCALE to avoid that
+# ref_wnd growth gets zero.
+increment_t *= max(MIN_QUEUE_DELAY_DEV_SCALE,
+  (qdelay_dev_norm_th - qdelay_dev_norm) / qdelay_dev_norm_th)
 
 # Scale up increment with multiplicative increase
 # Limit multiplicative increase when congestion occurred
