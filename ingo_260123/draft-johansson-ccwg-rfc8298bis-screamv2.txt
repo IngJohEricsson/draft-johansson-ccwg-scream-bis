@@ -677,22 +677,16 @@ end
    QDELAY_DEV_NORM/4 is implemented to reduce sensitivity to link layer
    scheduling jitter and retransmissions.  In addition, a limit is
    implemented to avoid that qdelay_dev_norm winds up to very large
-   values in cases of severe congestion.  This limit is relative to
-   qdelay_dev_norm_th which is an adaptive threshold that limits ref_wnd
-   growth and ref_wnd_overhead.  It increases when ref_wnd/MSS is small
-   and therefore the relative increase of ref_wnd is large.  This
-   reduces delay and rate variations particularly for small ref_wnd
-   values.  The threshold is limited to a maximum value of 0.1 which is
-   applied when the standard deviation of the delay jitter exceeds the
-   threshold.
+   values in cases of severe congestion.  This limit is a factor larger
+   than QDELAY_DEV_NORM_TH.  It increases when ref_wnd/MSS is small and
+   therefore the relative increase of ref_wnd is large.  This reduces
+   delay and rate variations particularly for small ref_wnd values.  The
+   threshold is limited to a maximum value of 0.1 which is applied when
+   the standard deviation of the delay jitter exceeds the threshold.
 
 function calculate_qdelay_norm()
-  # Calculate qdelay_dev_norm_th. The threshold is 0.1 when ref_wnd > 10*MSS and is gradually
-  # decreased to 0.05 when ref_wnd < 10*MSS, the values 0.1 and 0.05 are based on experimentation.
-  qdelay_dev_norm_th = max(0.05, 0.1*(1.0-ref_wnd_ratio/0.1))
-
-  # Calculate qdelay_dev_norm and cap in range [0.0, qdelay_dev_norm_th*1.5]
-  tmp = max(0, min(qdelay_dev_norm_th*1.5, (qdelay-QDELAY_DEV_NORM/4)/QDELAY_DEV_NORM))
+  # Calculate qdelay_dev_norm and cap in range [0.0, QDELAY_DEV_NORM_TH*1.5]
+  tmp = max(0, min(QDELAY_DEV_NORM_TH*1.5, (qdelay-QDELAY_DEV_NORM/4)/QDELAY_DEV_NORM))
   qdelay_dev_norm = (1.0-QDELAY_DEV_AVG_G) * qdelay_dev_norm +
      QDELAY_DEV_AVG_G * tmp
 end
@@ -702,9 +696,6 @@ end
    *  qdelay_dev_norm (0): indicates how much the queue delay varies,
       normalized to QDELAY_DEV_NORM.
 
-   *  qdelay_dev_norm_th (1.0): an adaptive threshold that limits
-      ref_wnd growth and ref_wnd_overhead.
-
    The following constants are used:
 
    *  QDELAY_DEV_AVG_G (1/64): Exponentially Weighted Moving Average
@@ -712,6 +703,9 @@ end
 
    *  QDELAY_DEV_NORM (0.025): The normalization factor for
       qdelay_dev_norm
+
+   *  QDELAY_DEV_NORM_TH (1.0): A threshold for the limitation ref_wnd
+      growth and ref_wnd_overhead.
 
 4.2.1.4.1.  Competing Flows Compensation
 
@@ -950,7 +944,7 @@ if (is_ce_t)
         # competing TCP Prague flows
         # Code has no effect if REDUCE_JITTER == false
         backoff_t *= max(MIN_QUEUE_DELAY_DEV_SCALE,
-          (qdelay_dev_norm_th - qdelay_dev_norm) / qdelay_dev_norm_th)
+          (QDELAY_DEV_NORM_TH - qdelay_dev_norm) / qdelay_dev_norm_th)
     end
 
     if (now - last_reaction_to_congestion_time >
@@ -1021,7 +1015,7 @@ increment_t *= max(0.25,scl_t)
 # ref_wnd growth becomes zero.
 # Code has no effect if REDUCE_JITTER == false
 increment_t *= max(MIN_QUEUE_DELAY_DEV_SCALE,
-  (qdelay_dev_norm_th - qdelay_dev_norm) / qdelay_dev_norm_th)
+  (QDELAY_DEV_NORM_TH - qdelay_dev_norm) / qdelay_dev_norm_th)
 
 # Scale up increment with multiplicative increase
 # Limit multiplicative increase when congestion occurred
@@ -1162,7 +1156,7 @@ end
    The ref_wnd_overhead is calculated as:
 
 ref_wnd_overhead = REF_WND_OVERHEAD_MIN +
-  (REF_WND_OVERHEAD_MAX - REF_WND_OVERHEAD_MIN)*max(0.0,(qdelay_dev_norm_th-qdelay_dev_norm)/qdelay_dev_norm_th)
+  (REF_WND_OVERHEAD_MAX - REF_WND_OVERHEAD_MIN)*max(0.0,(QDELAY_DEV_NORM_TH-qdelay_dev_norm)/qdelay_dev_norm_th)
 
 4.3.2.  Packet Pacing
 
