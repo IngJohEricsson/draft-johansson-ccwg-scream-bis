@@ -661,12 +661,12 @@ end
       factor for qdelay_avg
 
    The SCReAM algorithm can be further improved for a greater rate
-   stability.  The outline is to take varaitions in qdelay into
-   consideration, the challenge is to discriminate between delay
-   variations caused by e.g. link layer related scheduling and
-   retransmissions from actual queue delay caused by congestion.  The
-   example code below is a simple implementation but more advanced
-   statistical analysis can be considered.
+   stability by taking variations in qdelay into consideration.  The
+   goal is to react less to delay variations, caused by e.g. link layer
+   related scheduling and retransmissions, but still be reactive to
+   actual queue delay, caused by congestion.  The code below provides a
+   example implementation but more advanced statistical analysis can be
+   considered.
 
    The variable qdelay_dev_norm indicates how much the queue delay
    varies, normalized to QDELAY_DEV_NORM.  A small margin
