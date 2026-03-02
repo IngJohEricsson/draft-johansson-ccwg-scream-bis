@@ -898,7 +898,7 @@ if (is_ce_t)
         # competing TCP Prague flows
         # Code has no effect if REDUCE_JITTER == false
         backoff_t *= max(MIN_QUEUE_DELAY_DEV_SCALE,
-          (QDELAY_DEV_NORM_TH - qdelay_dev_norm) / qdelay_dev_norm_th)
+          (QDELAY_DEV_NORM_TH - qdelay_dev_norm) / QDELAY_DEV_NORM_TH)
     end
 
     if (now - last_reaction_to_congestion_time >
@@ -971,7 +971,7 @@ increment_t *= max(0.25,scl_t)
 # ref_wnd growth becomes zero.
 # Code has no effect if REDUCE_JITTER == false
 increment_t *= max(MIN_QUEUE_DELAY_DEV_SCALE,
-  (QDELAY_DEV_NORM_TH - qdelay_dev_norm) / qdelay_dev_norm_th)
+  (QDELAY_DEV_NORM_TH - qdelay_dev_norm) / QDELAY_DEV_NORM_TH)
 
 # Scale up increment with multiplicative increase
 # Limit multiplicative increase when congestion occurred
@@ -1096,7 +1096,7 @@ The ref_wnd_overhead is calculated as:
 
 ~~~
 ref_wnd_overhead = REF_WND_OVERHEAD_MIN +
-  (REF_WND_OVERHEAD_MAX - REF_WND_OVERHEAD_MIN)*max(0.0,(QDELAY_DEV_NORM_TH-qdelay_dev_norm)/qdelay_dev_norm_th)
+  (REF_WND_OVERHEAD_MAX - REF_WND_OVERHEAD_MIN)*max(0.0,(QDELAY_DEV_NORM_TH-qdelay_dev_norm)/QDELAY_DEV_NORM_TH)
 ~~~
 
 ### Packet Pacing {#packet-pacing}
