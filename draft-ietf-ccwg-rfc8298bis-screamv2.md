@@ -1546,6 +1546,3 @@ Draft version -05 contains some clarifications based on a review by Per Kjelland
 * Additional conditional loss threshold added as optional to increase robustness against non-congestion related (e.g link layer) losses.
 
 * Added note about method to detect the extistence of rate policers and to reduce packet losses when rate policers are applied in network nodes.
-
-* Additional
-
