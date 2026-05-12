@@ -537,7 +537,6 @@ if (packet_is_lost)
   loss_rate = (1-alpha)*loss_rate + alpha
 else
   loss_rate = (1-alpha)*loss_rate
-
 ~~~
 
 The following variables are used:
