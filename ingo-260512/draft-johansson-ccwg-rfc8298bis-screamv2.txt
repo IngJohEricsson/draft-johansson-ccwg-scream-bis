@@ -547,9 +547,9 @@ Table of Contents
 
    The following variables are used:
 
-   *  loss_rate (0.0): Average loss rate
+   *  loss_rate (0.0): Average loss rate.
 
-   *  packet_is_lost: Set to true if a packet is determined to be lost
+   *  packet_is_lost: Set to true if a packet is determined to be lost.
 
 4.2.1.2.  Receiving ECN-CE with classic ECN
 
@@ -1508,11 +1508,10 @@ end
       max_policed_ref_wnd.  The max_policed_ref_wnd is then used as an
       upper limit to the ref_wnd.  The max_policed_ref_wnd can be
       gradually increased by a small fraction to avoid that the ref_wnd
-      is limited to an unecessary low value.  Brief experiments have
-      shown that this reduces policer induced packet loss quite
-      considerably.  The method is however not bullet proof, for
-      instance large burst losses in for instance a WiFi link can be
-      trigged by this mechanism.
+      is limited to an unecessarily low value.  Experiments have shown
+      that this reduces policer induced packet.  The method is however
+      not bullet proof, for instance large burst losses in for instance
+      a WiFi links can be trigged by this mechanism.
 
    *  SCReAM (+L4S) is currently being integrated in chrome for
       performance evaluation and comparison against GCC, nightly Chrome
