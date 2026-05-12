@@ -541,9 +541,9 @@ else
 
 The following variables are used:
 
-* loss_rate (0.0): Average loss rate
+* loss_rate (0.0): Average loss rate.
 
-* packet_is_lost: Set to true if a packet is determined to be lost
+* packet_is_lost: Set to true if a packet is determined to be lost.
 
 #### Receiving ECN-CE with classic ECN  {#reaction-ecn-ce}
 
@@ -1389,7 +1389,7 @@ This section covers a few discussion points.
 * SCReAM has over time been evaluated in a number of different experiments, a
   few examples are found in {{SCReAM-evaluation-L4S}}.
 
-* Rate policers can cause loss bursts. These loss bursts are particularly harmful for real time media transmission and it is problematic to detect the existence of rate policers in the tranmission path. One method is to utlize the loss_rate metric as indicator. If the loss_rate is particularly high (say >10%), the current ref_wnd, or a slightly lower value of it, is stored as max_policed_ref_wnd. The max_policed_ref_wnd is then used as an upper limit to the ref_wnd. The max_policed_ref_wnd can be gradually increased by a small fraction to avoid that the ref_wnd is limited to an unecessary low value. Brief experiments have shown that this reduces policer induced packet loss quite considerably. The method is however not bullet proof, for instance large burst losses in for instance a WiFi link can be trigged by this mechanism.
+* Rate policers can cause loss bursts. These loss bursts are particularly harmful for real time media transmission and it is problematic to detect the existence of rate policers in the tranmission path. One method is to utlize the loss_rate metric as indicator. If the loss_rate is particularly high (say >10%), the current ref_wnd, or a slightly lower value of it, is stored as max_policed_ref_wnd. The max_policed_ref_wnd is then used as an upper limit to the ref_wnd. The max_policed_ref_wnd can be gradually increased by a small fraction to avoid that the ref_wnd is limited to an unecessarily low value. Experiments have shown that this reduces policer induced packet. The method is however not bullet proof, for instance large burst losses in for instance a WiFi links can be trigged by this mechanism.
 
 * SCReAM (+L4S) is currently being integrated in chrome for performance evaluation and comparison against GCC, nightly Chrome Canary builds are available at {{SCReAM-Chrome-Canary}}.
 
