@@ -1861,8 +1861,6 @@ B.7.  Changes in Draft version -08
       and to reduce packet losses when rate policers are applied in
       network nodes.
 
-   *  Additional
-
 Authors' Addresses
 
    Ingemar Johansson
