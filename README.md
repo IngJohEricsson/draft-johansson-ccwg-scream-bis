@@ -1,3 +1,5 @@
+<!-- regenerate: on (set to off if you edit this file) -->
+
 # Self-Clocked Rate Adaptation for Multimedia
 
 This is the working area for the individual Internet-Draft, "Self-Clocked Rate Adaptation for Multimedia".
@@ -13,9 +15,8 @@ This is the working area for the individual Internet-Draft, "Self-Clocked Rate A
 See the
 [guidelines for contributions](https://github.com/IngJohEricsson/draft-johansson-ccwg-scream-bis/blob/main/CONTRIBUTING.md).
 
-Contributions can be made by creating pull requests.
-The GitHub interface supports creating pull requests using the Edit (✏) button.
-
+The contributing file also has tips on how to make contributions, if you
+don't already know how to do that.
 
 ## Command Line Usage
 
