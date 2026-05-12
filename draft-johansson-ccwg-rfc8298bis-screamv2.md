@@ -527,7 +527,8 @@ given data unit is not acknowledged within a time window (indicated by the
 reordering window) after an data unit with a higher sequence number was
 acknowledged.
 
-A loss rate is calculated for each packet according to the equation below
+A loss rate is calculated for each packet according to the equation below:
+
 ~~~
 # apply an EWMA filter with a 1 RTT time constant.
 alpha = min(0.5, mss/ref_wnd)
