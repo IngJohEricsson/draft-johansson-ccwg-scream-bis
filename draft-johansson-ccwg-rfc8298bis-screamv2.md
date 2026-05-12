@@ -530,12 +530,14 @@ acknowledged.
 A loss rate is calculated for each packet according to the equation below:
 
 ~~~
+
 # apply an EWMA filter with a 1 RTT time constant.
 alpha = min(0.5, mss/ref_wnd)
 if (packet_is_lost)
   loss_rate = (1-alpha)*loss_rate + alpha
 else
   loss_rate = (1-alpha)*loss_rate
+
 ~~~
 
 The following variables are used:
