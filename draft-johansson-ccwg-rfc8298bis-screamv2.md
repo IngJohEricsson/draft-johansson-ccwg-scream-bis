@@ -1547,3 +1547,5 @@ Draft version -05 contains some clarifications based on a review by Per Kjelland
 
 * Added note about method to detect the extistence of rate policers and to reduce packet losses when rate policers are applied in network nodes.
 
+* Additional
+
