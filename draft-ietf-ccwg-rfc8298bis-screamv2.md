@@ -490,9 +490,9 @@ reference window. The reference window gives an upper limit to the number of byt
 
 Congestion is detected based on three different indicators:
 
- * Lost data units detected,
+ * Lost data units detected.
 
- * ECN-CE marked data units detected either for classic ECN or L4S,
+ * ECN-CE marked data units detected either for classic ECN or L4S.
 
  * Estimated queue delay exceeds a threshold.
 
@@ -526,6 +526,22 @@ the event that it was indicated as successfully received. Loss is detected if a
 given data unit is not acknowledged within a time window (indicated by the
 reordering window) after an data unit with a higher sequence number was
 acknowledged.
+
+A loss rate is calculated for each packet according to the equation below
+~~~
+# apply an EWMA filter with a 1 RTT time constant.
+alpha = min(0.5, mss/ref_wnd)
+if (packet_is_lost)
+  loss_rate = (1-alpha)*loss_rate + alpha
+else
+  loss_rate = (1-alpha)*loss_rate
+~~~
+
+The following variables are used:
+
+* loss_rate (0.0): Average loss rate
+
+* packet_is_lost: Set to true if a packet is determined to be lost
 
 #### Receiving ECN-CE with classic ECN  {#reaction-ecn-ce}
 
@@ -934,6 +950,7 @@ end
 ~~~
 
 Link layer losses, i.e losses that are not congestion related can lead to unwarranted congestion back-off. One method is to apply congestion back-off only when an average loss rate exceeds a threshold. This increases robustness against non-congestion related losses. One problem is that such a method can also increase congestion related packet loss. The modified code below related to the loss based congestion back-off implements immediate loss back-off if loss is associated to a corresponding the queue delay increase, otherwise a loss rate threshold is applied.
+
 ~~~
 ..
   if (loss_detected)
@@ -1370,6 +1387,9 @@ This section covers a few discussion points.
 * SCReAM has over time been evaluated in a number of different experiments, a
   few examples are found in {{SCReAM-evaluation-L4S}}.
 
+* Rate policers can cause loss bursts. These loss bursts are particularly harmful for real time media transmission and it is problematic to detect the existence of rate policers in the tranmission path.
+  One method is to utlize the loss_rate metric as indicator. If the loss_rate is particularly high (say >10%), the current ref_wnd, or a slightly lower value of it, is stored as max_policed_ref_wnd. The max_policed_ref_wnd is then used as an upper limit to the ref_wnd. The max_policed_ref_wnd can be gradually increased by a small fraction to avoid that the ref_wnd is limited to an unecessary low value. Brief experiments have shown that this reduces policer induced packet loss quite considerably. The method is however not bullet proof, for instance large burst losses in for instance a WiFi link can be trigged by this mechanism.   
+
 * SCReAM (+L4S) is currently being integrated in chrome for performance evaluation and comparison against GCC, nightly Chrome Canary builds are available at {{SCReAM-Chrome-Canary}}.
 
 * The addition of the optional qdelay_dev_norm related restriction on ref_wnd increase can cause the rate increase to go slower when the non-congestion related jitter is high. Non-congestion related jitter can occur for instance in 5G where the amount of scheduling delay jitter depends of factors like TDD (Time Division Duplex) patterns an overall load in a cell. Improved methods to take delay jitter and compensate for that can remedy this. The objective is to avoid the restriction when the delay jitter is not congestion related. Discriminating between non-congestion related delay jitter and congestion related ditto is however not an easy task. One method to to estimate the jitter when link is known to be uncongested. A challenge is that congestion related jitter emerges already as the application bitrate gets near the congestion point and this can make distinction more difficult. The example algorithm in the draft is expected to be modified in a future draft version.
@@ -1521,3 +1541,10 @@ Draft version -05 contains some clarifications based on a review by Per Kjelland
 * Removed extra selective restriction on ref_wnd growth when L4S is not enabled as this function is replaced by qdelay_dev_norm related restriction on reference window growth.
 
 * Additional wording on the improvement of the optional qdelay_dev_norm related restriction based on extimation of the non-congestion related delay jitter.
+
+## Changes in Draft version -08
+
+* Additional conditional loss threshold added as optional to increase robustness against non-congestion related (e.g link layer) losses.
+
+* Added note about method to detect the extistence of rate policers and to reduce packet losses when rate policers are applied in network nodes.
+
