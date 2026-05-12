@@ -136,7 +136,7 @@ This specification obsoletes RFC 8298.
 This memo describes Self-Clocked Rate Adaptation for Multimedia version 2
 (SCReAMv2). This specification replaces the previous experimental version {{RFC8298}} of
 SCReAM with SCReAMv2. There are many and fairly significant changes to the
-original SCReAM algorithm as desribed in {{sec:changes}}.
+original SCReAM algorithm as described in {{sec:changes}}.
 
 Both SCReAM and SCReAMv2 estimates the forward queue delay in the same way as Low
 Extra Delay Background Transport (LEDBAT) {{RFC6817}}.
@@ -155,7 +155,7 @@ congestion control functionality in SCReAMv2.
 The algorithm in this memo differs considerably compared to the previous version of
 SCReAM in {{RFC8298}}. The main differences are:
 
-* L4S support added. The L4S algoritm has many similarities with the DCTCP and
+* L4S support added. The L4S algorithm has many similarities with the DCTCP and
   Prague congestion control but has a few extra modifications to make it work
   well with periodic sources such as video.
 
@@ -188,7 +188,7 @@ SCReAM in {{RFC8298}}. The main differences are:
 
 ## Requirements on the Media and Feedback Protocol {#requirements-media}
 
-SCReAM was originally designed to with with RTP + RTCP where {{RFC8888}} was
+SCReAM was originally designed to be used with RTP + RTCP where {{RFC8888}} was
 used as recommended feedback. RTP offers unique packet indication with the
 sequence number and {{RFC8888}} offers timestamps of received packets and the
 status of the ECN bits.
