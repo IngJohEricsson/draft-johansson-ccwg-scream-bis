@@ -933,16 +933,17 @@ if (is_loss_t || is_ce_t || is_virtual_ce_t)
 end
 ~~~
 
-Link layer losses, i.e losses that are not congestion related can lead to unwarranted congestion back-off. One method is to apply congestion back-off only when an average loss rate exceeds a threshold. This increases robustness against non-congestion related losses. One problem is that such a method can also increase congestion related packet loss. The modified code below related to the loss based congestion back-off implements immediate loss back off if loss is associated to a corresponding the queue delay increase, otherwise a loss threshold is applied.
+Link layer losses, i.e losses that are not congestion related can lead to unwarranted congestion back-off. One method is to apply congestion back-off only when an average loss rate exceeds a threshold. This increases robustness against non-congestion related losses. One problem is that such a method can also increase congestion related packet loss. The modified code below related to the loss based congestion back-off implements immediate loss back-off if loss is associated to a corresponding the queue delay increase, otherwise a loss rate threshold is applied.
 ~~~
 ..
   if (loss_detected)
-    if (loss_rate > LOSS_RATE_THRESHOLD || qdelay_avg > qdelay_target/2)
+    if (loss_rate > LOSS_RATE_THRESHOLD || qdelay_avg > qdelay_target/4)
       is_loss_t = true
     end
 ..
 ~~~
-The following constants is used:
+
+The following constant is used:
 
 * LOSS_RATE_THRESHOLD (0.01): Threshold for triggering loss based reference window back-off.
 
