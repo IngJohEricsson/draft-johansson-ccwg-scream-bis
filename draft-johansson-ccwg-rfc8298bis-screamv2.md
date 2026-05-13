@@ -951,7 +951,7 @@ if (is_loss_t || is_ce_t || is_virtual_ce_t)
 end
 ~~~
 
-Link layer losses, i.e losses that are not congestion related can lead to unwarranted congestion back-off. One method is to apply congestion backoff only when an average loss rate exceeds a threshold. A suggested modification to the code above is found in {{#link-loss-rate-policer}}.
+Link layer losses, i.e losses that are not congestion related can lead to unwarranted congestion back-off. One method is to apply congestion backoff only when an average loss rate exceeds a threshold. A suggested modification to the code above is found in {{link-loss-rate-policer}}.
 
 #### Reference Window Increase {#ref-wnd-increase}
 
@@ -1289,7 +1289,7 @@ Link layer losses, i.e losses that are not congestion related can lead to unwarr
 
 Rate policers can give quite large loss bursts, which can impact real time media quality quite badly. A rate policer is characterized by that it does not build a queue. Hence, the rate policer detection triggers on the observation that the loss rate is high and the queue delay is low.
 
-The code below modifies the 'if (loss_detected)' part in {{#ref-wnd-reduction}}
+The code below modifies the 'if (loss_detected)' part in {{ref-wnd-reduction}}
 
 ~~~
 ..
