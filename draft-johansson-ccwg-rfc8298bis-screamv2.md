@@ -1285,9 +1285,9 @@ end
 
 ## Link layer losses and rate policers {#link-loss-rate-policer}
 
-Link layer losses, i.e losses that are not congestion related can lead to unwarranted congestion back-off. One method is to apply congestion backoff only when an average loss rate exceeds a threshold. This increases robustness against non-congestion related losses. One problem is that such a method can also increase congestion related packet loss. This is resolved in that immediate loss backoff is triggered when the queue delay increases. 
+Link layer losses, i.e losses that are not congestion related can lead to unwarranted congestion back-off. One method is to apply congestion backoff only when an average loss rate exceeds a threshold. This increases robustness against non-congestion related losses. One problem is that such a method can also increase congestion related packet loss. This is resolved in that immediate loss backoff is triggered when the queue delay increases.
 
-Rate policers can give quite large loss bursts, which can impact real time media quality quite badly. A rate policer is characterized by that it does not build a queue. Hence, the rate policer detection triggers on the observation that the loss rate is high and the queue delay is low. 
+Rate policers can give quite large loss bursts, which can impact real time media quality quite badly. A rate policer is characterized by that it does not build a queue. Hence, the rate policer detection triggers on the observation that the loss rate is high and the queue delay is low.
 
 The code below modifies the 'if (loss_detected)' part in {{#ref-wnd-reduction}}
 
@@ -1301,7 +1301,7 @@ The code below modifies the 'if (loss_detected)' part in {{#ref-wnd-reduction}}
     # Detection of rate policer induced loss and setting of limit to ref_wnd
     if (loss_rate > LOSS_RATE_THRESHOLD_POLICER &&
         qdelay_avg < qdelay_target/4)
-      max_policed_ref_wnd = ref_wnd*BETA_LOSS_POLICER 
+      max_policed_ref_wnd = ref_wnd*BETA_LOSS_POLICER
     end
 ..
 ~~~
@@ -1316,7 +1316,7 @@ The variables and constants are:
 
 * BETA_LOSS_POLICER (0.9): ref_wnd scale for calculation of max_policed_ref_wnd.
 
-The max_policed_ref_wnd enforces an upper limit to the ref_wnd. The max_policed_ref_wnd should increase by a small fraction, for instance 0.001 per RTT that gradually lifts the limit.  
+The max_policed_ref_wnd enforces an upper limit to the ref_wnd. The max_policed_ref_wnd should increase by a small fraction, for instance 0.001 per RTT that gradually lifts the limit.
 
 #  Receiver Requirements on Feedback Intensity {#scream-receiver}
 
@@ -1413,7 +1413,7 @@ This section covers a few discussion points.
 
 * The addition of the optional qdelay_dev_norm related restriction on ref_wnd increase can cause the rate increase to go slower when the non-congestion related jitter is high. Non-congestion related jitter can occur for instance in 5G where the amount of scheduling delay jitter depends of factors like TDD (Time Division Duplex) patterns an overall load in a cell. Improved methods to take delay jitter and compensate for that can remedy this. The objective is to avoid the restriction when the delay jitter is not congestion related. Discriminating between non-congestion related delay jitter and congestion related ditto is however not an easy task. One method to to estimate the jitter when link is known to be uncongested. A challenge is that congestion related jitter emerges already as the application bitrate gets near the congestion point and this can make distinction more difficult. The example algorithm in the draft is expected to be modified in a future draft version.
 
-* Rate policers can cause loss bursts. These loss bursts are particularly harmful for real time media transmission and it is problematic to detect the existence of rate policers in the tranmission path. The example algorithm in the draft resolves the problem with rate policers to some degree. The algorithm is however not bullet proof, assumptions around queue delay can for instance fail on links where the RTT varies, such as satellite links. In addition, rate policers can be configured in many ways.  
+* Rate policers can cause loss bursts. These loss bursts are particularly harmful for real time media transmission and it is problematic to detect the existence of rate policers in the tranmission path. The example algorithm in the draft resolves the problem with rate policers to some degree. The algorithm is however not bullet proof, assumptions around queue delay can for instance fail on links where the RTT varies, such as satellite links. In addition, rate policers can be configured in many ways.
 
 # IANA Considerations {#iana}
 
