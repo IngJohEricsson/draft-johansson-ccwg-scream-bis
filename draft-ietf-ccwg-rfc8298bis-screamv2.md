@@ -843,7 +843,7 @@ for the constants are deduced from experiments):
 
 * MIN_QUEUE_DELAY_DEV_SCALE (0.1): Min allowed scaling of ref_wnd backoff and increase due to large qdelay_dev_norm.
 
-#### Reference Window Reduction
+#### Reference Window Reduction {#ref-wnd-reduction}
 
 ~~~
 # Compute scaling factor for reference window adjustment
@@ -951,22 +951,9 @@ if (is_loss_t || is_ce_t || is_virtual_ce_t)
 end
 ~~~
 
-Link layer losses, i.e losses that are not congestion related can lead to unwarranted congestion back-off. One method is to apply congestion back-off only when an average loss rate exceeds a threshold. This increases robustness against non-congestion related losses. One problem is that such a method can also increase congestion related packet loss. The modified code below related to the loss based congestion back-off implements immediate loss back-off if loss is associated to a corresponding the queue delay increase, otherwise a loss rate threshold is applied.
+Link layer losses, i.e losses that are not congestion related can lead to unwarranted congestion back-off. One method is to apply congestion backoff only when an average loss rate exceeds a threshold. A suggested modification to the code above is found in {{#link-loss-rate-policer}}.
 
-~~~
-..
-  if (loss_detected)
-    if (loss_rate > LOSS_RATE_THRESHOLD || qdelay_avg > qdelay_target/4)
-      is_loss_t = true
-    end
-..
-~~~
-
-The following constant is used:
-
-* LOSS_RATE_THRESHOLD (0.01): Threshold for triggering loss based reference window back-off.
-
-#### Reference Window Increase
+#### Reference Window Increase {#ref-wnd-increase}
 
 ~~~
 # Delay factor for multiplicative reference window increase
@@ -1296,6 +1283,41 @@ if qdelay_min_avg > qdelay_target / 4
 end
 ~~~
 
+## Link layer losses and rate policers {#link-loss-rate-policer}
+
+Link layer losses, i.e losses that are not congestion related can lead to unwarranted congestion back-off. One method is to apply congestion backoff only when an average loss rate exceeds a threshold. This increases robustness against non-congestion related losses. One problem is that such a method can also increase congestion related packet loss. This is resolved in that immediate loss backoff is triggered when the queue delay increases. 
+
+Rate policers can give quite large loss bursts, which can impact real time media quality quite badly. A rate policer is characterized by that it does not build a queue. Hence, the rate policer detection triggers on the observation that the loss rate is high and the queue delay is low. 
+
+The code below modifies the 'if (loss_detected)' part in {{#ref-wnd-reduction}}
+
+~~~
+..
+  if (loss_detected)
+    # Conditional loss back off algorithm
+    if (loss_rate > LOSS_RATE_THRESHOLD || qdelay_avg > qdelay_target/4)
+      is_loss_t = true
+    end
+    # Detection of rate policer induced loss and setting of limit to ref_wnd
+    if (loss_rate > LOSS_RATE_THRESHOLD_POLICER &&
+        qdelay_avg < qdelay_target/4)
+      max_policed_ref_wnd = ref_wnd*BETA_LOSS_POLICER 
+    end
+..
+~~~
+
+The variables and constants are:
+
+* max_policed_ref_wnd (MAX_VALUE): Upper limit on ref_wnd.
+
+* LOSS_RATE_THRESHOLD (0.01): Threshold for triggering loss based reference window backoff.
+
+* LOSS_RATE_THRESHOLD_POLICER (0.1): loss rate threshold for detection of policer.
+
+* BETA_LOSS_POLICER (0.9): ref_wnd scale for calculation of max_policed_ref_wnd.
+
+The max_policed_ref_wnd enforces an upper limit to the ref_wnd. The max_policed_ref_wnd should increase by a small fraction, for instance 0.001 per RTT that gradually lifts the limit.  
+
 #  Receiver Requirements on Feedback Intensity {#scream-receiver}
 
 The simple task of the receiver is to feed back acknowledgements with with time
@@ -1364,10 +1386,8 @@ This section covers a few discussion points.
     means that uplink transmission slots are unused with a lower link
     utilization as a result.
 
-* Packet pacing is recommended, it is however possible to operate SCReAMv2 with
-  packet pacing disabled. The code in {{SCReAM-CPP-implementation}} implements
-  additional mechanisms to achieve a high link utilization when packet pacing is
-  disabled. Additional packet pacing headroom can be beneficial if unusually large media frames are generated, this can reduce unnecessary queue build-up in the data unit queue.
+* Packet pacing is recommended. It is however possible to operate SCReAMv2 with
+  packet pacing disabled, this can however give a reduced link utilization over L4S enabled paths. Additional packet pacing headroom can be beneficial if unusually large media frames are generated, this can reduce unnecessary queue build-up in the data unit queue.
 
 * Feedback issues: RTCP feedback packets {{RFC8888}} can be lost, this means that
   the loss detection in SCReAMv2 may trigger even though packets arrive safely
@@ -1393,7 +1413,7 @@ This section covers a few discussion points.
 
 * The addition of the optional qdelay_dev_norm related restriction on ref_wnd increase can cause the rate increase to go slower when the non-congestion related jitter is high. Non-congestion related jitter can occur for instance in 5G where the amount of scheduling delay jitter depends of factors like TDD (Time Division Duplex) patterns an overall load in a cell. Improved methods to take delay jitter and compensate for that can remedy this. The objective is to avoid the restriction when the delay jitter is not congestion related. Discriminating between non-congestion related delay jitter and congestion related ditto is however not an easy task. One method to to estimate the jitter when link is known to be uncongested. A challenge is that congestion related jitter emerges already as the application bitrate gets near the congestion point and this can make distinction more difficult. The example algorithm in the draft is expected to be modified in a future draft version.
 
-* Rate policers can cause loss bursts. These loss bursts are particularly harmful for real time media transmission and it is problematic to detect the existence of rate policers in the tranmission path. One method is to utlize the loss_rate metric as indicator. If the loss_rate is particularly high (say >10%), the current ref_wnd, or a slightly lower value of it, is stored as max_policed_ref_wnd. The max_policed_ref_wnd is then used as an upper limit to the ref_wnd. The max_policed_ref_wnd can be gradually increased by a small fraction to avoid that the ref_wnd is limited to an unecessarily low value. Experiments have shown that this reduces policer induced packet. The method is however not bullet proof, for instance large burst losses in for instance a WiFi links can be trigged by this mechanism.
+* Rate policers can cause loss bursts. These loss bursts are particularly harmful for real time media transmission and it is problematic to detect the existence of rate policers in the tranmission path. The example algorithm in the draft resolves the problem with rate policers to some degree. The algorithm is however not bullet proof, assumptions around queue delay can for instance fail on links where the RTT varies, such as satellite links. In addition, rate policers can be configured in many ways.  
 
 # IANA Considerations {#iana}
 
@@ -1548,3 +1568,5 @@ Draft version -05 contains some clarifications based on a review by Per Kjelland
 * Additional conditional loss threshold added as optional to increase robustness against non-congestion related (e.g link layer) losses.
 
 * Added note about method to detect the extistence of rate policers and to reduce packet losses when rate policers are applied in network nodes.
+
+* Added rate policer remediation algorithm.
