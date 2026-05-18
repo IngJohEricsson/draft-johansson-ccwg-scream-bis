@@ -1,5 +1,5 @@
 ---
-docname: draft-johansson-ccwg-rfc8298bis-screamv2-latest
+docname: draft-ietf-ccwg-rfc8298bis-screamv2-latest
 title: Self-Clocked Rate Adaptation for Multimedia
 abbrev: SCReAMv2
 obsoletes: 8298
