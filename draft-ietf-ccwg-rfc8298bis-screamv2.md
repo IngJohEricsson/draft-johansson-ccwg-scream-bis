@@ -545,7 +545,7 @@ The following variables and constants are used:
 
 * packet_is_lost: Set to true if a packet is determined to be lost.
 
-* LOSS_RATE_THRESHOLD (0.01): Threshold for triggering loss based reference window backoff, explained more in {{link-loss-rate-policer}}. 
+* LOSS_RATE_THRESHOLD (0.01): Threshold for triggering loss based reference window backoff, explained more in {{link-loss-rate-policer}}.
 
 #### Receiving ECN-CE with classic ECN  {#reaction-ecn-ce}
 
