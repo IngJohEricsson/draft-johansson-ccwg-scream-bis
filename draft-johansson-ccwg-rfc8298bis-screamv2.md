@@ -531,19 +531,21 @@ A loss rate is calculated for each packet according to the equation below:
 
 ~~~
 
-# apply an EWMA filter with a 1 RTT time constant.
-alpha = min(0.5, mss/ref_wnd)
+# apply an EWMA filter with a 1 RTT time constant, or at least 1/LOSS_RATE_THRESHOLD packets.
+alpha = min(LOSS_RATE_THRESHOLD, mss/ref_wnd)
 if (packet_is_lost)
   loss_rate = (1-alpha)*loss_rate + alpha
 else
   loss_rate = (1-alpha)*loss_rate
 ~~~
 
-The following variables are used:
+The following variables and constants are used:
 
 * loss_rate (0.0): Average loss rate.
 
 * packet_is_lost: Set to true if a packet is determined to be lost.
+
+* LOSS_RATE_THRESHOLD (0.01): Threshold for triggering loss based reference window backoff, explained more in {{link-loss-rate-policer}}. 
 
 #### Receiving ECN-CE with classic ECN  {#reaction-ecn-ce}
 
@@ -1309,8 +1311,6 @@ The code below modifies the 'if (loss_detected)' part in {{ref-wnd-reduction}}
 The variables and constants are:
 
 * max_policed_ref_wnd (MAX_VALUE): Upper limit on ref_wnd.
-
-* LOSS_RATE_THRESHOLD (0.01): Threshold for triggering loss based reference window backoff.
 
 * LOSS_RATE_THRESHOLD_POLICER (0.1): loss rate threshold for detection of policer.
 
