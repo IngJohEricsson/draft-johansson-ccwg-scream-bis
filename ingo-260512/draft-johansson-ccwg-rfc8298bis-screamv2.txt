@@ -6,7 +6,7 @@ CCWG                                                        I. Johansson
 Internet-Draft                                             M. Westerlund
 Obsoletes: 8298 (if approved)                               M. Kühlewind
 Intended status: Experimental                                   Ericsson
-Expires: 14 November 2026                                    13 May 2026
+Expires: 19 November 2026                                    18 May 2026
 
 
               Self-Clocked Rate Adaptation for Multimedia
@@ -54,7 +54,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 14 November 2026.
+   This Internet-Draft will expire on 19 November 2026.
 
 Copyright Notice
 
@@ -539,18 +539,21 @@ Table of Contents
    A loss rate is calculated for each packet according to the equation
    below:
 
-   # apply an EWMA filter with a 1 RTT time constant.
-   alpha = min(0.5, mss/ref_wnd)
-   if (packet_is_lost)
-     loss_rate = (1-alpha)*loss_rate + alpha
-   else
-     loss_rate = (1-alpha)*loss_rate
+# apply an EWMA filter with a 1 RTT time constant, or at least 1/LOSS_RATE_THRESHOLD packets.
+alpha = min(LOSS_RATE_THRESHOLD, mss/ref_wnd)
+if (packet_is_lost)
+  loss_rate = (1-alpha)*loss_rate + alpha
+else
+  loss_rate = (1-alpha)*loss_rate
 
-   The following variables are used:
+   The following variables and constants are used:
 
    *  loss_rate (0.0): Average loss rate.
 
    *  packet_is_lost: Set to true if a packet is determined to be lost.
+
+   *  LOSS_RATE_THRESHOLD (0.01): Threshold for triggering loss based
+      reference window backoff, explained more in Section 4.6.
 
 4.2.1.2.  Receiving ECN-CE with classic ECN
 
@@ -1405,9 +1408,6 @@ end
    The variables and constants are:
 
    *  max_policed_ref_wnd (MAX_VALUE): Upper limit on ref_wnd.
-
-   *  LOSS_RATE_THRESHOLD (0.01): Threshold for triggering loss based
-      reference window backoff.
 
    *  LOSS_RATE_THRESHOLD_POLICER (0.1): loss rate threshold for
       detection of policer.
