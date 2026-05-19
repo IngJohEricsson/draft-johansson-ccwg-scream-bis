@@ -10,7 +10,7 @@ Expires: 20 November 2026                                    19 May 2026
 
 
               Self-Clocked Rate Adaptation for Multimedia
-            draft-johansson-ccwg-rfc8298bis-screamv2-latest
+               draft-ietf-ccwg-rfc8298bis-screamv2-latest
 
 Abstract
 
@@ -27,7 +27,7 @@ About This Document
    This note is to be removed before publishing as an RFC.
 
    Status information for this document may be found at
-   https://datatracker.ietf.org/doc/draft-johansson-ccwg-rfc8298bis-
+   https://datatracker.ietf.org/doc/draft-ietf-ccwg-rfc8298bis-
    screamv2/.
 
    Discussion of this document takes place on the Congestion Control
