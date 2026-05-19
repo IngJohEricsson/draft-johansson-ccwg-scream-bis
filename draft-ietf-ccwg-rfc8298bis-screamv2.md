@@ -527,12 +527,14 @@ given data unit is not acknowledged within a time window (indicated by the
 reordering window) after an data unit with a higher sequence number was
 acknowledged.
 
-A loss rate is calculated for each packet according to the equation below:
+A loss rate is calculated for each packet according to the equation below, the loss rate is calculated as an average with a time constant of 2 RTTs.
+ For small ref_wnd, averaging is over 4/LOSS_RATE_THRESHOLD packets, to avoid that consecutive link layer losses cause the loss rate to increase too quickly.
+ The loss_rate is used in {{link-loss-rate-policer}}. The averaging is selected to be slow enough to avoid that single packet drops cause backoff, provided that the queue delay is low, and fast enough to avoid excessive packet loss in the presence of very shallow queues.
 
 ~~~
 
-# apply an EWMA filter with a 1 RTT time constant, or at least 1/LOSS_RATE_THRESHOLD packets.
-alpha = min(LOSS_RATE_THRESHOLD, mss/ref_wnd)
+# Apply an EWMA filter with a 2 RTT time constant, or at least 4/LOSS_RATE_THRESHOLD packets.
+alpha = min(LOSS_RATE_THRESHOLD / 4, mss / ref_wnd / 2)
 if (packet_is_lost)
   loss_rate = (1-alpha)*loss_rate + alpha
 else
@@ -545,7 +547,7 @@ The following variables and constants are used:
 
 * packet_is_lost: Set to true if a packet is determined to be lost.
 
-* LOSS_RATE_THRESHOLD (0.01): Threshold for triggering loss based reference window backoff, explained more in {{link-loss-rate-policer}}.
+* LOSS_RATE_THRESHOLD (0.01): Threshold for triggering loss based reference window backoff.
 
 #### Receiving ECN-CE with classic ECN  {#reaction-ecn-ce}
 
@@ -1287,7 +1289,7 @@ end
 
 ## Link layer losses and rate policers {#link-loss-rate-policer}
 
-Link layer losses, i.e losses that are not congestion related can lead to unwarranted congestion back-off. One method is to apply congestion backoff only when an average loss rate exceeds a threshold. This increases robustness against non-congestion related losses. One problem is that such a method can also increase congestion related packet loss. This is resolved in that immediate loss backoff is triggered when the queue delay increases.
+Link layer losses, i.e losses that are not congestion related can lead to unwarranted congestion backoff. One method is to apply a conditional loss backoff only when an average loss rate exceeds a threshold. This increases robustness against non-congestion related losses. One problem is that such a method can also increase congestion related packet loss which can be detrimental for real time media such as video. This is resolved in that immediate loss backoff is triggered when the queue delay increases. While the conditional loss backoff increases robustness against link layer losses, it is inevitable that the algorithm can delay congestion backoff and thus cause increased packet loss rate. The constant LOSS_RATE_THRESHOLD should therefore be set low enough, with the objective to increase robustness to link layer losses only.  
 
 Rate policers can give quite large loss bursts, which can impact real time media quality quite badly. A rate policer is characterized by that it does not build a queue. Hence, the rate policer detection triggers on the observation that the loss rate is high and the queue delay is low.
 
@@ -1296,7 +1298,7 @@ The code below modifies the 'if (loss_detected)' part in {{ref-wnd-reduction}}
 ~~~
 ..
   if (loss_detected)
-    # Conditional loss back off algorithm
+    # Conditional loss backoff 
     if (loss_rate > LOSS_RATE_THRESHOLD || qdelay_avg > qdelay_target/4)
       is_loss_t = true
     end
@@ -1316,7 +1318,7 @@ The variables and constants are:
 
 * BETA_LOSS_POLICER (0.9): ref_wnd scale for calculation of max_policed_ref_wnd.
 
-The max_policed_ref_wnd enforces an upper limit to the ref_wnd. The max_policed_ref_wnd should increase by a small fraction, for instance 0.001 per RTT that gradually lifts the limit.
+The max_policed_ref_wnd enforces an upper limit to the ref_wnd. The max_policed_ref_wnd should increase by a small fraction, for instance 0.001 per RTT that gradually lifts the limit, this prevents that possible false detection causes a permanent restriction on ref_wnd.
 
 #  Receiver Requirements on Feedback Intensity {#scream-receiver}
 
