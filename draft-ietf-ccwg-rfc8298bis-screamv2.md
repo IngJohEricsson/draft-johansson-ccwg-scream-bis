@@ -502,7 +502,7 @@ the reference window is reduced at most once per smoothed RTT.
 
 #### Detecting Lost Data Units  {#reaction-loss}
 
-The reference window back-off due to loss events is deliberately a bit less than
+The reference window backoff due to loss events is deliberately a bit less than
 is the case with TCP Reno, for example. TCP is generally used to transmit whole
 files; the file is then like a source with an infinite bitrate until the whole
 file has been transmitted. SCReAMv2, on the other hand, has a source which rate
@@ -553,7 +553,7 @@ The following variables and constants are used:
 
 In classic ECN mode the ref_wnd is scaled by a fixed value (BETA_ECN).
 
-The reference window back-off due to an ECN event MAY be smaller than if a loss
+The reference window backoff due to an ECN event MAY be smaller than if a loss
 event occurs. This is in line with the idea outlined in {{RFC8511}} to enable
 ECN marking thresholds lower than the corresponding data unit drop thresholds.
 
@@ -1289,7 +1289,7 @@ end
 
 ## Link layer losses and rate policers {#link-loss-rate-policer}
 
-Link layer losses, i.e losses that are not congestion related can lead to unwarranted congestion backoff. One method is to apply a conditional loss backoff only when an average loss rate exceeds a threshold. This increases robustness against non-congestion related losses. One problem is that such a method can also increase congestion related packet loss which can be detrimental for real time media such as video. This is resolved in that immediate loss backoff is triggered when the queue delay increases. While the conditional loss backoff increases robustness against link layer losses, it is inevitable that the algorithm can delay congestion backoff and thus cause increased packet loss rate. The constant LOSS_RATE_THRESHOLD should therefore be set low enough, with the objective to increase robustness to link layer losses only.  
+Link layer losses, i.e losses that are not congestion related can lead to unwarranted congestion backoff. One method is to apply a conditional loss backoff only when an average loss rate exceeds a threshold. This increases robustness against non-congestion related losses. One problem is that such a method can also increase congestion related packet loss which can be detrimental for real time media such as video. This is resolved in that immediate loss backoff is triggered when the queue delay increases. While the conditional loss backoff increases robustness against link layer losses, it is inevitable that the algorithm can delay congestion backoff and thus cause increased packet loss rate. The constant LOSS_RATE_THRESHOLD should therefore be set low enough, with the objective to increase robustness to link layer losses only.
 
 Rate policers can give quite large loss bursts, which can impact real time media quality quite badly. A rate policer is characterized by that it does not build a queue. Hence, the rate policer detection triggers on the observation that the loss rate is high and the queue delay is low.
 
