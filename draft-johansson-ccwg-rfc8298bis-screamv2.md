@@ -1298,7 +1298,7 @@ The code below modifies the 'if (loss_detected)' part in {{ref-wnd-reduction}}
 ~~~
 ..
   if (loss_detected)
-    # Conditional loss backoff 
+    # Conditional loss backoff
     if (loss_rate > LOSS_RATE_THRESHOLD || qdelay_avg > qdelay_target/4)
       is_loss_t = true
     end
