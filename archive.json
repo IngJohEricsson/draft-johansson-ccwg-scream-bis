@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2025-04-10T01:44:46.243338+00:00",
+  "timestamp": "2026-05-19T04:11:33.997961+00:00",
   "repo": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
   "labels": [
     {
@@ -313,6 +313,22 @@
       "createdAt": "2025-03-03T08:24:04Z",
       "updatedAt": "2025-04-09T18:45:28Z",
       "closedAt": "2025-04-09T18:45:28Z",
+      "comments": []
+    },
+    {
+      "number": 51,
+      "id": "I_kwDOK7AJUs7aVVMY",
+      "title": "MSS definition and assumptions",
+      "url": "https://github.com/IngJohEricsson/draft-johansson-ccwg-scream-bis/issues/51",
+      "state": "OPEN",
+      "author": "gloinul",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "The MSS definition could be clearer: \n\nThere also appear to be an assumption here in regards to what segment sizes are expected. The algorithm will work best if there are sufficient number of segments transmitted, allowing for pacing. \n\nNeed to consider to add text on this aspect and how MSS and expected rates do interact.\n\n",
+      "createdAt": "2025-11-25T13:13:12Z",
+      "updatedAt": "2025-11-25T13:13:12Z",
+      "closedAt": null,
       "comments": []
     }
   ],
@@ -2175,7 +2191,7 @@
       "labels": [],
       "body": "Fixes issue #45",
       "createdAt": "2025-03-10T12:18:43Z",
-      "updatedAt": "2025-04-09T18:44:53Z",
+      "updatedAt": "2025-10-21T14:16:20Z",
       "baseRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
       "baseRefName": "main",
       "baseRefOid": "0e60d44e5200ff7ee3c2574b5722a065579430c8",
@@ -2187,6 +2203,2009 @@
       "mergedBy": "IngJohEricsson",
       "mergeCommit": {
         "oid": "439c2e7d5e501ea4ee4fdd970efe03a7e1ccb114"
+      },
+      "comments": [],
+      "reviews": []
+    },
+    {
+      "number": 48,
+      "id": "PR_kwDOK7AJUs6umvqn",
+      "title": "Update draft-johansson-ccwg-rfc8298bis-screamv2.md",
+      "url": "https://github.com/IngJohEricsson/draft-johansson-ccwg-scream-bis/pull/48",
+      "state": "MERGED",
+      "author": "IngJohEricsson",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "Edits based on review by Per Kjellander + Bj\u00f6rn Terelius + additional modifications",
+      "createdAt": "2025-10-20T10:33:45Z",
+      "updatedAt": "2025-10-21T14:16:18Z",
+      "baseRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
+      "baseRefName": "main",
+      "baseRefOid": "439c2e7d5e501ea4ee4fdd970efe03a7e1ccb114",
+      "headRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
+      "headRefName": "ingo-issue-20251020",
+      "headRefOid": "09bbe6e5f28b61c195370a1e79a1b1c184bac7f2",
+      "closedAt": "2025-10-20T14:18:51Z",
+      "mergedAt": "2025-10-20T14:18:51Z",
+      "mergedBy": "gloinul",
+      "mergeCommit": {
+        "oid": "218eb0cd2c42347db9b481c6eb2c90c614ef2226"
+      },
+      "comments": [],
+      "reviews": [
+        {
+          "id": "PRR_kwDOK7AJUs7IEpPk",
+          "commit": {
+            "abbreviatedOid": "f54b917"
+          },
+          "author": "mirjak",
+          "authorAssociation": "COLLABORATOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2025-10-20T14:17:00Z",
+          "updatedAt": "2025-10-20T14:17:00Z",
+          "comments": []
+        },
+        {
+          "id": "PRR_kwDOK7AJUs7IEgrC",
+          "commit": {
+            "abbreviatedOid": "09bbe6e"
+          },
+          "author": "gloinul",
+          "authorAssociation": "COLLABORATOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2025-10-20T14:08:04Z",
+          "updatedAt": "2025-10-20T14:18:09Z",
+          "comments": [
+            {
+              "originalPosition": 72,
+              "body": "Attach? ",
+              "createdAt": "2025-10-20T14:08:04Z",
+              "updatedAt": "2025-10-20T14:18:09Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "number": 49,
+      "id": "PR_kwDOK7AJUs6xLfYi",
+      "title": "Ingo issue 20251021",
+      "url": "https://github.com/IngJohEricsson/draft-johansson-ccwg-scream-bis/pull/49",
+      "state": "MERGED",
+      "author": "IngJohEricsson",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "A bunch of typos, adaptive ref_wnd_overhead\r\nPotentially in conflict with main",
+      "createdAt": "2025-11-03T12:39:15Z",
+      "updatedAt": "2025-11-03T13:02:06Z",
+      "baseRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
+      "baseRefName": "main",
+      "baseRefOid": "c3f4f363d7d6d27bce3e835f138869e152b9f6d5",
+      "headRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
+      "headRefName": "ingo-issue-20251021",
+      "headRefOid": "86074e872a6eac36a82c92cd7da01215c76707bd",
+      "closedAt": "2025-11-03T13:02:05Z",
+      "mergedAt": "2025-11-03T13:02:05Z",
+      "mergedBy": "IngJohEricsson",
+      "mergeCommit": {
+        "oid": "fbbe5fa59d72d4c41160ed2a256bae622d6cabd5"
+      },
+      "comments": [],
+      "reviews": []
+    },
+    {
+      "number": 50,
+      "id": "PR_kwDOK7AJUs6ykB3-",
+      "title": "Ingo 251106",
+      "url": "https://github.com/IngJohEricsson/draft-johansson-ccwg-scream-bis/pull/50",
+      "state": "MERGED",
+      "author": "IngJohEricsson",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "Modifications that mainly makes SCReAM more rate stable.",
+      "createdAt": "2025-11-10T15:39:06Z",
+      "updatedAt": "2025-11-26T09:16:31Z",
+      "baseRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
+      "baseRefName": "main",
+      "baseRefOid": "42024768fc41bece6e4c6c9ff19adbfc878d54ac",
+      "headRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
+      "headRefName": "ingo-251106",
+      "headRefOid": "d992dd053485a50fcf36d0b2c0df7cf3e5ba9e68",
+      "closedAt": "2025-11-26T09:16:31Z",
+      "mergedAt": "2025-11-26T09:16:31Z",
+      "mergedBy": "IngJohEricsson",
+      "mergeCommit": {
+        "oid": "09b15db9400fc1b8241f1b5c045f05753c9415ac"
+      },
+      "comments": [
+        {
+          "author": "IngJohEricsson",
+          "authorAssociation": "OWNER",
+          "body": "I don\u2019t know here. This was what I added after Magnus comment. Perhaps just write text here as it is anyway explained in later sections\r\n\r\n/Ingemar\r\n\r\n \r\n\r\nFrom: mirjak ***@***.***> \r\nSent: Wednesday, 12 November 2025 12:24\r\nTo: IngJohEricsson/draft-johansson-ccwg-scream-bis ***@***.***>\r\nCc: Ingemar Johansson S ***@***.***>; Author ***@***.***>\r\nSubject: Re: [IngJohEricsson/draft-johansson-ccwg-scream-bis] Ingo 251106 (PR #50)\r\n\r\n \r\n\r\n@mirjak commented on this pull request.\r\n\r\n  _____  \r\n\r\nIn draft-johansson-ccwg-rfc8298bis-screamv2.md:\r\n\r\n> +         |           +-----------+  +---------------+ |\r\n+         |           |ref_wnd *= |  |ref_wnd *=     | |\r\n+         |           | ECN_BETA  |  |  1-l4sAlpha/2 | |\r\n+         |           +-----+-----+  +--------+------+ |\r\n+         |                 |                 |        |\r\n+         v                 +-----------------+--------+\r\n+ +--------------+       +---------------+    |\r\n+ |Delay increase|  Yes  |ref_wnd *=     |    |\r\n+ | detected?    +------>| 1-vL4sAlpha/2 |    |\r\n+ +--------+-----+       +--------+------+    |\r\n+          | No                   |           |\r\n+          +----------------------+-----------+\r\n+          v\r\n+ +----------------+\r\n+ |  ref_wnd += X  |\r\n+ +----------------+\r\n\r\nI think the diagram makes it look more complicated than just text...\r\n\r\n\u2014\r\nReply to this email directly, view it on GitHub, or unsubscribe.\r\nYou are receiving this because you authored the thread.  <https://github.com/notifications/beacon/ACRZ2GC3SLV5UEMGICRMDOL34MKE3A5CNFSM6AAAAACLVRHNWGWGG33NNVSW45C7OR4XAZNRKB2WY3CSMVYXKZLTORJGK5TJMV32UY3PNVWWK3TUL5UWJTWNZ7R4W.gif> Message ID: ***@***.*** ***@***.***> >\r\n\r\n",
+          "createdAt": "2025-11-12T12:38:48Z",
+          "updatedAt": "2025-11-12T12:38:48Z"
+        },
+        {
+          "author": "IngJohEricsson",
+          "authorAssociation": "OWNER",
+          "body": "Upon some more thinking, I believe this was added earlier in the github code when there was a risk that the send window could be too restrictive. It can perhaps be needed when the ref_wnd is just a few packets large. Need to check it up\r\n\r\n \r\n\r\nFrom: mirjak ***@***.***> \r\nSent: Wednesday, 12 November 2025 12:25\r\nTo: IngJohEricsson/draft-johansson-ccwg-scream-bis ***@***.***>\r\nCc: Ingemar Johansson S ***@***.***>; Author ***@***.***>\r\nSubject: Re: [IngJohEricsson/draft-johansson-ccwg-scream-bis] Ingo 251106 (PR #50)\r\n\r\n \r\n\r\n@mirjak commented on this pull request.\r\n\r\n  _____  \r\n\r\nIn draft-johansson-ccwg-rfc8298bis-screamv2.md:\r\n\r\n>  \r\n ## Sender Transmission Control {#sender-tc}\r\n \r\n The sender transmission control limits sending rate based on the\r\n relation of the estimated link throughput (bytes in flight) and the reference window.\r\n \r\n ~~~\r\n-send_wnd = ref_wnd * ref_wnd_overhead * rel_framesize_high + MSS - bytes_in_flight\r\n+send_wnd = ref_wnd * ref_wnd_overhead + MSS - bytes_in_flight\r\n\r\nWhy does this have \"+MSS\" in here? And how is ref_wnd_overhead calculated?\r\n\r\n\u2014\r\nReply to this email directly, view it on GitHub, or unsubscribe.\r\nYou are receiving this because you authored the thread.  <https://github.com/notifications/beacon/ACRZ2GGCVOLLLMZSIHNOKQ334MKKDA5CNFSM6AAAAACLVRHNWGWGG33NNVSW45C7OR4XAZNRKB2WY3CSMVYXKZLTORJGK5TJMV32UY3PNVWWK3TUL5UWJTWNZ736K.gif> Message ID: ***@***.***>\r\n\r\n",
+          "createdAt": "2025-11-12T12:41:28Z",
+          "updatedAt": "2025-11-12T12:41:28Z"
+        }
+      ],
+      "reviews": [
+        {
+          "id": "PRR_kwDOK7AJUs7NgvCB",
+          "commit": {
+            "abbreviatedOid": "2afed9c"
+          },
+          "author": "gloinul",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2025-11-11T12:46:02Z",
+          "updatedAt": "2025-11-11T12:56:00Z",
+          "comments": [
+            {
+              "originalPosition": 393,
+              "body": "So the value here is 0.8 bps? Or is it an factor?",
+              "createdAt": "2025-11-11T12:46:03Z",
+              "updatedAt": "2025-11-11T12:56:00Z"
+            },
+            {
+              "originalPosition": 112,
+              "body": "Is the | between BETA_ECN and 1-l4s_alpha/2 a bitwise OR of two float values? ",
+              "createdAt": "2025-11-11T12:52:46Z",
+              "updatedAt": "2025-11-11T12:56:00Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs7Nz-PL",
+          "commit": {
+            "abbreviatedOid": "9766893"
+          },
+          "author": "mirjak",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2025-11-12T11:23:24Z",
+          "updatedAt": "2025-11-12T11:23:25Z",
+          "comments": [
+            {
+              "originalPosition": 146,
+              "body": "I think the diagram makes it look more complicated than just text...",
+              "createdAt": "2025-11-12T11:23:24Z",
+              "updatedAt": "2025-11-12T11:23:25Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs7Nz_fl",
+          "commit": {
+            "abbreviatedOid": "9766893"
+          },
+          "author": "mirjak",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2025-11-12T11:24:59Z",
+          "updatedAt": "2025-11-12T11:25:00Z",
+          "comments": [
+            {
+              "originalPosition": 169,
+              "body": "Why does this have \"+MSS\" in here? And how is ref_wnd_overhead calculated?",
+              "createdAt": "2025-11-12T11:24:59Z",
+              "updatedAt": "2025-11-12T11:25:00Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs7N0CkB",
+          "commit": {
+            "abbreviatedOid": "9766893"
+          },
+          "author": "mirjak",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2025-11-12T11:28:58Z",
+          "updatedAt": "2025-11-12T11:28:58Z",
+          "comments": [
+            {
+              "originalPosition": 211,
+              "body": "This is not needed here as this is not an \"input\" variable; similarly as qdelay_avg is not listed.",
+              "createdAt": "2025-11-12T11:28:58Z",
+              "updatedAt": "2025-11-12T11:28:58Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs7N0Dx6",
+          "commit": {
+            "abbreviatedOid": "9766893"
+          },
+          "author": "mirjak",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2025-11-12T11:30:25Z",
+          "updatedAt": "2025-11-12T11:30:25Z",
+          "comments": [
+            {
+              "originalPosition": 236,
+              "body": "Why did you update these two values? How did you decide?",
+              "createdAt": "2025-11-12T11:30:25Z",
+              "updatedAt": "2025-11-12T11:30:25Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs7N0Eox",
+          "commit": {
+            "abbreviatedOid": "9766893"
+          },
+          "author": "mirjak",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2025-11-12T11:31:31Z",
+          "updatedAt": "2025-11-12T11:31:32Z",
+          "comments": [
+            {
+              "originalPosition": 245,
+              "body": "how about using an \"else\" here?",
+              "createdAt": "2025-11-12T11:31:32Z",
+              "updatedAt": "2025-11-12T11:31:32Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs7N0F3h",
+          "commit": {
+            "abbreviatedOid": "9766893"
+          },
+          "author": "mirjak",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2025-11-12T11:33:06Z",
+          "updatedAt": "2025-11-12T11:33:06Z",
+          "comments": [
+            {
+              "originalPosition": 259,
+              "body": "Can you further explain this change (in the change track)?",
+              "createdAt": "2025-11-12T11:33:06Z",
+              "updatedAt": "2025-11-12T11:33:06Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs7N0Hwo",
+          "commit": {
+            "abbreviatedOid": "9766893"
+          },
+          "author": "mirjak",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2025-11-12T11:34:52Z",
+          "updatedAt": "2025-11-12T11:34:52Z",
+          "comments": [
+            {
+              "originalPosition": 288,
+              "body": "Just use \"max\" and not \"Math.max\"; we don't use it anywhere else.\r\n\r\nDoes this change mean, you don't decrease on queue delay anymore?",
+              "createdAt": "2025-11-12T11:34:52Z",
+              "updatedAt": "2025-11-12T11:34:52Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs7N0J1J",
+          "commit": {
+            "abbreviatedOid": "9766893"
+          },
+          "author": "mirjak",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2025-11-12T11:37:34Z",
+          "updatedAt": "2025-11-12T11:37:34Z",
+          "comments": [
+            {
+              "originalPosition": 420,
+              "body": "Add definition of constants here.",
+              "createdAt": "2025-11-12T11:37:34Z",
+              "updatedAt": "2025-11-12T11:37:34Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs7N0K7X",
+          "commit": {
+            "abbreviatedOid": "9766893"
+          },
+          "author": "mirjak",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2025-11-12T11:38:57Z",
+          "updatedAt": "2025-11-12T11:38:58Z",
+          "comments": [
+            {
+              "originalPosition": 476,
+              "body": "Why is this removed?",
+              "createdAt": "2025-11-12T11:38:57Z",
+              "updatedAt": "2025-11-12T11:38:58Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs7N0LK2",
+          "commit": {
+            "abbreviatedOid": "9766893"
+          },
+          "author": "mirjak",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2025-11-12T11:39:18Z",
+          "updatedAt": "2025-11-12T11:39:18Z",
+          "comments": [
+            {
+              "originalPosition": 486,
+              "body": "Why 1.1?",
+              "createdAt": "2025-11-12T11:39:18Z",
+              "updatedAt": "2025-11-12T11:39:18Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs7N1Nu1",
+          "commit": {
+            "abbreviatedOid": "9766893"
+          },
+          "author": "IngJohEricsson",
+          "authorAssociation": "OWNER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2025-11-12T12:50:06Z",
+          "updatedAt": "2025-11-12T12:50:07Z",
+          "comments": [
+            {
+              "originalPosition": 146,
+              "body": "I don\u2019t know here. This was what I added after Magnus comment. Perhaps just write text here as it is anyway explained in later sections",
+              "createdAt": "2025-11-12T12:50:07Z",
+              "updatedAt": "2025-11-12T12:50:07Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs7N1N01",
+          "commit": {
+            "abbreviatedOid": "9766893"
+          },
+          "author": "IngJohEricsson",
+          "authorAssociation": "OWNER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2025-11-12T12:50:10Z",
+          "updatedAt": "2025-11-12T12:50:10Z",
+          "comments": [
+            {
+              "originalPosition": 169,
+              "body": "Upon some more thinking, I believe this was added earlier in the github code when there was a risk that the send window could be too restrictive. It can perhaps be needed when the ref_wnd is just a few packets large. Need to check it up",
+              "createdAt": "2025-11-12T12:50:10Z",
+              "updatedAt": "2025-11-12T12:50:10Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs7N1N4t",
+          "commit": {
+            "abbreviatedOid": "9766893"
+          },
+          "author": "IngJohEricsson",
+          "authorAssociation": "OWNER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2025-11-12T12:50:12Z",
+          "updatedAt": "2025-11-12T12:50:12Z",
+          "comments": [
+            {
+              "originalPosition": 211,
+              "body": "OK, then I remove but explain it in the text",
+              "createdAt": "2025-11-12T12:50:12Z",
+              "updatedAt": "2025-11-12T12:50:13Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs7N1N_T",
+          "commit": {
+            "abbreviatedOid": "9766893"
+          },
+          "author": "IngJohEricsson",
+          "authorAssociation": "OWNER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2025-11-12T12:50:16Z",
+          "updatedAt": "2025-11-12T12:50:17Z",
+          "comments": [
+            {
+              "originalPosition": 236,
+              "body": "It is a bit of hand waving. The packet pacing overhead is 1.5, on top of that the pacing gain can be 1.5 times higher if there is much data in the RTP queue. \r\n1.5*1.5 = 2.25, add a little extra -> 3.0",
+              "createdAt": "2025-11-12T12:50:17Z",
+              "updatedAt": "2025-11-12T12:50:17Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs7N1ODn",
+          "commit": {
+            "abbreviatedOid": "9766893"
+          },
+          "author": "IngJohEricsson",
+          "authorAssociation": "OWNER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2025-11-12T12:50:20Z",
+          "updatedAt": "2025-11-12T12:50:20Z",
+          "comments": [
+            {
+              "originalPosition": 245,
+              "body": "Yes, that is likely better",
+              "createdAt": "2025-11-12T12:50:20Z",
+              "updatedAt": "2025-11-12T12:50:20Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs7N1OLb",
+          "commit": {
+            "abbreviatedOid": "9766893"
+          },
+          "author": "IngJohEricsson",
+          "authorAssociation": "OWNER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2025-11-12T12:50:24Z",
+          "updatedAt": "2025-11-12T12:50:25Z",
+          "comments": [
+            {
+              "originalPosition": 259,
+              "body": "OK",
+              "createdAt": "2025-11-12T12:50:25Z",
+              "updatedAt": "2025-11-12T12:50:25Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs7N1ORI",
+          "commit": {
+            "abbreviatedOid": "9766893"
+          },
+          "author": "IngJohEricsson",
+          "authorAssociation": "OWNER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2025-11-12T12:50:28Z",
+          "updatedAt": "2025-11-12T12:50:28Z",
+          "comments": [
+            {
+              "originalPosition": 288,
+              "body": "Oops!",
+              "createdAt": "2025-11-12T12:50:28Z",
+              "updatedAt": "2025-11-12T12:50:29Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs7N1OWA",
+          "commit": {
+            "abbreviatedOid": "9766893"
+          },
+          "author": "IngJohEricsson",
+          "authorAssociation": "OWNER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2025-11-12T12:50:32Z",
+          "updatedAt": "2025-11-12T12:50:32Z",
+          "comments": [
+            {
+              "originalPosition": 420,
+              "body": "OK",
+              "createdAt": "2025-11-12T12:50:32Z",
+              "updatedAt": "2025-11-12T12:50:32Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs7N1OZ0",
+          "commit": {
+            "abbreviatedOid": "9766893"
+          },
+          "author": "IngJohEricsson",
+          "authorAssociation": "OWNER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2025-11-12T12:50:36Z",
+          "updatedAt": "2025-11-12T12:50:36Z",
+          "comments": [
+            {
+              "originalPosition": 476,
+              "body": "It was no longer needed. First it was a fix to get a fast reduction of the target bitrate when SCReAM overshoots. Now, with the more restrictive increase of ref_wnd this is a more rare event, and besides the fix is not efficient for cases when the media coders are sluggish",
+              "createdAt": "2025-11-12T12:50:36Z",
+              "updatedAt": "2025-11-12T12:50:36Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs7N1Od7",
+          "commit": {
+            "abbreviatedOid": "9766893"
+          },
+          "author": "IngJohEricsson",
+          "authorAssociation": "OWNER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2025-11-12T12:50:39Z",
+          "updatedAt": "2025-11-12T12:50:40Z",
+          "comments": [
+            {
+              "originalPosition": 486,
+              "body": "It is kind of a magic constant that has shown to be needed to avoid that the RTP queue builds up. One need to stay slighty below rate=ref_wnd*8/rtt to avoid this from happening.",
+              "createdAt": "2025-11-12T12:50:39Z",
+              "updatedAt": "2025-11-12T12:50:40Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs7N1ROU",
+          "commit": {
+            "abbreviatedOid": "9766893"
+          },
+          "author": "IngJohEricsson",
+          "authorAssociation": "OWNER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2025-11-12T12:52:40Z",
+          "updatedAt": "2025-11-12T12:52:40Z",
+          "comments": [
+            {
+              "originalPosition": 288,
+              "body": "It is to avoid large down changes when the queue delay varies a lot, note though that this is not applied if queue delay has increased considerably. \r\n",
+              "createdAt": "2025-11-12T12:52:40Z",
+              "updatedAt": "2025-11-12T12:52:40Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs7N1SR3",
+          "commit": {
+            "abbreviatedOid": "9766893"
+          },
+          "author": "IngJohEricsson",
+          "authorAssociation": "OWNER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2025-11-12T12:53:30Z",
+          "updatedAt": "2025-11-12T12:53:30Z",
+          "comments": [
+            {
+              "originalPosition": 259,
+              "body": "the if (qdelay > ... ) was actually a bug in the specification\r\n",
+              "createdAt": "2025-11-12T12:53:30Z",
+              "updatedAt": "2025-11-12T12:53:30Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs7N1WVF",
+          "commit": {
+            "abbreviatedOid": "9766893"
+          },
+          "author": "IngJohEricsson",
+          "authorAssociation": "OWNER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2025-11-12T12:57:25Z",
+          "updatedAt": "2025-11-12T12:57:25Z",
+          "comments": [
+            {
+              "originalPosition": 169,
+              "body": "ref_wnd_overhead  is calculated further down in the text\r\n",
+              "createdAt": "2025-11-12T12:57:25Z",
+              "updatedAt": "2025-11-12T12:57:26Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs7N16lo",
+          "commit": {
+            "abbreviatedOid": "9766893"
+          },
+          "author": "IngJohEricsson",
+          "authorAssociation": "OWNER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2025-11-12T13:29:55Z",
+          "updatedAt": "2025-11-12T13:29:55Z",
+          "comments": [
+            {
+              "originalPosition": 169,
+              "body": "A follow-up, MSS can be excluded ",
+              "createdAt": "2025-11-12T13:29:55Z",
+              "updatedAt": "2025-11-12T13:29:55Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs7N25hD",
+          "commit": {
+            "abbreviatedOid": "76c42aa"
+          },
+          "author": "mirjak",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2025-11-12T14:25:36Z",
+          "updatedAt": "2025-11-12T14:25:36Z",
+          "comments": [
+            {
+              "originalPosition": 146,
+              "body": "Having all the equation there is good but I think text is easier. Like:\r\n\r\n```\r\nIn each RTT ref_wnd will be reduced at most once if congestion is detected based on the following conditions: \r\n\r\na) on loss: ref_wnd *=  LOSS_BETA\r\n\r\nb) classic ECN CE: ref_wnd *=  ECN_BETA\r\n\r\nb) on L4S ECN CE or increased delay: ref_wnd *=  1-l4sAlpha/2\r\n\r\nIndependent of the congestion detection, ref_wnd is increased by a fix increment for each RTT.\r\n```\r\n\r\nFeel clearer to me...",
+              "createdAt": "2025-11-12T14:25:36Z",
+              "updatedAt": "2025-11-12T14:25:36Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs7N3ixK",
+          "commit": {
+            "abbreviatedOid": "9766893"
+          },
+          "author": "IngJohEricsson",
+          "authorAssociation": "OWNER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2025-11-12T14:57:05Z",
+          "updatedAt": "2025-11-12T14:57:05Z",
+          "comments": [
+            {
+              "originalPosition": 146,
+              "body": "Agree, taken. I'll change and commit\r\n",
+              "createdAt": "2025-11-12T14:57:05Z",
+              "updatedAt": "2025-11-12T14:57:05Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "number": 52,
+      "id": "PR_kwDOK7AJUs6_WYqK",
+      "title": "Ingo 260123",
+      "url": "https://github.com/IngJohEricsson/draft-johansson-ccwg-scream-bis/pull/52",
+      "state": "MERGED",
+      "author": "IngJohEricsson",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "* Additional restriction of ref_wnd increase and ref_wnd_overhead when ref_wnd/MSS is very low.\r\n\r\n* Additional compensation for increased media queue delay and frame size variation when calculating target bitrate.\r\n\r\n* Changes in text on feedback.\r\n\r\n* Section on handling of systematic error in media encoder output bitrate removed as this is adressed in section Media Rate Control.\r\n\r\n* Added section Clock drift issues and remedies.",
+      "createdAt": "2026-01-26T11:53:47Z",
+      "updatedAt": "2026-03-02T18:33:40Z",
+      "baseRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
+      "baseRefName": "main",
+      "baseRefOid": "2aa4b25b5aaaa241da1ba2c5781e75a77dad8d8a",
+      "headRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
+      "headRefName": "ingo_260123",
+      "headRefOid": "e617c46a19a34376e9aa7e8003863980b0d61964",
+      "closedAt": "2026-03-02T18:33:40Z",
+      "mergedAt": "2026-03-02T18:33:40Z",
+      "mergedBy": "IngJohEricsson",
+      "mergeCommit": {
+        "oid": "dbfdaaa7bcbd5635d76841951771e284c0a9a2fb"
+      },
+      "comments": [],
+      "reviews": [
+        {
+          "id": "PRR_kwDOK7AJUs7g5i1t",
+          "commit": {
+            "abbreviatedOid": "5536d4b"
+          },
+          "author": "mirjak",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-02-09T13:04:39Z",
+          "updatedAt": "2026-02-09T13:04:39Z",
+          "comments": [
+            {
+              "originalPosition": 1,
+              "body": "```suggestion\n|    Media   |                            |  Data    |\n|    Rate    +---------------+            |   Units   |\n|   Control  |               |            |   Queue   |\n```",
+              "createdAt": "2026-02-09T13:04:39Z",
+              "updatedAt": "2026-02-09T13:05:38Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs7g5kau",
+          "commit": {
+            "abbreviatedOid": "5536d4b"
+          },
+          "author": "mirjak",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-02-09T13:05:57Z",
+          "updatedAt": "2026-02-09T13:05:58Z",
+          "comments": [
+            {
+              "originalPosition": 14,
+              "body": "```suggestion\na slack to avoid that packets are unnecessarily delayed in the Data Units Queue.\n```",
+              "createdAt": "2026-02-09T13:05:57Z",
+              "updatedAt": "2026-02-09T13:05:58Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs7g5l6r",
+          "commit": {
+            "abbreviatedOid": "5536d4b"
+          },
+          "author": "mirjak",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-02-09T13:07:27Z",
+          "updatedAt": "2026-02-09T13:07:27Z",
+          "comments": [
+            {
+              "originalPosition": 15,
+              "body": "```suggestion\nThe slack avoids unnecessary delays in the Data Units Queue when the link is uncongested. The bytes in flight however become more restrained in congested situations, to avoid large variations in queue delay and bitrate.\n```",
+              "createdAt": "2026-02-09T13:07:27Z",
+              "updatedAt": "2026-02-09T13:07:27Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs7iTZu2",
+          "commit": {
+            "abbreviatedOid": "9c5597f"
+          },
+          "author": "mirjak",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-02-13T11:23:03Z",
+          "updatedAt": "2026-02-13T11:23:04Z",
+          "comments": [
+            {
+              "originalPosition": 39,
+              "body": "```suggestion\nvariable qdelay_dev_norm indicates how much the queue delay varies,\nnormalized to QDELAY_DEV_NORM. A small margin QDELAY_DEV_NORM/4\nis implemented to avoid sensitivity to scheduling jitter.\n```",
+              "createdAt": "2026-02-13T11:23:04Z",
+              "updatedAt": "2026-02-13T11:23:18Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs7iTbpA",
+          "commit": {
+            "abbreviatedOid": "9c5597f"
+          },
+          "author": "mirjak",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-02-13T11:25:21Z",
+          "updatedAt": "2026-02-13T11:25:21Z",
+          "comments": [
+            {
+              "originalPosition": 40,
+              "body": "```suggestion\nThe qdelay_dev_norm_th is an adaptive threshold that limits the ref_wnd growth\nas well as the ref_wnd_overhead when ref_wnd is small to reduces delay and rate variations.\n```",
+              "createdAt": "2026-02-13T11:25:21Z",
+              "updatedAt": "2026-02-13T11:25:30Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs7iTcsC",
+          "commit": {
+            "abbreviatedOid": "9c5597f"
+          },
+          "author": "mirjak",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-02-13T11:26:33Z",
+          "updatedAt": "2026-02-13T11:26:34Z",
+          "comments": [
+            {
+              "originalPosition": 53,
+              "body": "This seems really very random to me to limit the delay samples to 0.2 and reduce them by QDELAY_DEV_NORM/4. If you want to filter out single outliners are are better ways than falsifying all samples!",
+              "createdAt": "2026-02-13T11:26:34Z",
+              "updatedAt": "2026-02-13T11:26:34Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs7iThqI",
+          "commit": {
+            "abbreviatedOid": "9c5597f"
+          },
+          "author": "mirjak",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-02-13T11:32:16Z",
+          "updatedAt": "2026-02-13T11:32:16Z",
+          "comments": [
+            {
+              "originalPosition": 352,
+              "body": "```suggestion\n* SCReAM has been designed to target two marked packets per RTT in steady state when L4S is enabled.\n   However, SCReAM can settle for a lower number of marked packets per RTT in steady state\n   due to measures taken in the calculation of the ref_wnd and the target_bitrate\n   that are necessary to get a stable bitrate and lower queue delay.\n   In those cases SCReAM may get a lower share of the link capacity\n   when competing against e.g. a large file transfer with TCP Prague congestion control.\n```",
+              "createdAt": "2026-02-13T11:32:16Z",
+              "updatedAt": "2026-02-13T11:32:16Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs7iWPZ6",
+          "commit": {
+            "abbreviatedOid": "9c5597f"
+          },
+          "author": "IngJohEricsson",
+          "authorAssociation": "OWNER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-02-13T14:07:45Z",
+          "updatedAt": "2026-02-13T14:07:46Z",
+          "comments": [
+            {
+              "originalPosition": 40,
+              "body": "Minor typo. s/reduces/reduce",
+              "createdAt": "2026-02-13T14:07:46Z",
+              "updatedAt": "2026-02-13T14:07:46Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs7iWSWP",
+          "commit": {
+            "abbreviatedOid": "9c5597f"
+          },
+          "author": "IngJohEricsson",
+          "authorAssociation": "OWNER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-02-13T14:09:38Z",
+          "updatedAt": "2026-02-13T14:09:38Z",
+          "comments": [
+            {
+              "originalPosition": 53,
+              "body": "I guess there are different means to address this. For instance some statistical methods to discriminate between delay jitter and scheduling jitter. This is the most simple I could come up with for the moment",
+              "createdAt": "2026-02-13T14:09:38Z",
+              "updatedAt": "2026-02-13T14:09:38Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs7iWnsD",
+          "commit": {
+            "abbreviatedOid": "9c5597f"
+          },
+          "author": "mirjak",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-02-13T14:25:56Z",
+          "updatedAt": "2026-02-13T14:25:56Z",
+          "comments": [
+            {
+              "originalPosition": 53,
+              "body": "Doesn't like that simple to me. Also it's rather random. Doing these kind of hacks might work in one scenario but not in others and would need a lot of testing if there is not a good logical reason to do this exactly this way. Like why 0.2 as a max? why subtract 1/4 of QDELAY_DEV_NORM? There are already a lot of random variables in this document... So what do you want achieve with this? Filtering single outliers or something else?",
+              "createdAt": "2026-02-13T14:25:56Z",
+              "updatedAt": "2026-02-13T14:25:56Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs7iWqQh",
+          "commit": {
+            "abbreviatedOid": "9c5597f"
+          },
+          "author": "mirjak",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-02-13T14:28:20Z",
+          "updatedAt": "2026-02-13T14:28:20Z",
+          "comments": [
+            {
+              "originalPosition": 53,
+              "body": "If this is about single outliers it would be better to define a threshold where you don't process a delay sample at all if it is that much larger than the previous value/average value...?",
+              "createdAt": "2026-02-13T14:28:20Z",
+              "updatedAt": "2026-02-13T14:28:20Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs7iWrmS",
+          "commit": {
+            "abbreviatedOid": "9c5597f"
+          },
+          "author": "IngJohEricsson",
+          "authorAssociation": "OWNER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-02-13T14:29:21Z",
+          "updatedAt": "2026-02-13T14:29:21Z",
+          "comments": [
+            {
+              "originalPosition": 53,
+              "body": "The intention is to allow for some scheduling jitter, yes the QDELAY_DEV_NORM/4 is a bit random. In effect it allows for 25/4 = 8ms delay jitter. ",
+              "createdAt": "2026-02-13T14:29:21Z",
+              "updatedAt": "2026-02-13T14:29:21Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs7iWrvf",
+          "commit": {
+            "abbreviatedOid": "9c5597f"
+          },
+          "author": "mirjak",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-02-13T14:29:27Z",
+          "updatedAt": "2026-02-13T14:29:27Z",
+          "comments": [
+            {
+              "originalPosition": 53,
+              "body": "But maybe it would be better to also then have this function as a separate optional function (that different people could implement differently because this is a common problem) and not make it part of the base algorithm.",
+              "createdAt": "2026-02-13T14:29:27Z",
+              "updatedAt": "2026-02-13T14:29:27Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs7iW1OM",
+          "commit": {
+            "abbreviatedOid": "9c5597f"
+          },
+          "author": "IngJohEricsson",
+          "authorAssociation": "OWNER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-02-13T14:36:43Z",
+          "updatedAt": "2026-02-13T14:36:43Z",
+          "comments": [
+            {
+              "originalPosition": 53,
+              "body": "Yes, that may be the best option, to have the algorithm part as an optional implementation. I agree that it is a bit around magic numbers that may mess up the core specification. There is a similar issue with the extra things to address that the media queue can grow (further down) ",
+              "createdAt": "2026-02-13T14:36:43Z",
+              "updatedAt": "2026-02-13T14:36:43Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs7iW12r",
+          "commit": {
+            "abbreviatedOid": "9c5597f"
+          },
+          "author": "IngJohEricsson",
+          "authorAssociation": "OWNER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-02-13T14:37:09Z",
+          "updatedAt": "2026-02-13T14:37:09Z",
+          "comments": [
+            {
+              "originalPosition": 53,
+              "body": "A separate section with optional improvements perhaps ?\r\n",
+              "createdAt": "2026-02-13T14:37:09Z",
+              "updatedAt": "2026-02-13T14:37:09Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs7iXeJI",
+          "commit": {
+            "abbreviatedOid": "0fa7df3"
+          },
+          "author": "mirjak",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-02-13T15:10:29Z",
+          "updatedAt": "2026-02-27T15:08:23Z",
+          "comments": [
+            {
+              "originalPosition": 53,
+              "body": "Yes, that might be the better approach.",
+              "createdAt": "2026-02-13T15:10:29Z",
+              "updatedAt": "2026-02-27T15:08:23Z"
+            },
+            {
+              "originalPosition": 52,
+              "body": "I guess this last line was removed by mistake?",
+              "createdAt": "2026-02-27T15:08:16Z",
+              "updatedAt": "2026-02-27T15:08:23Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs7mhV2U",
+          "commit": {
+            "abbreviatedOid": "0fa7df3"
+          },
+          "author": "mirjak",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-02-27T15:18:25Z",
+          "updatedAt": "2026-02-27T15:18:25Z",
+          "comments": [
+            {
+              "originalPosition": 70,
+              "body": "Can you explain how you got to this calculation a bit more?",
+              "createdAt": "2026-02-27T15:18:25Z",
+              "updatedAt": "2026-02-27T15:18:25Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs7mhaOE",
+          "commit": {
+            "abbreviatedOid": "0fa7df3"
+          },
+          "author": "mirjak",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-02-27T15:21:11Z",
+          "updatedAt": "2026-02-27T15:21:11Z",
+          "comments": [
+            {
+              "originalPosition": 113,
+              "body": "why you need to limit this to 0.1? Again random number...",
+              "createdAt": "2026-02-27T15:21:11Z",
+              "updatedAt": "2026-02-27T15:21:11Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs7mhcCk",
+          "commit": {
+            "abbreviatedOid": "0fa7df3"
+          },
+          "author": "mirjak",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-02-27T15:22:24Z",
+          "updatedAt": "2026-02-27T15:22:24Z",
+          "comments": [
+            {
+              "originalPosition": 107,
+              "body": "This is really confusing. Maybe define a parameter and add an if clause:\n\nif reduce_jitter == true",
+              "createdAt": "2026-02-27T15:22:24Z",
+              "updatedAt": "2026-02-27T15:22:24Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs7mhdjQ",
+          "commit": {
+            "abbreviatedOid": "0fa7df3"
+          },
+          "author": "mirjak",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-02-27T15:23:27Z",
+          "updatedAt": "2026-02-27T15:23:27Z",
+          "comments": [
+            {
+              "originalPosition": 68,
+              "body": "Maybe define this as an function and the you can do above: if (reduce_jitter == true) cal_delay_norm()",
+              "createdAt": "2026-02-27T15:23:27Z",
+              "updatedAt": "2026-02-27T15:23:27Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs7m6m5x",
+          "commit": {
+            "abbreviatedOid": "0fa7df3"
+          },
+          "author": "IngJohEricsson",
+          "authorAssociation": "OWNER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-03-02T05:21:05Z",
+          "updatedAt": "2026-03-02T05:21:05Z",
+          "comments": [
+            {
+              "originalPosition": 52,
+              "body": "The code is moved further down.",
+              "createdAt": "2026-03-02T05:21:05Z",
+              "updatedAt": "2026-03-02T05:21:05Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs7m6sBt",
+          "commit": {
+            "abbreviatedOid": "0fa7df3"
+          },
+          "author": "IngJohEricsson",
+          "authorAssociation": "OWNER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-03-02T05:30:59Z",
+          "updatedAt": "2026-03-02T05:30:59Z",
+          "comments": [
+            {
+              "originalPosition": 70,
+              "body": "See modified text",
+              "createdAt": "2026-03-02T05:30:59Z",
+              "updatedAt": "2026-03-02T05:30:59Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs7m6vEZ",
+          "commit": {
+            "abbreviatedOid": "0fa7df3"
+          },
+          "author": "IngJohEricsson",
+          "authorAssociation": "OWNER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-03-02T05:36:56Z",
+          "updatedAt": "2026-03-02T05:36:56Z",
+          "comments": [
+            {
+              "originalPosition": 113,
+              "body": "Tried with a clarification",
+              "createdAt": "2026-03-02T05:36:56Z",
+              "updatedAt": "2026-03-02T05:36:56Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs7m6xmA",
+          "commit": {
+            "abbreviatedOid": "0fa7df3"
+          },
+          "author": "IngJohEricsson",
+          "authorAssociation": "OWNER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-03-02T05:41:49Z",
+          "updatedAt": "2026-03-02T05:41:49Z",
+          "comments": [
+            {
+              "originalPosition": 107,
+              "body": "Please see change",
+              "createdAt": "2026-03-02T05:41:49Z",
+              "updatedAt": "2026-03-02T05:41:49Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs7m8K4s",
+          "commit": {
+            "abbreviatedOid": "0fa7df3"
+          },
+          "author": "IngJohEricsson",
+          "authorAssociation": "OWNER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-03-02T07:38:05Z",
+          "updatedAt": "2026-03-02T07:38:05Z",
+          "comments": [
+            {
+              "originalPosition": 68,
+              "body": "Unclear to me what the reduce_jitter variable represents",
+              "createdAt": "2026-03-02T07:38:05Z",
+              "updatedAt": "2026-03-02T07:38:05Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs7m-Y1G",
+          "commit": {
+            "abbreviatedOid": "08cb35b"
+          },
+          "author": "mirjak",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-03-02T09:53:07Z",
+          "updatedAt": "2026-03-02T09:53:07Z",
+          "comments": [
+            {
+              "originalPosition": 65,
+              "body": "```suggestion\nThe SCReAM algorithm can be further improved for a greater rate stability by taking variations in qdelay into consideration. The goal is to react less to delay variations, caused by e.g. link layer related scheduling and retransmissions, but still be reactive to actual queue delay, caused by congestion. The code below provides a example implementation but more advanced statistical analysis can be considered.\n```",
+              "createdAt": "2026-03-02T09:53:07Z",
+              "updatedAt": "2026-03-02T09:53:07Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs7m-dQ3",
+          "commit": {
+            "abbreviatedOid": "08cb35b"
+          },
+          "author": "mirjak",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-03-02T09:56:59Z",
+          "updatedAt": "2026-03-02T09:56:59Z",
+          "comments": [
+            {
+              "originalPosition": 68,
+              "body": "```suggestion\nnormalized to QDELAY_DEV_NORM. A small margin QDELAY_DEV_NORM/4 is implemented to reduce sensitivity to link layer scheduling jitter and retransmissions. In addition, the metric is capped to avoid that qdelay_dev_norm winds up to very large values in cases of severe congestion. This limit is relative to qdelay_dev_norm_th.  qdelay_dev_norm_th is an adaptive threshold that limits ref_wnd growth and  ref_wnd_overhead and increases if ref_wnd/MSS is small. This reduces delay and rate variations at very low ref_wnd caused by the relatively fast roughly MSS per RTT. The threshold is limited to a maximum value of 0.1 which is applied when the standard deviation of the delay jitter exceeds the threshold.\n```",
+              "createdAt": "2026-03-02T09:56:59Z",
+              "updatedAt": "2026-03-02T09:56:59Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs7m-di8",
+          "commit": {
+            "abbreviatedOid": "c460425"
+          },
+          "author": "mirjak",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-03-02T09:57:14Z",
+          "updatedAt": "2026-03-02T09:57:14Z",
+          "comments": [
+            {
+              "originalPosition": 68,
+              "body": "What does \" fast roughly MSS per RTT\" mean?",
+              "createdAt": "2026-03-02T09:57:14Z",
+              "updatedAt": "2026-03-02T09:57:14Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs7m-fFG",
+          "commit": {
+            "abbreviatedOid": "08cb35b"
+          },
+          "author": "mirjak",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-03-02T09:58:35Z",
+          "updatedAt": "2026-03-02T09:58:35Z",
+          "comments": [
+            {
+              "originalPosition": 55,
+              "body": "If thought this:\n\n```suggestion\n if (REDUCE_JITTER == true)\n     calculate_qdelay_norm()\n```\n\nwhere reduce jitter it a config parameter to enable this additional logic.",
+              "createdAt": "2026-03-02T09:58:35Z",
+              "updatedAt": "2026-03-02T09:58:35Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs7m-fs7",
+          "commit": {
+            "abbreviatedOid": "c460425"
+          },
+          "author": "mirjak",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-03-02T09:59:06Z",
+          "updatedAt": "2026-03-02T09:59:06Z",
+          "comments": [
+            {
+              "originalPosition": 70,
+              "body": "And why 0.05?",
+              "createdAt": "2026-03-02T09:59:06Z",
+              "updatedAt": "2026-03-02T09:59:06Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs7m-hXt",
+          "commit": {
+            "abbreviatedOid": "08cb35b"
+          },
+          "author": "mirjak",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-03-02T10:00:31Z",
+          "updatedAt": "2026-03-02T10:00:31Z",
+          "comments": [
+            {
+              "originalPosition": 118,
+              "body": "That not what I meant. This code change is not necessary but adding the commenting is good!",
+              "createdAt": "2026-03-02T10:00:31Z",
+              "updatedAt": "2026-03-02T10:00:31Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs7m-jkb",
+          "commit": {
+            "abbreviatedOid": "08cb35b"
+          },
+          "author": "IngJohEricsson",
+          "authorAssociation": "OWNER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-03-02T10:02:22Z",
+          "updatedAt": "2026-03-02T10:02:22Z",
+          "comments": [
+            {
+              "originalPosition": 68,
+              "body": "Should be \"fast roughly one MSS per RTT increase\" , or some better wording to highlight that an increase of ref_wnd from 10 to 11 MSS in one RTT is a larger change than 100 to 101 MSS in one RTT",
+              "createdAt": "2026-03-02T10:02:22Z",
+              "updatedAt": "2026-03-02T10:02:22Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs7m-3Dz",
+          "commit": {
+            "abbreviatedOid": "08cb35b"
+          },
+          "author": "IngJohEricsson",
+          "authorAssociation": "OWNER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-03-02T10:18:55Z",
+          "updatedAt": "2026-03-02T10:18:56Z",
+          "comments": [
+            {
+              "originalPosition": 118,
+              "body": "OK, fixed this with only the comment",
+              "createdAt": "2026-03-02T10:18:55Z",
+              "updatedAt": "2026-03-02T10:18:56Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs7m-5I8",
+          "commit": {
+            "abbreviatedOid": "0fa7df3"
+          },
+          "author": "IngJohEricsson",
+          "authorAssociation": "OWNER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-03-02T10:20:41Z",
+          "updatedAt": "2026-03-02T10:20:41Z",
+          "comments": [
+            {
+              "originalPosition": 70,
+              "body": "I added a \"based on experimentation\". It is not so much thinking around this",
+              "createdAt": "2026-03-02T10:20:41Z",
+              "updatedAt": "2026-03-02T10:20:41Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs7m--0v",
+          "commit": {
+            "abbreviatedOid": "9ed8ed0"
+          },
+          "author": "mirjak",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-03-02T10:25:53Z",
+          "updatedAt": "2026-03-02T10:25:53Z",
+          "comments": [
+            {
+              "originalPosition": 70,
+              "body": "Why do you need yet another limit of 0.05 in addition to the 0.1 limit?",
+              "createdAt": "2026-03-02T10:25:53Z",
+              "updatedAt": "2026-03-02T10:25:53Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs7m_Adn",
+          "commit": {
+            "abbreviatedOid": "9ed8ed0"
+          },
+          "author": "mirjak",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-03-02T10:27:10Z",
+          "updatedAt": "2026-03-02T10:27:10Z",
+          "comments": [
+            {
+              "originalPosition": 107,
+              "body": "if you use the \"if (REDUCE_JITTER == true)\" above you also need to use it here",
+              "createdAt": "2026-03-02T10:27:10Z",
+              "updatedAt": "2026-03-02T10:27:10Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs7m_CE9",
+          "commit": {
+            "abbreviatedOid": "9ed8ed0"
+          },
+          "author": "mirjak",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-03-02T10:28:17Z",
+          "updatedAt": "2026-03-02T10:28:17Z",
+          "comments": [
+            {
+              "originalPosition": 169,
+              "body": "and also here add \"if (REDUCE_JITTER == true)\"",
+              "createdAt": "2026-03-02T10:28:17Z",
+              "updatedAt": "2026-03-02T10:28:17Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs7m_CKQ",
+          "commit": {
+            "abbreviatedOid": "0fa7df3"
+          },
+          "author": "IngJohEricsson",
+          "authorAssociation": "OWNER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-03-02T10:28:21Z",
+          "updatedAt": "2026-03-02T10:28:21Z",
+          "comments": [
+            {
+              "originalPosition": 70,
+              "body": "You have a point, perhaps it can be removed in its entirety to make the draft less cluttered?. It improves stability when ref_wnd is small but it is not a dramatical improvement ",
+              "createdAt": "2026-03-02T10:28:21Z",
+              "updatedAt": "2026-03-02T10:28:21Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs7m_JJp",
+          "commit": {
+            "abbreviatedOid": "0fa7df3"
+          },
+          "author": "IngJohEricsson",
+          "authorAssociation": "OWNER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-03-02T10:32:48Z",
+          "updatedAt": "2026-03-02T10:32:48Z",
+          "comments": [
+            {
+              "originalPosition": 107,
+              "body": "Not sure it is needed \r\nif REDUCE_JITTER == false in previous code then qdelay_dev_norm will be zero",
+              "createdAt": "2026-03-02T10:32:48Z",
+              "updatedAt": "2026-03-02T10:32:49Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs7m_KxJ",
+          "commit": {
+            "abbreviatedOid": "9ed8ed0"
+          },
+          "author": "IngJohEricsson",
+          "authorAssociation": "OWNER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-03-02T10:33:46Z",
+          "updatedAt": "2026-03-02T10:33:46Z",
+          "comments": [
+            {
+              "originalPosition": 169,
+              "body": "Not sure it is needed here as well\r\nif REDUCE_JITTER == false in previous code then qdelay_dev_norm will be zero",
+              "createdAt": "2026-03-02T10:33:46Z",
+              "updatedAt": "2026-03-02T10:33:46Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs7m_b5Z",
+          "commit": {
+            "abbreviatedOid": "9ed8ed0"
+          },
+          "author": "gloinul",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-03-02T10:44:14Z",
+          "updatedAt": "2026-03-02T10:44:14Z",
+          "comments": [
+            {
+              "originalPosition": 77,
+              "body": "Should there be a comma between 0.0 and the rest. ",
+              "createdAt": "2026-03-02T10:44:14Z",
+              "updatedAt": "2026-03-02T10:44:14Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs7m_sZ-",
+          "commit": {
+            "abbreviatedOid": "9ed8ed0"
+          },
+          "author": "IngJohEricsson",
+          "authorAssociation": "OWNER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-03-02T10:57:39Z",
+          "updatedAt": "2026-03-02T10:57:39Z",
+          "comments": [
+            {
+              "originalPosition": 77,
+              "body": "Hmm, obviously yes!, fixed",
+              "createdAt": "2026-03-02T10:57:39Z",
+              "updatedAt": "2026-03-02T10:57:39Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs7m_ueC",
+          "commit": {
+            "abbreviatedOid": "9ed8ed0"
+          },
+          "author": "mirjak",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-03-02T10:59:32Z",
+          "updatedAt": "2026-03-02T10:59:32Z",
+          "comments": [
+            {
+              "originalPosition": 56,
+              "body": "```suggestion\n  # Optional code to calculate the variation on queue delay, which is an\n  # Indication of congestion or near congestion.\n qdelay_dev_norm = 0;\n qdelay_dev_norm_th = 0,\n if (REDUCE_JITTER == true)\n     calculate_qdelay_norm()\n```",
+              "createdAt": "2026-03-02T10:59:32Z",
+              "updatedAt": "2026-03-02T10:59:32Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs7m_u59",
+          "commit": {
+            "abbreviatedOid": "4d64b18"
+          },
+          "author": "mirjak",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-03-02T10:59:56Z",
+          "updatedAt": "2026-03-02T10:59:56Z",
+          "comments": [
+            {
+              "originalPosition": 107,
+              "body": "Maybe put that into the comment?",
+              "createdAt": "2026-03-02T10:59:56Z",
+              "updatedAt": "2026-03-02T10:59:56Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs7m_vFC",
+          "commit": {
+            "abbreviatedOid": "4d64b18"
+          },
+          "author": "mirjak",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-03-02T11:00:06Z",
+          "updatedAt": "2026-03-02T11:00:06Z",
+          "comments": [
+            {
+              "originalPosition": 169,
+              "body": "Maybe put that into the comment?",
+              "createdAt": "2026-03-02T11:00:06Z",
+              "updatedAt": "2026-03-02T11:00:06Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs7nAsmk",
+          "commit": {
+            "abbreviatedOid": "9ed8ed0"
+          },
+          "author": "IngJohEricsson",
+          "authorAssociation": "OWNER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-03-02T11:52:25Z",
+          "updatedAt": "2026-03-02T11:52:25Z",
+          "comments": [
+            {
+              "originalPosition": 169,
+              "body": "Yes, fixed",
+              "createdAt": "2026-03-02T11:52:25Z",
+              "updatedAt": "2026-03-02T11:52:25Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs7nCRyZ",
+          "commit": {
+            "abbreviatedOid": "6d9bffe"
+          },
+          "author": "mirjak",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-03-02T13:13:55Z",
+          "updatedAt": "2026-03-02T13:13:56Z",
+          "comments": [
+            {
+              "originalPosition": 56,
+              "body": "Actually, sorry his is the wrong was to do it. The way we did this otherwise was this list with \"The following variables are used:\" after the code.",
+              "createdAt": "2026-03-02T13:13:56Z",
+              "updatedAt": "2026-03-02T13:13:56Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs7nCVXo",
+          "commit": {
+            "abbreviatedOid": "6d9bffe"
+          },
+          "author": "mirjak",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-03-02T13:16:56Z",
+          "updatedAt": "2026-03-02T13:16:56Z",
+          "comments": [
+            {
+              "originalPosition": 85,
+              "body": "```suggestion\n\nThe following variables are used:\u00b6\n\n* qdelay_dev_norm (0): indicates how much the queue delay varies, normalized to QDELAY_DEV_NORM.\n\n* qdelay_dev_norm_th (1.0): an adaptive threshold that limits ref_wnd growth and  ref_wnd_overhead.\n```",
+              "createdAt": "2026-03-02T13:16:56Z",
+              "updatedAt": "2026-03-02T13:16:56Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs7nCYMd",
+          "commit": {
+            "abbreviatedOid": "6d9bffe"
+          },
+          "author": "mirjak",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-03-02T13:18:53Z",
+          "updatedAt": "2026-03-02T13:18:53Z",
+          "comments": [
+            {
+              "originalPosition": 71,
+              "body": "```suggestion\nnormalized to QDELAY_DEV_NORM. A small margin QDELAY_DEV_NORM/4 is implemented to reduce sensitivity to link layer scheduling jitter and retransmissions. In addition, a limit is implemented to avoid that qdelay_dev_norm winds up to very large values in cases of severe congestion. This limit is relative to qdelay_dev_norm_th.  qdelay_dev_norm_th is an adaptive threshold that limits ref_wnd growth and  ref_wnd_overhead and increases if ref_wnd/MSS is small. This reduces delay and rate variations caused by the relatively fast roughly MSS per RTT when the ref_wnd is small. The threshold is limited to a maximum value of 0.1 which is applied when the standard deviation of the delay jitter exceeds the threshold.\n```",
+              "createdAt": "2026-03-02T13:18:53Z",
+              "updatedAt": "2026-03-02T13:18:53Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs7nCZlC",
+          "commit": {
+            "abbreviatedOid": "6d9bffe"
+          },
+          "author": "mirjak",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-03-02T13:19:52Z",
+          "updatedAt": "2026-03-02T13:19:52Z",
+          "comments": [
+            {
+              "originalPosition": 71,
+              "body": "I don't understand \"the relatively fast roughly MSS per RTT\". I don't think this is correct English... maybe there is word missing here?",
+              "createdAt": "2026-03-02T13:19:52Z",
+              "updatedAt": "2026-03-02T13:19:52Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs7nDu7A",
+          "commit": {
+            "abbreviatedOid": "6d9bffe"
+          },
+          "author": "IngJohEricsson",
+          "authorAssociation": "OWNER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-03-02T14:18:21Z",
+          "updatedAt": "2026-03-02T14:18:21Z",
+          "comments": [
+            {
+              "originalPosition": 56,
+              "body": "Yes, correct",
+              "createdAt": "2026-03-02T14:18:21Z",
+              "updatedAt": "2026-03-02T14:18:22Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs7nD1aq",
+          "commit": {
+            "abbreviatedOid": "6d9bffe"
+          },
+          "author": "IngJohEricsson",
+          "authorAssociation": "OWNER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-03-02T14:23:09Z",
+          "updatedAt": "2026-03-02T14:23:09Z",
+          "comments": [
+            {
+              "originalPosition": 71,
+              "body": "Tried with \"This reduces delay and rate variations caused by that the relative increase of ref_wnd is faster when ref_wnd is small\"\r\n",
+              "createdAt": "2026-03-02T14:23:09Z",
+              "updatedAt": "2026-03-02T14:23:09Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs7nIJmJ",
+          "commit": {
+            "abbreviatedOid": "fbc2a84"
+          },
+          "author": "mirjak",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-03-02T17:37:16Z",
+          "updatedAt": "2026-03-02T17:37:16Z",
+          "comments": [
+            {
+              "originalPosition": 56,
+              "body": "```suggestion\n```",
+              "createdAt": "2026-03-02T17:37:16Z",
+              "updatedAt": "2026-03-02T17:37:16Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs7nIKgJ",
+          "commit": {
+            "abbreviatedOid": "fbc2a84"
+          },
+          "author": "mirjak",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-03-02T17:37:48Z",
+          "updatedAt": "2026-03-02T17:37:48Z",
+          "comments": [
+            {
+              "originalPosition": 70,
+              "body": "What do you want to do here now. Remove the 0.05 for now or keep it?",
+              "createdAt": "2026-03-02T17:37:48Z",
+              "updatedAt": "2026-03-02T17:37:48Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs7nIK72",
+          "commit": {
+            "abbreviatedOid": "fbc2a84"
+          },
+          "author": "mirjak",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-03-02T17:38:03Z",
+          "updatedAt": "2026-03-02T17:38:03Z",
+          "comments": [
+            {
+              "originalPosition": 91,
+              "body": "```suggestion\n\nThe following constants are used:\n```",
+              "createdAt": "2026-03-02T17:38:03Z",
+              "updatedAt": "2026-03-02T17:38:03Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs7nIO69",
+          "commit": {
+            "abbreviatedOid": "8fb9332"
+          },
+          "author": "mirjak",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-03-02T17:40:39Z",
+          "updatedAt": "2026-03-02T17:40:39Z",
+          "comments": [
+            {
+              "originalPosition": 131,
+              "body": "```suggestion\n        # Optional additional code for increased rate stability\n        # qdelay_dev_norm is zero if REDUCE_JITTER is false\n```",
+              "createdAt": "2026-03-02T17:40:39Z",
+              "updatedAt": "2026-03-02T17:40:39Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs7nIPak",
+          "commit": {
+            "abbreviatedOid": "8fb9332"
+          },
+          "author": "mirjak",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-03-02T17:41:01Z",
+          "updatedAt": "2026-03-02T17:41:01Z",
+          "comments": [
+            {
+              "originalPosition": 175,
+              "body": "```suggestion\n# Optional additional code for increased rate stability\n# qdelay_dev_norm is zero if REDUCE_JITTER is false\n```",
+              "createdAt": "2026-03-02T17:41:01Z",
+              "updatedAt": "2026-03-02T17:41:01Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs7nIQ6z",
+          "commit": {
+            "abbreviatedOid": "8fb9332"
+          },
+          "author": "mirjak",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-03-02T17:42:15Z",
+          "updatedAt": "2026-03-02T17:42:15Z",
+          "comments": [
+            {
+              "originalPosition": 65,
+              "body": "```suggestion\n* QDELAY_AVG_G (1/4): Exponentially Weighted Moving Average (EWMA) factor for qdelay_avg\n\n* REDUCE_JITTER (false): (optional) config knob to enable jitter filtering\n```",
+              "createdAt": "2026-03-02T17:42:15Z",
+              "updatedAt": "2026-03-02T17:42:15Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs7nIbY0",
+          "commit": {
+            "abbreviatedOid": "8fb9332"
+          },
+          "author": "mirjak",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-03-02T17:50:21Z",
+          "updatedAt": "2026-03-02T17:50:21Z",
+          "comments": [
+            {
+              "originalPosition": 71,
+              "body": "```suggestion\nnormalized to QDELAY_DEV_NORM. A small margin QDELAY_DEV_NORM/4 is implemented to reduce sensitivity to link layer scheduling jitter and retransmissions. In addition, a limit is implemented to avoid that qdelay_dev_norm winds up to very large values in cases of severe congestion. This limit is relative to qdelay_dev_norm_th which is an adaptive threshold that limits ref_wnd growth and ref_wnd_overhead.\nIt increases when ref_wnd/MSS is small and therefore the relative increase of ref_wnd is large. This reduces delay and rate variations particularly for small ref_wnd values. The threshold is limited to a maximum value of 0.1 which is applied when the standard deviation of the delay jitter exceeds the threshold.\n```",
+              "createdAt": "2026-03-02T17:50:21Z",
+              "updatedAt": "2026-03-02T17:50:21Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs7nI6V3",
+          "commit": {
+            "abbreviatedOid": "c086ce1"
+          },
+          "author": "mirjak",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-03-02T18:14:22Z",
+          "updatedAt": "2026-03-02T18:14:23Z",
+          "comments": [
+            {
+              "originalPosition": 136,
+              "body": "```suggestion\n          (QDELAY_DEV_NORM_TH - qdelay_dev_norm) / QDELAY_DEV_NORM_TH)\n```",
+              "createdAt": "2026-03-02T18:14:22Z",
+              "updatedAt": "2026-03-02T18:14:22Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs7nI6g2",
+          "commit": {
+            "abbreviatedOid": "c086ce1"
+          },
+          "author": "mirjak",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-03-02T18:14:32Z",
+          "updatedAt": "2026-03-02T18:14:32Z",
+          "comments": [
+            {
+              "originalPosition": 182,
+              "body": "```suggestion\n  (QDELAY_DEV_NORM_TH - qdelay_dev_norm) / QDELAY_DEV_NORM_TH)\n```",
+              "createdAt": "2026-03-02T18:14:32Z",
+              "updatedAt": "2026-03-02T18:14:32Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs7nI6q8",
+          "commit": {
+            "abbreviatedOid": "c086ce1"
+          },
+          "author": "mirjak",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-03-02T18:14:41Z",
+          "updatedAt": "2026-03-02T18:14:41Z",
+          "comments": [
+            {
+              "originalPosition": 208,
+              "body": "```suggestion\n  (REF_WND_OVERHEAD_MAX - REF_WND_OVERHEAD_MIN)*max(0.0,(QDELAY_DEV_NORM_TH-qdelay_dev_norm)/QDELAY_DEV_NORM_TH)\n```",
+              "createdAt": "2026-03-02T18:14:41Z",
+              "updatedAt": "2026-03-02T18:14:41Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs7nJGOb",
+          "commit": {
+            "abbreviatedOid": "5af426a"
+          },
+          "author": "mirjak",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-03-02T18:25:16Z",
+          "updatedAt": "2026-03-02T18:25:16Z",
+          "comments": [
+            {
+              "originalPosition": 1,
+              "body": "```suggestion\nThe following constants are used:\n```",
+              "createdAt": "2026-03-02T18:25:16Z",
+              "updatedAt": "2026-03-02T18:25:16Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "number": 53,
+      "id": "PR_kwDOK7AJUs7cqa2b",
+      "title": "Changes to WG version",
+      "url": "https://github.com/IngJohEricsson/draft-johansson-ccwg-scream-bis/pull/53",
+      "state": "MERGED",
+      "author": "gloinul",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Update filename to WG version. Also add package.json to enable it to build with AASVG.",
+      "createdAt": "2026-05-18T13:12:01Z",
+      "updatedAt": "2026-05-18T13:14:15Z",
+      "baseRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
+      "baseRefName": "main",
+      "baseRefOid": "dbfdaaa7bcbd5635d76841951771e284c0a9a2fb",
+      "headRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
+      "headRefName": "wg-00",
+      "headRefOid": "cc95b057554e4aca8f4a33e4b2f3b8b696478f16",
+      "closedAt": "2026-05-18T13:14:15Z",
+      "mergedAt": "2026-05-18T13:14:15Z",
+      "mergedBy": "gloinul",
+      "mergeCommit": {
+        "oid": "1ada5332a9b51281c7f1118686f052e200e99236"
       },
       "comments": [],
       "reviews": []
