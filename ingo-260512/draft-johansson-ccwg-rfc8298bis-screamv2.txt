@@ -6,7 +6,7 @@ CCWG                                                        I. Johansson
 Internet-Draft                                             M. Westerlund
 Obsoletes: 8298 (if approved)                               M. Kühlewind
 Intended status: Experimental                                   Ericsson
-Expires: 19 November 2026                                    18 May 2026
+Expires: 20 November 2026                                    19 May 2026
 
 
               Self-Clocked Rate Adaptation for Multimedia
@@ -54,7 +54,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 19 November 2026.
+   This Internet-Draft will expire on 20 November 2026.
 
 Copyright Notice
 
@@ -508,16 +508,16 @@ Table of Contents
 
 4.2.1.1.  Detecting Lost Data Units
 
-   The reference window back-off due to loss events is deliberately a
-   bit less than is the case with TCP Reno, for example.  TCP is
-   generally used to transmit whole files; the file is then like a
-   source with an infinite bitrate until the whole file has been
-   transmitted.  SCReAMv2, on the other hand, has a source which rate is
-   limited to a value close to the available transmit rate and often
-   below that value; the effect is that SCReAMv2 has less opportunity to
-   grab free capacity than a TCP-based file transfer.  To compensate for
-   this, it is RECOMMENDED to let SCReAMv2 reduce the reference window
-   less than what is the case with TCP when loss events occur.
+   The reference window backoff due to loss events is deliberately a bit
+   less than is the case with TCP Reno, for example.  TCP is generally
+   used to transmit whole files; the file is then like a source with an
+   infinite bitrate until the whole file has been transmitted.
+   SCReAMv2, on the other hand, has a source which rate is limited to a
+   value close to the available transmit rate and often below that
+   value; the effect is that SCReAMv2 has less opportunity to grab free
+   capacity than a TCP-based file transfer.  To compensate for this, it
+   is RECOMMENDED to let SCReAMv2 reduce the reference window less than
+   what is the case with TCP when loss events occur.
 
    Lost data unit detection is based on the received sequence number
    list.  A reordering window SHOULD be applied to prevent data unit
@@ -537,10 +537,17 @@ Table of Contents
    higher sequence number was acknowledged.
 
    A loss rate is calculated for each packet according to the equation
-   below:
+   below, the loss rate is calculated as an average with a time constant
+   of 2 RTTs.  For small ref_wnd, averaging is over 4/
+   LOSS_RATE_THRESHOLD packets, to avoid that consecutive link layer
+   losses cause the loss rate to increase too quickly.  The loss_rate is
+   used in Section 4.6.  The averaging is selected to be slow enough to
+   avoid that single packet drops cause backoff, provided that the queue
+   delay is low, and fast enough to avoid excessive packet loss in the
+   presence of very shallow queues.
 
-# apply an EWMA filter with a 1 RTT time constant, or at least 1/LOSS_RATE_THRESHOLD packets.
-alpha = min(LOSS_RATE_THRESHOLD, mss/ref_wnd)
+# Apply an EWMA filter with a 2 RTT time constant, or at least 4/LOSS_RATE_THRESHOLD packets.
+alpha = min(LOSS_RATE_THRESHOLD / 4, mss / ref_wnd / 2)
 if (packet_is_lost)
   loss_rate = (1-alpha)*loss_rate + alpha
 else
@@ -553,14 +560,14 @@ else
    *  packet_is_lost: Set to true if a packet is determined to be lost.
 
    *  LOSS_RATE_THRESHOLD (0.01): Threshold for triggering loss based
-      reference window backoff, explained more in Section 4.6.
+      reference window backoff.
 
 4.2.1.2.  Receiving ECN-CE with classic ECN
 
    In classic ECN mode the ref_wnd is scaled by a fixed value
    (BETA_ECN).
 
-   The reference window back-off due to an ECN event MAY be smaller than
+   The reference window backoff due to an ECN event MAY be smaller than
    if a loss event occurs.  This is in line with the idea outlined in
    [RFC8511] to enable ECN marking thresholds lower than the
    corresponding data unit drop thresholds.
@@ -1376,12 +1383,18 @@ end
 4.6.  Link layer losses and rate policers
 
    Link layer losses, i.e losses that are not congestion related can
-   lead to unwarranted congestion back-off.  One method is to apply
-   congestion backoff only when an average loss rate exceeds a
+   lead to unwarranted congestion backoff.  One method is to apply a
+   conditional loss backoff only when an average loss rate exceeds a
    threshold.  This increases robustness against non-congestion related
    losses.  One problem is that such a method can also increase
-   congestion related packet loss.  This is resolved in that immediate
-   loss backoff is triggered when the queue delay increases.
+   congestion related packet loss which can be detrimental for real time
+   media such as video.  This is resolved in that immediate loss backoff
+   is triggered when the queue delay increases.  While the conditional
+   loss backoff increases robustness against link layer losses, it is
+   inevitable that the algorithm can delay congestion backoff and thus
+   cause increased packet loss rate.  The constant LOSS_RATE_THRESHOLD
+   should therefore be set low enough, with the objective to increase
+   robustness to link layer losses only.
 
    Rate policers can give quite large loss bursts, which can impact real
    time media quality quite badly.  A rate policer is characterized by
@@ -1394,7 +1407,7 @@ end
 
 ..
   if (loss_detected)
-    # Conditional loss back off algorithm
+    # Conditional loss backoff
     if (loss_rate > LOSS_RATE_THRESHOLD || qdelay_avg > qdelay_target/4)
       is_loss_t = true
     end
@@ -1417,7 +1430,8 @@ end
 
    The max_policed_ref_wnd enforces an upper limit to the ref_wnd.  The
    max_policed_ref_wnd should increase by a small fraction, for instance
-   0.001 per RTT that gradually lifts the limit.
+   0.001 per RTT that gradually lifts the limit, this prevents that
+   possible false detection causes a permanent restriction on ref_wnd.
 
 5.  Receiver Requirements on Feedback Intensity
 
