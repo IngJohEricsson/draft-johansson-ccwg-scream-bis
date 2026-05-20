@@ -1434,14 +1434,31 @@ SCReAM/SCReAMv2 when no feedback is received.
 
 # Acknowledgments {#acknowledgements}
 
-Zaheduzzaman Sarker was a co-author of RFC 8298 the previous version
-of scream which this document was based on. We would like to thank the
-following people for their comments, questions, and support during the
+Zaheduzzaman Sarker is co-author of RFC 8298, the previous version
+of SCReAM. 
+
+We would like to thank the following people for their comments, questions, and support during the
 work that led to this memo: Per Kjellander, Björn Terelius.
 
 # Changes in the draft versions
 
-## Changes in draft version -02
+## Working group draft submissions
+
+### Draft version -00
+
+* Same contents as individual draft -07
+  
+### Changes in Draft version -01
+
+* Additional conditional loss threshold added as optional to increase robustness against non-congestion related (e.g link layer) losses.
+
+* Added note about method to detect the extistence of rate policers and to reduce packet losses when rate policers are applied in network nodes.
+
+* Added rate policer remediation algorithm.
+
+## Individual drafts submissions
+
+### Changes in draft version -02
 
 Algorithm changes in draft version -02 were:
 
@@ -1458,7 +1475,7 @@ Algorithm changes in draft version -02 were:
 
  * Timing set to multiples of RTTs instead of seconds.
 
-## Changes in Draft version -03
+### Changes in Draft version -03
 
 Draft version -03 is a major editorial pass including removal of some
 outdated or background information and reorganisation of several sections:
@@ -1494,7 +1511,7 @@ outdated or background information and reorganisation of several sections:
 * Section on "Competing Flows Compensation" moved into Section {{reaction-delay-loss-ce}}
   on "Congestion Detection".
 
-## Changes in Draft version -04
+### Changes in Draft version -04
 
 * Restructuring of code.
 
@@ -1504,7 +1521,7 @@ outdated or background information and reorganisation of several sections:
 
 * Discussion on when it is beneficial to reduce REF_WND_OVERHEAD added.
 
-## Changes in Draft version -05
+### Changes in Draft version -05
 
 Draft version -05 contains some clarifications based on a review by Per Kjellander
  and Björn Terelius plus some code modifications and text.
@@ -1521,7 +1538,7 @@ Draft version -05 contains some clarifications based on a review by Per Kjelland
 
 * ref_wnd increase is reduced if L4S is likely non-active and queue delay increases.
 
-## Changes in Draft version -06
+### Changes in Draft version -06
 
 * Correction of typos.
 
@@ -1547,7 +1564,7 @@ Draft version -05 contains some clarifications based on a review by Per Kjelland
 
 * Moved Changes per draft version to this appendix.
 
-## Changes in Draft version -07
+### Changes in Draft version -07
 
 * Additional restriction of ref_wnd increase and ref_wnd_overhead when ref_wnd/MSS is very low.
 
@@ -1564,11 +1581,3 @@ Draft version -05 contains some clarifications based on a review by Per Kjelland
 * Removed extra selective restriction on ref_wnd growth when L4S is not enabled as this function is replaced by qdelay_dev_norm related restriction on reference window growth.
 
 * Additional wording on the improvement of the optional qdelay_dev_norm related restriction based on extimation of the non-congestion related delay jitter.
-
-## Changes in Draft version -08
-
-* Additional conditional loss threshold added as optional to increase robustness against non-congestion related (e.g link layer) losses.
-
-* Added note about method to detect the extistence of rate policers and to reduce packet losses when rate policers are applied in network nodes.
-
-* Added rate policer remediation algorithm.
