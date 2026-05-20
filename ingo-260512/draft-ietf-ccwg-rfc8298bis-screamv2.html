@@ -2444,6 +2444,13 @@ values. See <span>[<a href="#SCReAM-CPP-implementation" class="cite xref">SCReAM
 </li>
             </ul>
 <p id="section-4.2.2.2-7">The two mechanisms complement one another.<a href="#section-4.2.2.2-7" class="pilcrow">¶</a></p>
+<p id="section-4.2.2.2-8">The ref_wnd can optionally be restricted by max_policed_ref_wnd, described in <a href="#link-loss-rate-policer" class="auto internal xref">Section 4.6</a>, to reduce packet losses when transmission links are subject to rate policing.
+The additional code for this is shown below.<a href="#section-4.2.2.2-8" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-4.2.2.2-9">
+<pre>
+ref_wnd = min(ref_wnd, max_policed_ref_wnd)
+</pre><a href="#section-4.2.2.2-9" class="pilcrow">¶</a>
+</div>
 </section>
 </div>
 </section>
