@@ -1435,7 +1435,7 @@ SCReAM/SCReAMv2 when no feedback is received.
 # Acknowledgments {#acknowledgements}
 
 Zaheduzzaman Sarker is co-author of RFC 8298, the previous version
-of SCReAM. 
+of SCReAM.
 
 We would like to thank the following people for their comments, questions, and support during the
 work that led to this memo: Per Kjellander, Björn Terelius.
@@ -1447,7 +1447,7 @@ work that led to this memo: Per Kjellander, Björn Terelius.
 ### Draft version -00
 
 * Same contents as individual draft -07
-  
+
 ### Changes in Draft version -01
 
 * Additional conditional loss threshold added as optional to increase robustness against non-congestion related (e.g link layer) losses.
@@ -1456,7 +1456,7 @@ work that led to this memo: Per Kjellander, Björn Terelius.
 
 * Added rate policer remediation algorithm.
 
-## Individual drafts submissions
+## Individual draft submissions
 
 ### Changes in draft version -02
 
