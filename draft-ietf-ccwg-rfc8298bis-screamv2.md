@@ -1055,6 +1055,13 @@ to manage this:
 
 The two mechanisms complement one another.
 
+The ref_wnd can optionally be restricted by max_policed_ref_wnd, described in {{link-loss-rate-policer}}, to reduce packet losses when transmission links are subject to rate policing.
+The additional code for this is shown below.
+
+~~~~
+ref_wnd = min(ref_wnd, max_policed_ref_wnd)
+~~~~
+
 ## Sender Transmission Control
 
 The Sender Transmission control calculates of send window at the sender.
