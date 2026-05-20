@@ -1325,7 +1325,7 @@ The variables and constants are:
 
 * BETA_LOSS_POLICER (0.9): ref_wnd scale for calculation of max_policed_ref_wnd.
 
-The max_policed_ref_wnd enforces an upper limit to the ref_wnd. The max_policed_ref_wnd should increase by a small fraction, for instance 0.001 per RTT that gradually lifts the limit, this prevents that possible false detection causes a permanent restriction on ref_wnd.
+The max_policed_ref_wnd enforces an upper limit to the ref_wnd. The max_policed_ref_wnd should increase by a small fraction, for instance 0.001 per RTT that gradually lifts the limit, this prevents that possible false detection of rate policers causes a permanent restriction on ref_wnd.
 
 #  Receiver Requirements on Feedback Intensity {#scream-receiver}
 
