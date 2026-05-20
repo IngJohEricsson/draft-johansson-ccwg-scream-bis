@@ -6,7 +6,7 @@ CCWG                                                        I. Johansson
 Internet-Draft                                             M. Westerlund
 Obsoletes: 8298 (if approved)                               M. Kühlewind
 Intended status: Experimental                                   Ericsson
-Expires: 20 November 2026                                    19 May 2026
+Expires: 21 November 2026                                    20 May 2026
 
 
               Self-Clocked Rate Adaptation for Multimedia
@@ -54,7 +54,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 20 November 2026.
+   This Internet-Draft will expire on 21 November 2026.
 
 Copyright Notice
 
@@ -103,13 +103,16 @@ Table of Contents
      9.2.  Informative References
    Appendix A.  Acknowledgments
    Appendix B.  Changes in the draft versions
-     B.1.  Changes in draft version -02
-     B.2.  Changes in Draft version -03
-     B.3.  Changes in Draft version -04
-     B.4.  Changes in Draft version -05
-     B.5.  Changes in Draft version -06
-     B.6.  Changes in Draft version -07
-     B.7.  Changes in Draft version -08
+     B.1.  Working group draft submissions
+       B.1.1.  Draft version -00
+       B.1.2.  Changes in Draft version -01
+     B.2.  Individual draft submissions
+       B.2.1.  Changes in draft version -02
+       B.2.2.  Changes in Draft version -03
+       B.2.3.  Changes in Draft version -04
+       B.2.4.  Changes in Draft version -05
+       B.2.5.  Changes in Draft version -06
+       B.2.6.  Changes in Draft version -07
    Authors' Addresses
 
 1.  Introduction
@@ -1734,15 +1737,36 @@ end
 
 Appendix A.  Acknowledgments
 
-   Zaheduzzaman Sarker was a co-author of RFC 8298 the previous version
-   of scream which this document was based on.  We would like to thank
-   the following people for their comments, questions, and support
-   during the work that led to this memo: Per Kjellander, Björn
-   Terelius.
+   Zaheduzzaman Sarker is co-author of RFC 8298, the previous version of
+   SCReAM.
+
+   We would like to thank the following people for their comments,
+   questions, and support during the work that led to this memo: Per
+   Kjellander, Björn Terelius.
 
 Appendix B.  Changes in the draft versions
 
-B.1.  Changes in draft version -02
+B.1.  Working group draft submissions
+
+B.1.1.  Draft version -00
+
+   *  Same contents as individual draft -07
+
+B.1.2.  Changes in Draft version -01
+
+   *  Additional conditional loss threshold added as optional to
+      increase robustness against non-congestion related (e.g link
+      layer) losses.
+
+   *  Added note about method to detect the extistence of rate policers
+      and to reduce packet losses when rate policers are applied in
+      network nodes.
+
+   *  Added rate policer remediation algorithm.
+
+B.2.  Individual draft submissions
+
+B.2.1.  Changes in draft version -02
 
    Algorithm changes in draft version -02 were:
 
@@ -1760,7 +1784,7 @@ B.1.  Changes in draft version -02
 
    *  Timing set to multiples of RTTs instead of seconds.
 
-B.2.  Changes in Draft version -03
+B.2.2.  Changes in Draft version -03
 
    Draft version -03 is a major editorial pass including removal of some
    outdated or background information and reorganisation of several
@@ -1803,7 +1827,7 @@ B.2.  Changes in Draft version -03
    *  Section on "Competing Flows Compensation" moved into
       Section Section 4.2.1 on "Congestion Detection".
 
-B.3.  Changes in Draft version -04
+B.2.3.  Changes in Draft version -04
 
    *  Restructuring of code.
 
@@ -1816,7 +1840,7 @@ B.3.  Changes in Draft version -04
    *  Discussion on when it is beneficial to reduce REF_WND_OVERHEAD
       added.
 
-B.4.  Changes in Draft version -05
+B.2.4.  Changes in Draft version -05
 
    Draft version -05 contains some clarifications based on a review by
    Per Kjellander and Björn Terelius plus some code modifications and
@@ -1839,7 +1863,7 @@ B.4.  Changes in Draft version -05
    *  ref_wnd increase is reduced if L4S is likely non-active and queue
       delay increases.
 
-B.5.  Changes in Draft version -06
+B.2.5.  Changes in Draft version -06
 
    *  Correction of typos.
 
@@ -1870,7 +1894,7 @@ B.5.  Changes in Draft version -06
 
    *  Moved Changes per draft version to this appendix.
 
-B.6.  Changes in Draft version -07
+B.2.6.  Changes in Draft version -07
 
    *  Additional restriction of ref_wnd increase and ref_wnd_overhead
       when ref_wnd/MSS is very low.
@@ -1896,18 +1920,6 @@ B.6.  Changes in Draft version -07
    *  Additional wording on the improvement of the optional
       qdelay_dev_norm related restriction based on extimation of the
       non-congestion related delay jitter.
-
-B.7.  Changes in Draft version -08
-
-   *  Additional conditional loss threshold added as optional to
-      increase robustness against non-congestion related (e.g link
-      layer) losses.
-
-   *  Added note about method to detect the extistence of rate policers
-      and to reduce packet losses when rate policers are applied in
-      network nodes.
-
-   *  Added rate policer remediation algorithm.
 
 Authors' Addresses
 
