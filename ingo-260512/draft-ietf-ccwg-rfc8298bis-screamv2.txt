@@ -1441,7 +1441,8 @@ end
    The max_policed_ref_wnd enforces an upper limit to the ref_wnd.  The
    max_policed_ref_wnd should increase by a small fraction, for instance
    0.001 per RTT that gradually lifts the limit, this prevents that
-   possible false detection causes a permanent restriction on ref_wnd.
+   possible false detection of rate policers causes a permanent
+   restriction on ref_wnd.
 
 5.  Receiver Requirements on Feedback Intensity
 
