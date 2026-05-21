@@ -1466,7 +1466,7 @@ work that led to this memo: Per Kjellander, Björn Terelius.
 
 * Added rate policer remediation algorithm.
 
-* Added discussion on code generation with AI-tools based on the draft- 
+* Added discussion on code generation with AI-tools based on the draft.
 
 ## Individual draft submissions
 
