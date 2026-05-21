@@ -577,7 +577,7 @@ the following way:
 data_units_delivered_this_rtt += data_units_acked
 data_units_marked_this_rtt += data_units_acked_ce
 # l4s_alpha is updated at least every 10ms
-if (now - last_update_l4s_alpha_time >= min(0.01,s_rtt)
+if (now - last_update_l4s_alpha_time >= min(0.01,s_rtt))
   # l4s_alpha is calculated from data_units marked istf bytes marked
   fraction_marked_t = data_units_marked_this_rtt/
                       data_units_delivered_this_rtt
@@ -633,7 +633,7 @@ retransmissions.
 qdelay_avg is updated with a slow attack, fast decay EWMA filter as described below.
 
 ~~~
-if (now - last_update_qdelay_avg_time >= min(virtual_rtt,s_rtt)
+if (now - last_update_qdelay_avg_time >= min(virtual_rtt,s_rtt))
   # Calculate qdelay_avg
   if (qdelay < qdelay_avg)
     qdelay_avg = qdelay
@@ -806,11 +806,11 @@ The following variables are defined:
   bandwidth over the same bottleneck). The qdelay target is allowed to vary
   between QDELAY_TARGET_LO and QDELAY_TARGET_HI.
 
-* last_congestion_detected_time (0): Last time congestion detected [s].
+* last_congestion_detected_time (0.0): Last time congestion detected [s].
 
-* last_reaction_to_congestion_time (0): Last time congestion avoidance occured [s].
+* last_reaction_to_congestion_time (0.0): Last time congestion avoidance occured [s].
 
-* last_ref_wnd_i_update_time (0): Last time ref_wnd_i was updated [s].
+* last_ref_wnd_i_update_time (0.0): Last time ref_wnd_i was updated [s].
 
 Further the following constants are used (the RECOMMENDED values, within parentheses "()",
 for the constants are deduced from experiments):
@@ -852,9 +852,10 @@ for the constants are deduced from experiments):
 ~~~
 # Compute scaling factor for reference window adjustment
 # when close to the last known max value before congestion
-# ref_wnd_i is updated before this code
-# loss_detected and data_units_marked indicates that packets
-# are marked or lost since last_reaction_to_congestion_time
+# ref_wnd_i is updated before this code.
+# The boolean flags loss_detected and data_units_marked
+# indicate that packets are marked or lost since
+# last_reaction_to_congestion_time
 scl_t = (ref_wnd-ref_wnd_i) / ref_wnd_i
 scl_t *= 8
 scl_t = scl_t * scl_t
@@ -1001,7 +1002,7 @@ increment_t *= max(MIN_QUEUE_DELAY_DEV_SCALE,
 # Limit multiplicative increase when congestion occurred
 # recently and when reference window is close to the last
 # known max value.
-float tmp_t = ref_wnd_scale_factor_t
+tmp_t = ref_wnd_scale_factor_t
 if (tmp_t > 1.0)
   tmp_t = 1.0 + (tmp_t - 1.0) * post_congestion_scale_t * scl_t
 end
@@ -1250,7 +1251,7 @@ tmp_t *= 1.0 - min(0.2, max(0.0, ref_wnd_ratio - 0.1))
 
 # Additional compensation for packetization overhead,
 # important when MSS is small
-tmp_t_ *= MSS / (MSS + PACKET_OVERHEAD)
+tmp_t *= MSS / (MSS + PACKET_OVERHEAD)
 
 # An additional downscaling is needed to avoid unnecessary
 # sender queue build-up, better to set the target bitrate
@@ -1424,6 +1425,8 @@ This section covers a few discussion points.
 
 * Rate policers can cause loss bursts. These loss bursts are particularly harmful for real time media transmission and it is problematic to detect the existence of rate policers in the tranmission path. The example algorithm in the draft resolves the problem with rate policers to some degree. The algorithm is however not bullet proof, assumptions around queue delay can for instance fail on links where the RTT varies, such as satellite links. In addition, rate policers can be configured in many ways.
 
+* AI-tools can generate code based on the current draft version albeit with some caveats around execution order and poorly defined calculations/definitions of variables. A later version will address this showcoming.
+
 # IANA Considerations {#iana}
 
 This document does not require any IANA actions.
@@ -1462,6 +1465,8 @@ work that led to this memo: Per Kjellander, Björn Terelius.
 * Added note about method to detect the extistence of rate policers and to reduce packet losses when rate policers are applied in network nodes.
 
 * Added rate policer remediation algorithm.
+
+* Added discussion on code generation with AI-tools based on the draft- 
 
 ## Individual draft submissions
 
