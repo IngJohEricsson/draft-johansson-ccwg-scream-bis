@@ -1427,6 +1427,9 @@ This section covers a few discussion points.
 
 * AI-tools can generate code based on the current draft version albeit with some caveats around execution order and poorly defined calculations/definitions of variables. A later version will address this showcoming.
 
+* The ref_wnd can undershoot because of L4S and delay based congestion signal. This can lead to unnecessarily low bitrates after a congestion event. A method to avoid this is to inhibit L4S and delay based congestion backoff when the transmitted bitrate is less than a fraction (for instance 0.8) of the received (acknowledged) bitrate.  
+The transmitted and received bitarte is measured as an average over one or more RTTs to account for the at least and RTT delayed estimate of the received bitrate. This method limits the undershoot of the ref_wnd but can make it slower to drain a queue.
+
 # IANA Considerations {#iana}
 
 This document does not require any IANA actions.
@@ -1467,6 +1470,8 @@ work that led to this memo: Per Kjellander, Björn Terelius.
 * Added rate policer remediation algorithm.
 
 * Added discussion on code generation with AI-tools based on the draft.
+
+* Added a note on a method to reduce ref_wnd undershoot when L4S or delay based congestion occurs.
 
 ## Individual draft submissions
 
