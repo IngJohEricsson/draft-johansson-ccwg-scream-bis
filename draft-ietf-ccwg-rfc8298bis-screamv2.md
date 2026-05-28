@@ -136,7 +136,7 @@ This specification obsoletes RFC 8298.
 This memo describes Self-Clocked Rate Adaptation for Multimedia version 2
 (SCReAMv2). This specification replaces the previous experimental version {{RFC8298}} of
 SCReAM with SCReAMv2. There are many and fairly significant changes to the
-original SCReAM algorithm as desribed in {{sec:changes}}.
+original SCReAM algorithm as described in {{sec:changes}}.
 
 Both SCReAM and SCReAMv2 estimates the forward queue delay in the same way as Low
 Extra Delay Background Transport (LEDBAT) {{RFC6817}}.
@@ -155,7 +155,7 @@ congestion control functionality in SCReAMv2.
 The algorithm in this memo differs considerably compared to the previous version of
 SCReAM in {{RFC8298}}. The main differences are:
 
-* L4S support added. The L4S algoritm has many similarities with the DCTCP and
+* L4S support added. The L4S algorithm has many similarities with the DCTCP and
   Prague congestion control but has a few extra modifications to make it work
   well with periodic sources such as video.
 
@@ -188,7 +188,7 @@ SCReAM in {{RFC8298}}. The main differences are:
 
 ## Requirements on the Media and Feedback Protocol {#requirements-media}
 
-SCReAM was originally designed to with with RTP + RTCP where {{RFC8888}} was
+SCReAM was originally designed to be used with RTP + RTCP where {{RFC8888}} was
 used as recommended feedback. RTP offers unique packet indication with the
 sequence number and {{RFC8888}} offers timestamps of received packets and the
 status of the ECN bits.
@@ -490,9 +490,9 @@ reference window. The reference window gives an upper limit to the number of byt
 
 Congestion is detected based on three different indicators:
 
- * Lost data units detected,
+ * Lost data units detected.
 
- * ECN-CE marked data units detected either for classic ECN or L4S,
+ * ECN-CE marked data units detected either for classic ECN or L4S.
 
  * Estimated queue delay exceeds a threshold.
 
@@ -502,7 +502,7 @@ the reference window is reduced at most once per smoothed RTT.
 
 #### Detecting Lost Data Units  {#reaction-loss}
 
-The reference window back-off due to loss events is deliberately a bit less than
+The reference window backoff due to loss events is deliberately a bit less than
 is the case with TCP Reno, for example. TCP is generally used to transmit whole
 files; the file is then like a source with an infinite bitrate until the whole
 file has been transmitted. SCReAMv2, on the other hand, has a source which rate
@@ -527,11 +527,33 @@ given data unit is not acknowledged within a time window (indicated by the
 reordering window) after an data unit with a higher sequence number was
 acknowledged.
 
+A loss rate is calculated for each packet according to the equation below, the loss rate is calculated as an average with a time constant of 2 RTTs.
+ For small ref_wnd, averaging is over 4/LOSS_RATE_THRESHOLD packets, to avoid that consecutive link layer losses cause the loss rate to increase too quickly.
+ The loss_rate is used in {{link-loss-rate-policer}}. The averaging is selected to be slow enough to avoid that single packet drops cause backoff, provided that the queue delay is low, and fast enough to avoid excessive packet loss in the presence of very shallow queues.
+
+~~~
+
+# Apply an EWMA filter with a 2 RTT time constant, or at least 4/LOSS_RATE_THRESHOLD packets.
+alpha = min(LOSS_RATE_THRESHOLD / 4, mss / ref_wnd / 2)
+if (packet_is_lost)
+  loss_rate = (1-alpha)*loss_rate + alpha
+else
+  loss_rate = (1-alpha)*loss_rate
+~~~
+
+The following variables and constants are used:
+
+* loss_rate (0.0): Average loss rate.
+
+* packet_is_lost: Set to true if a packet is determined to be lost.
+
+* LOSS_RATE_THRESHOLD (0.01): Threshold for triggering loss based reference window backoff.
+
 #### Receiving ECN-CE with classic ECN  {#reaction-ecn-ce}
 
 In classic ECN mode the ref_wnd is scaled by a fixed value (BETA_ECN).
 
-The reference window back-off due to an ECN event MAY be smaller than if a loss
+The reference window backoff due to an ECN event MAY be smaller than if a loss
 event occurs. This is in line with the idea outlined in {{RFC8511}} to enable
 ECN marking thresholds lower than the corresponding data unit drop thresholds.
 
@@ -555,7 +577,7 @@ the following way:
 data_units_delivered_this_rtt += data_units_acked
 data_units_marked_this_rtt += data_units_acked_ce
 # l4s_alpha is updated at least every 10ms
-if (now - last_update_l4s_alpha_time >= min(0.01,s_rtt)
+if (now - last_update_l4s_alpha_time >= min(0.01,s_rtt))
   # l4s_alpha is calculated from data_units marked istf bytes marked
   fraction_marked_t = data_units_marked_this_rtt/
                       data_units_delivered_this_rtt
@@ -611,7 +633,7 @@ retransmissions.
 qdelay_avg is updated with a slow attack, fast decay EWMA filter as described below.
 
 ~~~
-if (now - last_update_qdelay_avg_time >= min(virtual_rtt,s_rtt)
+if (now - last_update_qdelay_avg_time >= min(virtual_rtt,s_rtt))
   # Calculate qdelay_avg
   if (qdelay < qdelay_avg)
     qdelay_avg = qdelay
@@ -784,11 +806,11 @@ The following variables are defined:
   bandwidth over the same bottleneck). The qdelay target is allowed to vary
   between QDELAY_TARGET_LO and QDELAY_TARGET_HI.
 
-* last_congestion_detected_time (0): Last time congestion detected [s].
+* last_congestion_detected_time (0.0): Last time congestion detected [s].
 
-* last_reaction_to_congestion_time (0): Last time congestion avoidance occured [s].
+* last_reaction_to_congestion_time (0.0): Last time congestion avoidance occured [s].
 
-* last_ref_wnd_i_update_time (0): Last time ref_wnd_i was updated [s].
+* last_ref_wnd_i_update_time (0.0): Last time ref_wnd_i was updated [s].
 
 Further the following constants are used (the RECOMMENDED values, within parentheses "()",
 for the constants are deduced from experiments):
@@ -825,14 +847,15 @@ for the constants are deduced from experiments):
 
 * MIN_QUEUE_DELAY_DEV_SCALE (0.1): Min allowed scaling of ref_wnd backoff and increase due to large qdelay_dev_norm.
 
-#### Reference Window Reduction
+#### Reference Window Reduction {#ref-wnd-reduction}
 
 ~~~
 # Compute scaling factor for reference window adjustment
 # when close to the last known max value before congestion
-# ref_wnd_i is updated before this code
-# loss_detected and data_units_marked indicates that packets
-# are marked or lost since last_reaction_to_congestion_time
+# ref_wnd_i is updated before this code.
+# The boolean flags loss_detected and data_units_marked
+# indicate that packets are marked or lost since
+# last_reaction_to_congestion_time
 scl_t = (ref_wnd-ref_wnd_i) / ref_wnd_i
 scl_t *= 8
 scl_t = scl_t * scl_t
@@ -933,7 +956,9 @@ if (is_loss_t || is_ce_t || is_virtual_ce_t)
 end
 ~~~
 
-#### Reference Window Increase
+Link layer losses, i.e losses that are not congestion related can lead to unwarranted congestion back-off. One method is to apply congestion backoff only when an average loss rate exceeds a threshold. A suggested modification to the code above is found in {{link-loss-rate-policer}}.
+
+#### Reference Window Increase {#ref-wnd-increase}
 
 ~~~
 # Delay factor for multiplicative reference window increase
@@ -977,7 +1002,7 @@ increment_t *= max(MIN_QUEUE_DELAY_DEV_SCALE,
 # Limit multiplicative increase when congestion occurred
 # recently and when reference window is close to the last
 # known max value.
-float tmp_t = ref_wnd_scale_factor_t
+tmp_t = ref_wnd_scale_factor_t
 if (tmp_t > 1.0)
   tmp_t = 1.0 + (tmp_t - 1.0) * post_congestion_scale_t * scl_t
 end
@@ -1030,6 +1055,13 @@ to manage this:
   values. See {{SCReAM-CPP-implementation}} for details.
 
 The two mechanisms complement one another.
+
+The ref_wnd can optionally be restricted by max_policed_ref_wnd, described in {{link-loss-rate-policer}}, to reduce packet losses when transmission links are subject to rate policing.
+The additional code for this is shown below.
+
+~~~~
+ref_wnd = min(ref_wnd, max_policed_ref_wnd)
+~~~~
 
 ## Sender Transmission Control
 
@@ -1219,7 +1251,7 @@ tmp_t *= 1.0 - min(0.2, max(0.0, ref_wnd_ratio - 0.1))
 
 # Additional compensation for packetization overhead,
 # important when MSS is small
-tmp_t_ *= MSS / (MSS + PACKET_OVERHEAD)
+tmp_t *= MSS / (MSS + PACKET_OVERHEAD)
 
 # An additional downscaling is needed to avoid unnecessary
 # sender queue build-up, better to set the target bitrate
@@ -1262,6 +1294,39 @@ if qdelay_min_avg > qdelay_target / 4
   # 2. Scale down target bitrate by 50% for a period of max(5 * s_rtt, 0.2)
 end
 ~~~
+
+## Link layer losses and rate policers {#link-loss-rate-policer}
+
+Link layer losses, i.e losses that are not congestion related can lead to unwarranted congestion backoff. One method is to apply a conditional loss backoff only when an average loss rate exceeds a threshold. This increases robustness against non-congestion related losses. One problem is that such a method can also increase congestion related packet loss which can be detrimental for real time media such as video. This is resolved in that immediate loss backoff is triggered when the queue delay increases. While the conditional loss backoff increases robustness against link layer losses, it is inevitable that the algorithm can delay congestion backoff and thus cause increased packet loss rate. The constant LOSS_RATE_THRESHOLD should therefore be set low enough, with the objective to increase robustness to link layer losses only.
+
+Rate policers can give quite large loss bursts, which can impact real time media quality quite badly. A rate policer is characterized by that it does not build a queue. Hence, the rate policer detection triggers on the observation that the loss rate is high and the queue delay is low.
+
+The code below modifies the 'if (loss_detected)' part in {{ref-wnd-reduction}}
+
+~~~
+..
+  if (loss_detected)
+    # Conditional loss backoff
+    if (loss_rate > LOSS_RATE_THRESHOLD || qdelay_avg > qdelay_target/4)
+      is_loss_t = true
+    end
+    # Detection of rate policer induced loss and setting of limit to ref_wnd
+    if (loss_rate > LOSS_RATE_THRESHOLD_POLICER &&
+        qdelay_avg < qdelay_target/4)
+      max_policed_ref_wnd = ref_wnd*BETA_LOSS_POLICER
+    end
+..
+~~~
+
+The variables and constants are:
+
+* max_policed_ref_wnd (MAX_VALUE): Upper limit on ref_wnd.
+
+* LOSS_RATE_THRESHOLD_POLICER (0.1): loss rate threshold for detection of policer.
+
+* BETA_LOSS_POLICER (0.9): ref_wnd scale for calculation of max_policed_ref_wnd.
+
+The max_policed_ref_wnd enforces an upper limit to the ref_wnd. The max_policed_ref_wnd should increase by a small fraction, for instance 0.001 per RTT that gradually lifts the limit, this prevents that possible false detection of rate policers causes a permanent restriction on ref_wnd.
 
 #  Receiver Requirements on Feedback Intensity {#scream-receiver}
 
@@ -1331,10 +1396,8 @@ This section covers a few discussion points.
     means that uplink transmission slots are unused with a lower link
     utilization as a result.
 
-* Packet pacing is recommended, it is however possible to operate SCReAMv2 with
-  packet pacing disabled. The code in {{SCReAM-CPP-implementation}} implements
-  additional mechanisms to achieve a high link utilization when packet pacing is
-  disabled. Additional packet pacing headroom can be beneficial if unusually large media frames are generated, this can reduce unnecessary queue build-up in the data unit queue.
+* Packet pacing is recommended. It is however possible to operate SCReAMv2 with
+  packet pacing disabled, this can however give a reduced link utilization over L4S enabled paths. Additional packet pacing headroom can be beneficial if unusually large media frames are generated, this can reduce unnecessary queue build-up in the data unit queue.
 
 * Feedback issues: RTCP feedback packets {{RFC8888}} can be lost, this means that
   the loss detection in SCReAMv2 may trigger even though packets arrive safely
@@ -1360,6 +1423,13 @@ This section covers a few discussion points.
 
 * The addition of the optional qdelay_dev_norm related restriction on ref_wnd increase can cause the rate increase to go slower when the non-congestion related jitter is high. Non-congestion related jitter can occur for instance in 5G where the amount of scheduling delay jitter depends of factors like TDD (Time Division Duplex) patterns an overall load in a cell. Improved methods to take delay jitter and compensate for that can remedy this. The objective is to avoid the restriction when the delay jitter is not congestion related. Discriminating between non-congestion related delay jitter and congestion related ditto is however not an easy task. One method to to estimate the jitter when link is known to be uncongested. A challenge is that congestion related jitter emerges already as the application bitrate gets near the congestion point and this can make distinction more difficult. The example algorithm in the draft is expected to be modified in a future draft version.
 
+* Rate policers can cause loss bursts. These loss bursts are particularly harmful for real time media transmission and it is problematic to detect the existence of rate policers in the tranmission path. The example algorithm in the draft resolves the problem with rate policers to some degree. The algorithm is however not bullet proof, assumptions around queue delay can for instance fail on links where the RTT varies, such as satellite links. In addition, rate policers can be configured in many ways.
+
+* AI-tools can generate code based on the current draft version albeit with some caveats around execution order and poorly defined calculations/definitions of variables. A later version will address this showcoming.
+
+* The ref_wnd can undershoot because of L4S and delay based congestion signals. This can lead to unnecessarily low bitrates after a congestion event. A method to avoid this is to reduce, i.e. scale down, L4S and delay based congestion backoff when the target bitrate is less than a fraction (for instance 0.8) of the received (acknowledged) bitrate. The rationale is that such cases indicate that the target bitrate is scaled down by the increased RTT and thus further ref_wnd decrease can lead to a double action to congestion and undershoot. This method limits the undershoot of the ref_wnd but can make it slower to drain a queue.
+The received bitrate is measured as an average over a few RTTs or media frame periods. Example code for this is found in {{SCReAM-CPP-implementation}}.
+
 # IANA Considerations {#iana}
 
 This document does not require any IANA actions.
@@ -1377,14 +1447,35 @@ SCReAM/SCReAMv2 when no feedback is received.
 
 # Acknowledgments {#acknowledgements}
 
-Zaheduzzaman Sarker was a co-author of RFC 8298 the previous version
-of scream which this document was based on. We would like to thank the
-following people for their comments, questions, and support during the
+Zaheduzzaman Sarker is co-author of RFC 8298, the previous version
+of SCReAM.
+
+We would like to thank the following people for their comments, questions, and support during the
 work that led to this memo: Per Kjellander, Björn Terelius.
 
 # Changes in the draft versions
 
-## Changes in draft version -02
+## Working group draft submissions
+
+### Draft version -00
+
+* Same contents as individual draft -07
+
+### Changes in Draft version -01
+
+* Additional conditional loss threshold added as optional to increase robustness against non-congestion related (e.g link layer) losses.
+
+* Added note about method to detect the extistence of rate policers and to reduce packet losses when rate policers are applied in network nodes.
+
+* Added rate policer remediation algorithm.
+
+* Added discussion on code generation with AI-tools based on the draft.
+
+* Added a note on a method to reduce ref_wnd undershoot when L4S or delay based congestion occurs.
+
+## Individual draft submissions
+
+### Changes in draft version -02
 
 Algorithm changes in draft version -02 were:
 
@@ -1401,7 +1492,7 @@ Algorithm changes in draft version -02 were:
 
  * Timing set to multiples of RTTs instead of seconds.
 
-## Changes in Draft version -03
+### Changes in Draft version -03
 
 Draft version -03 is a major editorial pass including removal of some
 outdated or background information and reorganisation of several sections:
@@ -1437,7 +1528,7 @@ outdated or background information and reorganisation of several sections:
 * Section on "Competing Flows Compensation" moved into Section {{reaction-delay-loss-ce}}
   on "Congestion Detection".
 
-## Changes in Draft version -04
+### Changes in Draft version -04
 
 * Restructuring of code.
 
@@ -1447,7 +1538,7 @@ outdated or background information and reorganisation of several sections:
 
 * Discussion on when it is beneficial to reduce REF_WND_OVERHEAD added.
 
-## Changes in Draft version -05
+### Changes in Draft version -05
 
 Draft version -05 contains some clarifications based on a review by Per Kjellander
  and Björn Terelius plus some code modifications and text.
@@ -1464,7 +1555,7 @@ Draft version -05 contains some clarifications based on a review by Per Kjelland
 
 * ref_wnd increase is reduced if L4S is likely non-active and queue delay increases.
 
-## Changes in Draft version -06
+### Changes in Draft version -06
 
 * Correction of typos.
 
@@ -1490,7 +1581,7 @@ Draft version -05 contains some clarifications based on a review by Per Kjelland
 
 * Moved Changes per draft version to this appendix.
 
-## Changes in Draft version -07
+### Changes in Draft version -07
 
 * Additional restriction of ref_wnd increase and ref_wnd_overhead when ref_wnd/MSS is very low.
 
