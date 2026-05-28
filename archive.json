@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-05-24T04:14:16.961534+00:00",
+  "timestamp": "2026-05-28T04:15:10.173873+00:00",
   "repo": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
   "labels": [
     {
@@ -4222,13 +4222,13 @@
       "labels": [],
       "body": "Two optional additions\r\n+ Conditional loss backoff for increased robustness against link layer (non-congestion) losses \r\n+ Rate policer detection and remediation action to reduce packet losses ",
       "createdAt": "2026-05-20T06:58:00Z",
-      "updatedAt": "2026-05-21T06:14:11Z",
+      "updatedAt": "2026-05-27T07:32:57Z",
       "baseRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
       "baseRefName": "main",
       "baseRefOid": "1ada5332a9b51281c7f1118686f052e200e99236",
       "headRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
       "headRefName": "ingo-260512",
-      "headRefOid": "234399fc36a9c0f7640ecb02549148ed2ef3e8dd",
+      "headRefOid": "fc14b2ff623c66831f0e8ce85694ed3a06851f26",
       "closedAt": null,
       "mergedAt": null,
       "mergedBy": null,
@@ -4252,6 +4252,26 @@
               "body": "````suggestion\n* Added discussion on code generation with AI-tools based on the draft-\n````",
               "createdAt": "2026-05-21T06:11:57Z",
               "updatedAt": "2026-05-21T06:11:57Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs8AAAABBH3l9g",
+          "commit": {
+            "abbreviatedOid": "176309d"
+          },
+          "author": "github-actions",
+          "authorAssociation": "NONE",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-05-27T07:29:58Z",
+          "updatedAt": "2026-05-27T07:29:59Z",
+          "comments": [
+            {
+              "originalPosition": 240,
+              "body": "````suggestion\n* The ref_wnd can undershoot because of L4S and delay based congestion signal. This can lead to unnecessarily low bitrates after a congestion event. A method to avoid this is to inhibit L4S and delay based congestion backoff when the transmitted bitrate is less than a fraction (for instance 0.8) of the received (acknowledged) bitrate.\n````",
+              "createdAt": "2026-05-27T07:29:58Z",
+              "updatedAt": "2026-05-27T07:29:58Z"
             }
           ]
         }
