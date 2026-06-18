@@ -659,12 +659,12 @@ The following variables are used:
 {{RFC6817}}. A qdelay sample is obtained for each received acknowledgement.
 It is typically sufficient with one update per received acknowledgement.
 
-* qdelay_max (0.0): Max queue delay. 
+* qdelay_max (0.0): Max queue delay
 
-* last_update_qdelay_avg_time (0.0): Last time qdelay_avg was updated [s].
+* last_update_qdelay_avg_time (0.0): Last time qdelay_avg was updated [s]
 
 * s_rtt (0.0): Smoothed RTT [s], computed with a similar method to that
-  described in {{RFC6298}}.
+  described in {{RFC6298}}
 
 The following constants are used:
 
@@ -676,7 +676,7 @@ The following constants are used:
 
 The SCReAM algorithm can be further improved for a greater rate stability by taking variations in qdelay into consideration. The goal is to react less to delay variations, caused by e.g. link layer related scheduling and retransmissions, but still be reactive to actual queue delay, caused by congestion. The code below provides a example implementation but more advanced statistical analysis can be considered.
 
-The variable qdelay_dev_avg indicates how much the queue delay varies. ref_wnd_scale is a scale factor that is applied to the reference window increase and the reference window headroom, ref_wnd_scale is 1.0 when the delay jitter is low decreases as the delay jitter increases. 
+The variable qdelay_dev_avg indicates how much the queue delay varies. ref_wnd_scale is a scale factor that is applied to the reference window increase and the reference window headroom, ref_wnd_scale is 1.0 when the delay jitter is low decreases as the delay jitter increases.
 
 ~~~
 function calculate_ref_wnd_delay_scale()
