@@ -641,10 +641,13 @@ if (now - last_update_qdelay_avg_time >= min(virtual_rtt,s_rtt))
     qdelay_avg = QDELAY_AVG_G*qdelay + (1.0-QDELAY_AVG_G)*qdelay_avg
   end
 
+  qdelay_max = max(qdelay, qdelay_max)
+  qdelay_max = qdelay_max * (1 -  QDELAY_MAX_DECAY_FACTOR)
+
   # Optional code to calculate the variation on queue delay, which is an
   # Indication of congestion or near congestion.
   if (REDUCE_JITTER == true)
-     calculate_qdelay_norm()
+     calculate_ref_wnd_delay_scale()
   end
   last_update_qdelay_avg_time = now
 end
@@ -652,47 +655,50 @@ end
 
 The following variables are used:
 
-* qdelay (0): When the sender receives feedback, the qdelay is calculated as outlined in
+* qdelay (0.0): When the sender receives feedback, the qdelay is calculated as outlined in
 {{RFC6817}}. A qdelay sample is obtained for each received acknowledgement.
 It is typically sufficient with one update per received acknowledgement.
 
-* last_update_qdelay_avg_time (0): Last time qdelay_avg was updated [s].
+* qdelay_max (0.0): Max queue delay. 
+
+* last_update_qdelay_avg_time (0.0): Last time qdelay_avg was updated [s].
 
 * s_rtt (0.0): Smoothed RTT [s], computed with a similar method to that
   described in {{RFC6298}}.
 
 The following constants are used:
 
-* QDELAY_AVG_G (1/4): Exponentially Weighted Moving Average (EWMA) factor for qdelay_avg
+* QDELAY_AVG_G (1.0/4): Exponentially Weighted Moving Average (EWMA) factor for qdelay_avg
 
 * REDUCE_JITTER (false): (optional) config knob to enable jitter filtering
 
+* QDELAY_MAX_DECAY_FACTOR (1.0/32): Decay factor for qdelay_max
+
 The SCReAM algorithm can be further improved for a greater rate stability by taking variations in qdelay into consideration. The goal is to react less to delay variations, caused by e.g. link layer related scheduling and retransmissions, but still be reactive to actual queue delay, caused by congestion. The code below provides a example implementation but more advanced statistical analysis can be considered.
 
-The variable qdelay_dev_norm indicates how much the queue delay varies,
-normalized to QDELAY_DEV_NORM. A small margin QDELAY_DEV_NORM/4 is implemented to reduce sensitivity to link layer scheduling jitter and retransmissions. In addition, a limit is implemented to avoid that qdelay_dev_norm winds up to very large values in cases of severe congestion. This limit is a factor larger than QDELAY_DEV_NORM_TH.
-It increases when ref_wnd/MSS is small and therefore the relative increase of ref_wnd is large. This reduces delay and rate variations particularly for small ref_wnd values. The threshold is limited to a maximum value of 0.1 which is applied when the standard deviation of the delay jitter exceeds the threshold.
+The variable qdelay_dev_avg indicates how much the queue delay varies. ref_wnd_scale is a scale factor that is applied to the reference window increase and the reference window headroom, ref_wnd_scale is 1.0 when the delay jitter is low decreases as the delay jitter increases. 
 
 ~~~
-function calculate_qdelay_norm()
-  # Calculate qdelay_dev_norm and cap in range [0.0, QDELAY_DEV_NORM_TH*1.5]
-  tmp = max(0, min(QDELAY_DEV_NORM_TH*1.5, (qdelay-QDELAY_DEV_NORM/4)/QDELAY_DEV_NORM))
-  qdelay_dev_norm = (1.0-QDELAY_DEV_AVG_G) * qdelay_dev_norm +
-     QDELAY_DEV_AVG_G * tmp
+function calculate_ref_wnd_delay_scale()
+  # Calculate ref_wnd_scale, range [0.0 1.0]
+  qdelay_dev_avg = (1.0-QDELAY_DEV_AVG_G)*qdelay_dev_avg + QDELAY_DEV_AVG_G*(qdelay_max-JITTER_MARGIN)
+  ref_wnd_delay_scale = max(0.0, min(1.0, 1.0-qdelay_dev_avg/QDELAY_DEV_NORM))   
 end
 ~~~
 
 The following variables are used:¶
 
-* qdelay_dev_norm (0): indicates how much the queue delay varies, normalized to QDELAY_DEV_NORM.
+* qdelay_dev_avg (0.0): indicates how much the queue delay varies[s]
+
+* ref_wnd_delay_scale (1.0): A scale factor this applied to the ref_wnd increase as well as the reference window headroom
 
 The following constants are used:
 
-* QDELAY_DEV_AVG_G (1/64): Exponentially Weighted Moving Average (EWMA) factor for qdelay_dev_norm
+* QDELAY_DEV_AVG_G (1/32): Exponentially Weighted Moving Average (EWMA) factor for qdelay_dev_avg
 
-* QDELAY_DEV_NORM (0.025): The normalization factor for qdelay_dev_norm
+* QDELAY_DEV_NORM (0.01): The normalization factor for qdelay_dev_avg [s]
 
-* QDELAY_DEV_NORM_TH (1.0): A threshold for the limitation ref_wnd growth and ref_wnd_overhead.
+* JITTER_MARGIN (0.01): Extra margin for scheduling jitter [s]
 
 ##### Competing Flows Compensation {#competing-flows-compensation}
 
@@ -915,13 +921,10 @@ if (is_ce_t)
         backoff_t *= max(0.25, scl_t)
 
         # Optional additional code for increased rate stability
-        # qdelay_dev_norm is zero if REDUCE_JITTER is false
         # Counterbalance the limitation in CWND increase when the queue
-        # delay varies. This helps to avoid starvation in the presence of
-        # competing TCP Prague flows
+        # delay varies. 
         # Code has no effect if REDUCE_JITTER == false
-        backoff_t *= max(MIN_QUEUE_DELAY_DEV_SCALE,
-          (QDELAY_DEV_NORM_TH - qdelay_dev_norm) / QDELAY_DEV_NORM_TH)
+        backoff_t *= max(0.25, ref_wnd_delay_scale)
     end
 
     if (now - last_reaction_to_congestion_time >
@@ -989,14 +992,12 @@ increment_t *= tmp_t
 increment_t *= max(0.25,scl_t)
 
 # Optional additional code for increased rate stability
-# qdelay_dev_norm is zero if REDUCE_JITTER is false
 # Put a additional restriction on reference window growth if qdelay varies a lot.
 # Better to enforce a slow increase in reference window and get
 # a more stable bitrate. Restriction is limited by MIN_QUEUE_DELAY_DEV_SCALE to avoid that
 # ref_wnd growth becomes zero.
 # Code has no effect if REDUCE_JITTER == false
-increment_t *= max(MIN_QUEUE_DELAY_DEV_SCALE,
-  (QDELAY_DEV_NORM_TH - qdelay_dev_norm) / QDELAY_DEV_NORM_TH)
+increment_t *= max(0.1, ref_wnd_delay_scale)
 
 # Scale up increment with multiplicative increase
 # Limit multiplicative increase when congestion occurred
@@ -1128,7 +1129,7 @@ The ref_wnd_overhead is calculated as:
 
 ~~~
 ref_wnd_overhead = REF_WND_OVERHEAD_MIN +
-  (REF_WND_OVERHEAD_MAX - REF_WND_OVERHEAD_MIN)*max(0.0,(QDELAY_DEV_NORM_TH-qdelay_dev_norm)/QDELAY_DEV_NORM_TH)
+  (REF_WND_OVERHEAD_MAX - REF_WND_OVERHEAD_MIN)*ref_wnd_delay_scale
 ~~~
 
 ### Packet Pacing {#packet-pacing}
