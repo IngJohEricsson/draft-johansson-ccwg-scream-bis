@@ -682,7 +682,7 @@ The variable qdelay_dev_avg indicates how much the queue delay varies. ref_wnd_s
 function calculate_ref_wnd_delay_scale()
   # Calculate ref_wnd_scale, range [0.0 1.0]
   qdelay_dev_avg = (1.0-QDELAY_DEV_AVG_G)*qdelay_dev_avg + QDELAY_DEV_AVG_G*(qdelay_max-JITTER_MARGIN)
-  ref_wnd_delay_scale = max(0.0, min(1.0, 1.0-qdelay_dev_avg/QDELAY_DEV_NORM))   
+  ref_wnd_delay_scale = max(0.0, min(1.0, 1.0-qdelay_dev_avg/QDELAY_DEV_NORM))
 end
 ~~~
 
@@ -922,7 +922,7 @@ if (is_ce_t)
 
         # Optional additional code for increased rate stability
         # Counterbalance the limitation in CWND increase when the queue
-        # delay varies. 
+        # delay varies.
         # Code has no effect if REDUCE_JITTER == false
         backoff_t *= max(0.25, ref_wnd_delay_scale)
     end
