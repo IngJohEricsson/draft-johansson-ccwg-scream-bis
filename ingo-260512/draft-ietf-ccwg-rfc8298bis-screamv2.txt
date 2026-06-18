@@ -666,7 +666,7 @@ if (now - last_update_qdelay_avg_time >= min(virtual_rtt,s_rtt))
     qdelay_avg = QDELAY_AVG_G*qdelay + (1.0-QDELAY_AVG_G)*qdelay_avg
   end
 
-  qdelay_max = max(qdelay, qdelay_max)
+  qdelay_max = min(qdelay_target, max(qdelay, qdelay_max)))
   qdelay_max = qdelay_max * (1 -  QDELAY_MAX_DECAY_FACTOR)
 
   # Optional code to calculate the variation on queue delay, which is an
