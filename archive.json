@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-05-31T04:27:08.762264+00:00",
+  "timestamp": "2026-06-21T05:00:52.438028+00:00",
   "repo": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
   "labels": [
     {
@@ -4222,13 +4222,13 @@
       "labels": [],
       "body": "Two optional additions\r\n+ Conditional loss backoff for increased robustness against link layer (non-congestion) losses \r\n+ Rate policer detection and remediation action to reduce packet losses \r\n+ Discussion on reduced backoff when target bitrate is less than ACKed bitrate",
       "createdAt": "2026-05-20T06:58:00Z",
-      "updatedAt": "2026-05-28T11:25:16Z",
+      "updatedAt": "2026-06-18T08:52:08Z",
       "baseRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
       "baseRefName": "main",
       "baseRefOid": "1ada5332a9b51281c7f1118686f052e200e99236",
       "headRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
       "headRefName": "ingo-260512",
-      "headRefOid": "fb08417e1d3a729d578911b8f6270e3aa6c24c85",
+      "headRefOid": "f28cfce1ff3282c70489afccb1964cd6bdcd5472",
       "closedAt": null,
       "mergedAt": null,
       "mergedBy": null,
@@ -4272,6 +4272,44 @@
               "body": "````suggestion\n* The ref_wnd can undershoot because of L4S and delay based congestion signal. This can lead to unnecessarily low bitrates after a congestion event. A method to avoid this is to inhibit L4S and delay based congestion backoff when the transmitted bitrate is less than a fraction (for instance 0.8) of the received (acknowledged) bitrate.\n````",
               "createdAt": "2026-05-27T07:29:58Z",
               "updatedAt": "2026-05-27T07:29:58Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs8AAAABDZlblA",
+          "commit": {
+            "abbreviatedOid": "80e896e"
+          },
+          "author": "github-actions",
+          "authorAssociation": "NONE",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-06-18T08:30:13Z",
+          "updatedAt": "2026-06-18T08:30:14Z",
+          "comments": [
+            {
+              "originalPosition": 225,
+              "body": "````suggestion\n        # delay varies.\n````",
+              "createdAt": "2026-06-18T08:30:13Z",
+              "updatedAt": "2026-06-18T08:30:14Z"
+            },
+            {
+              "originalPosition": 158,
+              "body": "````suggestion\n  ref_wnd_delay_scale = max(0.0, min(1.0, 1.0-qdelay_dev_avg/QDELAY_DEV_NORM))\n````",
+              "createdAt": "2026-06-18T08:30:14Z",
+              "updatedAt": "2026-06-18T08:30:14Z"
+            },
+            {
+              "originalPosition": 147,
+              "body": "````suggestion\nThe variable qdelay_dev_avg indicates how much the queue delay varies. ref_wnd_scale is a scale factor that is applied to the reference window increase and the reference window headroom, ref_wnd_scale is 1.0 when the delay jitter is low decreases as the delay jitter increases.\n````",
+              "createdAt": "2026-06-18T08:30:14Z",
+              "updatedAt": "2026-06-18T08:30:14Z"
+            },
+            {
+              "originalPosition": 126,
+              "body": "````suggestion\n* qdelay_max (0.0): Max queue delay.\n````",
+              "createdAt": "2026-06-18T08:30:14Z",
+              "updatedAt": "2026-06-18T08:30:14Z"
             }
           ]
         }
