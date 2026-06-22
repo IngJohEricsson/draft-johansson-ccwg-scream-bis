@@ -2038,7 +2038,7 @@ described in <span>[<a href="#RFC6298" class="cite xref">RFC6298</a>]</span><a h
 function calculate_ref_wnd_delay_scale()
   # Calculate ref_wnd_scale, range [0.0 1.0]
   qdelay_dev_avg = (1.0-QDELAY_DEV_AVG_G)*qdelay_dev_avg + QDELAY_DEV_AVG_G*(qdelay_max_avg-qdelay_min_avg)
-  ref_wnd_delay_scale = max(0.0, min(1.0, 1.0-qdelay_dev_avg/QDELAY_DEV_NORM))
+  ref_wnd_delay_scale = max(0.0, min(1.0, 1.0-qdelay_dev_avg/QDELAY_DEV_THRESHOLD))
 end
 </pre><a href="#section-4.2.1.4-11" class="pilcrow">¶</a>
 </div>
@@ -2057,7 +2057,7 @@ end
                 <p id="section-4.2.1.4-15.1.1">QDELAY_DEV_AVG_G (1/32): Exponentially Weighted Moving Average (EWMA) factor for qdelay_dev_avg<a href="#section-4.2.1.4-15.1.1" class="pilcrow">¶</a></p>
 </li>
               <li class="normal" id="section-4.2.1.4-15.2">
-                <p id="section-4.2.1.4-15.2.1">QDELAY_DEV_NORM (0.01): The normalization factor for qdelay_dev_avg [s]<a href="#section-4.2.1.4-15.2.1" class="pilcrow">¶</a></p>
+                <p id="section-4.2.1.4-15.2.1">QDELAY_DEV_THRESHOLD (0.01): Threshold for qdelay_dev_avg [s]<a href="#section-4.2.1.4-15.2.1" class="pilcrow">¶</a></p>
 </li>
             </ul>
 <div id="competing-flows-compensation">
