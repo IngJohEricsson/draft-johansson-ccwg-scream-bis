@@ -689,7 +689,7 @@ The variable qdelay_dev_avg indicates how much the queue delay varies. ref_wnd_d
 function calculate_ref_wnd_delay_scale()
   # Calculate ref_wnd_scale, range [0.0 1.0]
   qdelay_dev_avg = (1.0-QDELAY_DEV_AVG_G)*qdelay_dev_avg + QDELAY_DEV_AVG_G*(qdelay_max_avg-qdelay_min_avg)
-  ref_wnd_delay_scale = max(0.0, min(1.0, 1.0-qdelay_dev_avg/QDELAY_DEV_NORM))
+  ref_wnd_delay_scale = max(0.0, min(1.0, 1.0-qdelay_dev_avg/QDELAY_DEV_THRESHOLD))
 end
 ~~~
 
@@ -703,7 +703,7 @@ The following constants are used:
 
 * QDELAY_DEV_AVG_G (1/32): Exponentially Weighted Moving Average (EWMA) factor for qdelay_dev_avg
 
-* QDELAY_DEV_NORM (0.01): The normalization factor for qdelay_dev_avg [s]
+* QDELAY_DEV_THRESHOLD (0.01): Threshold for qdelay_dev_avg [s]
 
 ##### Competing Flows Compensation {#competing-flows-compensation}
 
