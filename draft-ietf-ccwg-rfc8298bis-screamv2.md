@@ -632,6 +632,8 @@ retransmissions.
 
 qdelay_avg is updated with a slow attack, fast decay EWMA filter as described below.
 
+Two variables, qdelay_max_avg and qdelay_min_avg track how much the min and max queue delay varies over time. The qdelay_max_avg is reduced gradually towards zero while the qdelay_min_avg is averaged towards qdelay_max_avg. This makes the difference between qdelay_max_avg and qdelay_min_avg robust against clock drift and also adds some immunity against scheduling jitter, which affects both qdelay_max_avg and qdelay_min_avg.
+
 ~~~
 if (now - last_update_qdelay_avg_time >= min(virtual_rtt,s_rtt))
   # Calculate qdelay_avg
@@ -641,12 +643,15 @@ if (now - last_update_qdelay_avg_time >= min(virtual_rtt,s_rtt))
     qdelay_avg = QDELAY_AVG_G*qdelay + (1.0-QDELAY_AVG_G)*qdelay_avg
   end
 
-  qdelay_max = min(qdelay_target, max(qdelay, qdelay_max)))
-  qdelay_max = qdelay_max * (1 -  QDELAY_MAX_DECAY_FACTOR)
-
   # Optional code to calculate the variation on queue delay, which is an
   # Indication of congestion or near congestion.
   if (REDUCE_JITTER == true)
+    # Calculate qdelay_max_avg and qdelay_min_avg
+    qdelay_max_avg = min(qdelay_target, max(qdelay, qdelay_max_avg)))
+    qdelay_min_avg = min(qdelay, qdelay_min_avg))
+    qdelay_max_avg = qdelay_max_avg * (1 -  QDELAY_MIN_MAX_AVG_G)
+    qdelay_min_avg = qdelay_min_avg * (1 -  QDELAY_MIN_MAX_AVG_G) +
+                    qdelay_max_avg*QDELAY_MIN_MAX_AVG_G
      calculate_ref_wnd_delay_scale()
   end
   last_update_qdelay_avg_time = now
@@ -659,7 +664,9 @@ The following variables are used:
 {{RFC6817}}. A qdelay sample is obtained for each received acknowledgement.
 It is typically sufficient with one update per received acknowledgement.
 
-* qdelay_max (0.0): Max queue delay
+* qdelay_max_avg (qdelay_target): Max queue delay
+
+* qdelay_max_min (0.0): Min queue delay
 
 * last_update_qdelay_avg_time (0.0): Last time qdelay_avg was updated [s]
 
@@ -672,16 +679,16 @@ The following constants are used:
 
 * REDUCE_JITTER (false): (optional) config knob to enable jitter filtering
 
-* QDELAY_MAX_DECAY_FACTOR (1.0/32): Decay factor for qdelay_max
+* QDELAY_MIN_MAX_AVG_G (1.0/16): Filter gain for qdelay_min_avg and qdelay_max_avg
 
 The SCReAM algorithm can be further improved for a greater rate stability by taking variations in qdelay into consideration. The goal is to react less to delay variations, caused by e.g. link layer related scheduling and retransmissions, but still be reactive to actual queue delay, caused by congestion. The code below provides a example implementation but more advanced statistical analysis can be considered.
 
-The variable qdelay_dev_avg indicates how much the queue delay varies. ref_wnd_scale is a scale factor that is applied to the reference window increase and the reference window headroom, ref_wnd_scale is 1.0 when the delay jitter is low decreases as the delay jitter increases.
+The variable qdelay_dev_avg indicates how much the queue delay varies. ref_wnd_delay_scale is a scale factor that is applied to the reference window increase and the reference window headroom, ref_wnd_delay_scale is 1.0 when the delay jitter is low decreases as the delay jitter increases.
 
 ~~~
 function calculate_ref_wnd_delay_scale()
   # Calculate ref_wnd_scale, range [0.0 1.0]
-  qdelay_dev_avg = (1.0-QDELAY_DEV_AVG_G)*qdelay_dev_avg + QDELAY_DEV_AVG_G*(qdelay_max-JITTER_MARGIN)
+  qdelay_dev_avg = (1.0-QDELAY_DEV_AVG_G)*qdelay_dev_avg + QDELAY_DEV_AVG_G*(qdelay_max_avg-qdelay_min_avg)
   ref_wnd_delay_scale = max(0.0, min(1.0, 1.0-qdelay_dev_avg/QDELAY_DEV_NORM))
 end
 ~~~
@@ -697,8 +704,6 @@ The following constants are used:
 * QDELAY_DEV_AVG_G (1/32): Exponentially Weighted Moving Average (EWMA) factor for qdelay_dev_avg
 
 * QDELAY_DEV_NORM (0.01): The normalization factor for qdelay_dev_avg [s]
-
-* JITTER_MARGIN (0.01): Extra margin for scheduling jitter [s]
 
 ##### Competing Flows Compensation {#competing-flows-compensation}
 
