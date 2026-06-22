@@ -683,7 +683,7 @@ if (now - last_update_qdelay_avg_time >= min(virtual_rtt,s_rtt))
     qdelay_max_avg = qdelay_max_avg * (1 -  QDELAY_MIN_MAX_AVG_G)
     qdelay_min_avg = qdelay_min_avg * (1 -  QDELAY_MIN_MAX_AVG_G) +
                     qdelay_max_avg*QDELAY_MIN_MAX_AVG_G
-     calculate_ref_wnd_delay_scale()
+    calculate_ref_wnd_delay_scale()
   end
   last_update_qdelay_avg_time = now
 end
@@ -1058,8 +1058,8 @@ increment_t *= max(0.25,scl_t)
 # Optional additional code for increased rate stability
 # Put a additional restriction on reference window growth if qdelay varies a lot.
 # Better to enforce a slow increase in reference window and get
-# a more stable bitrate. Restriction is limited by MIN_QUEUE_DELAY_DEV_SCALE to avoid that
-# ref_wnd growth becomes zero.
+# a more stable bitrate. Restriction is limited to 0.1 to
+# avoid that ref_wnd growth stalls.
 # Code has no effect if REDUCE_JITTER == false
 increment_t *= max(0.1, ref_wnd_delay_scale)
 
