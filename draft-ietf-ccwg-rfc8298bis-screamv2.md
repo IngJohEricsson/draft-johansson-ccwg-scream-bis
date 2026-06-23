@@ -467,6 +467,8 @@ The feedback from the receiver is assumed to consist of the following elements:
 * bytes_newly_acked_ce (0): Number of bytes newly ACKed and CE marked, reset to
   0 when reference window is updated [byte].
 
+* acked_bitrate (0.0): A running average of the ACKnowledged bitrate [bps]. The averaging time should be around one RTT. For periodic media such as video it is beneficial to calculate the acked_bitrate over two frame periods for a reasonably accurate value.  
+  
 bytes_newly_acked is incremented with a value
 corresponding to how much the highest sequence number has increased
 since the last feedback. As an example: If the previous
@@ -602,7 +604,7 @@ The following variables are used:
 
 * l4s_alpha (0.0): Average fraction of marked data units per RTT.
 
-* last_update_l4s_alpha_time (0): Last time l4s_alpha was updated [s].
+* last_update_l4s_alpha_time (0.0): Last time l4s_alpha was updated [s].
 
 * data_units_delivered_this_rtt (0): Counter for delivered data units.
 
@@ -612,9 +614,9 @@ The following variables are used:
 
 The following constants are used
 
-* L4S_AVG_G_UP (1/8): Exponentially Weighted Moving Average (EWMA) factor for l4s_alpha increase
+* L4S_AVG_G_UP (1.0/8): Exponentially Weighted Moving Average (EWMA) factor for l4s_alpha increase
 
-* L4S_AVG_G_DOWN (1/128): Exponentially Weighted Moving Average (EWMA) factor for l4s_alpha decrease
+* L4S_AVG_G_DOWN (1.0/128): Exponentially Weighted Moving Average (EWMA) factor for l4s_alpha decrease
 
 The calculation of l4s_alpha is done with an fast attack slow decay EWMA filter.
 This can give a more stable performance when L4S bottlenecks have high marking thresholds.
@@ -666,7 +668,7 @@ It is typically sufficient with one update per received acknowledgement.
 
 * qdelay_max_avg (qdelay_target): Max queue delay
 
-* qdelay_max_min (0.0): Min queue delay
+* qdelay_min_avg (0.0): Min queue delay
 
 * last_update_qdelay_avg_time (0.0): Last time qdelay_avg was updated [s]
 
@@ -687,7 +689,7 @@ The variable qdelay_dev_avg indicates how much the queue delay varies. ref_wnd_d
 
 ~~~
 function calculate_ref_wnd_delay_scale()
-  # Calculate ref_wnd_scale, range [0.0 1.0]
+  # Calculate ref_wnd_delay_scale, range [0.0 1.0]
   qdelay_dev_avg = (1.0-QDELAY_DEV_AVG_G)*qdelay_dev_avg + QDELAY_DEV_AVG_G*(qdelay_max_avg-qdelay_min_avg)
   ref_wnd_delay_scale = max(0.0, min(1.0, 1.0-qdelay_dev_avg/QDELAY_DEV_THRESHOLD))
 end
@@ -701,103 +703,9 @@ The following variables are used:¶
 
 The following constants are used:
 
-* QDELAY_DEV_AVG_G (1/32): Exponentially Weighted Moving Average (EWMA) factor for qdelay_dev_avg
+* QDELAY_DEV_AVG_G (1.0/32): Exponentially Weighted Moving Average (EWMA) factor for qdelay_dev_avg
 
 * QDELAY_DEV_THRESHOLD (0.01): Threshold for qdelay_dev_avg [s]
-
-##### Competing Flows Compensation {#competing-flows-compensation}
-
-It is likely that a flow will have to share congested bottlenecks with other
-flows that use a more aggressive congestion control algorithm (for example,
-large FTP flows using loss-based congestion control). The worst condition occurs
-when the bottleneck queues are of tail-drop type with a large buffer
-size. SCReAMv2 takes care of such situations by adjusting the qdelay_target when
-loss-based flows are detected, as shown in the pseudocode below.
-
-~~~
-adjust_qdelay_target(qdelay)
-  qdelay_norm_t = qdelay / QDELAY_TARGET_LOW
-  update_qdelay_norm_history(qdelay_norm_t)
-  # Compute variance
-  qdelay_norm_var_t = VARIANCE(qdelay_norm_history(200))
-  # Compensation for competing traffic
-  # Compute average
-  qdelay_norm_avg_t = AVERAGE(qdelay_norm_history(50))
-  # Compute upper limit to target delay
-  new_target_t = qdelay_norm_avg_t + sqrt(qdelay_norm_var_t)
-  new_target_t *= QDELAY_TARGET_LO
-  if (loss_event_rate > 0.002)
-    # Data unit losses detected
-    qdelay_target = 1.5 * new_target_t
-  else
-    if (qdelay_norm_var_t < 0.2)
-      # Reasonably safe to set target qdelay
-      qdelay_target = new_target_t
-    else
-      # Check if target delay can be reduced; this helps prevent
-      # the target delay from being locked to high values forever
-      if (new_target_t < QDELAY_TARGET_LO)
-        # Decrease target delay quickly, as measured queuing
-        # delay is lower than target
-        qdelay_target = max(qdelay_target * 0.5, new_target_t)
-      else
-        # Decrease target delay slowly
-        qdelay_target *= 0.9
-      end
-    end
-  end
-
-  # Apply limits
-  qdelay_target = min(QDELAY_TARGET_HI, qdelay_target)
-  qdelay_target = max(QDELAY_TARGET_LO, qdelay_target)
-~~~
-
-The follwoing variable is used:
-
-* loss_event_rate (0.0): The estimated fraction of RTTs with lost data units
-  detected.
-
-Two temporary variables are calculated. qdelay_norm_avg_t is the long-term
-average queue delay, qdelay_norm_var_t is the long-term variance of the queue
-delay. A high qdelay_norm_var_t indicates that the queue delay changes; this can
-be an indication that bottleneck bandwidth is reduced or that a competing flow
-has just entered. Thus, it indicates that it is not safe to adjust the queue
-delay target.
-
-A low qdelay_norm_var_t indicates that the queue delay is relatively stable. The
-reason could be that the queue delay is low, but it could also be that a
-competing flow is causing the bottleneck to reach the point that data unit losses
-start to occur, in which case the queue delay will stay relatively high for a
-longer time.
-
-The queue delay target is allowed to be increased if either the loss event rate
-is above a given threshold or qdelay_norm_var_t is low. Both these conditions
-indicate that a competing flow may be present. In all other cases, the queue
-delay target is decreased.
-
-The function that adjusts the qdelay_target is simple and could produce false
-positives and false negatives. The case that self-inflicted congestion by the
-SCReAMv2 algorithm may be falsely interpreted as the presence of competing
-loss-based FTP flows is a false positive. The opposite case -- where the
-algorithm fails to detect the presence of a competing FTP flow -- is a false
-negative.
-
-Extensive simulations have shown that the algorithm performs well in LTE and 5G
-test cases and that it also performs well in simple bandwidth-limited bottleneck
-test cases with competing FTP flows. However, the potential failure of the
-algorithm cannot be completely ruled out. A false positive (i.e., when
-self-inflicted congestion is mistakenly identified as competing flows) is
-especially problematic when it leads to increasing the target queue delay, which
-can cause the end-to-end delay to increase dramatically.
-
-If it is deemed unlikely that competing flows occur over the same bottleneck,
-the algorithm described in this section MAY be turned off. One such case is
-QoS-enabled bearers in 3GPP-based access such as LTE and 5G. However, when
-sending over the Internet, often the network conditions are not known for sure,
-so in general it is not possible to make safe assumptions on how a network is
-used and whether or not competing flows share the same bottleneck. Therefore,
-turning this algorithm off must be considered with caution, as it can lead to
-basically zero throughput if competing with loss-based traffic.
 
 ### Reference Window Update {#ref-wnd-update}
 
@@ -858,6 +766,10 @@ for the constants are deduced from experiments):
 
 * MIN_QUEUE_DELAY_DEV_SCALE (0.1): Min allowed scaling of ref_wnd backoff and increase due to large qdelay_dev_norm.
 
+* ACKED_BITRATE_MARGIN (0.8): Safety marging for triggering of downscaling of backoff for cases where target bitrate is already low 
+
+* BACKOFF_SCALE_LOW_TARGETRATE (0.25): Downscaling of backoff when target rate is already low compared to the ACKnowledged bitrate  
+
 #### Reference Window Reduction {#ref-wnd-reduction}
 
 ~~~
@@ -914,6 +826,13 @@ if (is_ce_t)
     # L4S mode
     backoff_t = l4s_alpha / 2
 
+    # Reduce backoff when target bitrate is lower than the ACKnowledged rate
+    # this is indicative of that the target rate is already reduced
+    # by increased RTT
+    if (target_bitrate < acked_bitrate * ACKED_BITRATE_MARGIN)
+        backoff_t *= BACKOFF_SCALE_LOW_TARGET_RATE
+    end
+
     # Scale down backoff when RTT is high to avoid overreaction to
     # congestion
     backoff_t /= max(1.0, s_rtt/VIRTUAL_RTT)
@@ -951,6 +870,13 @@ end
 if (is_virtual_ce_t)
   backoff_t = l4s_alpha_v_t / 2
 
+  # Reduce backoff when target bitrate is lower than the ACKnowledged rate
+  # this is indicative of that the target rate is already reduced
+  # by increased RTT
+  if (target_bitrate < acked_bitrate * ACKED_BITRATE_MARGIN)
+     backoff_t *= BACKOFF_SCALE_LOW_TARGET_RATE
+  end
+
   # Scale down backoff when RTT is high to avoid overreaction to
   # congestion
   backoff_t /= max(1.0, s_rtt/VIRTUAL_RTT)
@@ -963,6 +889,16 @@ if (is_loss_t || is_ce_t || is_virtual_ce_t)
   last_reaction_to_congestion_time = now
 end
 ~~~
+
+The reference window reduction when congestion due to L4S marking or increased delay is detected is constrained by a number of factors:
+
+* For cases that the target rate is lower than the acknowledged bitrate, it is likely that the target bitrate is already reduced because of an increased RTT. A further (large) decrease of the reference window would then only lead to an unnecessary undershoot.
+
+* For large RTTs, a restriction attenuates variations in the reference window
+
+* When the reference window is close to the last known max value, this reduces large variations
+
+* When ref_wnd_delay_scale is small
 
 Link layer losses, i.e losses that are not congestion related can lead to unwarranted congestion back-off. One method is to apply congestion backoff only when an average loss rate exceeds a threshold. A suggested modification to the code above is found in {{link-loss-rate-policer}}.
 
@@ -1188,9 +1124,9 @@ updated and calculates the target bitrate:
 
 * target_bitrate (0): Media target bitrate [bps].
 
-* rate_adjust_factor (0): Adjustment factor to avoid unnecessary media queue buildup.
+* rate_adjust_factor (0.0): Adjustment factor to avoid unnecessary media queue buildup.
 
-* frame_size_dev (0): Frame size deviation.
+* frame_size_dev (0.0): Frame size deviation.
 
 * frame_period (0.02): An estimated frame period.
 
@@ -1202,14 +1138,14 @@ The following constants are used by the media rate control:
 
 * TARGET_BITRATE_MAX: Maximum target bitrate in [bps].
 
-* RATE_ADJUST_GAIN (1/16): Adjustment gain for rate adjustment to compensate for media queue buildup.
+* RATE_ADJUST_GAIN (1.0/16): Adjustment gain for rate adjustment to compensate for media queue buildup.
 
-* FRAME_SIZE_DEV_ALPHA (1/64): Time constant to compensate for varying frame sizes.
+* FRAME_SIZE_DEV_ALPHA (1.0/64): Time constant to compensate for varying frame sizes.
 
 The target bitrate is essentiatlly based on the reference window ref_wnd and the (smoothed) RTT s_rtt according to
 
 ~~~
-target_bitrate = 8 * ref_wnd / s_rtt
+target_bitrate = 8.0 * ref_wnd / s_rtt
 ~~~
 
 The role of the media rate control is to strike a reasonable balance between a
@@ -1334,6 +1270,100 @@ The variables and constants are:
 
 The max_policed_ref_wnd enforces an upper limit to the ref_wnd. The max_policed_ref_wnd should increase by a small fraction, for instance 0.001 per RTT that gradually lifts the limit, this prevents that possible false detection of rate policers causes a permanent restriction on ref_wnd.
 
+## Competing Flows Compensation {#competing-flows-compensation}
+
+It is likely that a flow will have to share congested bottlenecks with other
+flows that use a more aggressive congestion control algorithm (for example,
+large FTP flows using loss-based congestion control). The worst condition occurs
+when the bottleneck queues are of tail-drop type with a large buffer
+size. SCReAMv2 takes care of such situations by adjusting the qdelay_target when
+loss-based flows are detected, as shown in the optional pseudocode below.
+
+~~~
+adjust_qdelay_target(qdelay)
+  qdelay_norm_t = qdelay / QDELAY_TARGET_LOW
+  update_qdelay_norm_history(qdelay_norm_t)
+  # Compute variance
+  qdelay_norm_var_t = VARIANCE(qdelay_norm_history(200))
+  # Compensation for competing traffic
+  # Compute average
+  qdelay_norm_avg_t = AVERAGE(qdelay_norm_history(50))
+  # Compute upper limit to target delay
+  new_target_t = qdelay_norm_avg_t + sqrt(qdelay_norm_var_t)
+  new_target_t *= QDELAY_TARGET_LO
+  if (loss_event_rate > 0.002)
+    # Data unit losses detected
+    qdelay_target = 1.5 * new_target_t
+  else
+    if (qdelay_norm_var_t < 0.2)
+      # Reasonably safe to set target qdelay
+      qdelay_target = new_target_t
+    else
+      # Check if target delay can be reduced; this helps prevent
+      # the target delay from being locked to high values forever
+      if (new_target_t < QDELAY_TARGET_LO)
+        # Decrease target delay quickly, as measured queuing
+        # delay is lower than target
+        qdelay_target = max(qdelay_target * 0.5, new_target_t)
+      else
+        # Decrease target delay slowly
+        qdelay_target *= 0.9
+      end
+    end
+  end
+
+  # Apply limits
+  qdelay_target = min(QDELAY_TARGET_HI, qdelay_target)
+  qdelay_target = max(QDELAY_TARGET_LO, qdelay_target)
+~~~
+
+The follwoing variable is used:
+
+* loss_event_rate (0.0): The estimated fraction of RTTs with lost data units
+  detected.
+
+Two temporary variables are calculated. qdelay_norm_avg_t is the long-term
+average queue delay, qdelay_norm_var_t is the long-term variance of the queue
+delay. A high qdelay_norm_var_t indicates that the queue delay changes; this can
+be an indication that bottleneck bandwidth is reduced or that a competing flow
+has just entered. Thus, it indicates that it is not safe to adjust the queue
+delay target.
+
+A low qdelay_norm_var_t indicates that the queue delay is relatively stable. The
+reason could be that the queue delay is low, but it could also be that a
+competing flow is causing the bottleneck to reach the point that data unit losses
+start to occur, in which case the queue delay will stay relatively high for a
+longer time.
+
+The queue delay target is allowed to be increased if either the loss event rate
+is above a given threshold or qdelay_norm_var_t is low. Both these conditions
+indicate that a competing flow may be present. In all other cases, the queue
+delay target is decreased.
+
+The function that adjusts the qdelay_target is simple and could produce false
+positives and false negatives. The case that self-inflicted congestion by the
+SCReAMv2 algorithm may be falsely interpreted as the presence of competing
+loss-based FTP flows is a false positive. The opposite case -- where the
+algorithm fails to detect the presence of a competing FTP flow -- is a false
+negative.
+
+Extensive simulations have shown that the algorithm performs well in LTE and 5G
+test cases and that it also performs well in simple bandwidth-limited bottleneck
+test cases with competing FTP flows. However, the potential failure of the
+algorithm cannot be completely ruled out. A false positive (i.e., when
+self-inflicted congestion is mistakenly identified as competing flows) is
+especially problematic when it leads to increasing the target queue delay, which
+can cause the end-to-end delay to increase dramatically.
+
+If it is deemed unlikely that competing flows occur over the same bottleneck,
+the algorithm described in this section MAY be turned off. One such case is
+QoS-enabled bearers in 3GPP-based access such as LTE and 5G. However, when
+sending over the Internet, often the network conditions are not known for sure,
+so in general it is not possible to make safe assumptions on how a network is
+used and whether or not competing flows share the same bottleneck. Therefore,
+turning this algorithm off must be considered with caution, as it can lead to
+basically zero throughput if competing with loss-based traffic.
+
 #  Receiver Requirements on Feedback Intensity {#scream-receiver}
 
 The simple task of the receiver is to feed back acknowledgements with with time
@@ -1427,14 +1457,13 @@ This section covers a few discussion points.
 
 * SCReAM (+L4S) is currently being integrated in chrome for performance evaluation and comparison against GCC, nightly Chrome Canary builds are available at {{SCReAM-Chrome-Canary}}.
 
-* The addition of the optional qdelay_dev_norm related restriction on ref_wnd increase can cause the rate increase to go slower when the non-congestion related jitter is high. Non-congestion related jitter can occur for instance in 5G where the amount of scheduling delay jitter depends of factors like TDD (Time Division Duplex) patterns an overall load in a cell. Improved methods to take delay jitter and compensate for that can remedy this. The objective is to avoid the restriction when the delay jitter is not congestion related. Discriminating between non-congestion related delay jitter and congestion related ditto is however not an easy task. One method to to estimate the jitter when link is known to be uncongested. A challenge is that congestion related jitter emerges already as the application bitrate gets near the congestion point and this can make distinction more difficult. The example algorithm in the draft is expected to be modified in a future draft version.
+* The addition of the optional ref_wnd_delay_scale related restriction on ref_wnd increase can cause the rate increase to go slower when the non-congestion related jitter is high. Non-congestion related jitter can occur for instance in 5G where the amount of scheduling delay jitter depends of factors like TDD (Time Division Duplex) patterns an overall load in a cell. The algorithm is somewhat robust to scheduling jitter as it calculates ref_wnd_delay_scale based on the difference between the max and min queue delay. Still, there can be cases where large amounts of scheduling jitter can give a slow rampup of the bitrate.
 
 * Rate policers can cause loss bursts. These loss bursts are particularly harmful for real time media transmission and it is problematic to detect the existence of rate policers in the tranmission path. The example algorithm in the draft resolves the problem with rate policers to some degree. The algorithm is however not bullet proof, assumptions around queue delay can for instance fail on links where the RTT varies, such as satellite links. In addition, rate policers can be configured in many ways.
 
-* AI-tools can generate code based on the current draft version albeit with some caveats around execution order and poorly defined calculations/definitions of variables. A later version will address this showcoming.
+* The calculation of the target bitrate based on the reference window and the average RTT can lead to over optimistic target rate values for instance when the source becomes idle or delivers a media bitrate that is lower than the target bitrate. To resolve this issue, it is recommended to update the average RTT with a longer time constant when bytes in flight is lower than the reference window by some margin. 
 
-* The ref_wnd can undershoot because of L4S and delay based congestion signals. This can lead to unnecessarily low bitrates after a congestion event. A method to avoid this is to reduce, i.e. scale down, L4S and delay based congestion backoff when the target bitrate is less than a fraction (for instance 0.8) of the received (acknowledged) bitrate. The rationale is that such cases indicate that the target bitrate is scaled down by the increased RTT and thus further ref_wnd decrease can lead to a double action to congestion and undershoot. This method limits the undershoot of the ref_wnd but can make it slower to drain a queue.
-The received bitrate is measured as an average over a few RTTs or media frame periods. Example code for this is found in {{SCReAM-CPP-implementation}}.
+* AI-tools can generate code based on the current draft version albeit with some caveats around execution order and poorly defined calculations/definitions of variables. A later version will address this showcoming.
 
 # IANA Considerations {#iana}
 
@@ -1477,7 +1506,7 @@ work that led to this memo: Per Kjellander, Björn Terelius.
 
 * Added discussion on code generation with AI-tools based on the draft.
 
-* Added a note on a method to reduce ref_wnd undershoot when L4S or delay based congestion occurs.
+* Added method to reduce ref_wnd undershoot when L4S or delay based congestion occurs.
 
 ## Individual draft submissions
 
