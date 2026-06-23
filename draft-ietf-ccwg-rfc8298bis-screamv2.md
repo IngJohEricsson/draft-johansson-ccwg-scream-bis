@@ -467,8 +467,8 @@ The feedback from the receiver is assumed to consist of the following elements:
 * bytes_newly_acked_ce (0): Number of bytes newly ACKed and CE marked, reset to
   0 when reference window is updated [byte].
 
-* acked_bitrate (0.0): A running average of the ACKnowledged bitrate [bps]. The averaging time should be around one RTT. For periodic media such as video it is beneficial to calculate the acked_bitrate over two frame periods for a reasonably accurate value.  
-  
+* acked_bitrate (0.0): A running average of the ACKnowledged bitrate [bps]. The averaging time should be around one RTT. For periodic media such as video it is beneficial to calculate the acked_bitrate over two frame periods for a reasonably accurate value.
+
 bytes_newly_acked is incremented with a value
 corresponding to how much the highest sequence number has increased
 since the last feedback. As an example: If the previous
@@ -766,9 +766,9 @@ for the constants are deduced from experiments):
 
 * MIN_QUEUE_DELAY_DEV_SCALE (0.1): Min allowed scaling of ref_wnd backoff and increase due to large qdelay_dev_norm.
 
-* ACKED_BITRATE_MARGIN (0.8): Safety marging for triggering of downscaling of backoff for cases where target bitrate is already low 
+* ACKED_BITRATE_MARGIN (0.8): Safety marging for triggering of downscaling of backoff for cases where target bitrate is already low.
 
-* BACKOFF_SCALE_LOW_TARGETRATE (0.25): Downscaling of backoff when target rate is already low compared to the ACKnowledged bitrate  
+* BACKOFF_SCALE_LOW_TARGETRATE (0.25): Downscaling of backoff when target rate is already low compared to the ACKnowledged bitrate.
 
 #### Reference Window Reduction {#ref-wnd-reduction}
 
@@ -1461,7 +1461,7 @@ This section covers a few discussion points.
 
 * Rate policers can cause loss bursts. These loss bursts are particularly harmful for real time media transmission and it is problematic to detect the existence of rate policers in the tranmission path. The example algorithm in the draft resolves the problem with rate policers to some degree. The algorithm is however not bullet proof, assumptions around queue delay can for instance fail on links where the RTT varies, such as satellite links. In addition, rate policers can be configured in many ways.
 
-* The calculation of the target bitrate based on the reference window and the average RTT can lead to over optimistic target rate values for instance when the source becomes idle or delivers a media bitrate that is lower than the target bitrate. To resolve this issue, it is recommended to update the average RTT with a longer time constant when bytes in flight is lower than the reference window by some margin. 
+* The calculation of the target bitrate based on the reference window and the average RTT can lead to over optimistic target rate values for instance when the source becomes idle or delivers a media bitrate that is lower than the target bitrate. To resolve this issue, it is recommended to update the average RTT with a longer time constant when bytes in flight is lower than the reference window by some margin.
 
 * AI-tools can generate code based on the current draft version albeit with some caveats around execution order and poorly defined calculations/definitions of variables. A later version will address this showcoming.
 
