@@ -159,8 +159,8 @@ SCReAM in {{RFC8298}}. The main differences are:
   Prague congestion control but has a few extra modifications to make it work
   well with periodic sources such as video.
 
-* The delay based congestion control is changed to implement a pseudo-L4S
-  approach, this simplifies the delay based congestion control.
+* The delay-based congestion control is changed to implement a pseudo-L4S
+  approach, this simplifies the delay-based congestion control.
 
 * The fast increase mode is removed. The reference window additive increase is
   replaced with an adaptive multiplicative increase to enhance convergence
@@ -193,7 +193,7 @@ used as recommended feedback. RTP offers unique packet indication with the
 sequence number and {{RFC8888}} offers timestamps of received packets and the
 status of the ECN bits.
 
-SCReAM is however not limited to RTP as long as some requirements are fulfilled :
+SCReAM is however not limited to RTP as long as some requirements are fulfilled:
 
  * Media data is split in data units that when encapsulated in IP packets fit in
    the network MTU.
@@ -256,7 +256,7 @@ sender side while the receiver is assumed to provide acknowledgements of receive
 data units and indication of ECN-CE marking, either as an accumulated bytes counter,
 or per individual data unit.
 
-The sender implements media rate control and an data unit queue for each media
+The sender implements media rate control and a data unit queue for each media
 type or source, where data units containing encoded media frames are temporarily
 stored for transmission. Figure 1 shows the details when a single media source
 (or stream) is used. Scheduling and prioritization of multiple streams is not
@@ -499,7 +499,7 @@ Congestion is detected based on three different indicators:
  * Estimated queue delay exceeds a threshold.
 
 A congestion event occurs if any of the above indicators are true AND it is at
-least min(VIRTUAL_RTT,s_rtt) since the last congestion event. This ensures that
+least min(VIRTUAL_RTT, s_rtt) since the last congestion event. This ensures that
 the reference window is reduced at most once per smoothed RTT.
 
 #### Detecting Lost Data Units  {#reaction-loss}
@@ -526,7 +526,7 @@ is updated to reflect the reordering delay. The reordering window is given by
 the difference in time between the event that the data unit was marked as lost and
 the event that it was indicated as successfully received. Loss is detected if a
 given data unit is not acknowledged within a time window (indicated by the
-reordering window) after an data unit with a higher sequence number was
+reordering window) after a data unit with a higher sequence number was
 acknowledged.
 
 A loss rate is calculated for each packet according to the equation below, the loss rate is calculated as an average with a time constant of 2 RTTs.
@@ -579,7 +579,7 @@ the following way:
 data_units_delivered_this_rtt += data_units_acked
 data_units_marked_this_rtt += data_units_acked_ce
 # l4s_alpha is updated at least every 10ms
-if (now - last_update_l4s_alpha_time >= min(0.01,s_rtt))
+if (now - last_update_l4s_alpha_time >= min(0.01, s_rtt))
   # l4s_alpha is calculated from data_units marked istf bytes marked
   fraction_marked_t = data_units_marked_this_rtt/
                       data_units_delivered_this_rtt
@@ -618,7 +618,7 @@ The following constants are used
 
 * L4S_AVG_G_DOWN (1.0/128): Exponentially Weighted Moving Average (EWMA) factor for l4s_alpha decrease
 
-The calculation of l4s_alpha is done with an fast attack slow decay EWMA filter.
+The calculation of l4s_alpha is done with a fast attack slow decay EWMA filter.
 This can give a more stable performance when L4S bottlenecks have high marking thresholds.
 
 #### Detecting Increased Queue Delay {#reaction-delay}
@@ -641,7 +641,7 @@ Two variables, qdelay_max_avg and qdelay_min_avg track how much the min and max 
 qdelay_max_avg = min(qdelay_target, max(qdelay, qdelay_max_avg)))
 qdelay_min_avg = min(qdelay, qdelay_min_avg))
 
-if (now - last_update_qdelay_avg_time >= min(virtual_rtt,s_rtt))
+if (now - last_update_qdelay_avg_time >= min(virtual_rtt, s_rtt))
   # Calculate qdelay_avg
   if (qdelay < qdelay_avg)
     qdelay_avg = qdelay
@@ -654,8 +654,8 @@ if (now - last_update_qdelay_avg_time >= min(virtual_rtt,s_rtt))
   if (REDUCE_JITTER == true)
     # Reduce average max queue delay and move min average
     # queue delay towards the max
-    qdelay_max_avg = qdelay_max_avg * (1 -  QDELAY_MIN_MAX_AVG_G)
-    qdelay_min_avg = qdelay_min_avg * (1 -  QDELAY_MIN_MAX_AVG_G) +
+    qdelay_max_avg = qdelay_max_avg * (1.0-QDELAY_MIN_MAX_AVG_G)
+    qdelay_min_avg = qdelay_min_avg * (1.0-QDELAY_MIN_MAX_AVG_G) +
                     qdelay_max_avg*QDELAY_MIN_MAX_AVG_G
     calculate_ref_wnd_delay_scale()
   end
@@ -698,7 +698,7 @@ function calculate_ref_wnd_delay_scale()
 end
 ~~~
 
-The following variables are used:¶
+The following variables are used:
 
 * qdelay_dev_avg (0.0): indicates how much the queue delay varies[s]
 
@@ -794,7 +794,7 @@ if (loss_detected || data_units_marked)
 end
 
 # The reference window is updated at least every VIRTUAL_RTT
-if (now - last_reaction_to_congestion_time >= min(VIRTUAL_RTT,s_rtt)
+if (now - last_reaction_to_congestion_time >= min(VIRTUAL_RTT, s_rtt)
   if (loss_detected)
     is_loss_t = true
   else if (data_units_marked)
@@ -839,7 +839,8 @@ if (is_ce_t)
     end
 
     # Scale down backoff when RTT is high to avoid overreaction to
-    # congestion
+    # congestion. This is related to that congestion backoff can occur
+    # every min(VIRTUAL_RTT, s_rtt)
     backoff_t /= max(1.0, s_rtt/VIRTUAL_RTT)
 
     # Jitter is considered large if the qdelay is larger than qdelay_target/4
@@ -857,7 +858,7 @@ if (is_ce_t)
     end
 
     if (now - last_reaction_to_congestion_time >
-        100*max(VIRTUAL_RTT,s_rtt))
+        100*max(VIRTUAL_RTT, s_rtt))
       # A long time (>100 RTTs) since last congested because
       # link throughput exceeds max video bitrate.
       # There is a certain risk that ref_wnd has increased way above
@@ -883,7 +884,8 @@ if (is_virtual_ce_t)
   end
 
   # Scale down backoff when RTT is high to avoid overreaction to
-  # congestion
+  # congestion This is related to that congestion backoff can occur
+  # every min(VIRTUAL_RTT, s_rtt)
   backoff_t /= max(1.0, s_rtt/VIRTUAL_RTT)
 
   ref_wnd = (1.0 - backoff_t) * ref_wnd
@@ -918,7 +920,7 @@ post_congestion_scale_t = max(0.0, min(1.0,
   (POST_CONGESTION_DELAY_RTTS * max(VIRTUAL_RTT, s_rtt))))
 
 # Scale factor for ref_wnd update
-ref_wnd_scale_factor_t = 1.0 + (MUL_INCREASE_FACTOR  * ref_wnd) / MSS
+ref_wnd_scale_factor_t = 1.0 + (MUL_INCREASE_FACTOR*ref_wnd) / MSS
 
 # Calculate bytes acked that are not CE marked
 # For the case that only accumulated number of CE marked packets is
@@ -935,10 +937,10 @@ increment_t *= tmp_t
 
 # Apply limit to reference window growth when close to last
 # known max value before congestion
-increment_t *= max(0.25,scl_t)
+increment_t *= max(0.25, scl_t)
 
 # Optional additional code for increased rate stability
-# Put a additional restriction on reference window growth if qdelay varies a lot.
+# Put an additional restriction on reference window growth if qdelay varies a lot.
 # Better to enforce a slow increase in reference window and get
 # a more stable bitrate. Restriction is limited to 0.1 to
 # avoid that ref_wnd growth stalls.
@@ -1020,7 +1022,7 @@ in flight and the reference window. This is controlled by the send window:
   transmitted. Updated when ref_wnd is updated and when data unit is
   transmitted [byte].
 
-The sender transmission control is executed for each transmitted packet, the send interval is dictated by the pacing but is restricted by the send window. In practice it however can be more practical to transmit packets in small burst to save processing power, or alternatively to offload the pacing to OS kernel function.
+The sender transmission control is executed for each transmitted packet, the send interval is dictated by the pacing but is restricted by the send window. In practice it however can be more practical to transmit packets in small burst to save processing power, or alternatively, to offload the pacing to OS kernel function.
 
 ### Send Window Calculation {#send-window}
 
@@ -1052,13 +1054,13 @@ reference window and the amount of bytes in flight according to the pseudocode
 below. The multiplication of ref_wnd with ref_wnd_overhead has the effect that bytes in flight is 'around' the ref_wnd
 rather than limited by the ref_wnd. The
 implementation allows the data unit queue to be small even when the frame sizes vary
-and thus increased e2e delay can be avoided.
+and thus, increased e2e delay can be avoided.
 
 ~~~
 send_wnd = ref_wnd * ref_wnd_overhead - bytes_in_flight
 ~~~
 
-The send window is updated whenever an data unit is transmitted or an feedback
+The send window is updated whenever a data unit is transmitted or an feedback
 messaged is received.
 
 The ref_wnd_overhead is adjusted dynamically. A large overhead is beneficial when the network link is uncongested as it allows to
@@ -1139,7 +1141,7 @@ updated and calculates the target bitrate. It is however not necessary to execut
 
 The following constants are used by the media rate control:
 
-* PACKET_OVERHEAD (20) : Estimated packetization overhead [byte].
+* PACKET_OVERHEAD (20): Estimated packetization overhead [byte].
 
 * TARGET_BITRATE_MIN: Minimum target bitrate in [bps] (bits per second).
 
@@ -1170,7 +1172,7 @@ scenarios
 * The frame sizes vary much, which can result in larger e2e delay if not compensated for
 
 The rate_adjust_factor helps to reduce the target rate when the delay in the data unit increases beyond frame_period/4, this allows for some modest queue buildup to ensure a good link utilization. The frame_size_dev calculates the positive deviation in frame sizes from the nominal, this helps compensate for larger variations in frame size, systematic errors in media encoder output bitrate and also to some extent sluggish media rate control loops where the media coder rate lags behind the target bitrate.
-The complete pseudo code for adjustment of the target bitrate is shown below. The algorithm parts for rate_adjust_factor and frame_size_dev are suggested examples how to compensate for that frames sized deviate from the nominal.
+The complete pseudo code for adjustment of the target bitrate is shown below. The algorithm parts for rate_adjust_factor and frame_size_dev are suggested examples how to compensate for that frame sizes deviate from the nominal.
 
 ~~~
 # Calculate the rate_adjust_factor and the frame_size_dev for each new media frame.
@@ -1216,7 +1218,7 @@ target_bitrate = min(TARGET_BITRATE_MAX,
 
 ## Additional functions
 
-This section covers additional functionality that is not critical for the function of the SCReAM congestion control algorithm, but can nevertheless improve the performance.
+This section covers additional functionality that is not critical for the function of the SCReAM congestion control algorithm, but can nevertheless, improve the performance.
 
 ### Clock drift issues and remedies
 
@@ -1377,7 +1379,7 @@ basically zero throughput if competing with loss-based traffic.
 
 #  Receiver Requirements on Feedback Intensity {#scream-receiver}
 
-The simple task of the receiver is to feed back acknowledgements with time
+The simple task of the receiver is to feedback acknowledgements with time
 stamp and ECN bits indication for received data units to the sender. Upon reception
 of each data unit, the receiver MUST maintain enough information to send the
 aforementioned values to the sender via an RTCP transport- layer feedback
@@ -1395,10 +1397,10 @@ SCReAMv2 implementation follows the guidelines below. Feedback should forcibly b
 * A max defined interval between feedback reports. Values such as 40 ms has been tested with good results.
 
 The feedback interval depends on the media bitrate. At low bitrates, it is
-sufficient with a feedback every frame; while at high bitrates, a shorter feedback interval is recommended to keep the self-clocking in SCReAMv2
+sufficient with feedback every frame; while at high bitrates, a shorter feedback interval is recommended to keep the self-clocking in SCReAMv2
 working well. One indication that feedback is too sparse is that the SCReAMv2
 implementation cannot reach high bitrates, even in uncongested links. More
-frequent feedback might solve this issue.
+frequent feedback can solve this issue.
 
 The transmission interval is not critical. So, in the case of multi-stream handling between two hosts, the feedback for two or more synchronization sources (SSRCs) can be bundled to save UDP/IP overhead.
 
@@ -1432,7 +1434,7 @@ This section covers a few discussion points.
     SCReAMv2 push down the target_bitrate to give sufficient headroom and avoid
     queue buildup in the network. It is in general recommended to operate video
     coders in low latency mode and enable GDR (Gradual Decoding Refresh) if
-    possible to minimize frame size variations.
+    possible, to minimize frame size variations.
 
   - Link layer properties: Media transport in 5G in uplink typically requires to
     transmit a scheduling request (SR) to get permission to transmit
@@ -1443,7 +1445,7 @@ This section covers a few discussion points.
     utilization as a result.
 
 * Packet pacing is recommended. It is however possible to operate SCReAMv2 with
-  packet pacing disabled, this can however give a reduced link utilization over L4S enabled paths. Additional packet pacing headroom can be beneficial if unusually large media frames are generated, this can reduce unnecessary queue build-up in the data unit queue.
+  packet pacing disabled, this can however give a reduced link utilization over L4S enabled paths. Additional packet pacing headroom can be beneficial if unusually large media frames are generated; this can reduce unnecessary queue build-up in the data unit queue.
 
 * Feedback issues: RTCP feedback packets {{RFC8888}} can be lost, this means that
   the loss detection in SCReAMv2 may trigger even though packets arrive safely
@@ -1459,7 +1461,7 @@ This section covers a few discussion points.
    However, SCReAM can settle for a lower number of marked packets per RTT in steady state
    due to measures taken in the calculation of the ref_wnd and the target_bitrate
    that are necessary to get a stable bitrate and lower queue delay.
-   In those cases SCReAM may get a lower share of the link capacity
+   In those cases, SCReAM may get a lower share of the link capacity
    when competing against e.g. a large file transfer with TCP Prague congestion control.
 
 * SCReAM has over time been evaluated in a number of different experiments, a
@@ -1467,7 +1469,7 @@ This section covers a few discussion points.
 
 * SCReAM (+L4S) is currently being integrated in chrome for performance evaluation and comparison against GCC, nightly Chrome Canary builds are available at {{SCReAM-Chrome-Canary}}.
 
-* The addition of the optional ref_wnd_delay_scale related restriction on ref_wnd increase can cause the rate increase to go slower when the non-congestion related jitter is high. Non-congestion related jitter can occur for instance in 5G where the amount of scheduling delay jitter depends of factors like TDD (Time Division Duplex) patterns an overall load in a cell. The algorithm is somewhat robust to scheduling jitter as it calculates ref_wnd_delay_scale based on the difference between the max and min queue delay. Still, there can be cases where large amounts of scheduling jitter can give a slow ramp up of the bitrate.
+* The addition of the optional ref_wnd_delay_scale related restriction on ref_wnd increase can cause the rate increase to go slower when the non-congestion related jitter is high. Non-congestion related jitter can occur for instance in 5G where the amount of scheduling delay jitter depends on factors like TDD (Time Division Duplex) patterns an overall load in a cell. The algorithm is somewhat robust to scheduling jitter as it calculates ref_wnd_delay_scale based on the difference between the max and min queue delay. Still, there can be cases where large amounts of scheduling jitter can give a slow ramp up of the bitrate.
 
 * Rate policers can cause loss bursts. These loss bursts are particularly harmful for real time media transmission and it is problematic to detect the existence of rate policers in the transmission path. The example algorithm in the draft resolves the problem with rate policers to some degree. The algorithm is however not bullet proof, assumptions around queue delay can for instance fail on links where the RTT varies, such as satellite links. In addition, rate policers can be configured in many ways.
 
