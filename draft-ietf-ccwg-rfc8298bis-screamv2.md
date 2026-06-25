@@ -348,7 +348,7 @@ a) on loss: ref_wnd *=  LOSS_BETA
 
 b) classic ECN CE: ref_wnd *=  ECN_BETA
 
-b) on L4S ECN CE or increased delay: ref_wnd *=  1-l4sAlpha/2
+b) on L4S ECN CE or increased delay: ref_wnd *=  1.0 - l4sAlpha / 2.0
 
 Independent of the congestion detection, ref_wnd is increased by a fix increment for each RTT.
 
@@ -538,9 +538,9 @@ A loss rate is calculated for each packet according to the equation below, the l
 # Apply an EWMA filter with a 2 RTT time constant, or at least 4/LOSS_RATE_THRESHOLD packets.
 alpha = min(LOSS_RATE_THRESHOLD / 4, mss / ref_wnd / 2)
 if (packet_is_lost)
-  loss_rate = (1-alpha)*loss_rate + alpha
+  loss_rate = (1.0 - alpha) * loss_rate + alpha
 else
-  loss_rate = (1-alpha)*loss_rate
+  loss_rate = (1.0 - alpha) * loss_rate
 ~~~
 
 The following variables and constants are used:
@@ -586,9 +586,10 @@ if (now - last_update_l4s_alpha_time >= min(0.01, s_rtt))
 
   # Apply a fast attack slow decay EWMA
   if (fraction_marked_t >= l4s_alpha)
-     l4s_alpha = L4S_AVG_G_UP*fraction_marked_t + (1.0-L4S_AVG_G_UP)*l4S_alpha
+     l4s_alpha = L4S_AVG_G_UP * fraction_marked_t +
+       (1.0 - L4S_AVG_G_UP) * l4S_alpha
   else
-     l4s_alpha = (1.0-L4S_AVG_G_DOWN)*l4S_alpha
+     l4s_alpha = (1.0 - L4S_AVG_G_DOWN) * l4S_alpha
 
   last_update_l4s_alpha_time = now
   data_units_delivered_this_rtt = 0
@@ -646,7 +647,8 @@ if (now - last_update_qdelay_avg_time >= min(virtual_rtt, s_rtt))
   if (qdelay < qdelay_avg)
     qdelay_avg = qdelay
   else
-    qdelay_avg = QDELAY_AVG_G*qdelay + (1.0-QDELAY_AVG_G)*qdelay_avg
+    qdelay_avg = QDELAY_AVG_G * qdelay +
+      (1.0 - QDELAY_AVG_G) * qdelay_avg
   end
 
   # Optional code to calculate the variation on queue delay, which is an
@@ -654,9 +656,9 @@ if (now - last_update_qdelay_avg_time >= min(virtual_rtt, s_rtt))
   if (REDUCE_JITTER == true)
     # Reduce average max queue delay and move min average
     # queue delay towards the max
-    qdelay_max_avg = qdelay_max_avg * (1.0-QDELAY_MIN_MAX_AVG_G)
-    qdelay_min_avg = qdelay_min_avg * (1.0-QDELAY_MIN_MAX_AVG_G) +
-                    qdelay_max_avg*QDELAY_MIN_MAX_AVG_G
+    qdelay_max_avg = qdelay_max_avg * (1.0 - QDELAY_MIN_MAX_AVG_G)
+    qdelay_min_avg = qdelay_min_avg * (1.0 - QDELAY_MIN_MAX_AVG_G) +
+      qdelay_max_avg * QDELAY_MIN_MAX_AVG_G
     calculate_ref_wnd_delay_scale()
   end
   last_update_qdelay_avg_time = now
@@ -693,8 +695,9 @@ The variable qdelay_dev_avg indicates how much the queue delay varies. ref_wnd_d
 ~~~
 function calculate_ref_wnd_delay_scale()
   # Calculate ref_wnd_delay_scale, range [0.0 1.0]
-  qdelay_dev_avg = (1.0-QDELAY_DEV_AVG_G)*qdelay_dev_avg + QDELAY_DEV_AVG_G*(qdelay_max_avg-qdelay_min_avg)
-  ref_wnd_delay_scale = max(0.0, min(1.0, 1.0-qdelay_dev_avg/QDELAY_DEV_THRESHOLD))
+  qdelay_dev_avg = (1.0 - QDELAY_DEV_AVG_G) * qdelay_dev_avg +
+    QDELAY_DEV_AVG_G * (qdelay_max_avg - qdelay_min_avg)
+  ref_wnd_delay_scale = max(0.0, min(1.0, 1.0 - qdelay_dev_avg / QDELAY_DEV_THRESHOLD))
 end
 ~~~
 
@@ -784,7 +787,7 @@ for the constants are deduced from experiments):
 # The boolean flags loss_detected and data_units_marked
 # indicate that packets are marked or lost since
 # last_reaction_to_congestion_time
-scl_t = (ref_wnd-ref_wnd_i) / ref_wnd_i
+scl_t = (ref_wnd - ref_wnd_i) / ref_wnd_i
 scl_t *= 8
 scl_t = scl_t * scl_t
 scl_t = max(0.1, min(1.0, scl_t))
@@ -799,7 +802,8 @@ if (now - last_reaction_to_congestion_time >= min(VIRTUAL_RTT, s_rtt)
     is_loss_t = true
   else if (data_units_marked)
     is_ce_t = true
-  else if (qdelay_avg > qdelay_target/2 && !(is_ce_t || is_loss_t))
+  else if (qdelay_avg > qdelay_target / 2 &&
+    !(is_ce_t || is_loss_t))
     # The calculation of l4s_alpha_v_t is based on qdelay_avg to reduce
     # sensitivity to sudden non-congestion related delay spikes that can
     # occur due to lower protocol retransmissions or cell change
@@ -811,7 +815,7 @@ if (now - last_reaction_to_congestion_time >= min(VIRTUAL_RTT, s_rtt)
 end
 
 if (is_loss_t || is_ce_t || is_virtual_ce_t)
-  if (now - last_ref_wnd_i_update_time > 10*s_rtt)
+  if (now - last_ref_wnd_i_update_time > 10 * s_rtt)
     # Update ref_wnd_i, no more often than every 10 RTTs
     # Additional median filtering over more congestion epochs
     # may improve accuracy of ref_wnd_i
@@ -841,7 +845,7 @@ if (is_ce_t)
     # Scale down backoff when RTT is high to avoid overreaction to
     # congestion. This is related to that congestion backoff can occur
     # every min(VIRTUAL_RTT, s_rtt)
-    backoff_t /= max(1.0, s_rtt/VIRTUAL_RTT)
+    backoff_t /= max(1.0, s_rtt / VIRTUAL_RTT)
 
     # Jitter is considered large if the qdelay is larger than qdelay_target/4
     # when L4S is enabled
@@ -858,7 +862,7 @@ if (is_ce_t)
     end
 
     if (now - last_reaction_to_congestion_time >
-        100*max(VIRTUAL_RTT, s_rtt))
+      100 * max(VIRTUAL_RTT, s_rtt))
       # A long time (>100 RTTs) since last congested because
       # link throughput exceeds max video bitrate.
       # There is a certain risk that ref_wnd has increased way above
@@ -917,19 +921,19 @@ Link layer losses, i.e. losses that are not congestion related can lead to unwar
 
 post_congestion_scale_t = max(0.0, min(1.0,
   (now - last_congestion_detected_time) /
-  (POST_CONGESTION_DELAY_RTTS * max(VIRTUAL_RTT, s_rtt))))
+    (POST_CONGESTION_DELAY_RTTS * max(VIRTUAL_RTT, s_rtt))))
 
 # Scale factor for ref_wnd update
-ref_wnd_scale_factor_t = 1.0 + (MUL_INCREASE_FACTOR*ref_wnd) / MSS
+ref_wnd_scale_factor_t = 1.0 + (MUL_INCREASE_FACTOR * ref_wnd) / MSS
 
 # Calculate bytes acked that are not CE marked
 # For the case that only accumulated number of CE marked packets is
 # reported by the feedback, it is necessary to make an approximation
 # of bytes_newly_acked_ce based on average data unit size.
-bytes_newly_acked_minus_ce_t = bytes_newly_acked-
+bytes_newly_acked_minus_ce_t = bytes_newly_acked -
                                bytes_newly_acked_ce
 
-increment_t = bytes_newly_acked_minus_ce_t*ref_wnd_ratio
+increment_t = bytes_newly_acked_minus_ce_t * ref_wnd_ratio
 
 # Reduce increment for small RTTs
 tmp_t = min(1.0, s_rtt / VIRTUAL_RTT)
@@ -1079,7 +1083,7 @@ The ref_wnd_overhead is calculated as:
 
 ~~~
 ref_wnd_overhead = REF_WND_OVERHEAD_MIN +
-  (REF_WND_OVERHEAD_MAX - REF_WND_OVERHEAD_MIN)*ref_wnd_delay_scale
+  (REF_WND_OVERHEAD_MAX - REF_WND_OVERHEAD_MIN) * ref_wnd_delay_scale
 ~~~
 
 ### Packet Pacing {#packet-pacing}
@@ -1115,7 +1119,7 @@ pace_bitrate = max(RATE_PACE_MIN, target_bitrate) *
 # Calculate and apply relaxed pacing
 nominal_rate_t = target_bitrate/TARGET_BITRATE_MAX
 pace_rate_scale_t = min(1.0,
-  (nominal_rate_t-RELAXED_PACING_LIMIT_LOW)/(1.0 - RELAXED_PACING_LIMIT_LOW))
+  (nominal_rate_t - RELAXED_PACING_LIMIT_LOW) / (1.0 - RELAXED_PACING_LIMIT_LOW))
 pace_rate_scale_t = min(1.0,
   max(1.0 / MAX_RELAXED_PACING_FACTOR, 1.0 - pace_rate_scale_t))
 pace_bitrate /= pace_rate_scale_t
@@ -1229,7 +1233,7 @@ The variables and constants are:
 
 * qdelay_min (MAX_VALUE): The min queue delay measured during an RTT [s], initialized to a very high value.
 
-* QDELAY_MIN_AVG_ALPHA (1/256): Slow EWMA time constant for delay_min_avg.
+* QDELAY_MIN_AVG_ALPHA (1.0/256): Slow EWMA time constant for delay_min_avg.
 
 The steps for the clock drift compensation is as follows:
 
@@ -1239,7 +1243,7 @@ The steps for the clock drift compensation is as follows:
 
 ~~~
 # Update delay_min_avg
-qdelay_min_avg = (1 - QDELAY_MIN_AVG_ALPHA) * qdelay_min_avg +
+qdelay_min_avg = (1.0 - QDELAY_MIN_AVG_ALPHA) * qdelay_min_avg +
   QDELAY_MIN_AVG_ALPHA * qdelay_min
 qdelay_min = MAX_VALUE # set qdelay_min to a very high value
 if qdelay_min_avg > qdelay_target / 4
@@ -1262,12 +1266,12 @@ The code below modifies the 'if (loss_detected)' part in {{ref-wnd-reduction}}
 ..
   if (loss_detected)
     # Conditional loss backoff
-    if (loss_rate > LOSS_RATE_THRESHOLD || qdelay_avg > qdelay_target/4)
+    if (loss_rate > LOSS_RATE_THRESHOLD || qdelay_avg > qdelay_target / 4)
       is_loss_t = true
     end
     # Detection of rate policer induced loss and setting of limit to ref_wnd
     if (loss_rate > LOSS_RATE_THRESHOLD_POLICER &&
-        qdelay_avg < qdelay_target/4)
+        qdelay_avg < qdelay_target / 4)
       max_policed_ref_wnd = ref_wnd*BETA_LOSS_POLICER
     end
 ..
