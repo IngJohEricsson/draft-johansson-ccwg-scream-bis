@@ -1357,8 +1357,8 @@ Prague congestion control but has a few extra modifications to make it work
 well with periodic sources such as video.<a href="#section-1.1-2.1.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="section-1.1-2.2">
-            <p id="section-1.1-2.2.1">The delay based congestion control is changed to implement a pseudo-L4S
-approach, this simplifies the delay based congestion control.<a href="#section-1.1-2.2.1" class="pilcrow">¶</a></p>
+            <p id="section-1.1-2.2.1">The delay-based congestion control is changed to implement a pseudo-L4S
+approach, this simplifies the delay-based congestion control.<a href="#section-1.1-2.2.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="section-1.1-2.3">
             <p id="section-1.1-2.3.1">The fast increase mode is removed. The reference window additive increase is
@@ -1405,7 +1405,7 @@ changing frame sizes.<a href="#section-1.1-2.6.1" class="pilcrow">¶</a></p>
 used as recommended feedback. RTP offers unique packet indication with the
 sequence number and <span>[<a href="#RFC8888" class="cite xref">RFC8888</a>]</span> offers timestamps of received packets and the
 status of the ECN bits.<a href="#section-1.2-1" class="pilcrow">¶</a></p>
-<p id="section-1.2-2">SCReAM is however not limited to RTP as long as some requirements are fulfilled :<a href="#section-1.2-2" class="pilcrow">¶</a></p>
+<p id="section-1.2-2">SCReAM is however not limited to RTP as long as some requirements are fulfilled:<a href="#section-1.2-2" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-1.2-3.1">
             <p id="section-1.2-3.1.1">Media data is split in data units that when encapsulated in IP packets fit in
@@ -1485,7 +1485,7 @@ transmission control, and media rate control. All of these parts reside at the
 sender side while the receiver is assumed to provide acknowledgements of received
 data units and indication of ECN-CE marking, either as an accumulated bytes counter,
 or per individual data unit.<a href="#section-3-1" class="pilcrow">¶</a></p>
-<p id="section-3-2">The sender implements media rate control and an data unit queue for each media
+<p id="section-3-2">The sender implements media rate control and a data unit queue for each media
 type or source, where data units containing encoded media frames are temporarily
 stored for transmission. Figure 1 shows the details when a single media source
 (or stream) is used. Scheduling and prioritization of multiple streams is not
@@ -1828,7 +1828,7 @@ reference window. The reference window gives an upper limit to the number of byt
 </li>
           </ul>
 <p id="section-4.2.1-3">A congestion event occurs if any of the above indicators are true AND it is at
-least min(VIRTUAL_RTT,s_rtt) since the last congestion event. This ensures that
+least min(VIRTUAL_RTT, s_rtt) since the last congestion event. This ensures that
 the reference window is reduced at most once per smoothed RTT.<a href="#section-4.2.1-3" class="pilcrow">¶</a></p>
 <div id="reaction-loss">
 <section id="section-4.2.1.1">
@@ -1856,7 +1856,7 @@ is updated to reflect the reordering delay. The reordering window is given by
 the difference in time between the event that the data unit was marked as lost and
 the event that it was indicated as successfully received. Loss is detected if a
 given data unit is not acknowledged within a time window (indicated by the
-reordering window) after an data unit with a higher sequence number was
+reordering window) after a data unit with a higher sequence number was
 acknowledged.<a href="#section-4.2.1.1-2" class="pilcrow">¶</a></p>
 <p id="section-4.2.1.1-3">A loss rate is calculated for each packet according to the equation below, the loss rate is calculated as an average with a time constant of 2 RTTs.
  For small ref_wnd, averaging is over 4/LOSS_RATE_THRESHOLD packets, to avoid that consecutive link layer losses cause the loss rate to increase too quickly.
@@ -1918,7 +1918,7 @@ the following way:<a href="#section-4.2.1.3-2" class="pilcrow">¶</a></p>
 data_units_delivered_this_rtt += data_units_acked
 data_units_marked_this_rtt += data_units_acked_ce
 # l4s_alpha is updated at least every 10ms
-if (now - last_update_l4s_alpha_time &gt;= min(0.01,s_rtt))
+if (now - last_update_l4s_alpha_time &gt;= min(0.01, s_rtt))
   # l4s_alpha is calculated from data_units marked istf bytes marked
   fraction_marked_t = data_units_marked_this_rtt/
                       data_units_delivered_this_rtt
@@ -1965,7 +1965,7 @@ given that the tail data unit in e.g. a video frame is often smaller than MSS.<a
                 <p id="section-4.2.1.3-8.2.1">L4S_AVG_G_DOWN (1.0/128): Exponentially Weighted Moving Average (EWMA) factor for l4s_alpha decrease<a href="#section-4.2.1.3-8.2.1" class="pilcrow">¶</a></p>
 </li>
             </ul>
-<p id="section-4.2.1.3-9">The calculation of l4s_alpha is done with an fast attack slow decay EWMA filter.
+<p id="section-4.2.1.3-9">The calculation of l4s_alpha is done with a fast attack slow decay EWMA filter.
 This can give a more stable performance when L4S bottlenecks have high marking thresholds.<a href="#section-4.2.1.3-9" class="pilcrow">¶</a></p>
 </section>
 </div>
@@ -1990,7 +1990,7 @@ retransmissions.<a href="#section-4.2.1.4-1" class="pilcrow">¶</a></p>
 qdelay_max_avg = min(qdelay_target, max(qdelay, qdelay_max_avg)))
 qdelay_min_avg = min(qdelay, qdelay_min_avg))
 
-if (now - last_update_qdelay_avg_time &gt;= min(virtual_rtt,s_rtt))
+if (now - last_update_qdelay_avg_time &gt;= min(virtual_rtt, s_rtt))
   # Calculate qdelay_avg
   if (qdelay &lt; qdelay_avg)
     qdelay_avg = qdelay
@@ -2003,8 +2003,8 @@ if (now - last_update_qdelay_avg_time &gt;= min(virtual_rtt,s_rtt))
   if (REDUCE_JITTER == true)
     # Reduce average max queue delay and move min average
     # queue delay towards the max
-    qdelay_max_avg = qdelay_max_avg * (1 -  QDELAY_MIN_MAX_AVG_G)
-    qdelay_min_avg = qdelay_min_avg * (1 -  QDELAY_MIN_MAX_AVG_G) +
+    qdelay_max_avg = qdelay_max_avg * (1.0-QDELAY_MIN_MAX_AVG_G)
+    qdelay_min_avg = qdelay_min_avg * (1.0-QDELAY_MIN_MAX_AVG_G) +
                     qdelay_max_avg*QDELAY_MIN_MAX_AVG_G
     calculate_ref_wnd_delay_scale()
   end
@@ -2056,7 +2056,7 @@ function calculate_ref_wnd_delay_scale()
 end
 </pre><a href="#section-4.2.1.4-11" class="pilcrow">¶</a>
 </div>
-<p id="section-4.2.1.4-12">The following variables are used:¶<a href="#section-4.2.1.4-12" class="pilcrow">¶</a></p>
+<p id="section-4.2.1.4-12">The following variables are used:<a href="#section-4.2.1.4-12" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-4.2.1.4-13.1">
                 <p id="section-4.2.1.4-13.1.1">qdelay_dev_avg (0.0): indicates how much the queue delay varies[s]<a href="#section-4.2.1.4-13.1.1" class="pilcrow">¶</a></p>
@@ -2187,7 +2187,7 @@ if (loss_detected || data_units_marked)
 end
 
 # The reference window is updated at least every VIRTUAL_RTT
-if (now - last_reaction_to_congestion_time &gt;= min(VIRTUAL_RTT,s_rtt)
+if (now - last_reaction_to_congestion_time &gt;= min(VIRTUAL_RTT, s_rtt)
   if (loss_detected)
     is_loss_t = true
   else if (data_units_marked)
@@ -2232,7 +2232,8 @@ if (is_ce_t)
     end
 
     # Scale down backoff when RTT is high to avoid overreaction to
-    # congestion
+    # congestion. This is related to that congestion backoff can occur
+    # every min(VIRTUAL_RTT, s_rtt)
     backoff_t /= max(1.0, s_rtt/VIRTUAL_RTT)
 
     # Jitter is considered large if the qdelay is larger than qdelay_target/4
@@ -2250,7 +2251,7 @@ if (is_ce_t)
     end
 
     if (now - last_reaction_to_congestion_time &gt;
-        100*max(VIRTUAL_RTT,s_rtt))
+        100*max(VIRTUAL_RTT, s_rtt))
       # A long time (&gt;100 RTTs) since last congested because
       # link throughput exceeds max video bitrate.
       # There is a certain risk that ref_wnd has increased way above
@@ -2276,7 +2277,8 @@ if (is_virtual_ce_t)
   end
 
   # Scale down backoff when RTT is high to avoid overreaction to
-  # congestion
+  # congestion This is related to that congestion backoff can occur
+  # every min(VIRTUAL_RTT, s_rtt)
   backoff_t /= max(1.0, s_rtt/VIRTUAL_RTT)
 
   ref_wnd = (1.0 - backoff_t) * ref_wnd
@@ -2321,7 +2323,7 @@ post_congestion_scale_t = max(0.0, min(1.0,
   (POST_CONGESTION_DELAY_RTTS * max(VIRTUAL_RTT, s_rtt))))
 
 # Scale factor for ref_wnd update
-ref_wnd_scale_factor_t = 1.0 + (MUL_INCREASE_FACTOR  * ref_wnd) / MSS
+ref_wnd_scale_factor_t = 1.0 + (MUL_INCREASE_FACTOR*ref_wnd) / MSS
 
 # Calculate bytes acked that are not CE marked
 # For the case that only accumulated number of CE marked packets is
@@ -2338,10 +2340,10 @@ increment_t *= tmp_t
 
 # Apply limit to reference window growth when close to last
 # known max value before congestion
-increment_t *= max(0.25,scl_t)
+increment_t *= max(0.25, scl_t)
 
 # Optional additional code for increased rate stability
-# Put a additional restriction on reference window growth if qdelay varies a lot.
+# Put an additional restriction on reference window growth if qdelay varies a lot.
 # Better to enforce a slow increase in reference window and get
 # a more stable bitrate. Restriction is limited to 0.1 to
 # avoid that ref_wnd growth stalls.
@@ -2433,7 +2435,7 @@ transmitted. Updated when ref_wnd is updated and when data unit is
 transmitted [byte].<a href="#section-4.3-2.1.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
-<p id="section-4.3-3">The sender transmission control is executed for each transmitted packet, the send interval is dictated by the pacing but is restricted by the send window. In practice it however can be more practical to transmit packets in small burst to save processing power, or alternatively to offload the pacing to OS kernel function.<a href="#section-4.3-3" class="pilcrow">¶</a></p>
+<p id="section-4.3-3">The sender transmission control is executed for each transmitted packet, the send interval is dictated by the pacing but is restricted by the send window. In practice it however can be more practical to transmit packets in small burst to save processing power, or alternatively, to offload the pacing to OS kernel function.<a href="#section-4.3-3" class="pilcrow">¶</a></p>
 <div id="send-window">
 <section id="section-4.3.1">
           <h4 id="name-send-window-calculation">
@@ -2470,13 +2472,13 @@ reference window and the amount of bytes in flight according to the pseudocode
 below. The multiplication of ref_wnd with ref_wnd_overhead has the effect that bytes in flight is 'around' the ref_wnd
 rather than limited by the ref_wnd. The
 implementation allows the data unit queue to be small even when the frame sizes vary
-and thus increased e2e delay can be avoided.<a href="#section-4.3.1-3" class="pilcrow">¶</a></p>
+and thus, increased e2e delay can be avoided.<a href="#section-4.3.1-3" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-4.3.1-4">
 <pre>
 send_wnd = ref_wnd * ref_wnd_overhead - bytes_in_flight
 </pre><a href="#section-4.3.1-4" class="pilcrow">¶</a>
 </div>
-<p id="section-4.3.1-5">The send window is updated whenever an data unit is transmitted or an feedback
+<p id="section-4.3.1-5">The send window is updated whenever a data unit is transmitted or an feedback
 messaged is received.<a href="#section-4.3.1-5" class="pilcrow">¶</a></p>
 <p id="section-4.3.1-6">The ref_wnd_overhead is adjusted dynamically. A large overhead is beneficial when the network link is uncongested as it allows to
 transmit large media frames with little transmission delay. A large overhead is also beneficial for cases where network links use virtual queue marking or can temporarily absorb bursts from L4S capable flows.
@@ -2583,7 +2585,7 @@ updated and calculates the target bitrate. It is however not necessary to execut
 <p id="section-4.4-3">The following constants are used by the media rate control:<a href="#section-4.4-3" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-4.4-4.1">
-            <p id="section-4.4-4.1.1">PACKET_OVERHEAD (20) : Estimated packetization overhead [byte].<a href="#section-4.4-4.1.1" class="pilcrow">¶</a></p>
+            <p id="section-4.4-4.1.1">PACKET_OVERHEAD (20): Estimated packetization overhead [byte].<a href="#section-4.4-4.1.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="section-4.4-4.2">
             <p id="section-4.4-4.2.1">TARGET_BITRATE_MIN: Minimum target bitrate in [bps] (bits per second).<a href="#section-4.4-4.2.1" class="pilcrow">¶</a></p>
@@ -2622,7 +2624,7 @@ scenarios<a href="#section-4.4-8" class="pilcrow">¶</a></p>
 </li>
         </ul>
 <p id="section-4.4-10">The rate_adjust_factor helps to reduce the target rate when the delay in the data unit increases beyond frame_period/4, this allows for some modest queue buildup to ensure a good link utilization. The frame_size_dev calculates the positive deviation in frame sizes from the nominal, this helps compensate for larger variations in frame size, systematic errors in media encoder output bitrate and also to some extent sluggish media rate control loops where the media coder rate lags behind the target bitrate.
-The complete pseudo code for adjustment of the target bitrate is shown below. The algorithm parts for rate_adjust_factor and frame_size_dev are suggested examples how to compensate for that frames sized deviate from the nominal.<a href="#section-4.4-10" class="pilcrow">¶</a></p>
+The complete pseudo code for adjustment of the target bitrate is shown below. The algorithm parts for rate_adjust_factor and frame_size_dev are suggested examples how to compensate for that frame sizes deviate from the nominal.<a href="#section-4.4-10" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-4.4-11">
 <pre>
 # Calculate the rate_adjust_factor and the frame_size_dev for each new media frame.
@@ -2673,7 +2675,7 @@ target_bitrate = min(TARGET_BITRATE_MAX,
         <h3 id="name-additional-functions">
 <a href="#section-4.5" class="section-number selfRef">4.5. </a><a href="#name-additional-functions" class="section-name selfRef">Additional functions</a>
         </h3>
-<p id="section-4.5-1">This section covers additional functionality that is not critical for the function of the SCReAM congestion control algorithm, but can nevertheless improve the performance.<a href="#section-4.5-1" class="pilcrow">¶</a></p>
+<p id="section-4.5-1">This section covers additional functionality that is not critical for the function of the SCReAM congestion control algorithm, but can nevertheless, improve the performance.<a href="#section-4.5-1" class="pilcrow">¶</a></p>
 <div id="clock-drift-issues-and-remedies">
 <section id="section-4.5.1">
           <h4 id="name-clock-drift-issues-and-reme">
@@ -2858,7 +2860,7 @@ basically zero throughput if competing with loss-based traffic.<a href="#section
       <h2 id="name-receiver-requirements-on-fe">
 <a href="#section-5" class="section-number selfRef">5. </a><a href="#name-receiver-requirements-on-fe" class="section-name selfRef">Receiver Requirements on Feedback Intensity</a>
       </h2>
-<p id="section-5-1">The simple task of the receiver is to feed back acknowledgements with time
+<p id="section-5-1">The simple task of the receiver is to feedback acknowledgements with time
 stamp and ECN bits indication for received data units to the sender. Upon reception
 of each data unit, the receiver MUST maintain enough information to send the
 aforementioned values to the sender via an RTCP transport- layer feedback
@@ -2879,10 +2881,10 @@ SCReAMv2 implementation follows the guidelines below. Feedback should forcibly b
 </li>
       </ul>
 <p id="section-5-4">The feedback interval depends on the media bitrate. At low bitrates, it is
-sufficient with a feedback every frame; while at high bitrates, a shorter feedback interval is recommended to keep the self-clocking in SCReAMv2
+sufficient with feedback every frame; while at high bitrates, a shorter feedback interval is recommended to keep the self-clocking in SCReAMv2
 working well. One indication that feedback is too sparse is that the SCReAMv2
 implementation cannot reach high bitrates, even in uncongested links. More
-frequent feedback might solve this issue.<a href="#section-5-4" class="pilcrow">¶</a></p>
+frequent feedback can solve this issue.<a href="#section-5-4" class="pilcrow">¶</a></p>
 <p id="section-5-5">The transmission interval is not critical. So, in the case of multi-stream handling between two hosts, the feedback for two or more synchronization sources (SSRCs) can be bundled to save UDP/IP overhead.<a href="#section-5-5" class="pilcrow">¶</a></p>
 <p id="section-5-6">SCReAMv2 works with AVPF regular mode; immediate or early mode is not required
 by SCReAMv2 but can nonetheless be useful for RTCP messages not directly related
@@ -2920,7 +2922,7 @@ possible reasons to this:<a href="#section-6-2.2.1" class="pilcrow">¶</a></p>
 SCReAMv2 push down the target_bitrate to give sufficient headroom and avoid
 queue buildup in the network. It is in general recommended to operate video
 coders in low latency mode and enable GDR (Gradual Decoding Refresh) if
-possible to minimize frame size variations.<a href="#section-6-2.2.2.1.1" class="pilcrow">¶</a></p>
+possible, to minimize frame size variations.<a href="#section-6-2.2.2.1.1" class="pilcrow">¶</a></p>
 </li>
             <li class="normal" id="section-6-2.2.2.2">
               <p id="section-6-2.2.2.2.1">Link layer properties: Media transport in 5G in uplink typically requires to
@@ -2935,7 +2937,7 @@ utilization as a result.<a href="#section-6-2.2.2.2.1" class="pilcrow">¶</a></p
 </li>
         <li class="normal" id="section-6-2.3">
           <p id="section-6-2.3.1">Packet pacing is recommended. It is however possible to operate SCReAMv2 with
-packet pacing disabled, this can however give a reduced link utilization over L4S enabled paths. Additional packet pacing headroom can be beneficial if unusually large media frames are generated, this can reduce unnecessary queue build-up in the data unit queue.<a href="#section-6-2.3.1" class="pilcrow">¶</a></p>
+packet pacing disabled, this can however give a reduced link utilization over L4S enabled paths. Additional packet pacing headroom can be beneficial if unusually large media frames are generated; this can reduce unnecessary queue build-up in the data unit queue.<a href="#section-6-2.3.1" class="pilcrow">¶</a></p>
 </li>
         <li class="normal" id="section-6-2.4">
           <p id="section-6-2.4.1">Feedback issues: RTCP feedback packets <span>[<a href="#RFC8888" class="cite xref">RFC8888</a>]</span> can be lost, this means that
@@ -2953,7 +2955,7 @@ of inherent design.<a href="#section-6-2.4.1" class="pilcrow">¶</a></p>
  However, SCReAM can settle for a lower number of marked packets per RTT in steady state
  due to measures taken in the calculation of the ref_wnd and the target_bitrate
  that are necessary to get a stable bitrate and lower queue delay.
- In those cases SCReAM may get a lower share of the link capacity
+ In those cases, SCReAM may get a lower share of the link capacity
  when competing against e.g. a large file transfer with TCP Prague congestion control.<a href="#section-6-2.5.1" class="pilcrow">¶</a></p>
 </li>
         <li class="normal" id="section-6-2.6">
@@ -2964,7 +2966,7 @@ few examples are found in <span>[<a href="#SCReAM-evaluation-L4S" class="cite xr
           <p id="section-6-2.7.1">SCReAM (+L4S) is currently being integrated in chrome for performance evaluation and comparison against GCC, nightly Chrome Canary builds are available at <span>[<a href="#SCReAM-Chrome-Canary" class="cite xref">SCReAM-Chrome-Canary</a>]</span>.<a href="#section-6-2.7.1" class="pilcrow">¶</a></p>
 </li>
         <li class="normal" id="section-6-2.8">
-          <p id="section-6-2.8.1">The addition of the optional ref_wnd_delay_scale related restriction on ref_wnd increase can cause the rate increase to go slower when the non-congestion related jitter is high. Non-congestion related jitter can occur for instance in 5G where the amount of scheduling delay jitter depends of factors like TDD (Time Division Duplex) patterns an overall load in a cell. The algorithm is somewhat robust to scheduling jitter as it calculates ref_wnd_delay_scale based on the difference between the max and min queue delay. Still, there can be cases where large amounts of scheduling jitter can give a slow ramp up of the bitrate.<a href="#section-6-2.8.1" class="pilcrow">¶</a></p>
+          <p id="section-6-2.8.1">The addition of the optional ref_wnd_delay_scale related restriction on ref_wnd increase can cause the rate increase to go slower when the non-congestion related jitter is high. Non-congestion related jitter can occur for instance in 5G where the amount of scheduling delay jitter depends on factors like TDD (Time Division Duplex) patterns an overall load in a cell. The algorithm is somewhat robust to scheduling jitter as it calculates ref_wnd_delay_scale based on the difference between the max and min queue delay. Still, there can be cases where large amounts of scheduling jitter can give a slow ramp up of the bitrate.<a href="#section-6-2.8.1" class="pilcrow">¶</a></p>
 </li>
         <li class="normal" id="section-6-2.9">
           <p id="section-6-2.9.1">Rate policers can cause loss bursts. These loss bursts are particularly harmful for real time media transmission and it is problematic to detect the existence of rate policers in the transmission path. The example algorithm in the draft resolves the problem with rate policers to some degree. The algorithm is however not bullet proof, assumptions around queue delay can for instance fail on links where the RTT varies, such as satellite links. In addition, rate policers can be configured in many ways.<a href="#section-6-2.9.1" class="pilcrow">¶</a></p>

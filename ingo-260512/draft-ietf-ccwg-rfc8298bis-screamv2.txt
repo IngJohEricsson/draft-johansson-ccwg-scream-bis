@@ -147,8 +147,8 @@ Table of Contents
       modifications to make it work well with periodic sources such as
       video.
 
-   *  The delay based congestion control is changed to implement a
-      pseudo-L4S approach, this simplifies the delay based congestion
+   *  The delay-based congestion control is changed to implement a
+      pseudo-L4S approach, this simplifies the delay-based congestion
       control.
 
    *  The fast increase mode is removed.  The reference window additive
@@ -185,7 +185,7 @@ Table of Contents
    of received packets and the status of the ECN bits.
 
    SCReAM is however not limited to RTP as long as some requirements are
-   fulfilled :
+   fulfilled:
 
    *  Media data is split in data units that when encapsulated in IP
       packets fit in the network MTU.
@@ -255,7 +255,7 @@ Table of Contents
    ECN-CE marking, either as an accumulated bytes counter, or per
    individual data unit.
 
-   The sender implements media rate control and an data unit queue for
+   The sender implements media rate control and a data unit queue for
    each media type or source, where data units containing encoded media
    frames are temporarily stored for transmission.  Figure 1 shows the
    details when a single media source (or stream) is used.  Scheduling
@@ -513,7 +513,7 @@ Table of Contents
    *  Estimated queue delay exceeds a threshold.
 
    A congestion event occurs if any of the above indicators are true AND
-   it is at least min(VIRTUAL_RTT,s_rtt) since the last congestion
+   it is at least min(VIRTUAL_RTT, s_rtt) since the last congestion
    event.  This ensures that the reference window is reduced at most
    once per smoothed RTT.
 
@@ -544,7 +544,7 @@ Table of Contents
    in time between the event that the data unit was marked as lost and
    the event that it was indicated as successfully received.  Loss is
    detected if a given data unit is not acknowledged within a time
-   window (indicated by the reordering window) after an data unit with a
+   window (indicated by the reordering window) after a data unit with a
    higher sequence number was acknowledged.
 
    A loss rate is calculated for each packet according to the equation
@@ -602,7 +602,7 @@ else
 data_units_delivered_this_rtt += data_units_acked
 data_units_marked_this_rtt += data_units_acked_ce
 # l4s_alpha is updated at least every 10ms
-if (now - last_update_l4s_alpha_time >= min(0.01,s_rtt))
+if (now - last_update_l4s_alpha_time >= min(0.01, s_rtt))
   # l4s_alpha is calculated from data_units marked istf bytes marked
   fraction_marked_t = data_units_marked_this_rtt/
                       data_units_delivered_this_rtt
@@ -647,7 +647,7 @@ end
    *  L4S_AVG_G_DOWN (1.0/128): Exponentially Weighted Moving Average
       (EWMA) factor for l4s_alpha decrease
 
-   The calculation of l4s_alpha is done with an fast attack slow decay
+   The calculation of l4s_alpha is done with a fast attack slow decay
    EWMA filter.  This can give a more stable performance when L4S
    bottlenecks have high marking thresholds.
 
@@ -678,7 +678,7 @@ end
 qdelay_max_avg = min(qdelay_target, max(qdelay, qdelay_max_avg)))
 qdelay_min_avg = min(qdelay, qdelay_min_avg))
 
-if (now - last_update_qdelay_avg_time >= min(virtual_rtt,s_rtt))
+if (now - last_update_qdelay_avg_time >= min(virtual_rtt, s_rtt))
   # Calculate qdelay_avg
   if (qdelay < qdelay_avg)
     qdelay_avg = qdelay
@@ -691,8 +691,8 @@ if (now - last_update_qdelay_avg_time >= min(virtual_rtt,s_rtt))
   if (REDUCE_JITTER == true)
     # Reduce average max queue delay and move min average
     # queue delay towards the max
-    qdelay_max_avg = qdelay_max_avg * (1 -  QDELAY_MIN_MAX_AVG_G)
-    qdelay_min_avg = qdelay_min_avg * (1 -  QDELAY_MIN_MAX_AVG_G) +
+    qdelay_max_avg = qdelay_max_avg * (1.0-QDELAY_MIN_MAX_AVG_G)
+    qdelay_min_avg = qdelay_min_avg * (1.0-QDELAY_MIN_MAX_AVG_G) +
                     qdelay_max_avg*QDELAY_MIN_MAX_AVG_G
     calculate_ref_wnd_delay_scale()
   end
@@ -747,7 +747,7 @@ function calculate_ref_wnd_delay_scale()
   ref_wnd_delay_scale = max(0.0, min(1.0, 1.0-qdelay_dev_avg/QDELAY_DEV_THRESHOLD))
 end
 
-   The following variables are used:¶
+   The following variables are used:
 
    *  qdelay_dev_avg (0.0): indicates how much the queue delay varies[s]
 
@@ -863,7 +863,7 @@ if (loss_detected || data_units_marked)
 end
 
 # The reference window is updated at least every VIRTUAL_RTT
-if (now - last_reaction_to_congestion_time >= min(VIRTUAL_RTT,s_rtt)
+if (now - last_reaction_to_congestion_time >= min(VIRTUAL_RTT, s_rtt)
   if (loss_detected)
     is_loss_t = true
   else if (data_units_marked)
@@ -908,7 +908,8 @@ if (is_ce_t)
     end
 
     # Scale down backoff when RTT is high to avoid overreaction to
-    # congestion
+    # congestion. This is related to that congestion backoff can occur
+    # every min(VIRTUAL_RTT, s_rtt)
     backoff_t /= max(1.0, s_rtt/VIRTUAL_RTT)
 
     # Jitter is considered large if the qdelay is larger than qdelay_target/4
@@ -926,7 +927,7 @@ if (is_ce_t)
     end
 
     if (now - last_reaction_to_congestion_time >
-        100*max(VIRTUAL_RTT,s_rtt))
+        100*max(VIRTUAL_RTT, s_rtt))
       # A long time (>100 RTTs) since last congested because
       # link throughput exceeds max video bitrate.
       # There is a certain risk that ref_wnd has increased way above
@@ -952,7 +953,8 @@ if (is_virtual_ce_t)
   end
 
   # Scale down backoff when RTT is high to avoid overreaction to
-  # congestion
+  # congestion This is related to that congestion backoff can occur
+  # every min(VIRTUAL_RTT, s_rtt)
   backoff_t /= max(1.0, s_rtt/VIRTUAL_RTT)
 
   ref_wnd = (1.0 - backoff_t) * ref_wnd
@@ -996,7 +998,7 @@ post_congestion_scale_t = max(0.0, min(1.0,
   (POST_CONGESTION_DELAY_RTTS * max(VIRTUAL_RTT, s_rtt))))
 
 # Scale factor for ref_wnd update
-ref_wnd_scale_factor_t = 1.0 + (MUL_INCREASE_FACTOR  * ref_wnd) / MSS
+ref_wnd_scale_factor_t = 1.0 + (MUL_INCREASE_FACTOR*ref_wnd) / MSS
 
 # Calculate bytes acked that are not CE marked
 # For the case that only accumulated number of CE marked packets is
@@ -1013,10 +1015,10 @@ increment_t *= tmp_t
 
 # Apply limit to reference window growth when close to last
 # known max value before congestion
-increment_t *= max(0.25,scl_t)
+increment_t *= max(0.25, scl_t)
 
 # Optional additional code for increased rate stability
-# Put a additional restriction on reference window growth if qdelay varies a lot.
+# Put an additional restriction on reference window growth if qdelay varies a lot.
 # Better to enforce a slow increase in reference window and get
 # a more stable bitrate. Restriction is limited to 0.1 to
 # avoid that ref_wnd growth stalls.
@@ -1105,7 +1107,7 @@ end
    packet, the send interval is dictated by the pacing but is restricted
    by the send window.  In practice it however can be more practical to
    transmit packets in small burst to save processing power, or
-   alternatively to offload the pacing to OS kernel function.
+   alternatively, to offload the pacing to OS kernel function.
 
 4.3.1.  Send Window Calculation
 
@@ -1141,11 +1143,11 @@ end
    ref_wnd_overhead has the effect that bytes in flight is 'around' the
    ref_wnd rather than limited by the ref_wnd.  The implementation
    allows the data unit queue to be small even when the frame sizes vary
-   and thus increased e2e delay can be avoided.
+   and thus, increased e2e delay can be avoided.
 
    send_wnd = ref_wnd * ref_wnd_overhead - bytes_in_flight
 
-   The send window is updated whenever an data unit is transmitted or an
+   The send window is updated whenever a data unit is transmitted or an
    feedback messaged is received.
 
    The ref_wnd_overhead is adjusted dynamically.  A large overhead is
@@ -1244,7 +1246,7 @@ t_pace = data_unit_size * 8 / pace_bitrate
 
    The following constants are used by the media rate control:
 
-   *  PACKET_OVERHEAD (20) : Estimated packetization overhead [byte].
+   *  PACKET_OVERHEAD (20): Estimated packetization overhead [byte].
 
    *  TARGET_BITRATE_MIN: Minimum target bitrate in [bps] (bits per
       second).
@@ -1288,7 +1290,7 @@ t_pace = data_unit_size * 8 / pace_bitrate
    rate lags behind the target bitrate.  The complete pseudo code for
    adjustment of the target bitrate is shown below.  The algorithm parts
    for rate_adjust_factor and frame_size_dev are suggested examples how
-   to compensate for that frames sized deviate from the nominal.
+   to compensate for that frame sizes deviate from the nominal.
 
 # Calculate the rate_adjust_factor and the frame_size_dev for each new media frame.
 # The input variables are media_qdelay [s] and frame_size [byte].
@@ -1334,7 +1336,7 @@ target_bitrate = min(TARGET_BITRATE_MAX,
 
    This section covers additional functionality that is not critical for
    the function of the SCReAM congestion control algorithm, but can
-   nevertheless improve the performance.
+   nevertheless, improve the performance.
 
 4.5.1.  Clock drift issues and remedies
 
@@ -1526,7 +1528,7 @@ end
 
 5.  Receiver Requirements on Feedback Intensity
 
-   The simple task of the receiver is to feed back acknowledgements with
+   The simple task of the receiver is to feedback acknowledgements with
    time stamp and ECN bits indication for received data units to the
    sender.  Upon reception of each data unit, the receiver MUST maintain
    enough information to send the aforementioned values to the sender
@@ -1550,11 +1552,11 @@ end
       40 ms has been tested with good results.
 
    The feedback interval depends on the media bitrate.  At low bitrates,
-   it is sufficient with a feedback every frame; while at high bitrates,
-   a shorter feedback interval is recommended to keep the self-clocking
-   in SCReAMv2 working well.  One indication that feedback is too sparse
-   is that the SCReAMv2 implementation cannot reach high bitrates, even
-   in uncongested links.  More frequent feedback might solve this issue.
+   it is sufficient with feedback every frame; while at high bitrates, a
+   shorter feedback interval is recommended to keep the self-clocking in
+   SCReAMv2 working well.  One indication that feedback is too sparse is
+   that the SCReAMv2 implementation cannot reach high bitrates, even in
+   uncongested links.  More frequent feedback can solve this issue.
 
    The transmission interval is not critical.  So, in the case of multi-
    stream handling between two hosts, the feedback for two or more
@@ -1594,7 +1596,7 @@ end
          makes SCReAMv2 push down the target_bitrate to give sufficient
          headroom and avoid queue buildup in the network.  It is in
          general recommended to operate video coders in low latency mode
-         and enable GDR (Gradual Decoding Refresh) if possible to
+         and enable GDR (Gradual Decoding Refresh) if possible, to
          minimize frame size variations.
 
       -  Link layer properties: Media transport in 5G in uplink
@@ -1610,7 +1612,7 @@ end
       SCReAMv2 with packet pacing disabled, this can however give a
       reduced link utilization over L4S enabled paths.  Additional
       packet pacing headroom can be beneficial if unusually large media
-      frames are generated, this can reduce unnecessary queue build-up
+      frames are generated; this can reduce unnecessary queue build-up
       in the data unit queue.
 
    *  Feedback issues: RTCP feedback packets [RFC8888] can be lost, this
@@ -1629,8 +1631,8 @@ end
       a lower number of marked packets per RTT in steady state due to
       measures taken in the calculation of the ref_wnd and the
       target_bitrate that are necessary to get a stable bitrate and
-      lower queue delay.  In those cases SCReAM may get a lower share of
-      the link capacity when competing against e.g. a large file
+      lower queue delay.  In those cases, SCReAM may get a lower share
+      of the link capacity when competing against e.g. a large file
       transfer with TCP Prague congestion control.
 
    *  SCReAM has over time been evaluated in a number of different
@@ -1644,7 +1646,7 @@ end
       restriction on ref_wnd increase can cause the rate increase to go
       slower when the non-congestion related jitter is high.  Non-
       congestion related jitter can occur for instance in 5G where the
-      amount of scheduling delay jitter depends of factors like TDD
+      amount of scheduling delay jitter depends on factors like TDD
       (Time Division Duplex) patterns an overall load in a cell.  The
       algorithm is somewhat robust to scheduling jitter as it calculates
       ref_wnd_delay_scale based on the difference between the max and
