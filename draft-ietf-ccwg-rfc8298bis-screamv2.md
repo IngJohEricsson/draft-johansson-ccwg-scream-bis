@@ -637,6 +637,10 @@ qdelay_avg is updated with a slow attack, fast decay EWMA filter as described be
 Two variables, qdelay_max_avg and qdelay_min_avg track how much the min and max queue delay varies over time. The qdelay_max_avg is reduced gradually towards zero while the qdelay_min_avg is averaged towards qdelay_max_avg. This makes the difference between qdelay_max_avg and qdelay_min_avg robust against clock drift and also adds some immunity against scheduling jitter, which affects both qdelay_max_avg and qdelay_min_avg.
 
 ~~~
+# Update min and max average queue delay for every ACKed RTP packet
+qdelay_max_avg = min(qdelay_target, max(qdelay, qdelay_max_avg)))
+qdelay_min_avg = min(qdelay, qdelay_min_avg))
+
 if (now - last_update_qdelay_avg_time >= min(virtual_rtt,s_rtt))
   # Calculate qdelay_avg
   if (qdelay < qdelay_avg)
@@ -648,9 +652,8 @@ if (now - last_update_qdelay_avg_time >= min(virtual_rtt,s_rtt))
   # Optional code to calculate the variation on queue delay, which is an
   # Indication of congestion or near congestion.
   if (REDUCE_JITTER == true)
-    # Calculate qdelay_max_avg and qdelay_min_avg
-    qdelay_max_avg = min(qdelay_target, max(qdelay, qdelay_max_avg)))
-    qdelay_min_avg = min(qdelay, qdelay_min_avg))
+    # Reduce average max queue delay and move min average
+    # queue delay towards the max      
     qdelay_max_avg = qdelay_max_avg * (1 -  QDELAY_MIN_MAX_AVG_G)
     qdelay_min_avg = qdelay_min_avg * (1 -  QDELAY_MIN_MAX_AVG_G) +
                     qdelay_max_avg*QDELAY_MIN_MAX_AVG_G
@@ -712,6 +715,10 @@ The following constants are used:
 The reference window update contains two parts. One that reduces the reference
 window when congestion events (listed above) occur, and one part that
 continuously increases the reference window.
+
+The reference window reduction takes effect whenever a congestion event is detected. A congestion event is either packet loss, ECN-CE marked packets or increased queue delay. Reference window reduction is limited to no more often than once every min(VIRTUAL_RTT, s_rtt) to allow for the reference window reduction to take effect.
+
+The reference window increase takes place every s_rtt. The reference window can thus increase even when congestion events occur. This makes it possible for SCReAM to achieve the L4S scalable congestion control property where one MSS increase of the reference window per RTT is offset by to marked packets per RTT.
 
 The following variables are defined:
 
@@ -1015,6 +1022,8 @@ in flight and the reference window. This is controlled by the send window:
   transmitted. Updated when ref_wnd is updated and when data unit is
   transmitted [byte].
 
+The sender transmission control is executed for each transmitted packet, the send interval is dictated by the pacing but is restricted by the send window. In practice it however can be more practical to transmit packets in small burst to save processing power, or alternatively to offload the pacing to OS kernel function.
+
 ### Send Window Calculation {#send-window}
 
 The basic design principle behind data unit transmission in SCReAM was to allow
@@ -1120,7 +1129,7 @@ minimum pacing rate.
 ## Media Rate Control {#media-rate-control-2}
 
 The media rate control algorithm is executed whenever the reference window is
-updated and calculates the target bitrate:
+updated and calculates the target bitrate. It is however not neccessary to execute this part more often than the frame period of the media encoder.
 
 * target_bitrate (0): Media target bitrate [bps].
 
@@ -1207,7 +1216,11 @@ target_bitrate = min(TARGET_BITRATE_MAX,
   max(TARGET_BITRATE_MIN, target_bitrate))
 ~~~
 
-## Clock drift issues and remedies
+## Additional functions
+
+This section covers additional functionality that is not critical for the function of the SCReAM congestion control algorithm, but can nevertheless improve the performance 
+
+### Clock drift issues and remedies
 
 SCReAM can suffer from the same issues with clock drift as is the case with LEDBAT {{RFC6817}}. However, Appendix A.2 in {{RFC6817}} describes ways to mitigate issues with clock drift. A clockdrift compensation method is also implemented in {{SCReAM-CPP-implementation}}. The SCReAM implementation resets base delay history when it is determined that clock drift or skip becomes too large. This is achieved by reducing the target bitrate for a few RTTs.
 
@@ -1237,7 +1250,7 @@ if qdelay_min_avg > qdelay_target / 4
 end
 ~~~
 
-## Link layer losses and rate policers {#link-loss-rate-policer}
+### Link layer losses and rate policers {#link-loss-rate-policer}
 
 Link layer losses, i.e losses that are not congestion related can lead to unwarranted congestion backoff. One method is to apply a conditional loss backoff only when an average loss rate exceeds a threshold. This increases robustness against non-congestion related losses. One problem is that such a method can also increase congestion related packet loss which can be detrimental for real time media such as video. This is resolved in that immediate loss backoff is triggered when the queue delay increases. While the conditional loss backoff increases robustness against link layer losses, it is inevitable that the algorithm can delay congestion backoff and thus cause increased packet loss rate. The constant LOSS_RATE_THRESHOLD should therefore be set low enough, with the objective to increase robustness to link layer losses only.
 
@@ -1270,7 +1283,7 @@ The variables and constants are:
 
 The max_policed_ref_wnd enforces an upper limit to the ref_wnd. The max_policed_ref_wnd should increase by a small fraction, for instance 0.001 per RTT that gradually lifts the limit, this prevents that possible false detection of rate policers causes a permanent restriction on ref_wnd.
 
-## Competing Flows Compensation {#competing-flows-compensation}
+### Competing Flows Compensation {#competing-flows-compensation}
 
 It is likely that a flow will have to share congested bottlenecks with other
 flows that use a more aggressive congestion control algorithm (for example,
