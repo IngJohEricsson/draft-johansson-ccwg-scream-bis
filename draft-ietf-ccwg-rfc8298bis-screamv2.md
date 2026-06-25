@@ -653,7 +653,7 @@ if (now - last_update_qdelay_avg_time >= min(virtual_rtt,s_rtt))
   # Indication of congestion or near congestion.
   if (REDUCE_JITTER == true)
     # Reduce average max queue delay and move min average
-    # queue delay towards the max      
+    # queue delay towards the max
     qdelay_max_avg = qdelay_max_avg * (1 -  QDELAY_MIN_MAX_AVG_G)
     qdelay_min_avg = qdelay_min_avg * (1 -  QDELAY_MIN_MAX_AVG_G) +
                     qdelay_max_avg*QDELAY_MIN_MAX_AVG_G
@@ -1218,7 +1218,7 @@ target_bitrate = min(TARGET_BITRATE_MAX,
 
 ## Additional functions
 
-This section covers additional functionality that is not critical for the function of the SCReAM congestion control algorithm, but can nevertheless improve the performance 
+This section covers additional functionality that is not critical for the function of the SCReAM congestion control algorithm, but can nevertheless improve the performance.
 
 ### Clock drift issues and remedies
 
