@@ -557,12 +557,13 @@ Table of Contents
    queue delay is low, and fast enough to avoid excessive packet loss in
    the presence of very shallow queues.
 
-# Apply an EWMA filter with a 2 RTT time constant, or at least 4/LOSS_RATE_THRESHOLD packets.
-alpha = min(LOSS_RATE_THRESHOLD / 4, mss / ref_wnd / 2)
-if (packet_is_lost)
-  loss_rate = (1.0 - alpha) * loss_rate + alpha
-else
-  loss_rate = (1.0 - alpha) * loss_rate
+   # Apply an EWMA filter with a 2 RTT time constant
+   # or at least 4/LOSS_RATE_THRESHOLD packets.
+   alpha = min(LOSS_RATE_THRESHOLD / 4, mss / ref_wnd / 2)
+   if (packet_is_lost)
+     loss_rate = (1.0 - alpha) * loss_rate + alpha
+   else
+     loss_rate = (1.0 - alpha) * loss_rate
 
    The following variables and constants are used:
 
@@ -1665,6 +1666,21 @@ end
       however not bullet proof, assumptions around queue delay can for
       instance fail on links where the RTT varies, such as satellite
       links.  In addition, rate policers can be configured in many ways.
+
+   *  The competing flows compensation described in Section 4.5.3 has an
+      inherent risk of false positives, the outcome would be that an
+      increased delay is met by an increased to delay, something that
+      can self-amplify.  The algorithm was devised already for [RFC8298]
+      when access links could become bloated.  Things have however
+      changed since 2017 when RFC8298 was published.  Firstly,
+      bufferbloat and remedies to it is better understood.  Secondly,
+      more recent congestion control algorithms are designed to not
+      bloat access links that lack active queue management.  Thirdly,
+      the algorithm in Section 4.5.1 that addresses clock-drift
+      addresses this issue inherently as a compenting flow still adds an
+      offset in queue delay when SCReAM temporarly reduces its target
+      rate temporarily.  The need for competing flows compensation would
+      therefore need to be investigated further.
 
    *  The calculation of the target bitrate based on the reference
       window and the average RTT can lead to over optimistic target rate
