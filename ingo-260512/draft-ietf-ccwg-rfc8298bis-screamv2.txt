@@ -6,7 +6,7 @@ CCWG                                                        I. Johansson
 Internet-Draft                                             M. Westerlund
 Obsoletes: 8298 (if approved)                               M. Kühlewind
 Intended status: Experimental                                   Ericsson
-Expires: 25 December 2026                                   23 June 2026
+Expires: 27 December 2026                                   25 June 2026
 
 
               Self-Clocked Rate Adaptation for Multimedia
@@ -54,7 +54,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 25 December 2026.
+   This Internet-Draft will expire on 27 December 2026.
 
 Copyright Notice
 
@@ -92,9 +92,10 @@ Table of Contents
        4.3.1.  Send Window Calculation
        4.3.2.  Packet Pacing
      4.4.  Media Rate Control
-     4.5.  Clock drift issues and remedies
-     4.6.  Link layer losses and rate policers
-     4.7.  Competing Flows Compensation
+     4.5.  Additional functions
+       4.5.1.  Clock drift issues and remedies
+       4.5.2.  Link layer losses and rate policers
+       4.5.3.  Competing Flows Compensation
    5.  Receiver Requirements on Feedback Intensity
    6.  Discussion
    7.  IANA Considerations
@@ -551,10 +552,10 @@ Table of Contents
    of 2 RTTs.  For small ref_wnd, averaging is over 4/
    LOSS_RATE_THRESHOLD packets, to avoid that consecutive link layer
    losses cause the loss rate to increase too quickly.  The loss_rate is
-   used in Section 4.6.  The averaging is selected to be slow enough to
-   avoid that single packet drops cause backoff, provided that the queue
-   delay is low, and fast enough to avoid excessive packet loss in the
-   presence of very shallow queues.
+   used in Section 4.5.2.  The averaging is selected to be slow enough
+   to avoid that single packet drops cause backoff, provided that the
+   queue delay is low, and fast enough to avoid excessive packet loss in
+   the presence of very shallow queues.
 
 # Apply an EWMA filter with a 2 RTT time constant, or at least 4/LOSS_RATE_THRESHOLD packets.
 alpha = min(LOSS_RATE_THRESHOLD / 4, mss / ref_wnd / 2)
@@ -673,6 +674,10 @@ end
    adds some immunity against scheduling jitter, which affects both
    qdelay_max_avg and qdelay_min_avg.
 
+# Update min and max average queue delay for every ACKed RTP packet
+qdelay_max_avg = min(qdelay_target, max(qdelay, qdelay_max_avg)))
+qdelay_min_avg = min(qdelay, qdelay_min_avg))
+
 if (now - last_update_qdelay_avg_time >= min(virtual_rtt,s_rtt))
   # Calculate qdelay_avg
   if (qdelay < qdelay_avg)
@@ -684,9 +689,8 @@ if (now - last_update_qdelay_avg_time >= min(virtual_rtt,s_rtt))
   # Optional code to calculate the variation on queue delay, which is an
   # Indication of congestion or near congestion.
   if (REDUCE_JITTER == true)
-    # Calculate qdelay_max_avg and qdelay_min_avg
-    qdelay_max_avg = min(qdelay_target, max(qdelay, qdelay_max_avg)))
-    qdelay_min_avg = min(qdelay, qdelay_min_avg))
+    # Reduce average max queue delay and move min average
+    # queue delay towards the max
     qdelay_max_avg = qdelay_max_avg * (1 -  QDELAY_MIN_MAX_AVG_G)
     qdelay_min_avg = qdelay_min_avg * (1 -  QDELAY_MIN_MAX_AVG_G) +
                     qdelay_max_avg*QDELAY_MIN_MAX_AVG_G
@@ -762,6 +766,18 @@ end
    The reference window update contains two parts.  One that reduces the
    reference window when congestion events (listed above) occur, and one
    part that continuously increases the reference window.
+
+   The reference window reduction takes effect whenever a congestion
+   event is detected.  A congestion event is either packet loss, ECN-CE
+   marked packets or increased queue delay.  Reference window reduction
+   is limited to no more often than once every min(VIRTUAL_RTT, s_rtt)
+   to allow for the reference window reduction to take effect.
+
+   The reference window increase takes place every s_rtt.  The reference
+   window can thus increase even when congestion events occur.  This
+   makes it possible for SCReAM to achieve the L4S scalable congestion
+   control property where one MSS increase of the reference window per
+   RTT is offset by to marked packets per RTT.
 
    The following variables are defined:
 
@@ -971,7 +987,7 @@ end
    lead to unwarranted congestion back-off.  One method is to apply
    congestion backoff only when an average loss rate exceeds a
    threshold.  A suggested modification to the code above is found in
-   Section 4.6.
+   Section 4.5.2.
 
 4.2.2.2.  Reference Window Increase
 
@@ -1071,7 +1087,7 @@ end
    The two mechanisms complement one another.
 
    The ref_wnd can optionally be restricted by max_policed_ref_wnd,
-   described in Section 4.6, to reduce packet losses when transmission
+   described in Section 4.5.2, to reduce packet losses when transmission
    links are subject to rate policing.  The additional code for this is
    shown below.
 
@@ -1087,6 +1103,12 @@ end
    *  send_wnd (0): Upper limit to how many bytes can currently be
       transmitted.  Updated when ref_wnd is updated and when data unit
       is transmitted [byte].
+
+   The sender transmission control is executed for each transmitted
+   packet, the send interval is dictated by the pacing but is restricted
+   by the send window.  In practice it however can be more practical to
+   transmit packets in small burst to save processing power, or
+   alternatively to offload the pacing to OS kernel function.
 
 4.3.1.  Send Window Calculation
 
@@ -1210,7 +1232,9 @@ t_pace = data_unit_size * 8 / pace_bitrate
 4.4.  Media Rate Control
 
    The media rate control algorithm is executed whenever the reference
-   window is updated and calculates the target bitrate:
+   window is updated and calculates the target bitrate.  It is however
+   not neccessary to execute this part more often than the frame period
+   of the media encoder.
 
    *  target_bitrate (0): Media target bitrate [bps].
 
@@ -1309,7 +1333,13 @@ target_bitrate = tmp_t * 8 * ref_wnd / s_rtt
 target_bitrate = min(TARGET_BITRATE_MAX,
   max(TARGET_BITRATE_MIN, target_bitrate))
 
-4.5.  Clock drift issues and remedies
+4.5.  Additional functions
+
+   This section covers additional functionality that is not critical for
+   the function of the SCReAM congestion control algorithm, but can
+   nevertheless improve the performance.
+
+4.5.1.  Clock drift issues and remedies
 
    SCReAM can suffer from the same issues with clock drift as is the
    case with LEDBAT [RFC6817].  However, Appendix A.2 in [RFC6817]
@@ -1346,7 +1376,7 @@ if qdelay_min_avg > qdelay_target / 4
   # 2. Scale down target bitrate by 50% for a period of max(5 * s_rtt, 0.2)
 end
 
-4.6.  Link layer losses and rate policers
+4.5.2.  Link layer losses and rate policers
 
    Link layer losses, i.e losses that are not congestion related can
    lead to unwarranted congestion backoff.  One method is to apply a
@@ -1400,7 +1430,7 @@ end
    possible false detection of rate policers causes a permanent
    restriction on ref_wnd.
 
-4.7.  Competing Flows Compensation
+4.5.3.  Competing Flows Compensation
 
    It is likely that a flow will have to share congested bottlenecks
    with other flows that use a more aggressive congestion control
