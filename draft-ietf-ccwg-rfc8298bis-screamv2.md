@@ -535,7 +535,8 @@ A loss rate is calculated for each packet according to the equation below, the l
 
 ~~~
 
-# Apply an EWMA filter with a 2 RTT time constant, or at least 4/LOSS_RATE_THRESHOLD packets.
+# Apply an EWMA filter with a 2 RTT time constant
+# or at least 4/LOSS_RATE_THRESHOLD packets.
 alpha = min(LOSS_RATE_THRESHOLD / 4, mss / ref_wnd / 2)
 if (packet_is_lost)
   loss_rate = (1.0 - alpha) * loss_rate + alpha
@@ -1224,7 +1225,7 @@ target_bitrate = min(TARGET_BITRATE_MAX,
 
 This section covers additional functionality that is not critical for the function of the SCReAM congestion control algorithm, but can nevertheless, improve the performance.
 
-### Clock drift issues and remedies
+### Clock drift issues and remedies {#clock-drift}
 
 SCReAM can suffer from the same issues with clock drift as is the case with LEDBAT {{RFC6817}}. However, Appendix A.2 in {{RFC6817}} describes ways to mitigate issues with clock drift. A clock drift compensation method is also implemented in {{SCReAM-CPP-implementation}}. The SCReAM implementation resets base delay history when it is determined that clock drift or skip becomes too large. This is achieved by reducing the target bitrate for a few RTTs.
 
@@ -1476,6 +1477,8 @@ This section covers a few discussion points.
 * The addition of the optional ref_wnd_delay_scale related restriction on ref_wnd increase can cause the rate increase to go slower when the non-congestion related jitter is high. Non-congestion related jitter can occur for instance in 5G where the amount of scheduling delay jitter depends on factors like TDD (Time Division Duplex) patterns an overall load in a cell. The algorithm is somewhat robust to scheduling jitter as it calculates ref_wnd_delay_scale based on the difference between the max and min queue delay. Still, there can be cases where large amounts of scheduling jitter can give a slow ramp up of the bitrate.
 
 * Rate policers can cause loss bursts. These loss bursts are particularly harmful for real time media transmission and it is problematic to detect the existence of rate policers in the transmission path. The example algorithm in the draft resolves the problem with rate policers to some degree. The algorithm is however not bullet proof, assumptions around queue delay can for instance fail on links where the RTT varies, such as satellite links. In addition, rate policers can be configured in many ways.
+
+* The competing flows compensation described in {{competing-flows-compensation}} has an inherent risk of false positives, the outcome would be that an increased delay is met by an increased to delay, something that can self-amplify. The algorithm was devised already for {{RFC8298}} when access links could become bloated. Things have however changed since 2017 when RFC8298 was published. Firstly, bufferbloat and remedies to it is better understood. Secondly, more recent congestion control algorithms are designed to not bloat access links that lack active queue management. Thirdly, the algorithm in {{clock-drift}} that addresses clock-drift addresses this issue inherently as a compenting flow still adds an offset in queue delay when SCReAM temporarly reduces its target rate temporarily. The need for competing flows compensation would therefore need to be investigated further.   
 
 * The calculation of the target bitrate based on the reference window and the average RTT can lead to over optimistic target rate values for instance when the source becomes idle or delivers a media bitrate that is lower than the target bitrate. To resolve this issue, it is recommended to update the average RTT with a longer time constant when bytes in flight is lower than the reference window by some margin.
 
