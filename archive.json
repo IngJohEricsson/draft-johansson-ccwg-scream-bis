@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-06-25T04:09:59.873443+00:00",
+  "timestamp": "2026-06-28T04:25:21.417453+00:00",
   "repo": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
   "labels": [
     {
@@ -4222,13 +4222,13 @@
       "labels": [],
       "body": "Two optional additions\r\n+ Conditional loss backoff for increased robustness against link layer (non-congestion) losses \r\n+ Rate policer detection and remediation action to reduce packet losses \r\n+ Discussion on reduced backoff when target bitrate is less than ACKed bitrate",
       "createdAt": "2026-05-20T06:58:00Z",
-      "updatedAt": "2026-06-23T13:39:39Z",
+      "updatedAt": "2026-06-25T11:04:53Z",
       "baseRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
       "baseRefName": "main",
       "baseRefOid": "1ada5332a9b51281c7f1118686f052e200e99236",
       "headRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
       "headRefName": "ingo-260512",
-      "headRefOid": "ca197f3e6c943343e0b89f2d1a2b793972d61598",
+      "headRefOid": "749dee1f95c4b275571f5831173c5d7212cbe14a",
       "closedAt": null,
       "mergedAt": null,
       "mergedBy": null,
@@ -4348,6 +4348,52 @@
               "body": "````suggestion\n* acked_bitrate (0.0): A running average of the ACKnowledged bitrate [bps]. The averaging time should be around one RTT. For periodic media such as video it is beneficial to calculate the acked_bitrate over two frame periods for a reasonably accurate value.\n\n````",
               "createdAt": "2026-06-23T13:36:37Z",
               "updatedAt": "2026-06-23T13:36:37Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs8AAAABEEkaGA",
+          "commit": {
+            "abbreviatedOid": "96080fa"
+          },
+          "author": "github-actions",
+          "authorAssociation": "NONE",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-06-25T05:50:36Z",
+          "updatedAt": "2026-06-25T05:50:36Z",
+          "comments": [
+            {
+              "originalPosition": 537,
+              "body": "````suggestion\nThis section covers additional functionality that is not critical for the function of the SCReAM congestion control algorithm, but can nevertheless improve the performance\n````",
+              "createdAt": "2026-06-25T05:50:36Z",
+              "updatedAt": "2026-06-25T05:50:36Z"
+            },
+            {
+              "originalPosition": 144,
+              "body": "````suggestion\n    # queue delay towards the max\n````",
+              "createdAt": "2026-06-25T05:50:36Z",
+              "updatedAt": "2026-06-25T05:50:36Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs8AAAABEGlX1g",
+          "commit": {
+            "abbreviatedOid": "2031a8d"
+          },
+          "author": "github-actions",
+          "authorAssociation": "NONE",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-06-25T11:03:08Z",
+          "updatedAt": "2026-06-25T11:03:09Z",
+          "comments": [
+            {
+              "originalPosition": 1011,
+              "body": "````suggestion\n* The competing flows compensation described in {{competing-flows-compensation}} has an inherent risk of false positives, the outcome would be that an increased delay is met by an increased to delay, something that can self-amplify. The algorithm was devised already for {{RFC8298}} when access links could become bloated. Things have however changed since 2017 when RFC8298 was published. Firstly, bufferbloat and remedies to it is better understood. Secondly, more recent congestion control algorithms are designed to not bloat access links that lack active queue management. Thirdly, the algorithm in {{clock-drift}} that addresses clock-drift addresses this issue inherently as a compenting flow still adds an offset in queue delay when SCReAM temporarly reduces its target rate temporarily. The need for competing flows compensation would therefore need to be investigated further.\n````",
+              "createdAt": "2026-06-25T11:03:08Z",
+              "updatedAt": "2026-06-25T11:03:09Z"
             }
           ]
         }
