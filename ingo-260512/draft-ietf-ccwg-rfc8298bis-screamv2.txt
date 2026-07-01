@@ -906,8 +906,8 @@ if (is_ce_t)
     backoff_t = l4s_alpha / 2
 
     # Reduce backoff when target bitrate is lower than the ACKnowledged rate
-    # this is indicative of that the target rate is already reduced
-    # by increased RTT
+    # this may be an indication that the target rate is already reduced
+    # due to an increased RTT
     if (target_bitrate < acked_bitrate * ACKED_BITRATE_MARGIN)
         backoff_t *= BACKOFF_SCALE_LOW_TARGET_RATE
     end
