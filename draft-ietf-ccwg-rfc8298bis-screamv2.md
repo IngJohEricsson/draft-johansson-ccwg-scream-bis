@@ -529,8 +529,7 @@ given data unit is not acknowledged within a time window (indicated by the
 reordering window) after a data unit with a higher sequence number was
 acknowledged.
 
-A loss rate is calculated for each packet according to the equation below, the loss rate is calculated as an average with a time constant of 2 RTTs.
- For small ref_wnd, averaging is over 4/LOSS_RATE_THRESHOLD packets, to avoid that consecutive link layer losses cause the loss rate to increase too quickly.
+A loss rate is calculated for each packet with an average value reflecting the number of packets send with in two  RTTs or 4/LOSS_RATE_THRESHOLD packets for small ref_win values. This avoids that multiple consecutive link layer losses cause the loss rate to increase too quickly.
  The loss_rate is used in {{link-loss-rate-policer}}. The averaging is selected to be slow enough to avoid that single packet drops cause backoff, provided that the queue delay is low, and fast enough to avoid excessive packet loss in the presence of very shallow queues.
 
 ~~~
