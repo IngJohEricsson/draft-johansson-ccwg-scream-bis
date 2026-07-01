@@ -895,7 +895,7 @@ The reference window reduction, when congestion is detected due to L4S marking o
 * When ref_wnd_delay_scale is small
 
 Link layer losses, i.e. losses that are not congestion related can lead to unwarranted congestion back-off. One method is to apply congestion backoff only when an average loss rate exceeds a threshold. A suggested modification to the code above is found in {{link-loss-rate-policer}}.
-The reference window can undershoot on congestion, an optional method to remedy this feature is described in {{ref-wnd-underhoot}}.
+The reference window can undershoot on congestion, an optional method to remedy this feature is described in {{ref-wnd-undershoot}}.
 
 #### Reference Window Increase {#ref-wnd-increase}
 
