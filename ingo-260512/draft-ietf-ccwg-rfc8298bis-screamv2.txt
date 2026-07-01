@@ -6,7 +6,7 @@ CCWG                                                        I. Johansson
 Internet-Draft                                             M. Westerlund
 Obsoletes: 8298 (if approved)                               M. Kühlewind
 Intended status: Experimental                                   Ericsson
-Expires: 27 December 2026                                   25 June 2026
+Expires: 2 January 2027                                      1 July 2026
 
 
               Self-Clocked Rate Adaptation for Multimedia
@@ -54,7 +54,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 27 December 2026.
+   This Internet-Draft will expire on 2 January 2027.
 
 Copyright Notice
 
@@ -309,8 +309,8 @@ Table of Contents
    number of bytes in flight is less than the reference window albeit
    with a slack to avoid that packets are unnecessarily delayed in the
    Data Units Queue.  The slack avoids unnecessary delays in the Data
-   Units Queue when the link is uncongested.  The bytes in flight
-   however, become more restrained in congested situations, to avoid
+   Units Queue when the link is uncongested.  The bytes in flight,
+   however, become more restrained in congested situations to avoid
    large variations in queue delay and bitrate.  A pacing rate is
    calculated based on the target bitrate provided by the media rate
    controller.
