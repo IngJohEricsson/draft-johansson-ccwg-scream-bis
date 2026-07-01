@@ -542,33 +542,6 @@ Table of Contents
    window (indicated by the reordering window) after a data unit with a
    higher sequence number was acknowledged.
 
-   A loss rate is calculated for each packet with an average value
-   reflecting the number of packets send with in two RTTs or 4/
-   LOSS_RATE_THRESHOLD packets for small ref_win values.  This avoids
-   that multiple consecutive link layer losses cause the loss rate to
-   increase too quickly.  The loss_rate is used in Section 4.5.2.  The
-   averaging is selected to be slow enough to avoid that single packet
-   drops cause backoff, provided that the queue delay is low, and fast
-   enough to avoid excessive packet loss in the presence of very shallow
-   queues.
-
-   # Apply an EWMA filter with a 2 RTT time constant
-   # or at least 4/LOSS_RATE_THRESHOLD packets.
-   alpha = min(LOSS_RATE_THRESHOLD / 4, mss / ref_wnd / 2)
-   if (packet_is_lost)
-     loss_rate = (1.0 - alpha) * loss_rate + alpha
-   else
-     loss_rate = (1.0 - alpha) * loss_rate
-
-   The following variables and constants are used:
-
-   *  loss_rate (0.0): Average loss rate.
-
-   *  packet_is_lost: Set to true if a packet is determined to be lost.
-
-   *  LOSS_RATE_THRESHOLD (0.01): Threshold for triggering loss based
-      reference window backoff.
-
 4.2.1.2.  Receiving ECN-CE with classic ECN
 
    In classic ECN mode the ref_wnd is scaled by a fixed value
@@ -1380,6 +1353,32 @@ end
    cause increased packet loss rate.  The constant LOSS_RATE_THRESHOLD
    should therefore be set low enough, with the objective to increase
    robustness to link layer losses only.
+
+   A loss rate is calculated for each packet with an average value
+   reflecting the number of packets send with in two RTTs or 4/
+   LOSS_RATE_THRESHOLD packets for small ref_win values.  This avoids
+   that multiple consecutive link layer losses cause the loss rate to
+   increase too quickly.  The averaging is selected to be slow enough to
+   avoid that single packet drops cause backoff, provided that the queue
+   delay is low, and fast enough to avoid excessive packet loss in the
+   presence of very shallow queues.
+
+   # Apply an EWMA filter with a 2 RTT time constant
+   # or at least 4/LOSS_RATE_THRESHOLD packets.
+   alpha = min(LOSS_RATE_THRESHOLD / 4, mss / ref_wnd / 2)
+   if (packet_is_lost)
+     loss_rate = (1.0 - alpha) * loss_rate + alpha
+   else
+     loss_rate = (1.0 - alpha) * loss_rate
+
+   The following variables and constants are used:
+
+   *  loss_rate (0.0): Average loss rate.
+
+   *  packet_is_lost: Set to true if a packet is determined to be lost.
+
+   *  LOSS_RATE_THRESHOLD (0.01): Threshold for triggering loss based
+      reference window backoff.
 
    Rate policers can give quite large loss bursts, which can impact real
    time media quality quite badly.  A rate policer is characterized by
