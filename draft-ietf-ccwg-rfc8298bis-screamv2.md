@@ -902,7 +902,7 @@ if (is_loss_t || is_ce_t || is_virtual_ce_t)
 end
 ~~~
 
-The reference window reduction when congestion due to L4S marking or increased delay is detected is constrained by a number of factors:
+The reference window reduction, when congestion is detected due to L4S marking or increased delay, is constrained by a number of factors:
 
 * For cases that the target rate is lower than the acknowledged bitrate, it is likely that the target bitrate is already reduced because of an increased RTT. A further (large) decrease of the reference window would then only lead to an unnecessary undershoot.
 
