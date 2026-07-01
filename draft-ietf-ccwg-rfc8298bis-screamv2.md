@@ -690,7 +690,7 @@ The following constants are used:
 
 The SCReAM algorithm can be further improved for a greater rate stability by taking variations in qdelay into consideration. The goal is to react less to delay variations, caused by e.g. link layer related scheduling and retransmissions, but still be reactive to actual queue delay, caused by congestion. The code below provides a example implementation but more advanced statistical analysis can be considered.
 
-The variable qdelay_dev_avg indicates how much the queue delay varies. ref_wnd_delay_scale is a scale factor that is applied to the reference window increase and the reference window headroom, ref_wnd_delay_scale is 1.0 when the delay jitter is low decreases as the delay jitter increases.
+The variable qdelay_dev_avg indicates the delay jitter, or more concrete a moving average over the difference between qdelay_max_avg and qdelay_min_avghow. Based on qdelay_dev_avg a scaling factor ref_wnd_delay_scale is calculated that is then applied to the reference window increase and the reference window headroom. When the jitter is a below a threshold (QDELAY_DEV_THRESHOLD), no scaling is applied (ref_wnd_delay_scale is 1.0). The scaling factor decreases when the delay jitter increases to limit the congestion reaction to short term delay variations.
 
 ~~~
 function calculate_ref_wnd_delay_scale()
