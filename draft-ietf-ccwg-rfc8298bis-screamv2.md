@@ -722,7 +722,7 @@ continuously increases the reference window.
 
 The reference window is reduced whenever a congestion event is detected. A congestion event is either packet loss, ECN-CE marked packets or increased queue delay. The reference window reduction is applied at most once every (smoothed RTT) or, to improve fairness to other flows with a different RTT, at least very VIRTUAL_RTT second.
 
-The reference window increase takes place every s_rtt. The reference window can thus increase even when congestion events occur. This makes it possible for SCReAM to achieve the L4S scalable congestion control property where one MSS increase of the reference window per RTT is offset by to marked packets per RTT.
+The reference window is increased once per smother RTT (s_rtt). The reference window can also increase even when a congestion event occurs. Their provided the L4S scalable congestion control property where a one-MSS-increase of the reference window per RTT is offset by two marked packets per RTT.
 
 The following variables are defined:
 
