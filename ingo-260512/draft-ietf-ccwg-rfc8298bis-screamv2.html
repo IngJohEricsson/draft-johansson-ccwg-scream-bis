@@ -1246,7 +1246,10 @@ This specification obsoletes RFC 8298.<a href="#section-abstract-1" class="pilcr
                     <p id="section-toc.1-1.4.2.5.2.2.1"><a href="#section-4.5.2" class="auto internal xref">4.5.2</a>.  <a href="#name-link-layer-losses-and-rate-" class="internal xref">Link layer losses and rate policers</a></p>
 </li>
                   <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.5.2.3">
-                    <p id="section-toc.1-1.4.2.5.2.3.1"><a href="#section-4.5.3" class="auto internal xref">4.5.3</a>.  <a href="#name-competing-flows-compensatio" class="internal xref">Competing Flows Compensation</a></p>
+                    <p id="section-toc.1-1.4.2.5.2.3.1"><a href="#section-4.5.3" class="auto internal xref">4.5.3</a>.  <a href="#name-reference-window-undershoot" class="internal xref">Reference window undershoot at congestion</a></p>
+</li>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.5.2.4">
+                    <p id="section-toc.1-1.4.2.5.2.4.1"><a href="#section-4.5.4" class="auto internal xref">4.5.4</a>.  <a href="#name-competing-flows-compensatio" class="internal xref">Competing Flows Compensation</a></p>
 </li>
                 </ul>
 </li>
@@ -1782,9 +1785,6 @@ window is updated [byte].<a href="#section-4.1.2-2.4.1" class="pilcrow">¶</a></
               <p id="section-4.1.2-2.5.1">bytes_newly_acked_ce (0): Number of bytes newly ACKed and CE marked, reset to
 0 when reference window is updated [byte].<a href="#section-4.1.2-2.5.1" class="pilcrow">¶</a></p>
 </li>
-            <li class="normal" id="section-4.1.2-2.6">
-              <p id="section-4.1.2-2.6.1">acked_bitrate (0.0): A running average of the ACKnowledged bitrate [bps]. The averaging time should be around one RTT. For periodic media such as video it is beneficial to calculate the acked_bitrate over two frame periods for a reasonably accurate value.<a href="#section-4.1.2-2.6.1" class="pilcrow">¶</a></p>
-</li>
           </ul>
 <p id="section-4.1.2-3">bytes_newly_acked is incremented with a value
 corresponding to how much the highest sequence number has increased
@@ -1988,8 +1988,10 @@ retransmissions.<a href="#section-4.2.1.4-1" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-4.2.1.4-4">
 <pre>
 # Update min and max average queue delay for every ACKed RTP packet
-qdelay_max_avg = min(qdelay_target, max(qdelay, qdelay_max_avg)))
-qdelay_min_avg = min(qdelay, qdelay_min_avg))
+if (REDUCE_JITTER == true)
+  qdelay_max_avg = min(qdelay_target, max(qdelay, qdelay_max_avg)))
+  qdelay_min_avg = min(qdelay, qdelay_min_avg))
+end
 
 if (now - last_update_qdelay_avg_time &gt;= min(virtual_rtt, s_rtt))
   # Calculate qdelay_avg
@@ -2003,11 +2005,6 @@ if (now - last_update_qdelay_avg_time &gt;= min(virtual_rtt, s_rtt))
   # Optional code to calculate the variation on queue delay, which is an
   # Indication of congestion or near congestion.
   if (REDUCE_JITTER == true)
-    # Reduce average max queue delay and move min average
-    # queue delay towards the max
-    qdelay_max_avg = qdelay_max_avg * (1.0 - QDELAY_MIN_MAX_AVG_G)
-    qdelay_min_avg = qdelay_min_avg * (1.0 - QDELAY_MIN_MAX_AVG_G) +
-      qdelay_max_avg * QDELAY_MIN_MAX_AVG_G
     calculate_ref_wnd_delay_scale()
   end
   last_update_qdelay_avg_time = now
@@ -2022,10 +2019,10 @@ end
 It is typically sufficient with one update per received acknowledgement.<a href="#section-4.2.1.4-6.1.1" class="pilcrow">¶</a></p>
 </li>
               <li class="normal" id="section-4.2.1.4-6.2">
-                <p id="section-4.2.1.4-6.2.1">qdelay_max_avg (qdelay_target): Max queue delay<a href="#section-4.2.1.4-6.2.1" class="pilcrow">¶</a></p>
+                <p id="section-4.2.1.4-6.2.1">qdelay_max_avg (qdelay_target): Max average queue delay, needed only of REDUCE_JITTER==true<a href="#section-4.2.1.4-6.2.1" class="pilcrow">¶</a></p>
 </li>
               <li class="normal" id="section-4.2.1.4-6.3">
-                <p id="section-4.2.1.4-6.3.1">qdelay_min_avg (0.0): Min queue delay<a href="#section-4.2.1.4-6.3.1" class="pilcrow">¶</a></p>
+                <p id="section-4.2.1.4-6.3.1">qdelay_min_avg (0.0): Min average queue delay, needed only of REDUCE_JITTER==true<a href="#section-4.2.1.4-6.3.1" class="pilcrow">¶</a></p>
 </li>
               <li class="normal" id="section-4.2.1.4-6.4">
                 <p id="section-4.2.1.4-6.4.1">last_update_qdelay_avg_time (0.0): Last time qdelay_avg was updated [s]<a href="#section-4.2.1.4-6.4.1" class="pilcrow">¶</a></p>
@@ -2052,6 +2049,12 @@ described in <span>[<a href="#RFC6298" class="cite xref">RFC6298</a>]</span><a h
 <div class="alignLeft art-text artwork" id="section-4.2.1.4-11">
 <pre>
 function calculate_ref_wnd_delay_scale()
+  # Reduce average max queue delay and move min average
+  # queue delay towards the max
+  qdelay_max_avg = qdelay_max_avg * (1.0 - QDELAY_MIN_MAX_AVG_G)
+  qdelay_min_avg = qdelay_min_avg * (1.0 - QDELAY_MIN_MAX_AVG_G) +
+    qdelay_max_avg * QDELAY_MIN_MAX_AVG_G
+
   # Calculate ref_wnd_delay_scale, range [0.0 1.0]
   qdelay_dev_avg = (1.0 - QDELAY_DEV_AVG_G) * qdelay_dev_avg +
     QDELAY_DEV_AVG_G * (qdelay_max_avg - qdelay_min_avg)
@@ -2160,12 +2163,6 @@ that the ref_wnd can increase per RTT.<a href="#section-4.2.2-7.9.1" class="pilc
               <p id="section-4.2.2-7.11.1">VIRTUAL_RTT (0.025): Virtual RTT [s]. This mimics Prague's RTT fairness such that flows with RTT
 below VIRTUAL_RTT should get a roughly equal share over an L4S path.<a href="#section-4.2.2-7.11.1" class="pilcrow">¶</a></p>
 </li>
-            <li class="normal" id="section-4.2.2-7.12">
-              <p id="section-4.2.2-7.12.1">ACKED_BITRATE_MARGIN (0.8): Safety margin for triggering of downscaling of backoff for cases where target bitrate is already low.<a href="#section-4.2.2-7.12.1" class="pilcrow">¶</a></p>
-</li>
-            <li class="normal" id="section-4.2.2-7.13">
-              <p id="section-4.2.2-7.13.1">BACKOFF_SCALE_LOW_TARGETRATE (0.25): Downscaling of backoff when target rate is already low compared to the ACKnowledged bitrate.<a href="#section-4.2.2-7.13.1" class="pilcrow">¶</a></p>
-</li>
           </ul>
 <div id="ref-wnd-reduction">
 <section id="section-4.2.2.1">
@@ -2228,13 +2225,6 @@ if (is_ce_t)
     # L4S mode
     backoff_t = l4s_alpha / 2
 
-    # Reduce backoff when target bitrate is lower than the ACKnowledged rate
-    # this may be an indication that the target rate is already reduced
-    # due to an increased RTT
-    if (target_bitrate &lt; acked_bitrate * ACKED_BITRATE_MARGIN)
-        backoff_t *= BACKOFF_SCALE_LOW_TARGET_RATE
-    end
-
     # Scale down backoff when RTT is high to avoid overreaction to
     # congestion. This is related to that congestion backoff can occur
     # every min(VIRTUAL_RTT, s_rtt)
@@ -2273,13 +2263,6 @@ end
 if (is_virtual_ce_t)
   backoff_t = l4s_alpha_v_t / 2
 
-  # Reduce backoff when target bitrate is lower than the ACKnowledged rate
-  # this is indicative of that the target rate is already reduced
-  # by increased RTT
-  if (target_bitrate &lt; acked_bitrate * ACKED_BITRATE_MARGIN)
-     backoff_t *= BACKOFF_SCALE_LOW_TARGET_RATE
-  end
-
   # Scale down backoff when RTT is high to avoid overreaction to
   # congestion This is related to that congestion backoff can occur
   # every min(VIRTUAL_RTT, s_rtt)
@@ -2309,7 +2292,8 @@ end
                 <p id="section-4.2.2.1-3.4.1">When ref_wnd_delay_scale is small<a href="#section-4.2.2.1-3.4.1" class="pilcrow">¶</a></p>
 </li>
             </ul>
-<p id="section-4.2.2.1-4">Link layer losses, i.e. losses that are not congestion related can lead to unwarranted congestion back-off. One method is to apply congestion backoff only when an average loss rate exceeds a threshold. A suggested modification to the code above is found in <a href="#link-loss-rate-policer" class="auto internal xref">Section 4.5.2</a>.<a href="#section-4.2.2.1-4" class="pilcrow">¶</a></p>
+<p id="section-4.2.2.1-4">Link layer losses, i.e. losses that are not congestion related can lead to unwarranted congestion back-off. One method is to apply congestion backoff only when an average loss rate exceeds a threshold. A suggested modification to the code above is found in <a href="#link-loss-rate-policer" class="auto internal xref">Section 4.5.2</a>.
+The reference window can undershoot on congestion, an optional method to remedy this feature is described in <a href="#ref-wnd-undershoot" class="auto internal xref">Section 4.5.3</a>.<a href="#section-4.2.2.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="ref-wnd-increase">
@@ -2760,18 +2744,48 @@ end
 <p id="section-4.5.2-7">The max_policed_ref_wnd enforces an upper limit to the ref_wnd. The max_policed_ref_wnd should increase by a small fraction, for instance 0.001 per RTT that gradually lifts the limit, this prevents that possible false detection of rate policers causes a permanent restriction on ref_wnd.<a href="#section-4.5.2-7" class="pilcrow">¶</a></p>
 </section>
 </div>
-<div id="competing-flows-compensation">
+<div id="ref-wnd-undershoot">
 <section id="section-4.5.3">
-          <h4 id="name-competing-flows-compensatio">
-<a href="#section-4.5.3" class="section-number selfRef">4.5.3. </a><a href="#name-competing-flows-compensatio" class="section-name selfRef">Competing Flows Compensation</a>
+          <h4 id="name-reference-window-undershoot">
+<a href="#section-4.5.3" class="section-number selfRef">4.5.3. </a><a href="#name-reference-window-undershoot" class="section-name selfRef">Reference window undershoot at congestion</a>
           </h4>
-<p id="section-4.5.3-1">It is likely that a flow will have to share congested bottlenecks with other
+<p id="section-4.5.3-1">The reference window can in certan cases undershoot when congestion occurs, one such case is when the RTT increases at the same time that the reference window is reduced. The RTT increase can push down the target rate faster in the reference window is reduced. An additional reduction of the reference window can be superfluous in some cases. One method to determine if additional reduction is unnecessary is to inspect how the acknowledged bitrate relates to the target bitrate. If the target rate is well below the ACKed bitrate, then additional reduction of the reference window is unnecessary. This is implemented as additional code that modifies the reference window backoff in <a href="#ref-wnd-reduction" class="auto internal xref">Section 4.2.2.1</a>.<a href="#section-4.5.3-1" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-4.5.3-2">
+<pre>
+# Reduce backoff when target bitrate is lower than the ACKnowledged rate
+# this may be an indication that the target rate is already reduced
+# due to an increased RTT
+if (target_bitrate &lt; acked_bitrate * ACKED_BITRATE_MARGIN)
+    backoff_t *= BACKOFF_SCALE_LOW_TARGET_RATE
+end
+</pre><a href="#section-4.5.3-2" class="pilcrow">¶</a>
+</div>
+<p id="section-4.5.3-3">The variables and constants are:<a href="#section-4.5.3-3" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-4.5.3-4.1">
+              <p id="section-4.5.3-4.1.1">ACKED_BITRATE_MARGIN (0.8): Safety margin for triggering of downscaling of backoff for cases where target bitrate is already low.<a href="#section-4.5.3-4.1.1" class="pilcrow">¶</a></p>
+</li>
+            <li class="normal" id="section-4.5.3-4.2">
+              <p id="section-4.5.3-4.2.1">BACKOFF_SCALE_LOW_TARGETRATE (0.25): Downscaling of backoff when target rate is already low compared to the ACKnowledged bitrate.<a href="#section-4.5.3-4.2.1" class="pilcrow">¶</a></p>
+</li>
+            <li class="normal" id="section-4.5.3-4.3">
+              <p id="section-4.5.3-4.3.1">acked_bitrate (0.0): A running average of the ACKnowledged bitrate [bps]. The averaging time should be around one RTT. For periodic media such as video it is beneficial to calculate the acked_bitrate over two frame periods for a reasonably accurate value.<a href="#section-4.5.3-4.3.1" class="pilcrow">¶</a></p>
+</li>
+          </ul>
+</section>
+</div>
+<div id="competing-flows-compensation">
+<section id="section-4.5.4">
+          <h4 id="name-competing-flows-compensatio">
+<a href="#section-4.5.4" class="section-number selfRef">4.5.4. </a><a href="#name-competing-flows-compensatio" class="section-name selfRef">Competing Flows Compensation</a>
+          </h4>
+<p id="section-4.5.4-1">It is likely that a flow will have to share congested bottlenecks with other
 flows that use a more aggressive congestion control algorithm (for example,
 large FTP flows using loss-based congestion control). The worst condition occurs
 when the bottleneck queues are of tail-drop type with a large buffer
 size. SCReAMv2 takes care of such situations by adjusting the qdelay_target when
-loss-based flows are detected, as shown in the optional pseudocode below.<a href="#section-4.5.3-1" class="pilcrow">¶</a></p>
-<div class="alignLeft art-text artwork" id="section-4.5.3-2">
+loss-based flows are detected, as shown in the optional pseudocode below.<a href="#section-4.5.4-1" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-4.5.4-2">
 <pre>
 adjust_qdelay_target(qdelay)
   qdelay_norm_t = qdelay / QDELAY_TARGET_LOW
@@ -2808,51 +2822,51 @@ adjust_qdelay_target(qdelay)
   # Apply limits
   qdelay_target = min(QDELAY_TARGET_HI, qdelay_target)
   qdelay_target = max(QDELAY_TARGET_LO, qdelay_target)
-</pre><a href="#section-4.5.3-2" class="pilcrow">¶</a>
+</pre><a href="#section-4.5.4-2" class="pilcrow">¶</a>
 </div>
-<p id="section-4.5.3-3">The following variable is used:<a href="#section-4.5.3-3" class="pilcrow">¶</a></p>
+<p id="section-4.5.4-3">The following variable is used:<a href="#section-4.5.4-3" class="pilcrow">¶</a></p>
 <ul class="normal">
-<li class="normal" id="section-4.5.3-4.1">
-              <p id="section-4.5.3-4.1.1">loss_event_rate (0.0): The estimated fraction of RTTs with lost data units
-detected.<a href="#section-4.5.3-4.1.1" class="pilcrow">¶</a></p>
+<li class="normal" id="section-4.5.4-4.1">
+              <p id="section-4.5.4-4.1.1">loss_event_rate (0.0): The estimated fraction of RTTs with lost data units
+detected.<a href="#section-4.5.4-4.1.1" class="pilcrow">¶</a></p>
 </li>
           </ul>
-<p id="section-4.5.3-5">Two temporary variables are calculated. qdelay_norm_avg_t is the long-term
+<p id="section-4.5.4-5">Two temporary variables are calculated. qdelay_norm_avg_t is the long-term
 average queue delay, qdelay_norm_var_t is the long-term variance of the queue
 delay. A high qdelay_norm_var_t indicates that the queue delay changes; this can
 be an indication that bottleneck bandwidth is reduced or that a competing flow
 has just entered. Thus, it indicates that it is not safe to adjust the queue
-delay target.<a href="#section-4.5.3-5" class="pilcrow">¶</a></p>
-<p id="section-4.5.3-6">A low qdelay_norm_var_t indicates that the queue delay is relatively stable. The
+delay target.<a href="#section-4.5.4-5" class="pilcrow">¶</a></p>
+<p id="section-4.5.4-6">A low qdelay_norm_var_t indicates that the queue delay is relatively stable. The
 reason could be that the queue delay is low, but it could also be that a
 competing flow is causing the bottleneck to reach the point that data unit losses
 start to occur, in which case the queue delay will stay relatively high for a
-longer time.<a href="#section-4.5.3-6" class="pilcrow">¶</a></p>
-<p id="section-4.5.3-7">The queue delay target is allowed to be increased if either the loss event rate
+longer time.<a href="#section-4.5.4-6" class="pilcrow">¶</a></p>
+<p id="section-4.5.4-7">The queue delay target is allowed to be increased if either the loss event rate
 is above a given threshold or qdelay_norm_var_t is low. Both these conditions
 indicate that a competing flow may be present. In all other cases, the queue
-delay target is decreased.<a href="#section-4.5.3-7" class="pilcrow">¶</a></p>
-<p id="section-4.5.3-8">The function that adjusts the qdelay_target is simple and could produce false
+delay target is decreased.<a href="#section-4.5.4-7" class="pilcrow">¶</a></p>
+<p id="section-4.5.4-8">The function that adjusts the qdelay_target is simple and could produce false
 positives and false negatives. The case that self-inflicted congestion by the
 SCReAMv2 algorithm may be falsely interpreted as the presence of competing
 loss-based FTP flows is a false positive. The opposite case -- where the
 algorithm fails to detect the presence of a competing FTP flow -- is a false
-negative.<a href="#section-4.5.3-8" class="pilcrow">¶</a></p>
-<p id="section-4.5.3-9">Extensive simulations have shown that the algorithm performs well in LTE and 5G
+negative.<a href="#section-4.5.4-8" class="pilcrow">¶</a></p>
+<p id="section-4.5.4-9">Extensive simulations have shown that the algorithm performs well in LTE and 5G
 test cases and that it also performs well in simple bandwidth-limited bottleneck
 test cases with competing FTP flows. However, the potential failure of the
 algorithm cannot be completely ruled out. A false positive (i.e., when
 self-inflicted congestion is mistakenly identified as competing flows) is
 especially problematic when it leads to increasing the target queue delay, which
-can cause the end-to-end delay to increase dramatically.<a href="#section-4.5.3-9" class="pilcrow">¶</a></p>
-<p id="section-4.5.3-10">If it is deemed unlikely that competing flows occur over the same bottleneck,
+can cause the end-to-end delay to increase dramatically.<a href="#section-4.5.4-9" class="pilcrow">¶</a></p>
+<p id="section-4.5.4-10">If it is deemed unlikely that competing flows occur over the same bottleneck,
 the algorithm described in this section MAY be turned off. One such case is
 QoS-enabled bearers in 3GPP-based access such as LTE and 5G. However, when
 sending over the Internet, often the network conditions are not known for sure,
 so in general it is not possible to make safe assumptions on how a network is
 used and whether or not competing flows share the same bottleneck. Therefore,
 turning this algorithm off must be considered with caution, as it can lead to
-basically zero throughput if competing with loss-based traffic.<a href="#section-4.5.3-10" class="pilcrow">¶</a></p>
+basically zero throughput if competing with loss-based traffic.<a href="#section-4.5.4-10" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
@@ -2976,7 +2990,7 @@ few examples are found in <span>[<a href="#SCReAM-evaluation-L4S" class="cite xr
           <p id="section-6-2.9.1">Rate policers can cause loss bursts. These loss bursts are particularly harmful for real time media transmission and it is problematic to detect the existence of rate policers in the transmission path. The example algorithm in the draft resolves the problem with rate policers to some degree. The algorithm is however not bullet proof, assumptions around queue delay can for instance fail on links where the RTT varies, such as satellite links. In addition, rate policers can be configured in many ways.<a href="#section-6-2.9.1" class="pilcrow">¶</a></p>
 </li>
         <li class="normal" id="section-6-2.10">
-          <p id="section-6-2.10.1">The competing flows compensation described in <a href="#competing-flows-compensation" class="auto internal xref">Section 4.5.3</a> has an inherent risk of false positives, the outcome would be that an increased delay is met by an increased to delay, something that can self-amplify. The algorithm was devised already for <span>[<a href="#RFC8298" class="cite xref">RFC8298</a>]</span> when access links could become bloated. Things have however changed since 2017 when RFC8298 was published. Firstly, bufferbloat and remedies to it is better understood. Secondly, more recent congestion control algorithms are designed to not bloat access links that lack active queue management. Thirdly, the algorithm in <a href="#clock-drift" class="auto internal xref">Section 4.5.1</a> that addresses clock-drift addresses this issue inherently as a compenting flow still adds an offset in queue delay when SCReAM temporarly reduces its target rate temporarily. The need for competing flows compensation would therefore need to be investigated further.<a href="#section-6-2.10.1" class="pilcrow">¶</a></p>
+          <p id="section-6-2.10.1">The competing flows compensation described in <a href="#competing-flows-compensation" class="auto internal xref">Section 4.5.4</a> has an inherent risk of false positives, the outcome would be that an increased delay is met by an increased to delay, something that can self-amplify. The algorithm was devised already for <span>[<a href="#RFC8298" class="cite xref">RFC8298</a>]</span> when access links could become bloated. Things have however changed since 2017 when RFC8298 was published. Firstly, bufferbloat and remedies to it is better understood. Secondly, more recent congestion control algorithms are designed to not bloat access links that lack active queue management. Thirdly, the algorithm in <a href="#clock-drift" class="auto internal xref">Section 4.5.1</a> that addresses clock-drift addresses this issue inherently as a compenting flow still adds an offset in queue delay when SCReAM temporarly reduces its target rate temporarily. The need for competing flows compensation would therefore need to be investigated further.<a href="#section-6-2.10.1" class="pilcrow">¶</a></p>
 </li>
         <li class="normal" id="section-6-2.11">
           <p id="section-6-2.11.1">The calculation of the target bitrate based on the reference window and the average RTT can lead to over optimistic target rate values for instance when the source becomes idle or delivers a media bitrate that is lower than the target bitrate. To resolve this issue, it is recommended to update the average RTT with a longer time constant when bytes in flight is lower than the reference window by some margin.<a href="#section-6-2.11.1" class="pilcrow">¶</a></p>
