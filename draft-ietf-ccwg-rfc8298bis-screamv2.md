@@ -467,8 +467,6 @@ The feedback from the receiver is assumed to consist of the following elements:
 * bytes_newly_acked_ce (0): Number of bytes newly ACKed and CE marked, reset to
   0 when reference window is updated [byte].
 
-* acked_bitrate (0.0): A running average of the ACKnowledged bitrate [bps]. The averaging time should be around one RTT. For periodic media such as video it is beneficial to calculate the acked_bitrate over two frame periods for a reasonably accurate value.
-
 bytes_newly_acked is incremented with a value
 corresponding to how much the highest sequence number has increased
 since the last feedback. As an example: If the previous
@@ -639,8 +637,10 @@ Two variables, qdelay_max_avg and qdelay_min_avg track how much the min and max 
 
 ~~~
 # Update min and max average queue delay for every ACKed RTP packet
-qdelay_max_avg = min(qdelay_target, max(qdelay, qdelay_max_avg)))
-qdelay_min_avg = min(qdelay, qdelay_min_avg))
+if (REDUCE_JITTER == true)
+  qdelay_max_avg = min(qdelay_target, max(qdelay, qdelay_max_avg)))
+  qdelay_min_avg = min(qdelay, qdelay_min_avg))
+end
 
 if (now - last_update_qdelay_avg_time >= min(virtual_rtt, s_rtt))
   # Calculate qdelay_avg
@@ -654,11 +654,6 @@ if (now - last_update_qdelay_avg_time >= min(virtual_rtt, s_rtt))
   # Optional code to calculate the variation on queue delay, which is an
   # Indication of congestion or near congestion.
   if (REDUCE_JITTER == true)
-    # Reduce average max queue delay and move min average
-    # queue delay towards the max
-    qdelay_max_avg = qdelay_max_avg * (1.0 - QDELAY_MIN_MAX_AVG_G)
-    qdelay_min_avg = qdelay_min_avg * (1.0 - QDELAY_MIN_MAX_AVG_G) +
-      qdelay_max_avg * QDELAY_MIN_MAX_AVG_G
     calculate_ref_wnd_delay_scale()
   end
   last_update_qdelay_avg_time = now
@@ -671,9 +666,9 @@ The following variables are used:
 {{RFC6817}}. A qdelay sample is obtained for each received acknowledgement.
 It is typically sufficient with one update per received acknowledgement.
 
-* qdelay_max_avg (qdelay_target): Max queue delay
+* qdelay_max_avg (qdelay_target): Max average queue delay, needed only of REDUCE_JITTER==true
 
-* qdelay_min_avg (0.0): Min queue delay
+* qdelay_min_avg (0.0): Min average queue delay, needed only of REDUCE_JITTER==true
 
 * last_update_qdelay_avg_time (0.0): Last time qdelay_avg was updated [s]
 
@@ -694,6 +689,12 @@ The variable qdelay_dev_avg indicates the delay jitter, or more concrete a movin
 
 ~~~
 function calculate_ref_wnd_delay_scale()
+  # Reduce average max queue delay and move min average
+  # queue delay towards the max
+  qdelay_max_avg = qdelay_max_avg * (1.0 - QDELAY_MIN_MAX_AVG_G)
+  qdelay_min_avg = qdelay_min_avg * (1.0 - QDELAY_MIN_MAX_AVG_G) +
+    qdelay_max_avg * QDELAY_MIN_MAX_AVG_G
+
   # Calculate ref_wnd_delay_scale, range [0.0 1.0]
   qdelay_dev_avg = (1.0 - QDELAY_DEV_AVG_G) * qdelay_dev_avg +
     QDELAY_DEV_AVG_G * (qdelay_max_avg - qdelay_min_avg)
@@ -774,10 +775,6 @@ for the constants are deduced from experiments):
 * VIRTUAL_RTT (0.025): Virtual RTT [s]. This mimics Prague's RTT fairness such that flows with RTT
   below VIRTUAL_RTT should get a roughly equal share over an L4S path.
 
-* ACKED_BITRATE_MARGIN (0.8): Safety margin for triggering of downscaling of backoff for cases where target bitrate is already low.
-
-* BACKOFF_SCALE_LOW_TARGETRATE (0.25): Downscaling of backoff when target rate is already low compared to the ACKnowledged bitrate.
-
 #### Reference Window Reduction {#ref-wnd-reduction}
 
 ~~~
@@ -835,13 +832,6 @@ if (is_ce_t)
     # L4S mode
     backoff_t = l4s_alpha / 2
 
-    # Reduce backoff when target bitrate is lower than the ACKnowledged rate
-    # this may be an indication that the target rate is already reduced
-    # due to an increased RTT
-    if (target_bitrate < acked_bitrate * ACKED_BITRATE_MARGIN)
-        backoff_t *= BACKOFF_SCALE_LOW_TARGET_RATE
-    end
-
     # Scale down backoff when RTT is high to avoid overreaction to
     # congestion. This is related to that congestion backoff can occur
     # every min(VIRTUAL_RTT, s_rtt)
@@ -880,13 +870,6 @@ end
 if (is_virtual_ce_t)
   backoff_t = l4s_alpha_v_t / 2
 
-  # Reduce backoff when target bitrate is lower than the ACKnowledged rate
-  # this is indicative of that the target rate is already reduced
-  # by increased RTT
-  if (target_bitrate < acked_bitrate * ACKED_BITRATE_MARGIN)
-     backoff_t *= BACKOFF_SCALE_LOW_TARGET_RATE
-  end
-
   # Scale down backoff when RTT is high to avoid overreaction to
   # congestion This is related to that congestion backoff can occur
   # every min(VIRTUAL_RTT, s_rtt)
@@ -912,6 +895,7 @@ The reference window reduction, when congestion is detected due to L4S marking o
 * When ref_wnd_delay_scale is small
 
 Link layer losses, i.e. losses that are not congestion related can lead to unwarranted congestion back-off. One method is to apply congestion backoff only when an average loss rate exceeds a threshold. A suggested modification to the code above is found in {{link-loss-rate-policer}}.
+The reference window can undershoot on congestion, an optional method to remedy this feature is described in {{ref-wnd-underhoot}}.
 
 #### Reference Window Increase {#ref-wnd-increase}
 
@@ -1286,6 +1270,27 @@ The variables and constants are:
 * BETA_LOSS_POLICER (0.9): ref_wnd scale for calculation of max_policed_ref_wnd.
 
 The max_policed_ref_wnd enforces an upper limit to the ref_wnd. The max_policed_ref_wnd should increase by a small fraction, for instance 0.001 per RTT that gradually lifts the limit, this prevents that possible false detection of rate policers causes a permanent restriction on ref_wnd.
+
+### Reference window undershoot at congestion {#ref-wnd-undershoot}
+
+The reference window can in certan cases undershoot when congestion occurs, one such case is when the RTT increases at the same time that the reference window is reduced. The RTT increase can push down the target rate faster in the reference window is reduced. An additional reduction of the reference window can be superfluous in some cases. One method to determine if additional reduction is unnecessary is to inspect how the acknowledged bitrate relates to the target bitrate. If the target rate is well below the ACKed bitrate, then additional reduction of the reference window is unnecessary. This is implemented as additional code that modifies the reference window backoff in {{ref-wnd-reduction}}.
+
+~~~
+# Reduce backoff when target bitrate is lower than the ACKnowledged rate
+# this may be an indication that the target rate is already reduced
+# due to an increased RTT
+if (target_bitrate < acked_bitrate * ACKED_BITRATE_MARGIN)
+    backoff_t *= BACKOFF_SCALE_LOW_TARGET_RATE
+end
+~~~
+
+The variables and constants are:
+
+* ACKED_BITRATE_MARGIN (0.8): Safety margin for triggering of downscaling of backoff for cases where target bitrate is already low.
+
+* BACKOFF_SCALE_LOW_TARGETRATE (0.25): Downscaling of backoff when target rate is already low compared to the ACKnowledged bitrate.
+
+* acked_bitrate (0.0): A running average of the ACKnowledged bitrate [bps]. The averaging time should be around one RTT. For periodic media such as video it is beneficial to calculate the acked_bitrate over two frame periods for a reasonably accurate value.
 
 ### Competing Flows Compensation {#competing-flows-compensation}
 
