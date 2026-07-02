@@ -1524,6 +1524,8 @@ work that led to this memo: Per Kjellander, Björn Terelius.
 
 ### Changes in Draft version -01
 
+* New reference window scaling which acts on difference between max and min queue delay replaces earlier algorithm.
+
 * Additional conditional loss threshold added as optional to increase robustness against non-congestion related (e.g link layer) losses.
 
 * Added note about method to detect the extistence of rate policers and to reduce packet losses when rate policers are applied in network nodes.
