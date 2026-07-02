@@ -718,7 +718,7 @@ The following variables are defined:
 
 * last_reaction_to_congestion_time (0.0): Last time congestion avoidance occurred [s].
 
-* last_ref_wnd_i_update_time (0.0): Last time ref_wnd_i was updated [s].
+* ref_wnd_i_update_allowed (true): Allow update of ref_wnd_i.
 
 Further the following constants are used (the RECOMMENDED values, within parentheses "()",
 for the constants are deduced from experiments):
@@ -790,12 +790,10 @@ if (now - last_reaction_to_congestion_time >= min(VIRTUAL_RTT, s_rtt)
 end
 
 if (is_loss_t || is_ce_t || is_virtual_ce_t)
-  if (now - last_ref_wnd_i_update_time > 10 * s_rtt)
-    # Update ref_wnd_i, no more often than every 10 RTTs
-    # Additional median filtering over more congestion epochs
-    # may improve accuracy of ref_wnd_i
-    last_ref_wnd_i_update_time = now
+  if (ref_wnd_i_update_allowed)
+    # Update ref_wnd_i
     ref_wnd_i = ref_wnd
+    ref_wnd_i_update_allowed = false
   end
 end
 
@@ -923,6 +921,7 @@ if (tmp_t > 1.0)
 end
 increment_t *= tmp_t
 
+ref_wnd_prev_ = ref_wnd
 # Increase ref_wnd only if bytes in flight is large enough
 # Quite a lot of slack is allowed here to avoid that bitrate
 # locks to low values.
@@ -932,6 +931,9 @@ max_allowed_t = MSS + max(max_bytes_in_flight,
 int ref_wnd_t = ref_wnd + increment_t
 if (ref_wnd_t <= max_allowed_t && target_bitrate < TARGET_BITRATE_MAX)
   ref_wnd = ref_wnd_t
+end
+if (ref_wnd > ref_wnd_prev_)
+  ref_wnd_i_update_allowed = true
 end
 ~~~
 
