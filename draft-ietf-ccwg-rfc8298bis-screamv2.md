@@ -378,7 +378,7 @@ the media traffic.
 The media rate control calculates the media rate based on the reference window and RTT.
 
 ~~~
-target_bitrate = 8 * ref_wnd / s_rtt
+target_bitrate = 8 * ref_wnd / s_rtt [bps]
 ~~~
 
 The media rate needs to ramp up quickly enough to get a fair share of
@@ -395,7 +395,9 @@ of a Radio Access Type (RAT) handover, the SCReAMv2 sender MAY implement
 additional actions, such as discarding of encoded media frames or frame skipping
 to ensure that the data unit queues are drained quickly. Frame skipping
 results in the frame rate being temporarily reduced. Which method to use is a
-design choice and is outside the scope of this algorithm description.
+design choice and is outside the scope of this algorithm description as the actual strategy depends on the applicatuion.
+ For instanvce for a video conferencing application it can be better to avoid discarding media frames even though they are late,
+  whereas a remote controlled application benefits from low end to end delay, in which case it is better to discard late frames and generate a new keyframe to maintain correct media coder state.
 
 # Detailed Description of SCReAMv2 Sender Algorithm {#scream-detailed-description}
 
@@ -640,13 +642,13 @@ end
 
 The following variables are used:
 
-* qdelay (0.0): When the sender receives feedback, the qdelay is calculated as outlined in
+* qdelay (0.0): When the sender receives feedback, the qdelay [s] is calculated as outlined in
 {{RFC6817}}. A qdelay sample is obtained for each received acknowledgement.
 It is typically sufficient with one update per received acknowledgement.
 
-* qdelay_max_avg (qdelay_target): Max average queue delay, needed only of REDUCE_JITTER==true
+* qdelay_max_avg (qdelay_target): Max average queue delay [s], needed only of REDUCE_JITTER==true
 
-* qdelay_min_avg (0.0): Min average queue delay, needed only of REDUCE_JITTER==true
+* qdelay_min_avg (0.0): Min average queue delay [s], needed only if REDUCE_JITTER==true
 
 * last_update_qdelay_avg_time (0.0): Last time qdelay_avg was updated [s]
 
@@ -663,7 +665,7 @@ The following constants are used:
 
 The SCReAM algorithm can be further improved for a greater rate stability by taking variations in qdelay into consideration. The goal is to react less to delay variations, caused by e.g. link layer related scheduling and retransmissions, but still be reactive to actual queue delay, caused by congestion. The code below provides a example implementation but more advanced statistical analysis can be considered.
 
-The variable qdelay_dev_avg indicates the delay jitter, or more concrete a moving average over the difference between qdelay_max_avg and qdelay_min_avghow. Based on qdelay_dev_avg a scaling factor ref_wnd_delay_scale is calculated that is then applied to the reference window increase and the reference window headroom. When the jitter is a below a threshold (QDELAY_DEV_THRESHOLD), no scaling is applied (ref_wnd_delay_scale is 1.0). The scaling factor decreases when the delay jitter increases to limit the congestion reaction to short term delay variations.
+The variable qdelay_dev_avg indicates the delay jitter, or to be more concrete, a moving average over the difference between qdelay_max_avg and qdelay_min_avg. Based on qdelay_dev_avg a scaling factor ref_wnd_delay_scale is calculated that is then applied to the reference window increase and the reference window headroom. The ref_wnd_delay_scale is 1.0 when the jitter is zero and decreases to 0.0 when the jitter grows to QDELAY_DEV_THRESHOLD or above. The scaling factor decreases when the delay jitter increases to limit the congestion reaction to short term delay variations and slow down the reference window growth for better stability.
 
 ~~~
 function calculate_ref_wnd_delay_scale()
@@ -1270,11 +1272,11 @@ The variables and constants are:
 
 * BETA_LOSS_POLICER (0.9): ref_wnd scale for calculation of max_policed_ref_wnd.
 
-The max_policed_ref_wnd enforces an upper limit to the ref_wnd. The max_policed_ref_wnd should increase by a small fraction, for instance 0.001 per RTT that gradually lifts the limit, this prevents that possible false detection of rate policers causes a permanent restriction on ref_wnd.
+The max_policed_ref_wnd enforces an upper limit to the ref_wnd. The max_policed_ref_wnd should increase by a small fraction, for instance 0.001 per RTT that gradually lifts the limit, this prevents that possible false detection of rate policers causes a permanent restriction on ref_wnd. 
 
 ### Reference window undershoot at congestion {#ref-wnd-undershoot}
 
-The reference window can in certan cases undershoot when congestion occurs, one such case is when the RTT increases at the same time that the reference window is reduced. The RTT increase can push down the target rate faster in the reference window is reduced. An additional reduction of the reference window can be superfluous in some cases. One method to determine if additional reduction is unnecessary is to inspect how the acknowledged bitrate relates to the target bitrate. If the target rate is well below the ACKed bitrate, then additional reduction of the reference window is unnecessary. This is implemented as additional code that modifies the reference window backoff in {{ref-wnd-reduction}}.
+The reference window can in certan cases undershoot when congestion occurs, one such case is when the RTT increases at the same time that the reference window is reduced. The RTT increase can push down the target rate faster then the reference window is reduced. An additional reduction of the reference window can be superfluous in some cases. One method to determine if additional reduction is unnecessary is to inspect how the acknowledged bitrate relates to the target bitrate. If the target rate is well below the ACKed bitrate, then additional reduction of the reference window is unnecessary. This is implemented as additional code that modifies the reference window backoff in {{ref-wnd-reduction}}.
 
 ~~~
 # Reduce backoff when target bitrate is lower than the ACKnowledged rate
@@ -1481,11 +1483,11 @@ This section covers a few discussion points.
 
 * The addition of the optional ref_wnd_delay_scale related restriction on ref_wnd increase can cause the rate increase to go slower when the non-congestion related jitter is high. Non-congestion related jitter can occur for instance in 5G where the amount of scheduling delay jitter depends on factors like TDD (Time Division Duplex) patterns an overall load in a cell. The algorithm is somewhat robust to scheduling jitter as it calculates ref_wnd_delay_scale based on the difference between the max and min queue delay. Still, there can be cases where large amounts of scheduling jitter can give a slow ramp up of the bitrate.
 
-* Rate policers can cause loss bursts. These loss bursts are particularly harmful for real time media transmission and it is problematic to detect the existence of rate policers in the transmission path. The example algorithm in the draft resolves the problem with rate policers to some degree. The algorithm is however not bullet proof, assumptions around queue delay can for instance fail on links where the RTT varies, such as satellite links. In addition, rate policers can be configured in many ways.
+* Rate policers can cause loss bursts. These loss bursts are particularly harmful for real time media transmission and it is problematic to detect the existence of rate policers in the transmission path. The example algorithm in the draft resolves the problem with rate policers to some degree. The algorithm is however not bullet proof, assumptions around queue delay can for instance fail on links where the RTT varies, such as satellite links. In addition, rate policers can be configured in many ways. The proposed algoritm in this draft can therefore make or break.
 
 * The competing flows compensation described in {{competing-flows-compensation}} has an inherent risk of false positives, the outcome would be that an increased delay is met by an increased to delay, something that can self-amplify. The algorithm was devised already for {{RFC8298}} when access links could become bloated. Things have however changed since 2017 when RFC8298 was published. Firstly, bufferbloat and remedies to it is better understood. Secondly, more recent congestion control algorithms are designed to not bloat access links that lack active queue management. Thirdly, the algorithm in {{clock-drift}} that addresses clock-drift addresses this issue inherently as a compenting flow still adds an offset in queue delay when SCReAM temporarly reduces its target rate temporarily. The need for competing flows compensation would therefore need to be investigated further.
 
-* The calculation of the target bitrate based on the reference window and the average RTT can lead to over optimistic target rate values for instance when the source becomes idle or delivers a media bitrate that is lower than the target bitrate. To resolve this issue, it is recommended to update the average RTT with a longer time constant when bytes in flight is lower than the reference window by some margin.
+* The calculation of the target bitrate based on the reference window and the average RTT can lead to over-optimistic target rate values for instance when the source becomes idle or delivers a media bitrate that is lower than the target bitrate. To resolve this issue, it is recommended to update the average RTT with a longer time constant when bytes in flight is lower than the reference window by some margin.
 
 * AI-tools can generate code based on the current draft version albeit with some caveats around execution order and poorly defined calculations/definitions of variables. A later version will address this.
 
