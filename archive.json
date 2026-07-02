@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-06-28T04:25:21.417453+00:00",
+  "timestamp": "2026-07-02T04:06:55.319387+00:00",
   "repo": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
   "labels": [
     {
@@ -4222,13 +4222,13 @@
       "labels": [],
       "body": "Two optional additions\r\n+ Conditional loss backoff for increased robustness against link layer (non-congestion) losses \r\n+ Rate policer detection and remediation action to reduce packet losses \r\n+ Discussion on reduced backoff when target bitrate is less than ACKed bitrate",
       "createdAt": "2026-05-20T06:58:00Z",
-      "updatedAt": "2026-06-25T11:04:53Z",
+      "updatedAt": "2026-07-01T10:00:41Z",
       "baseRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
       "baseRefName": "main",
       "baseRefOid": "1ada5332a9b51281c7f1118686f052e200e99236",
       "headRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
       "headRefName": "ingo-260512",
-      "headRefOid": "749dee1f95c4b275571f5831173c5d7212cbe14a",
+      "headRefOid": "3615a4969c669e0d34907d6e6432a9c370008e8e",
       "closedAt": null,
       "mergedAt": null,
       "mergedBy": null,
@@ -4394,6 +4394,526 @@
               "body": "````suggestion\n* The competing flows compensation described in {{competing-flows-compensation}} has an inherent risk of false positives, the outcome would be that an increased delay is met by an increased to delay, something that can self-amplify. The algorithm was devised already for {{RFC8298}} when access links could become bloated. Things have however changed since 2017 when RFC8298 was published. Firstly, bufferbloat and remedies to it is better understood. Secondly, more recent congestion control algorithms are designed to not bloat access links that lack active queue management. Thirdly, the algorithm in {{clock-drift}} that addresses clock-drift addresses this issue inherently as a compenting flow still adds an offset in queue delay when SCReAM temporarly reduces its target rate temporarily. The need for competing flows compensation would therefore need to be investigated further.\n````",
               "createdAt": "2026-06-25T11:03:08Z",
               "updatedAt": "2026-06-25T11:03:09Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs8AAAABEitH2Q",
+          "commit": {
+            "abbreviatedOid": "749dee1"
+          },
+          "author": "mirjak",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-06-30T11:14:38Z",
+          "updatedAt": "2026-06-30T11:14:38Z",
+          "comments": [
+            {
+              "originalPosition": 63,
+              "body": "```suggestion\nThe slack avoids unnecessary delays in the Data Units Queue when the link is uncongested. The bytes in flight, however, become more restrained in congested situations to avoid large variations in queue delay and bitrate.\n```",
+              "createdAt": "2026-06-30T11:14:38Z",
+              "updatedAt": "2026-06-30T11:14:38Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs8AAAABEiyG3A",
+          "commit": {
+            "abbreviatedOid": "749dee1"
+          },
+          "author": "mirjak",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-06-30T11:27:28Z",
+          "updatedAt": "2026-06-30T11:27:28Z",
+          "comments": [
+            {
+              "originalPosition": 558,
+              "body": "This part is here twice; see line 839",
+              "createdAt": "2026-06-30T11:27:28Z",
+              "updatedAt": "2026-06-30T11:27:28Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs8AAAABEiydVw",
+          "commit": {
+            "abbreviatedOid": "749dee1"
+          },
+          "author": "mirjak",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-06-30T11:28:21Z",
+          "updatedAt": "2026-06-30T11:28:21Z",
+          "comments": [
+            {
+              "originalPosition": 572,
+              "body": "```suggestion\nThe reference window reduction, when congestion is detected due to L4S marking or increased delay, is constrained by a number of factors:\n```",
+              "createdAt": "2026-06-30T11:28:21Z",
+              "updatedAt": "2026-06-30T11:28:21Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs8AAAABEizrrA",
+          "commit": {
+            "abbreviatedOid": "749dee1"
+          },
+          "author": "mirjak",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-06-30T11:31:47Z",
+          "updatedAt": "2026-06-30T11:31:47Z",
+          "comments": [
+            {
+              "originalPosition": 574,
+              "body": "Is this really a common case? This can only happen if the sender to receiver delay suddenly increases, no?",
+              "createdAt": "2026-06-30T11:31:47Z",
+              "updatedAt": "2026-06-30T11:31:47Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs8AAAABEi1ANg",
+          "commit": {
+            "abbreviatedOid": "749dee1"
+          },
+          "author": "mirjak",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-06-30T11:35:22Z",
+          "updatedAt": "2026-06-30T11:35:23Z",
+          "comments": [
+            {
+              "originalPosition": 524,
+              "body": "Isn't this to implement Prague's fairness scaling?",
+              "createdAt": "2026-06-30T11:35:23Z",
+              "updatedAt": "2026-06-30T11:35:23Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs8AAAABEi1bNQ",
+          "commit": {
+            "abbreviatedOid": "749dee1"
+          },
+          "author": "mirjak",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-06-30T11:36:31Z",
+          "updatedAt": "2026-06-30T11:36:31Z",
+          "comments": [
+            {
+              "originalPosition": 514,
+              "body": "```suggestion\n    # this may be an indication that the target rate is already reduced\n    # due to an increased RTT\n```",
+              "createdAt": "2026-06-30T11:36:31Z",
+              "updatedAt": "2026-06-30T11:36:31Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs8AAAABEi2zfQ",
+          "commit": {
+            "abbreviatedOid": "749dee1"
+          },
+          "author": "mirjak",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-06-30T11:39:33Z",
+          "updatedAt": "2026-06-30T11:39:33Z",
+          "comments": [
+            {
+              "originalPosition": 434,
+              "body": "```suggestion\nThe reference window is reduced whenever a congestion event is detected. A congestion event is either packet loss, ECN-CE marked packets or increased queue delay. The reference window reduction is applied at most once every (smoothed RTT) or, to improve fairness to other flows with a different RTT, at least very VIRTUAL_RTT second.\n```",
+              "createdAt": "2026-06-30T11:39:33Z",
+              "updatedAt": "2026-06-30T11:39:33Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs8AAAABEi36Ug",
+          "commit": {
+            "abbreviatedOid": "749dee1"
+          },
+          "author": "mirjak",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-06-30T11:42:37Z",
+          "updatedAt": "2026-06-30T11:42:37Z",
+          "comments": [
+            {
+              "originalPosition": 436,
+              "body": "```suggestion\nThe reference window is increased once per smother RTT (s_rtt). The reference window can also increase even when a congestion event occurs. Their provided the L4S scalable congestion control property where a one-MSS-increase of the reference window per RTT is offset by two marked packets per RTT.\n```",
+              "createdAt": "2026-06-30T11:42:37Z",
+              "updatedAt": "2026-06-30T11:42:37Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs8AAAABEi5hbQ",
+          "commit": {
+            "abbreviatedOid": "749dee1"
+          },
+          "author": "mirjak",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-06-30T11:46:22Z",
+          "updatedAt": "2026-06-30T11:46:22Z",
+          "comments": [
+            {
+              "originalPosition": 426,
+              "body": "Why is this threshold 0.01?",
+              "createdAt": "2026-06-30T11:46:22Z",
+              "updatedAt": "2026-06-30T11:46:30Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs8AAAABEi7uqA",
+          "commit": {
+            "abbreviatedOid": "749dee1"
+          },
+          "author": "mirjak",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-06-30T11:51:15Z",
+          "updatedAt": "2026-06-30T11:51:15Z",
+          "comments": [
+            {
+              "originalPosition": 300,
+              "body": "```suggestion\nThe variable qdelay_dev_avg indicates the delay jitter, or more concrete a moving average over the difference between qdelay_max_avg and qdelay_min_avghow. Based on qdelay_dev_avg a scaling factor ref_wnd_delay_scale is calculated that is then applied to the reference window increase and the reference window headroom. When the jitter is a below a threshold (QDELAY_DEV_THRESHOLD), no scaling is applied (ref_wnd_delay_scale is 1.0). The scaling factor decreases when the delay jitter increases to limit the congestion reaction to short term delay variations.\n```",
+              "createdAt": "2026-06-30T11:51:15Z",
+              "updatedAt": "2026-06-30T11:51:15Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs8AAAABEi8M5g",
+          "commit": {
+            "abbreviatedOid": "749dee1"
+          },
+          "author": "mirjak",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-06-30T11:52:22Z",
+          "updatedAt": "2026-06-30T11:52:22Z",
+          "comments": [
+            {
+              "originalPosition": 262,
+              "body": "Why is this added here and not below?",
+              "createdAt": "2026-06-30T11:52:22Z",
+              "updatedAt": "2026-06-30T11:52:22Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs8AAAABEjP5FA",
+          "commit": {
+            "abbreviatedOid": "749dee1"
+          },
+          "author": "mirjak",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-06-30T12:40:15Z",
+          "updatedAt": "2026-06-30T12:40:15Z",
+          "comments": [
+            {
+              "originalPosition": 148,
+              "body": "```suggestion\nA loss rate is calculated for each packet with an average value reflecting the number of packets send with in two  RTTs or 4/LOSS_RATE_THRESHOLD packets for small ref_win values. This avoids that multiple consecutive link layer losses cause the loss rate to increase too quickly.\n```",
+              "createdAt": "2026-06-30T12:40:15Z",
+              "updatedAt": "2026-06-30T12:40:15Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs8AAAABEjSaOQ",
+          "commit": {
+            "abbreviatedOid": "749dee1"
+          },
+          "author": "mirjak",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-06-30T12:45:42Z",
+          "updatedAt": "2026-06-30T12:45:43Z",
+          "comments": [
+            {
+              "originalPosition": 155,
+              "body": "I not sure I understand this: shouldn't alpha be a value between 0 and 1? But mss / ref_wnd / 2 could be larger than one, no?\n\nAlso with is LOSS_RATE_THRESHOLD devided by 4? That seems like a very random value...\n\nAlso as the loss rate is not used to calculate the ref window in section #ref-wnd-update, this whole part should be moved into #link-loss-rate-policer. let's try to keep it as straight forward and simple as possible here.\n\n",
+              "createdAt": "2026-06-30T12:45:43Z",
+              "updatedAt": "2026-06-30T12:51:55Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs8AAAABEjU7ug",
+          "commit": {
+            "abbreviatedOid": "749dee1"
+          },
+          "author": "mirjak",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-06-30T12:50:24Z",
+          "updatedAt": "2026-06-30T12:50:24Z",
+          "comments": [
+            {
+              "originalPosition": 504,
+              "body": "Should 10 be a (configurable) constant? Also why 10?",
+              "createdAt": "2026-06-30T12:50:24Z",
+              "updatedAt": "2026-06-30T12:50:24Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs8AAAABEpCupA",
+          "commit": {
+            "abbreviatedOid": "749dee1"
+          },
+          "author": "IngJohEricsson",
+          "authorAssociation": "OWNER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-07-01T06:43:38Z",
+          "updatedAt": "2026-07-01T06:43:38Z",
+          "comments": [
+            {
+              "originalPosition": 524,
+              "body": "Yes, that is true. \r\nAlso, for the case that RTT is large, then backoff happens more than once per RTT, therefore the backoff needs to be reduced.",
+              "createdAt": "2026-07-01T06:43:38Z",
+              "updatedAt": "2026-07-01T06:43:39Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs8AAAABEpGQMg",
+          "commit": {
+            "abbreviatedOid": "749dee1"
+          },
+          "author": "IngJohEricsson",
+          "authorAssociation": "OWNER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-07-01T06:54:23Z",
+          "updatedAt": "2026-07-01T06:54:24Z",
+          "comments": [
+            {
+              "originalPosition": 155,
+              "body": "The intention with the /4 is to make the averaging slow enough when the reference window is small and avoid that link layer losses at very low bitrates trigger congestion backoff\r\nmss/ref_wnd/2 should be less than 1 as ref_wnd can't be smaller than mss\r\n\r\nYes, I'll try and put it in #link-loss-rate-policer instead",
+              "createdAt": "2026-07-01T06:54:24Z",
+              "updatedAt": "2026-07-01T06:54:24Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs8AAAABEpH8Ew",
+          "commit": {
+            "abbreviatedOid": "749dee1"
+          },
+          "author": "IngJohEricsson",
+          "authorAssociation": "OWNER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-07-01T06:59:01Z",
+          "updatedAt": "2026-07-01T06:59:01Z",
+          "comments": [
+            {
+              "originalPosition": 504,
+              "body": "10 is something based on experiments, WebRTC-SCReAM has a different approach suggested by Per Kjellander that is actually more simple. It could be good to replace with that alternative, but I need to try it out first.\r\n\r\n<img width=\"756\" height=\"242\" alt=\"image\" src=\"https://github.com/user-attachments/assets/8813d5bd-59c4-48d6-bcba-93b7d169635c\" />\r\n",
+              "createdAt": "2026-07-01T06:59:01Z",
+              "updatedAt": "2026-07-01T06:59:02Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs8AAAABEpIKBw",
+          "commit": {
+            "abbreviatedOid": "749dee1"
+          },
+          "author": "IngJohEricsson",
+          "authorAssociation": "OWNER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-07-01T06:59:31Z",
+          "updatedAt": "2026-07-01T06:59:32Z",
+          "comments": [
+            {
+              "originalPosition": 262,
+              "body": "Good question, will fix this",
+              "createdAt": "2026-07-01T06:59:31Z",
+              "updatedAt": "2026-07-01T06:59:32Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs8AAAABEpIr-g",
+          "commit": {
+            "abbreviatedOid": "749dee1"
+          },
+          "author": "IngJohEricsson",
+          "authorAssociation": "OWNER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-07-01T07:00:43Z",
+          "updatedAt": "2026-07-01T07:00:44Z",
+          "comments": [
+            {
+              "originalPosition": 426,
+              "body": "10ms is to give a reasonable robustness against scheduling jitter. It looks to work OK in the 5G simulator",
+              "createdAt": "2026-07-01T07:00:44Z",
+              "updatedAt": "2026-07-01T07:00:44Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs8AAAABEpkmeA",
+          "commit": {
+            "abbreviatedOid": "749dee1"
+          },
+          "author": "IngJohEricsson",
+          "authorAssociation": "OWNER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-07-01T08:11:21Z",
+          "updatedAt": "2026-07-01T08:11:21Z",
+          "comments": [
+            {
+              "originalPosition": 574,
+              "body": "Yes, the intention is to only reduce the backoff if an RTT increase (increased one way delay) has already pushed the target bitrate down. ",
+              "createdAt": "2026-07-01T08:11:21Z",
+              "updatedAt": "2026-07-01T08:11:21Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs8AAAABEptETg",
+          "commit": {
+            "abbreviatedOid": "749dee1"
+          },
+          "author": "mirjak",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-07-01T08:31:44Z",
+          "updatedAt": "2026-07-01T08:31:44Z",
+          "comments": [
+            {
+              "originalPosition": 574,
+              "body": "I mean if this is a corner case, do we really need to add it to the base algorithm or more as an optional feature?",
+              "createdAt": "2026-07-01T08:31:44Z",
+              "updatedAt": "2026-07-01T08:31:44Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs8AAAABEp1IEw",
+          "commit": {
+            "abbreviatedOid": "749dee1"
+          },
+          "author": "IngJohEricsson",
+          "authorAssociation": "OWNER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-07-01T08:48:00Z",
+          "updatedAt": "2026-07-01T08:48:00Z",
+          "comments": [
+            {
+              "originalPosition": 574,
+              "body": "It is not really a corner case as increased RTT during congestion happens also with queue based L4S, for instance when link capacity drops quickly. I think however, that it is OK to leave this as optional in the specification. ",
+              "createdAt": "2026-07-01T08:48:00Z",
+              "updatedAt": "2026-07-01T08:48:01Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs8AAAABEp2mow",
+          "commit": {
+            "abbreviatedOid": "749dee1"
+          },
+          "author": "IngJohEricsson",
+          "authorAssociation": "OWNER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-07-01T08:50:27Z",
+          "updatedAt": "2026-07-01T08:50:27Z",
+          "comments": [
+            {
+              "originalPosition": 504,
+              "body": "I actually tried this in the 5G simulator and it appears to work fine and is more simple. But it can be good to keep the existing code in the spec yet some time as I want to try it out some more.",
+              "createdAt": "2026-07-01T08:50:27Z",
+              "updatedAt": "2026-07-01T08:50:28Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs8AAAABEqUZxg",
+          "commit": {
+            "abbreviatedOid": "749dee1"
+          },
+          "author": "IngJohEricsson",
+          "authorAssociation": "OWNER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-07-01T09:54:04Z",
+          "updatedAt": "2026-07-01T09:54:04Z",
+          "comments": [
+            {
+              "originalPosition": 262,
+              "body": "Fixed",
+              "createdAt": "2026-07-01T09:54:04Z",
+              "updatedAt": "2026-07-01T09:54:05Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs8AAAABEqUwDg",
+          "commit": {
+            "abbreviatedOid": "749dee1"
+          },
+          "author": "IngJohEricsson",
+          "authorAssociation": "OWNER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-07-01T09:54:51Z",
+          "updatedAt": "2026-07-01T09:54:52Z",
+          "comments": [
+            {
+              "originalPosition": 574,
+              "body": "I moved this to a separate section as optional",
+              "createdAt": "2026-07-01T09:54:52Z",
+              "updatedAt": "2026-07-01T09:54:52Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs8AAAABEqXS1A",
+          "commit": {
+            "abbreviatedOid": "749dee1"
+          },
+          "author": "IngJohEricsson",
+          "authorAssociation": "OWNER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-07-01T10:00:40Z",
+          "updatedAt": "2026-07-01T10:00:41Z",
+          "comments": [
+            {
+              "originalPosition": 155,
+              "body": "Fixed",
+              "createdAt": "2026-07-01T10:00:41Z",
+              "updatedAt": "2026-07-01T10:00:41Z"
             }
           ]
         }
