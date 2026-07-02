@@ -1899,6 +1899,9 @@ B.1.1.  Draft version -00
 
 B.1.2.  Changes in Draft version -01
 
+   *  New reference window scaling which acts on difference between max
+      and min queue delay replaces earlier algorithm.
+
    *  Additional conditional loss threshold added as optional to
       increase robustness against non-congestion related (e.g link
       layer) losses.
