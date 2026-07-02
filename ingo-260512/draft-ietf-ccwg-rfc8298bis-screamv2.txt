@@ -389,7 +389,7 @@ Table of Contents
    The media rate control calculates the media rate based on the
    reference window and RTT.
 
-   target_bitrate = 8 * ref_wnd / s_rtt
+   target_bitrate = 8 * ref_wnd / s_rtt [bps]
 
    The media rate needs to ramp up quickly enough to get a fair share of
    the system resources when link throughput increases.  Further, the
@@ -405,7 +405,13 @@ Table of Contents
    frames or frame skipping to ensure that the data unit queues are
    drained quickly.  Frame skipping results in the frame rate being
    temporarily reduced.  Which method to use is a design choice and is
-   outside the scope of this algorithm description.
+   outside the scope of this algorithm description as the actual
+   strategy depends on the applicatuion.  For instanvce for a video
+   conferencing application it can be better to avoid discarding media
+   frames even though they are late, whereas a remote controlled
+   application benefits from low end to end delay, in which case it is
+   better to discard late frames and generate a new keyframe to maintain
+   correct media coder state.
 
 4.  Detailed Description of SCReAMv2 Sender Algorithm
 
@@ -669,15 +675,15 @@ end
 
    The following variables are used:
 
-   *  qdelay (0.0): When the sender receives feedback, the qdelay is
+   *  qdelay (0.0): When the sender receives feedback, the qdelay [s] is
       calculated as outlined in [RFC6817].  A qdelay sample is obtained
       for each received acknowledgement.  It is typically sufficient
       with one update per received acknowledgement.
 
-   *  qdelay_max_avg (qdelay_target): Max average queue delay, needed
-      only of REDUCE_JITTER==true
+   *  qdelay_max_avg (qdelay_target): Max average queue delay [s],
+      needed only of REDUCE_JITTER==true
 
-   *  qdelay_min_avg (0.0): Min average queue delay, needed only of
+   *  qdelay_min_avg (0.0): Min average queue delay [s], needed only if
       REDUCE_JITTER==true
 
    *  last_update_qdelay_avg_time (0.0): Last time qdelay_avg was
@@ -705,15 +711,16 @@ end
    example implementation but more advanced statistical analysis can be
    considered.
 
-   The variable qdelay_dev_avg indicates the delay jitter, or more
-   concrete a moving average over the difference between qdelay_max_avg
-   and qdelay_min_avghow.  Based on qdelay_dev_avg a scaling factor
+   The variable qdelay_dev_avg indicates the delay jitter, or to be more
+   concrete, a moving average over the difference between qdelay_max_avg
+   and qdelay_min_avg.  Based on qdelay_dev_avg a scaling factor
    ref_wnd_delay_scale is calculated that is then applied to the
-   reference window increase and the reference window headroom.  When
-   the jitter is a below a threshold (QDELAY_DEV_THRESHOLD), no scaling
-   is applied (ref_wnd_delay_scale is 1.0).  The scaling factor
-   decreases when the delay jitter increases to limit the congestion
-   reaction to short term delay variations.
+   reference window increase and the reference window headroom.  The
+   ref_wnd_delay_scale is 1.0 when the jitter is zero and decreases to
+   0.0 when the jitter grows to QDELAY_DEV_THRESHOLD or above.  The
+   scaling factor decreases when the delay jitter increases to limit the
+   congestion reaction to short term delay variations and slow down the
+   reference window growth for better stability.
 
 function calculate_ref_wnd_delay_scale()
   # Reduce average max queue delay and move min average
@@ -1424,14 +1431,14 @@ end
    The reference window can in certan cases undershoot when congestion
    occurs, one such case is when the RTT increases at the same time that
    the reference window is reduced.  The RTT increase can push down the
-   target rate faster in the reference window is reduced.  An additional
-   reduction of the reference window can be superfluous in some cases.
-   One method to determine if additional reduction is unnecessary is to
-   inspect how the acknowledged bitrate relates to the target bitrate.
-   If the target rate is well below the ACKed bitrate, then additional
-   reduction of the reference window is unnecessary.  This is
-   implemented as additional code that modifies the reference window
-   backoff in Section 4.2.2.1.
+   target rate faster then the reference window is reduced.  An
+   additional reduction of the reference window can be superfluous in
+   some cases.  One method to determine if additional reduction is
+   unnecessary is to inspect how the acknowledged bitrate relates to the
+   target bitrate.  If the target rate is well below the ACKed bitrate,
+   then additional reduction of the reference window is unnecessary.
+   This is implemented as additional code that modifies the reference
+   window backoff in Section 4.2.2.1.
 
 # Reduce backoff when target bitrate is lower than the ACKnowledged rate
 # this may be an indication that the target rate is already reduced
@@ -1687,6 +1694,7 @@ end
       however not bullet proof, assumptions around queue delay can for
       instance fail on links where the RTT varies, such as satellite
       links.  In addition, rate policers can be configured in many ways.
+      The proposed algoritm in this draft can therefore make or break.
 
    *  The competing flows compensation described in Section 4.5.4 has an
       inherent risk of false positives, the outcome would be that an
@@ -1704,7 +1712,7 @@ end
       therefore need to be investigated further.
 
    *  The calculation of the target bitrate based on the reference
-      window and the average RTT can lead to over optimistic target rate
+      window and the average RTT can lead to over-optimistic target rate
       values for instance when the source becomes idle or delivers a
       media bitrate that is lower than the target bitrate.  To resolve
       this issue, it is recommended to update the average RTT with a
