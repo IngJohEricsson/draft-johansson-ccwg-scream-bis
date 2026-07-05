@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-07-02T04:06:55.319387+00:00",
+  "timestamp": "2026-07-05T04:04:34.754869+00:00",
   "repo": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
   "labels": [
     {
@@ -4222,13 +4222,13 @@
       "labels": [],
       "body": "Two optional additions\r\n+ Conditional loss backoff for increased robustness against link layer (non-congestion) losses \r\n+ Rate policer detection and remediation action to reduce packet losses \r\n+ Discussion on reduced backoff when target bitrate is less than ACKed bitrate",
       "createdAt": "2026-05-20T06:58:00Z",
-      "updatedAt": "2026-07-01T10:00:41Z",
+      "updatedAt": "2026-07-02T17:13:24Z",
       "baseRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
       "baseRefName": "main",
       "baseRefOid": "1ada5332a9b51281c7f1118686f052e200e99236",
       "headRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
       "headRefName": "ingo-260512",
-      "headRefOid": "3615a4969c669e0d34907d6e6432a9c370008e8e",
+      "headRefOid": "93310483e846c075bb6928226320ba35485811d2",
       "closedAt": null,
       "mergedAt": null,
       "mergedBy": null,
@@ -4914,6 +4914,26 @@
               "body": "Fixed",
               "createdAt": "2026-07-01T10:00:41Z",
               "updatedAt": "2026-07-01T10:00:41Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs8AAAABE1rKPQ",
+          "commit": {
+            "abbreviatedOid": "b4cb062"
+          },
+          "author": "github-actions",
+          "authorAssociation": "NONE",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-07-02T17:05:19Z",
+          "updatedAt": "2026-07-02T17:05:20Z",
+          "comments": [
+            {
+              "originalPosition": 853,
+              "body": "````suggestion\nThe max_policed_ref_wnd enforces an upper limit to the ref_wnd. The max_policed_ref_wnd should increase by a small fraction, for instance 0.001 per RTT that gradually lifts the limit, this prevents that possible false detection of rate policers causes a permanent restriction on ref_wnd.\n````",
+              "createdAt": "2026-07-02T17:05:19Z",
+              "updatedAt": "2026-07-02T17:05:20Z"
             }
           ]
         }
