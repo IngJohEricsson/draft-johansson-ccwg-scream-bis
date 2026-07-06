@@ -992,7 +992,7 @@ in flight and the reference window. This is controlled by the send window:
   transmitted. Updated when ref_wnd is updated and when data unit is
   transmitted [byte].
 
-The sender transmission control is executed for each transmitted packet, the send interval is dictated by the pacing but is restricted by the send window. In practice it however can be more practical to transmit packets in small burst to save processing power, or alternatively, to offload the pacing to OS kernel function.
+The sender transmission control is executed for each transmitted packet, the send interval is dictated by the pacing but is restricted by the send window. In practice it, however, can be more practical to transmit packets in small burst to save processing power, or alternatively, to offload the pacing to OS kernel function.
 
 ### Send Window Calculation {#send-window}
 
