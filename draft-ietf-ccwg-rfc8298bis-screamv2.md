@@ -1099,7 +1099,7 @@ minimum pacing rate.
 ## Media Rate Control {#media-rate-control-2}
 
 The media rate control algorithm is executed whenever the reference window is
-updated and calculates the target bitrate. It is however not necessary to execute this part more often than the frame period of the media encoder.
+updated and calculates the target bitrate. It is, however, not necessary to execute this part more often than the frame period of the media encoder.
 
 * target_bitrate (0): Media target bitrate [bps].
 
