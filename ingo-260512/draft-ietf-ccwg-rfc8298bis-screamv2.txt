@@ -1202,7 +1202,7 @@ t_pace = data_unit_size * 8 / pace_bitrate
 4.4.  Media Rate Control
 
    The media rate control algorithm is executed whenever the reference
-   window is updated and calculates the target bitrate.  It is however
+   window is updated and calculates the target bitrate.  It is, however,
    not necessary to execute this part more often than the frame period
    of the media encoder.
 
