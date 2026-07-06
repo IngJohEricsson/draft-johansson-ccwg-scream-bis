@@ -16,21 +16,22 @@ support for L4S. The algorithm supports handling of multiple media streams,
 typical use cases are streaming for remote control, AR and 3D VR goggles.
 This specification obsoletes RFC 8298. 
     " name="description">
-<meta content="xml2rfc 3.33.0" name="generator">
+<meta content="xml2rfc 3.34.0" name="generator">
 <meta content="draft-ietf-ccwg-rfc8298bis-screamv2-latest" name="ietf.draft">
 <!-- Generator version information:
-  xml2rfc 3.33.0
-    Python 3.12.13
-    ConfigArgParse 1.7
+  xml2rfc 3.34.0
+    Python 3.14.5
+    ConfigArgParse 1.7.5
     google-i18n-address 3.1.1
     intervaltree 3.2.1
     Jinja2 3.1.6
-    lxml 6.0.2
-    platformdirs 4.9.6
+    lxml 6.1.1
+    natsort 8.4.0
+    platformdirs 4.10.0
     pycountry 24.6.1
     PyYAML 6.0.3
     requests 2.33.1
-    wcwidth 0.7.0
+    wcwidth 0.8.2
 -->
 <link href="draft-ietf-ccwg-rfc8298bis-screamv2.xml" rel="alternate" type="application/rfc+xml">
 <link href="#copyright" rel="license">
@@ -297,16 +298,19 @@ h1, h2, h3, h4, h5, h6 {
   font-size-adjust: 0.5;
   color: var(--title-color);
 }
-h1#title {
-  font-size: 32px;
-  line-height: 40px;
-  clear: both;
-}
-h1#title, h1#rfcnum {
-  margin: 1.5em 0 0.2em;
-}
-h1#rfcnum + h1#title {
-  margin: 0.2em 0;
+h1 {
+  &#title {
+    font-size: 32px;
+    line-height: 40px;
+    clear: both;
+    margin: 1.5em 0 0.2em;
+  }
+  &#rfcnum {
+    margin: 1.5em 0 0.2em;
+    & + h1#title {
+      margin: 0.2em 0;
+    }
+  }
 }
 
 h1, h2, h3 {
@@ -326,10 +330,10 @@ h4, h5, h6 {
 #abstract+p {
   font-size: 18px;
   line-height: 24px;
-}
-#abstract+p code, #abstract+p samp, #abstract+p tt {
-  font-size: 16px;
-  line-height: 0;
+  & code, & samp, & tt {
+    font-size: 16px;
+    line-height: 0;
+  }
 }
 
 p {
@@ -340,59 +344,59 @@ p {
 div {
   margin: 0;
 }
-.alignRight.art-text {
-  background-color: var(--highlight-color);
-  border: 1px solid var(--line-color);
-  border-radius: 3px;
-  padding: 0.5em 1em 0;
-  margin-bottom: 0.5em;
-}
-.alignRight.art-text pre {
-  padding: 0;
-  width: auto;
-}
 .alignRight {
   margin: 1em 0;
-}
-.alignRight > *:first-child {
-  border: none;
-  margin: 0;
-  float: right;
-  clear: both;
-}
-.alignRight > *:nth-child(2) {
-  clear: both;
-  display: block;
-  border: none;
+  &.art-text {
+    background-color: var(--highlight-color);
+    border: 1px solid var(--line-color);
+    border-radius: 3px;
+    padding: 0.5em 1em 0;
+    margin-bottom: 0.5em;
+    & pre {
+      padding: 0;
+      width: auto;
+    }
+  }
+  & > *:first-child {
+    border: none;
+    margin: 0;
+    float: right;
+    clear: both;
+  }
+  & > *:nth-child(2) {
+    clear: both;
+    display: block;
+    border: none;
+  }
 }
 svg {
   display: block;
-}
-/* font-family isn't space-separated, but =~ will have to do */
-svg[font-family~="monospace" i], svg [font-family~="monospace" i] {
-  font-family: var(--font-mono);
-}
-.alignCenter.art-text {
-  background-color: var(--highlight-color);
-  border: 1px solid var(--line-color);
-  border-radius: 3px;
-  padding: 0.5em 1em 0;
-  margin-bottom: 0.5em;
-}
-.alignCenter.art-text pre {
-  padding: 0;
-  width: auto;
+  /* font-family isn't space-separated, but =~ will have to do */
+  &[font-family~="monospace" i], & [font-family~="monospace" i] {
+    font-family: var(--font-mono);
+  }
 }
 .alignCenter {
   margin: 1em 0;
-}
-.alignCenter > *:first-child {
-  border: none;
-  /* this isn't optimal, but it's an existence proof.  PrinceXML doesn't
-     support flexbox yet.
-  */
-  display: table;
-  margin: 0 auto;
+  &.art-text {
+    background-color: var(--highlight-color);
+    border: 1px solid var(--line-color);
+    border-radius: 3px;
+    padding: 0.5em 1em 0;
+    margin-bottom: 0.5em;
+    & pre {
+      padding: 0;
+      width: auto;
+    }
+  }
+  & > *:first-child {
+    border: none;
+    /* this isn't optimal, but it's an existence proof.  PrinceXML doesn't
+       support flexbox yet.
+    */
+    display: table;
+    margin: 0 auto;
+  }
 }
 
 /* lists */
@@ -430,26 +434,25 @@ dl {
     --indent: 5ch;
     & > dt {
       min-width: calc(var(--indent) - 2ch);
+      float: none;
     }
-  }
-  &.olPercent > dt {
-    float: none;
   }
 
   dl > dd > & {
     margin-top: 0.5em;
     margin-bottom: 0;
   }
-}
-dl:not(.dlNewline) > dt {
-  float: left;
-  margin-right: 2ch;
-  min-width: 8ch;
-}
-dl > dd {
-  margin-bottom: .8em;
-  margin-left: var(--indent) !important; /* stupid element overrides */
-  min-height: 2ex;
+
+  &:not(.dlNewline) > dt {
+    float: left;
+    margin-right: 2ch;
+    min-width: 8ch;
+  }
+  & > dd {
+    margin-bottom: .8em;
+    margin-left: var(--indent) !important; /* stupid element overrides */
+    min-height: 2ex;
+  }
 }
 :is(dl.compact, .dlCompact) > dd {
   margin-bottom: 0;
@@ -465,20 +468,22 @@ dl > dd {
 }
 
 /* links */
-a, a[href].selfRef:hover {
+a {
   text-decoration: none;
+  &[href] {
+    color: var(--link-color);
+    &:hover { text-decoration: underline; }
+    &.selfRef {
+      color: var(--text-color);
+      &:hover {
+        text-decoration: none;
+        background-color: var(--highlight-color);
+      }
+    }
+  }
 }
-a[href] {
-  color: var(--link-color);
-}
-a[href].selfRef, .iref + a[href].internal {
+.iref + a[href].internal {
   color: var(--text-color);
-}
-a[href]:hover {
-  text-decoration: underline;
-}
-a[href].selfRef:hover {
-  background-color: var(--highlight-color);
 }
 a.xref:is(.cite, .auto), :is(#status-of-memo, #copyright) a {
   white-space: nowrap;
@@ -514,9 +519,9 @@ img {
 figure {
   margin: 0.5em 0;
   padding: 0;
-}
-figure blockquote {
-  margin: 0.8em 0.4em 0.4em;
+  & blockquote {
+    margin: 0.8em 0.4em 0.4em;
+  }
 }
 figcaption, caption {
   font-style: italic;
@@ -526,17 +531,19 @@ figcaption, caption {
 }
 @media screen {
   /* Auto-collapse boilerplate. */
-  :is(#status-of-memo, #copyright) p {
-    margin: -2px 0;
-    max-height: 0;
-    transition: max-height 2s ease, margin 0.5s ease 0.5s;
-    overflow: hidden;
-  }
-  :is(#status-of-memo, #copyright):hover p,
-  :is(#status-of-memo, #copyright) h2:target ~ p {
-    margin: 0.5em 0;
-    max-height: 500px;
-    overflow: auto;
+  :is(#status-of-memo, #copyright) {
+    & p {
+      margin: -2px 0;
+      max-height: 0;
+      transition: max-height 2s ease, margin 0.5s ease 0.5s;
+      overflow: hidden;
+    }
+    &:hover p,
+    & h2:target ~ p {
+      margin: 0.5em 0;
+      max-height: 500px;
+      overflow: auto;
+    }
   }
   pre, svg {
     display: inline-block;
@@ -586,25 +593,17 @@ table {
   max-width: 100%;
   margin: 0 0 1em;
   border-collapse: collapse;
-}
-table.right {
-  margin-left: auto;
-}
-table.center {
-  margin-left: auto;
-  margin-right: auto;
-}
-table.left {
-  margin-right: auto;
-}
-table .text-left {
-  text-align: left;
-}
-table .text-center {
-  text-align: center;
-}
-table .text-right {
-  text-align: right;
+  &.right { margin-left: auto; }
+  &.center { margin-left: auto; margin-right: auto; }
+  &.left { margin-right: auto; }
+  & .text-left { text-align: left; }
+  & .text-center { text-align: center; }
+  & .text-right { text-align: right; }
+  & caption {
+    margin: 0;
+    padding: 3px 0 3px 1em;
+  }
+  & p { margin: 0; }
 }
 
 thead, tbody {
@@ -624,13 +623,6 @@ th {
 :is(tr:nth-child(2n+1), thead+tbody > tr:nth-child(2n)) > td {
   background-color: var(--highlight-color);
 }
-table caption {
-  margin: 0;
-  padding: 3px 0 3px 1em;
-}
-table p {
-  margin: 0;
-}
 
 /* pilcrow */
 a.pilcrow {
@@ -641,18 +633,16 @@ a.pilcrow {
     color: var(--pilcrow-weak);
     &:hover { text-decoration: none; }
   }
-}
-@media not print {
-  :hover > a.pilcrow, a.pilcrow:focus {
-    opacity: 1;
+  @media not print {
+    :hover > &, &:focus {
+      opacity: 1;
+    }
+    &[href]:hover {
+      color: var(--pilcrow-strong);
+      background-color: transparent;
+    }
   }
-  a.pilcrow[href]:hover {
-    color: var(--pilcrow-strong);
-    background-color: transparent;
-  }
-}
-@media print {
-  a.pilcrow {
+  @media print {
     display: none;
   }
 }
@@ -711,9 +701,9 @@ sub, sup {
   font-size: 0.9em;
   font-style: italic;
   margin-top: 2em;
-}
-.docInfo .prepared {
-  float: right;
+  & .prepared {
+    float: right;
+  }
 }
 
 /* table of contents */
@@ -803,23 +793,27 @@ hr.addr {
   max-width: calc(100% - 16px);
 }
 @media (min-width: 500px) {
-  #authors-addresses > section {
-    column-count: 2;
-    column-gap: 20px;
-  }
-  #authors-addresses > section > h2 {
-    column-span: all;
-  }
-  /* hack for break-inside: avoid-column */
-  #authors-addresses address {
-    display: inline-block;
-    break-inside: avoid-column;
+  #authors-addresses {
+    & > section {
+      column-count: 2;
+      column-gap: 20px;
+    }
+    & > section > h2 {
+      column-span: all;
+    }
+    /* hack for break-inside: avoid-column */
+    & address {
+      display: inline-block;
+      break-inside: avoid-column;
+    }
   }
 }
 
 /* Comments */
-.rfcEditorRemove p:first-of-type {
-  font-style: italic;
+.rfcEditorRemove {
+  & p:first-of-type {
+    font-style: italic;
+  }
 }
 .cref {
   background-color: rgba(249, 232, 105, 0.3);
@@ -830,19 +824,21 @@ hr.addr {
 }
 
 @media screen {
-  #toc nav {
-    font-family: var(--font-title);
-    font-weight: 360;
-    & > ul { margin-bottom: 2em; }
-    & ul {
-      margin: 0 0 0 4px;
-      & :is(p, li) {
-        margin: 2px 0;
+  #toc {
+    & nav {
+      font-family: var(--font-title);
+      font-weight: 360;
+      & > ul { margin-bottom: 2em; }
+      & ul {
+        margin: 0 0 0 4px;
+        & :is(p, li) {
+          margin: 2px 0;
+        }
       }
     }
-  }
-  #toc a.toplink {
-    float: right;
+    & a.toplink {
+      float: right;
+    }
   }
 }
 @media not screen {
@@ -863,54 +859,54 @@ hr.addr {
     margin: 0;
     border-bottom: 1px solid #ccc;
     opacity: 0.6;
-  }
-  #toc h2 {
-    margin: 0;
-    padding: 2px 0 2px 6px;
-    padding-right: 1em;
-    font-size: 18px;
-    line-height: 24px;
-    min-width: 190px;
-    text-align: right;
-    background-color: #444;
-    color: white;
-    cursor: pointer;
-    &::before { /* css hamburger */
-      float: right;
-      position: relative;
-      width: 1em;
-      height: 1px;
-      left: -164px;
-      margin: 8px 0 0 0;
-      background: white none repeat scroll 0 0;
-      box-shadow: 0 4px 0 0 white, 0 8px 0 0 white;
-      content: "";
+    & h2 {
+      margin: 0;
+      padding: 2px 0 2px 6px;
+      padding-right: 1em;
+      font-size: 18px;
+      line-height: 24px;
+      min-width: 190px;
+      text-align: right;
+      background-color: #444;
+      color: white;
+      cursor: pointer;
+      &::before { /* css hamburger */
+        float: right;
+        position: relative;
+        width: 1em;
+        height: 1px;
+        left: -164px;
+        margin: 8px 0 0 0;
+        background: white none repeat scroll 0 0;
+        box-shadow: 0 4px 0 0 white, 0 8px 0 0 white;
+        content: "";
+      }
     }
-  }
-  #toc nav {
-    display: none;
-    background-color: var(--background-color);
-    padding: 0.5em 1em 1em;
-    overflow: auto;
-    overscroll-behavior: contain;
-    height: calc(100vh - 48px);
-    border-left: 1px solid #ddd;
-  }
-  #toc.active {
-    opacity: 1;
-    & nav { display: block; }
-  }
-  /* Make the collapsed ToC header render white on gray also when it's a link */
-  #toc h2 a,
-  #toc h2 a:is(:link, :focus, :hover),
-  #toc a.toplink,
-  #toc a.toplink:hover {
-    color: white;
-    background-color: #444;
-    text-decoration: none;
-  }
-  #toc a.toplink {
-    margin: 2px 0.5em 0;
+    & nav {
+      display: none;
+      background-color: var(--background-color);
+      padding: 0.5em 1em 1em;
+      overflow: auto;
+      overscroll-behavior: contain;
+      height: calc(100vh - 48px);
+      border-left: 1px solid #ddd;
+    }
+    &.active {
+      opacity: 1;
+      & nav { display: block; }
+    }
+    /* Make the collapsed ToC header render white on gray also when it's a link */
+    & h2 a,
+    & h2 a:is(:link, :focus, :hover),
+    & a.toplink,
+    & a.toplink:hover {
+      color: white;
+      background-color: #444;
+      text-decoration: none;
+    }
+    & a.toplink {
+      margin: 2px 0.5em 0;
+    }
   }
 }
 
@@ -929,26 +925,26 @@ hr.addr {
     margin: 0;
     padding: 0;
     z-index: 1;
-  }
-  #toc h2 {
-    margin: 0;
-    padding: 0.25em 1em 1em 0;
-  }
-  #toc nav {
-    display: block;
-    height: calc(90vh - 84px);
-    bottom: 0;
-    padding: 0.5em 0 2em;
-    overflow: auto;
-    overscroll-behavior: contain;
-    scrollbar-width: thin;
+    & h2 {
+      margin: 0;
+      padding: 0.25em 1em 1em 0;
+    }
+    & nav {
+      display: block;
+      height: calc(90vh - 84px);
+      bottom: 0;
+      padding: 0.5em 0 2em;
+      overflow: auto;
+      overscroll-behavior: contain;
+      scrollbar-width: thin;
+    }
+    & a.toplink {
+      margin: 8px 0.5em 0;
+    }
   }
   img { /* future proofing */
     max-width: 100%;
     height: auto;
-  }
-  #toc a.toplink {
-    margin: 8px 0.5em 0;
   }
 }
 
@@ -964,12 +960,13 @@ hr.addr {
   #n-copyright-notice {
     border-bottom: none;
   }
-  #toc, #n-introduction {
-    page-break-before: always;
-  }
   #toc {
+    page-break-before: always;
     border-top: none;
     padding-top: 0;
+  }
+  #n-introduction {
+    page-break-before: always;
   }
   figure, pre, .vcard {
     page-break-inside: avoid;
@@ -1031,17 +1028,19 @@ hr.addr {
 }
 
 /* SVG Trick: a prefix match works because only black and white are allowed */
-svg :is([stroke="black"], [stroke^="#000"]) {
-  stroke: var(--text-color);
-}
-svg :is([stroke="white"], [stroke^="#fff"]) {
-  stroke: var(--background-color);
-}
-svg :is([fill="black"], [fill^="#000"], :not([fill])) {
-  fill: var(--text-color);
-}
-svg :is([fill="white"], [fill^="#fff"]) {
-  fill: var(--background-color);
+svg {
+  & :is([stroke="black"], [stroke^="#000"]) {
+    stroke: var(--text-color);
+  }
+  & :is([stroke="white"], [stroke^="#fff"]) {
+    stroke: var(--background-color);
+  }
+  & :is([fill="black"], [fill^="#000"], :not([fill])) {
+    fill: var(--text-color);
+  }
+  & :is([fill="white"], [fill^="#fff"]) {
+    fill: var(--background-color);
+  }
 }
 </style>
 
@@ -1051,11 +1050,11 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <thead><tr>
 <td class="left">Internet-Draft</td>
 <td class="center">SCReAMv2</td>
-<td class="right">May 2026</td>
+<td class="right">July 2026</td>
 </tr></thead>
 <tfoot><tr>
 <td class="left">Johansson, et al.</td>
-<td class="center">Expires 19 November 2026</td>
+<td class="center">Expires 7 January 2027</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1071,12 +1070,12 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <a href="https://www.rfc-editor.org/rfc/rfc8298" class="eref">8298</a> (if approved)</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2026-05-18" class="published">18 May 2026</time>
+<time datetime="2026-07-06" class="published">6 July 2026</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Experimental</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2026-11-19">19 November 2026</time></dd>
+<dd class="expires"><time datetime="2027-01-07">7 January 2027</time></dd>
 <dt class="label-authors">Authors:</dt>
 <dd class="authors">
 <div class="author">
@@ -1138,7 +1137,7 @@ This specification obsoletes RFC 8298.<a href="#section-abstract-1" class="pilcr
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 19 November 2026.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 7 January 2027.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -1238,7 +1237,21 @@ This specification obsoletes RFC 8298.<a href="#section-abstract-1" class="pilcr
                 <p id="section-toc.1-1.4.2.4.1"><a href="#section-4.4" class="auto internal xref">4.4</a>.  <a href="#name-media-rate-control-2" class="internal xref">Media Rate Control</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.5">
-                <p id="section-toc.1-1.4.2.5.1"><a href="#section-4.5" class="auto internal xref">4.5</a>.  <a href="#name-clock-drift-issues-and-reme" class="internal xref">Clock drift issues and remedies</a></p>
+                <p id="section-toc.1-1.4.2.5.1"><a href="#section-4.5" class="auto internal xref">4.5</a>.  <a href="#name-additional-functions" class="internal xref">Additional functions</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.5.2.1">
+                    <p id="section-toc.1-1.4.2.5.2.1.1"><a href="#section-4.5.1" class="auto internal xref">4.5.1</a>.  <a href="#name-clock-drift-issues-and-reme" class="internal xref">Clock drift issues and remedies</a></p>
+</li>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.5.2.2">
+                    <p id="section-toc.1-1.4.2.5.2.2.1"><a href="#section-4.5.2" class="auto internal xref">4.5.2</a>.  <a href="#name-link-layer-losses-and-rate-" class="internal xref">Link layer losses and rate policers</a></p>
+</li>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.5.2.3">
+                    <p id="section-toc.1-1.4.2.5.2.3.1"><a href="#section-4.5.3" class="auto internal xref">4.5.3</a>.  <a href="#name-reference-window-undershoot" class="internal xref">Reference window undershoot at congestion</a></p>
+</li>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.5.2.4">
+                    <p id="section-toc.1-1.4.2.5.2.4.1"><a href="#section-4.5.4" class="auto internal xref">4.5.4</a>.  <a href="#name-competing-flows-compensatio" class="internal xref">Competing Flows Compensation</a></p>
+</li>
+                </ul>
 </li>
             </ul>
 </li>
@@ -1272,22 +1285,38 @@ This specification obsoletes RFC 8298.<a href="#section-abstract-1" class="pilcr
             <p id="section-toc.1-1.11.1"><a href="#appendix-B" class="auto internal xref">Appendix B</a>.  <a href="#name-changes-in-the-draft-versio" class="internal xref">Changes in the draft versions</a></p>
 <ul class="compact toc ulBare ulEmpty">
 <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.11.2.1">
-                <p id="section-toc.1-1.11.2.1.1"><a href="#appendix-B.1" class="auto internal xref">B.1</a>.  <a href="#name-changes-in-draft-version-02" class="internal xref">Changes in draft version -02</a></p>
+                <p id="section-toc.1-1.11.2.1.1"><a href="#appendix-B.1" class="auto internal xref">B.1</a>.  <a href="#name-working-group-draft-submiss" class="internal xref">Working group draft submissions</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.11.2.1.2.1">
+                    <p id="section-toc.1-1.11.2.1.2.1.1"><a href="#appendix-B.1.1" class="auto internal xref">B.1.1</a>.  <a href="#name-draft-version-00" class="internal xref">Draft version -00</a></p>
+</li>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.11.2.1.2.2">
+                    <p id="section-toc.1-1.11.2.1.2.2.1"><a href="#appendix-B.1.2" class="auto internal xref">B.1.2</a>.  <a href="#name-changes-in-draft-version-01" class="internal xref">Changes in Draft version -01</a></p>
+</li>
+                </ul>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.11.2.2">
-                <p id="section-toc.1-1.11.2.2.1"><a href="#appendix-B.2" class="auto internal xref">B.2</a>.  <a href="#name-changes-in-draft-version-03" class="internal xref">Changes in Draft version -03</a></p>
+                <p id="section-toc.1-1.11.2.2.1"><a href="#appendix-B.2" class="auto internal xref">B.2</a>.  <a href="#name-individual-draft-submission" class="internal xref">Individual draft submissions</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.11.2.2.2.1">
+                    <p id="section-toc.1-1.11.2.2.2.1.1"><a href="#appendix-B.2.1" class="auto internal xref">B.2.1</a>.  <a href="#name-changes-in-draft-version-02" class="internal xref">Changes in draft version -02</a></p>
 </li>
-              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.11.2.3">
-                <p id="section-toc.1-1.11.2.3.1"><a href="#appendix-B.3" class="auto internal xref">B.3</a>.  <a href="#name-changes-in-draft-version-04" class="internal xref">Changes in Draft version -04</a></p>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.11.2.2.2.2">
+                    <p id="section-toc.1-1.11.2.2.2.2.1"><a href="#appendix-B.2.2" class="auto internal xref">B.2.2</a>.  <a href="#name-changes-in-draft-version-03" class="internal xref">Changes in Draft version -03</a></p>
 </li>
-              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.11.2.4">
-                <p id="section-toc.1-1.11.2.4.1"><a href="#appendix-B.4" class="auto internal xref">B.4</a>.  <a href="#name-changes-in-draft-version-05" class="internal xref">Changes in Draft version -05</a></p>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.11.2.2.2.3">
+                    <p id="section-toc.1-1.11.2.2.2.3.1"><a href="#appendix-B.2.3" class="auto internal xref">B.2.3</a>.  <a href="#name-changes-in-draft-version-04" class="internal xref">Changes in Draft version -04</a></p>
 </li>
-              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.11.2.5">
-                <p id="section-toc.1-1.11.2.5.1"><a href="#appendix-B.5" class="auto internal xref">B.5</a>.  <a href="#name-changes-in-draft-version-06" class="internal xref">Changes in Draft version -06</a></p>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.11.2.2.2.4">
+                    <p id="section-toc.1-1.11.2.2.2.4.1"><a href="#appendix-B.2.4" class="auto internal xref">B.2.4</a>.  <a href="#name-changes-in-draft-version-05" class="internal xref">Changes in Draft version -05</a></p>
 </li>
-              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.11.2.6">
-                <p id="section-toc.1-1.11.2.6.1"><a href="#appendix-B.6" class="auto internal xref">B.6</a>.  <a href="#name-changes-in-draft-version-07" class="internal xref">Changes in Draft version -07</a></p>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.11.2.2.2.5">
+                    <p id="section-toc.1-1.11.2.2.2.5.1"><a href="#appendix-B.2.5" class="auto internal xref">B.2.5</a>.  <a href="#name-changes-in-draft-version-06" class="internal xref">Changes in Draft version -06</a></p>
+</li>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.11.2.2.2.6">
+                    <p id="section-toc.1-1.11.2.2.2.6.1"><a href="#appendix-B.2.6" class="auto internal xref">B.2.6</a>.  <a href="#name-changes-in-draft-version-07" class="internal xref">Changes in Draft version -07</a></p>
+</li>
+                </ul>
 </li>
             </ul>
 </li>
@@ -1306,7 +1335,7 @@ This specification obsoletes RFC 8298.<a href="#section-abstract-1" class="pilcr
 <p id="section-1-1">This memo describes Self-Clocked Rate Adaptation for Multimedia version 2
 (SCReAMv2). This specification replaces the previous experimental version <span>[<a href="#RFC8298" class="cite xref">RFC8298</a>]</span> of
 SCReAM with SCReAMv2. There are many and fairly significant changes to the
-original SCReAM algorithm as desribed in <a href="#sec_changes" class="auto internal xref">Section 1.1</a>.<a href="#section-1-1" class="pilcrow">¶</a></p>
+original SCReAM algorithm as described in <a href="#sec_changes" class="auto internal xref">Section 1.1</a>.<a href="#section-1-1" class="pilcrow">¶</a></p>
 <p id="section-1-2">Both SCReAM and SCReAMv2 estimates the forward queue delay in the same way as Low
 Extra Delay Background Transport (LEDBAT) <span>[<a href="#RFC6817" class="cite xref">RFC6817</a>]</span>.
 However, while SCReAM is based on the self-clocking principle of TCP,
@@ -1326,13 +1355,13 @@ congestion control functionality in SCReAMv2.<a href="#section-1-3" class="pilcr
 SCReAM in <span>[<a href="#RFC8298" class="cite xref">RFC8298</a>]</span>. The main differences are:<a href="#section-1.1-1" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-1.1-2.1">
-            <p id="section-1.1-2.1.1">L4S support added. The L4S algoritm has many similarities with the DCTCP and
+            <p id="section-1.1-2.1.1">L4S support added. The L4S algorithm has many similarities with the DCTCP and
 Prague congestion control but has a few extra modifications to make it work
 well with periodic sources such as video.<a href="#section-1.1-2.1.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="section-1.1-2.2">
-            <p id="section-1.1-2.2.1">The delay based congestion control is changed to implement a pseudo-L4S
-approach, this simplifies the delay based congestion control.<a href="#section-1.1-2.2.1" class="pilcrow">¶</a></p>
+            <p id="section-1.1-2.2.1">The delay-based congestion control is changed to implement a pseudo-L4S
+approach, this simplifies the delay-based congestion control.<a href="#section-1.1-2.2.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="section-1.1-2.3">
             <p id="section-1.1-2.3.1">The fast increase mode is removed. The reference window additive increase is
@@ -1375,11 +1404,11 @@ changing frame sizes.<a href="#section-1.1-2.6.1" class="pilcrow">¶</a></p>
         <h3 id="name-requirements-on-the-media-a">
 <a href="#section-1.2" class="section-number selfRef">1.2. </a><a href="#name-requirements-on-the-media-a" class="section-name selfRef">Requirements on the Media and Feedback Protocol</a>
         </h3>
-<p id="section-1.2-1">SCReAM was originally designed to with with RTP + RTCP where <span>[<a href="#RFC8888" class="cite xref">RFC8888</a>]</span> was
+<p id="section-1.2-1">SCReAM was originally designed to be used with RTP + RTCP where <span>[<a href="#RFC8888" class="cite xref">RFC8888</a>]</span> was
 used as recommended feedback. RTP offers unique packet indication with the
 sequence number and <span>[<a href="#RFC8888" class="cite xref">RFC8888</a>]</span> offers timestamps of received packets and the
 status of the ECN bits.<a href="#section-1.2-1" class="pilcrow">¶</a></p>
-<p id="section-1.2-2">SCReAM is however not limited to RTP as long as some requirements are fulfilled :<a href="#section-1.2-2" class="pilcrow">¶</a></p>
+<p id="section-1.2-2">SCReAM is however not limited to RTP as long as some requirements are fulfilled:<a href="#section-1.2-2" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-1.2-3.1">
             <p id="section-1.2-3.1.1">Media data is split in data units that when encapsulated in IP packets fit in
@@ -1456,13 +1485,13 @@ when, and only when, they appear in all capitals, as shown here.<a href="#sectio
       </h2>
 <p id="section-3-1">SCReAMv2 consists of three main parts: network congestion control, sender
 transmission control, and media rate control. All of these parts reside at the
-sender side while the receiver is assumpted to provide acknowledgements of received
+sender side while the receiver is assumed to provide acknowledgements of received
 data units and indication of ECN-CE marking, either as an accumulated bytes counter,
 or per individual data unit.<a href="#section-3-1" class="pilcrow">¶</a></p>
-<p id="section-3-2">The sender implements media rate control and an data unit queue for each media
+<p id="section-3-2">The sender implements media rate control and a data unit queue for each media
 type or source, where data units containing encoded media frames are temporarily
 stored for transmission. Figure 1 shows the details when a single media source
-(or stream) is used. Scheduling and prioritization of mulitiple streams is not
+(or stream) is used. Scheduling and prioritization of multiple streams is not
 covered in this document. However, if multiple flows are sent, each data unit queue can be
 served based on some defined priority or simply in a round-robin fashion. Alternatively,
 a similar approach as coupled congestion control <span>[<a href="#RFC6365" class="cite xref">RFC6365</a>]</span> can be applied.<a href="#section-3-2" class="pilcrow">¶</a></p>
@@ -1573,7 +1602,7 @@ scheduler) sends the data units to the UDP socket. The sender transmission
 controller limits the sending rate so
 that the number of bytes in flight is less than the reference window albeit with
 a slack to avoid that packets are unnecessarily delayed in the Data Units Queue.
-The slack avoids unnecessary delays in the Data Units Queue when the link is uncongested. The bytes in flight however become more restrained in congested situations, to avoid large variations in queue delay and bitrate.
+The slack avoids unnecessary delays in the Data Units Queue when the link is uncongested. The bytes in flight, however, become more restrained in congested situations to avoid large variations in queue delay and bitrate.
 A pacing rate is calculated based on the target bitrate provided by the
 media rate controller.<a href="#section-3-5" class="pilcrow">¶</a></p>
 <p id="section-3-6">Feedback about the received bytes as well as metadata to estimate the congestion
@@ -1608,7 +1637,7 @@ congestion control).<a href="#section-3.1-2" class="pilcrow">¶</a></p>
 <p id="section-3.1-3">In each RTT ref_wnd will be reduced at most once if congestion is detected based on the following conditions:<a href="#section-3.1-3" class="pilcrow">¶</a></p>
 <p id="section-3.1-4">a) on loss: ref_wnd *=  LOSS_BETA<a href="#section-3.1-4" class="pilcrow">¶</a></p>
 <p id="section-3.1-5">b) classic ECN CE: ref_wnd *=  ECN_BETA<a href="#section-3.1-5" class="pilcrow">¶</a></p>
-<p id="section-3.1-6">b) on L4S ECN CE or increased delay: ref_wnd *=  1-l4sAlpha/2<a href="#section-3.1-6" class="pilcrow">¶</a></p>
+<p id="section-3.1-6">b) on L4S ECN CE or increased delay: ref_wnd *=  1.0 - l4sAlpha / 2.0<a href="#section-3.1-6" class="pilcrow">¶</a></p>
 <p id="section-3.1-7">Independent of the congestion detection, ref_wnd is increased by a fix increment for each RTT.<a href="#section-3.1-7" class="pilcrow">¶</a></p>
 <p id="section-3.1-8">The reference window increases multiplicatively after a number of congestion free RTTs, this enables a faster convergence to a higher link speed. The increase factor is also adjusted relative to a previous max value.<a href="#section-3.1-8" class="pilcrow">¶</a></p>
 </section>
@@ -1644,22 +1673,24 @@ the media traffic.<a href="#section-3.2-3" class="pilcrow">¶</a></p>
 <p id="section-3.3-1">The media rate control calculates the media rate based on the reference window and RTT.<a href="#section-3.3-1" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-3.3-2">
 <pre>
-target_bitrate = 8 * ref_wnd / s_rtt
+target_bitrate = 8 * ref_wnd / s_rtt [bps]
 </pre><a href="#section-3.3-2" class="pilcrow">¶</a>
 </div>
 <p id="section-3.3-3">The media rate needs to ramp up quickly enough to get a fair share of
 the system resources when link throughput increases. Further, the
-reaction to reduced throughput must be prompt in order to avoid
+reaction to reduced throughput must be prompt to avoid
 getting too much data queued in the data unit queue(s) in the sender.<a href="#section-3.3-3" class="pilcrow">¶</a></p>
 <p id="section-3.3-4">For the case that multiple
-streams are enabled, the media rate among the streams is distributed according
+streams are enabled, the media rate among the streams are distributed according
 to relative priorities.<a href="#section-3.3-4" class="pilcrow">¶</a></p>
 <p id="section-3.3-5">In cases where the sender's frame queues increase rapidly, such as in the case
 of a Radio Access Type (RAT) handover, the SCReAMv2 sender MAY implement
 additional actions, such as discarding of encoded media frames or frame skipping
-in order to ensure that the data unit queues are drained quickly. Frame skipping
+to ensure that the data unit queues are drained quickly. Frame skipping
 results in the frame rate being temporarily reduced. Which method to use is a
-design choice and is outside the scope of this algorithm description.<a href="#section-3.3-5" class="pilcrow">¶</a></p>
+design choice and is outside the scope of this algorithm description as the actual strategy depends on the applicatuion.
+ For instanvce for a video conferencing application it can be better to avoid discarding media frames even though they are late,
+  whereas a remote controlled application benefits from low end to end delay, in which case it is better to discard late frames and generate a new keyframe to maintain correct media coder state.<a href="#section-3.3-5" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
@@ -1789,24 +1820,24 @@ reference window. The reference window gives an upper limit to the number of byt
 <p id="section-4.2.1-1">Congestion is detected based on three different indicators:<a href="#section-4.2.1-1" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-4.2.1-2.1">
-              <p id="section-4.2.1-2.1.1">Lost data units detected,<a href="#section-4.2.1-2.1.1" class="pilcrow">¶</a></p>
+              <p id="section-4.2.1-2.1.1">Lost data units detected.<a href="#section-4.2.1-2.1.1" class="pilcrow">¶</a></p>
 </li>
             <li class="normal" id="section-4.2.1-2.2">
-              <p id="section-4.2.1-2.2.1">ECN-CE marked data units detected either for classic ECN or L4S,<a href="#section-4.2.1-2.2.1" class="pilcrow">¶</a></p>
+              <p id="section-4.2.1-2.2.1">ECN-CE marked data units detected either for classic ECN or L4S.<a href="#section-4.2.1-2.2.1" class="pilcrow">¶</a></p>
 </li>
             <li class="normal" id="section-4.2.1-2.3">
               <p id="section-4.2.1-2.3.1">Estimated queue delay exceeds a threshold.<a href="#section-4.2.1-2.3.1" class="pilcrow">¶</a></p>
 </li>
           </ul>
 <p id="section-4.2.1-3">A congestion event occurs if any of the above indicators are true AND it is at
-least min(VIRTUAL_RTT,s_rtt) since the last congestion event. This ensures that
+least min(VIRTUAL_RTT, s_rtt) since the last congestion event. This ensures that
 the reference window is reduced at most once per smoothed RTT.<a href="#section-4.2.1-3" class="pilcrow">¶</a></p>
 <div id="reaction-loss">
 <section id="section-4.2.1.1">
             <h5 id="name-detecting-lost-data-units">
 <a href="#section-4.2.1.1" class="section-number selfRef">4.2.1.1. </a><a href="#name-detecting-lost-data-units" class="section-name selfRef">Detecting Lost Data Units</a>
             </h5>
-<p id="section-4.2.1.1-1">The reference window back-off due to loss events is deliberately a bit less than
+<p id="section-4.2.1.1-1">The reference window backoff due to loss events is deliberately a bit less than
 is the case with TCP Reno, for example. TCP is generally used to transmit whole
 files; the file is then like a source with an infinite bitrate until the whole
 file has been transmitted. SCReAMv2, on the other hand, has a source which rate
@@ -1817,7 +1848,7 @@ SCReAMv2 reduce the reference window less than what is the case with TCP when
 loss events occur.<a href="#section-4.2.1.1-1" class="pilcrow">¶</a></p>
 <p id="section-4.2.1.1-2">Lost data unit detection is based on the received sequence number list. A
 reordering window SHOULD be applied to prevent data unit reordering from triggering
-loss events. The reordering window is specified as a time unit, similar to the
+loss events. The reordering window is specified as a time unit, like the
 ideas behind Recent ACKnowledgement (RACK) <span>[<a href="#RFC8985" class="cite xref">RFC8985</a>]</span>. The computation of the
 reordering window is made possible by means of a lost flag in the list of
 transmitted data units. This flag is set if the received sequence number list
@@ -1827,7 +1858,7 @@ is updated to reflect the reordering delay. The reordering window is given by
 the difference in time between the event that the data unit was marked as lost and
 the event that it was indicated as successfully received. Loss is detected if a
 given data unit is not acknowledged within a time window (indicated by the
-reordering window) after an data unit with a higher sequence number was
+reordering window) after a data unit with a higher sequence number was
 acknowledged.<a href="#section-4.2.1.1-2" class="pilcrow">¶</a></p>
 </section>
 </div>
@@ -1837,7 +1868,7 @@ acknowledged.<a href="#section-4.2.1.1-2" class="pilcrow">¶</a></p>
 <a href="#section-4.2.1.2" class="section-number selfRef">4.2.1.2. </a><a href="#name-receiving-ecn-ce-with-class" class="section-name selfRef">Receiving ECN-CE with classic ECN</a>
             </h5>
 <p id="section-4.2.1.2-1">In classic ECN mode the ref_wnd is scaled by a fixed value (BETA_ECN).<a href="#section-4.2.1.2-1" class="pilcrow">¶</a></p>
-<p id="section-4.2.1.2-2">The reference window back-off due to an ECN event MAY be smaller than if a loss
+<p id="section-4.2.1.2-2">The reference window backoff due to an ECN event MAY be smaller than if a loss
 event occurs. This is in line with the idea outlined in <span>[<a href="#RFC8511" class="cite xref">RFC8511</a>]</span> to enable
 ECN marking thresholds lower than the corresponding data unit drop thresholds.<a href="#section-4.2.1.2-2" class="pilcrow">¶</a></p>
 </section>
@@ -1864,16 +1895,17 @@ the following way:<a href="#section-4.2.1.3-2" class="pilcrow">¶</a></p>
 data_units_delivered_this_rtt += data_units_acked
 data_units_marked_this_rtt += data_units_acked_ce
 # l4s_alpha is updated at least every 10ms
-if (now - last_update_l4s_alpha_time &gt;= min(0.01,s_rtt)
+if (now - last_update_l4s_alpha_time &gt;= min(0.01, s_rtt))
   # l4s_alpha is calculated from data_units marked istf bytes marked
   fraction_marked_t = data_units_marked_this_rtt/
                       data_units_delivered_this_rtt
 
   # Apply a fast attack slow decay EWMA
   if (fraction_marked_t &gt;= l4s_alpha)
-     l4s_alpha = L4S_AVG_G_UP*fraction_marked_t + (1.0-L4S_AVG_G_UP)*l4S_alpha
+     l4s_alpha = L4S_AVG_G_UP * fraction_marked_t +
+       (1.0 - L4S_AVG_G_UP) * l4S_alpha
   else
-     l4s_alpha = (1.0-L4S_AVG_G_DOWN)*l4S_alpha
+     l4s_alpha = (1.0 - L4S_AVG_G_DOWN) * l4S_alpha
 
   last_update_l4s_alpha_time = now
   data_units_delivered_this_rtt = 0
@@ -1883,14 +1915,14 @@ end
 </pre><a href="#section-4.2.1.3-3" class="pilcrow">¶</a>
 </div>
 <p id="section-4.2.1.3-4">This makes calculation of L4S alpha more accurate at very low bitrates,
-given that the tail data unit in e.g a video frame is often smaller than MSS.<a href="#section-4.2.1.3-4" class="pilcrow">¶</a></p>
+given that the tail data unit in e.g. a video frame is often smaller than MSS.<a href="#section-4.2.1.3-4" class="pilcrow">¶</a></p>
 <p id="section-4.2.1.3-5">The following variables are used:<a href="#section-4.2.1.3-5" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-4.2.1.3-6.1">
                 <p id="section-4.2.1.3-6.1.1">l4s_alpha (0.0): Average fraction of marked data units per RTT.<a href="#section-4.2.1.3-6.1.1" class="pilcrow">¶</a></p>
 </li>
               <li class="normal" id="section-4.2.1.3-6.2">
-                <p id="section-4.2.1.3-6.2.1">last_update_l4s_alpha_time (0): Last time l4s_alpha was updated [s].<a href="#section-4.2.1.3-6.2.1" class="pilcrow">¶</a></p>
+                <p id="section-4.2.1.3-6.2.1">last_update_l4s_alpha_time (0.0): Last time l4s_alpha was updated [s].<a href="#section-4.2.1.3-6.2.1" class="pilcrow">¶</a></p>
 </li>
               <li class="normal" id="section-4.2.1.3-6.3">
                 <p id="section-4.2.1.3-6.3.1">data_units_delivered_this_rtt (0): Counter for delivered data units.<a href="#section-4.2.1.3-6.3.1" class="pilcrow">¶</a></p>
@@ -1905,13 +1937,13 @@ given that the tail data unit in e.g a video frame is often smaller than MSS.<a 
 <p id="section-4.2.1.3-7">The following constants are used<a href="#section-4.2.1.3-7" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-4.2.1.3-8.1">
-                <p id="section-4.2.1.3-8.1.1">L4S_AVG_G_UP (1/8): Exponentially Weighted Moving Average (EWMA) factor for l4s_alpha increase<a href="#section-4.2.1.3-8.1.1" class="pilcrow">¶</a></p>
+                <p id="section-4.2.1.3-8.1.1">L4S_AVG_G_UP (1.0/8): Exponentially Weighted Moving Average (EWMA) factor for l4s_alpha increase<a href="#section-4.2.1.3-8.1.1" class="pilcrow">¶</a></p>
 </li>
               <li class="normal" id="section-4.2.1.3-8.2">
-                <p id="section-4.2.1.3-8.2.1">L4S_AVG_G_DOWN (1/128): Exponentially Weighted Moving Average (EWMA) factor for l4s_alpha decrease<a href="#section-4.2.1.3-8.2.1" class="pilcrow">¶</a></p>
+                <p id="section-4.2.1.3-8.2.1">L4S_AVG_G_DOWN (1.0/128): Exponentially Weighted Moving Average (EWMA) factor for l4s_alpha decrease<a href="#section-4.2.1.3-8.2.1" class="pilcrow">¶</a></p>
 </li>
             </ul>
-<p id="section-4.2.1.3-9">The calculation of l4s_alpha is done with an fast attack slow decay EWMA filter.
+<p id="section-4.2.1.3-9">The calculation of l4s_alpha is done with a fast attack slow decay EWMA filter.
 This can give a more stable performance when L4S bottlenecks have high marking thresholds.<a href="#section-4.2.1.3-9" class="pilcrow">¶</a></p>
 </section>
 </div>
@@ -1929,176 +1961,102 @@ avoid that the SCReAMv2 congestion control over-reacts to scheduling jitter,
 sudden delay spikes due to e.g. handover or link layer
 retransmissions.<a href="#section-4.2.1.4-1" class="pilcrow">¶</a></p>
 <p id="section-4.2.1.4-2">qdelay_avg is updated with a slow attack, fast decay EWMA filter as described below.<a href="#section-4.2.1.4-2" class="pilcrow">¶</a></p>
-<div class="alignLeft art-text artwork" id="section-4.2.1.4-3">
+<p id="section-4.2.1.4-3">Two variables, qdelay_max_avg and qdelay_min_avg track how much the min and max queue delay varies over time. The qdelay_max_avg is reduced gradually towards zero while the qdelay_min_avg is averaged towards qdelay_max_avg. This makes the difference between qdelay_max_avg and qdelay_min_avg robust against clock drift and also adds some immunity against scheduling jitter, which affects both qdelay_max_avg and qdelay_min_avg.<a href="#section-4.2.1.4-3" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-4.2.1.4-4">
 <pre>
-if (now - last_update_qdelay_avg_time &gt;= min(virtual_rtt,s_rtt)
+# Update min and max average queue delay for every ACKed RTP packet
+if (REDUCE_JITTER == true)
+  qdelay_max_avg = min(qdelay_target, max(qdelay, qdelay_max_avg)))
+  qdelay_min_avg = min(qdelay, qdelay_min_avg))
+end
+
+if (now - last_update_qdelay_avg_time &gt;= min(virtual_rtt, s_rtt))
   # Calculate qdelay_avg
   if (qdelay &lt; qdelay_avg)
     qdelay_avg = qdelay
   else
-    qdelay_avg = QDELAY_AVG_G*qdelay + (1.0-QDELAY_AVG_G)*qdelay_avg
+    qdelay_avg = QDELAY_AVG_G * qdelay +
+      (1.0 - QDELAY_AVG_G) * qdelay_avg
   end
 
   # Optional code to calculate the variation on queue delay, which is an
   # Indication of congestion or near congestion.
   if (REDUCE_JITTER == true)
-     calculate_qdelay_norm()
+    calculate_ref_wnd_delay_scale()
   end
   last_update_qdelay_avg_time = now
 end
-</pre><a href="#section-4.2.1.4-3" class="pilcrow">¶</a>
+</pre><a href="#section-4.2.1.4-4" class="pilcrow">¶</a>
 </div>
-<p id="section-4.2.1.4-4">The following variables are used:<a href="#section-4.2.1.4-4" class="pilcrow">¶</a></p>
+<p id="section-4.2.1.4-5">The following variables are used:<a href="#section-4.2.1.4-5" class="pilcrow">¶</a></p>
 <ul class="normal">
-<li class="normal" id="section-4.2.1.4-5.1">
-                <p id="section-4.2.1.4-5.1.1">qdelay (0): When the sender receives feedback, the qdelay is calculated as outlined in
+<li class="normal" id="section-4.2.1.4-6.1">
+                <p id="section-4.2.1.4-6.1.1">qdelay (0.0): When the sender receives feedback, the qdelay [s] is calculated as outlined in
 <span>[<a href="#RFC6817" class="cite xref">RFC6817</a>]</span>. A qdelay sample is obtained for each received acknowledgement.
-It is typically sufficient with one update per received acknowledgement.<a href="#section-4.2.1.4-5.1.1" class="pilcrow">¶</a></p>
+It is typically sufficient with one update per received acknowledgement.<a href="#section-4.2.1.4-6.1.1" class="pilcrow">¶</a></p>
 </li>
-              <li class="normal" id="section-4.2.1.4-5.2">
-                <p id="section-4.2.1.4-5.2.1">last_update_qdelay_avg_time (0): Last time qdelay_avg was updated [s].<a href="#section-4.2.1.4-5.2.1" class="pilcrow">¶</a></p>
+              <li class="normal" id="section-4.2.1.4-6.2">
+                <p id="section-4.2.1.4-6.2.1">qdelay_max_avg (qdelay_target): Max average queue delay [s], needed only of REDUCE_JITTER==true<a href="#section-4.2.1.4-6.2.1" class="pilcrow">¶</a></p>
 </li>
-              <li class="normal" id="section-4.2.1.4-5.3">
-                <p id="section-4.2.1.4-5.3.1">s_rtt (0.0): Smoothed RTT [s], computed with a similar method to that
-described in <span>[<a href="#RFC6298" class="cite xref">RFC6298</a>]</span>.<a href="#section-4.2.1.4-5.3.1" class="pilcrow">¶</a></p>
+              <li class="normal" id="section-4.2.1.4-6.3">
+                <p id="section-4.2.1.4-6.3.1">qdelay_min_avg (0.0): Min average queue delay [s], needed only if REDUCE_JITTER==true<a href="#section-4.2.1.4-6.3.1" class="pilcrow">¶</a></p>
+</li>
+              <li class="normal" id="section-4.2.1.4-6.4">
+                <p id="section-4.2.1.4-6.4.1">last_update_qdelay_avg_time (0.0): Last time qdelay_avg was updated [s]<a href="#section-4.2.1.4-6.4.1" class="pilcrow">¶</a></p>
+</li>
+              <li class="normal" id="section-4.2.1.4-6.5">
+                <p id="section-4.2.1.4-6.5.1">s_rtt (0.0): Smoothed RTT [s], computed with a similar method to that
+described in <span>[<a href="#RFC6298" class="cite xref">RFC6298</a>]</span><a href="#section-4.2.1.4-6.5.1" class="pilcrow">¶</a></p>
 </li>
             </ul>
-<p id="section-4.2.1.4-6">The following constants are used:<a href="#section-4.2.1.4-6" class="pilcrow">¶</a></p>
+<p id="section-4.2.1.4-7">The following constants are used:<a href="#section-4.2.1.4-7" class="pilcrow">¶</a></p>
 <ul class="normal">
-<li class="normal" id="section-4.2.1.4-7.1">
-                <p id="section-4.2.1.4-7.1.1">QDELAY_AVG_G (1/4): Exponentially Weighted Moving Average (EWMA) factor for qdelay_avg<a href="#section-4.2.1.4-7.1.1" class="pilcrow">¶</a></p>
+<li class="normal" id="section-4.2.1.4-8.1">
+                <p id="section-4.2.1.4-8.1.1">QDELAY_AVG_G (1.0/4): Exponentially Weighted Moving Average (EWMA) factor for qdelay_avg<a href="#section-4.2.1.4-8.1.1" class="pilcrow">¶</a></p>
 </li>
-              <li class="normal" id="section-4.2.1.4-7.2">
-                <p id="section-4.2.1.4-7.2.1">REDUCE_JITTER (false): (optional) config knob to enable jitter filtering<a href="#section-4.2.1.4-7.2.1" class="pilcrow">¶</a></p>
+              <li class="normal" id="section-4.2.1.4-8.2">
+                <p id="section-4.2.1.4-8.2.1">REDUCE_JITTER (false): (optional) config knob to enable jitter filtering<a href="#section-4.2.1.4-8.2.1" class="pilcrow">¶</a></p>
+</li>
+              <li class="normal" id="section-4.2.1.4-8.3">
+                <p id="section-4.2.1.4-8.3.1">QDELAY_MIN_MAX_AVG_G (1.0/16): Filter gain for qdelay_min_avg and qdelay_max_avg<a href="#section-4.2.1.4-8.3.1" class="pilcrow">¶</a></p>
 </li>
             </ul>
-<p id="section-4.2.1.4-8">The SCReAM algorithm can be further improved for a greater rate stability by taking variations in qdelay into consideration. The goal is to react less to delay variations, caused by e.g. link layer related scheduling and retransmissions, but still be reactive to actual queue delay, caused by congestion. The code below provides a example implementation but more advanced statistical analysis can be considered.<a href="#section-4.2.1.4-8" class="pilcrow">¶</a></p>
-<p id="section-4.2.1.4-9">The variable qdelay_dev_norm indicates how much the queue delay varies,
-normalized to QDELAY_DEV_NORM. A small margin QDELAY_DEV_NORM/4 is implemented to reduce sensitivity to link layer scheduling jitter and retransmissions. In addition, a limit is implemented to avoid that qdelay_dev_norm winds up to very large values in cases of severe congestion. This limit is a factor larger than QDELAY_DEV_NORM_TH.
-It increases when ref_wnd/MSS is small and therefore the relative increase of ref_wnd is large. This reduces delay and rate variations particularly for small ref_wnd values. The threshold is limited to a maximum value of 0.1 which is applied when the standard deviation of the delay jitter exceeds the threshold.<a href="#section-4.2.1.4-9" class="pilcrow">¶</a></p>
-<div class="alignLeft art-text artwork" id="section-4.2.1.4-10">
+<p id="section-4.2.1.4-9">The SCReAM algorithm can be further improved for a greater rate stability by taking variations in qdelay into consideration. The goal is to react less to delay variations, caused by e.g. link layer related scheduling and retransmissions, but still be reactive to actual queue delay, caused by congestion. The code below provides a example implementation but more advanced statistical analysis can be considered.<a href="#section-4.2.1.4-9" class="pilcrow">¶</a></p>
+<p id="section-4.2.1.4-10">The variable qdelay_dev_avg indicates the delay jitter, or to be more concrete, a moving average over the difference between qdelay_max_avg and qdelay_min_avg. Based on qdelay_dev_avg a scaling factor ref_wnd_delay_scale is calculated that is then applied to the reference window increase and the reference window headroom. The ref_wnd_delay_scale is 1.0 when the jitter is zero and decreases to 0.0 when the jitter grows to QDELAY_DEV_THRESHOLD or above. The scaling factor decreases when the delay jitter increases to limit the congestion reaction to short term delay variations and slow down the reference window growth for better stability.<a href="#section-4.2.1.4-10" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-4.2.1.4-11">
 <pre>
-function calculate_qdelay_norm()
-  # Calculate qdelay_dev_norm and cap in range [0.0, QDELAY_DEV_NORM_TH*1.5]
-  tmp = max(0, min(QDELAY_DEV_NORM_TH*1.5, (qdelay-QDELAY_DEV_NORM/4)/QDELAY_DEV_NORM))
-  qdelay_dev_norm = (1.0-QDELAY_DEV_AVG_G) * qdelay_dev_norm +
-     QDELAY_DEV_AVG_G * tmp
-end
-</pre><a href="#section-4.2.1.4-10" class="pilcrow">¶</a>
-</div>
-<p id="section-4.2.1.4-11">The following variables are used:¶<a href="#section-4.2.1.4-11" class="pilcrow">¶</a></p>
-<ul class="normal">
-<li class="normal" id="section-4.2.1.4-12.1">
-                <p id="section-4.2.1.4-12.1.1">qdelay_dev_norm (0): indicates how much the queue delay varies, normalized to QDELAY_DEV_NORM.<a href="#section-4.2.1.4-12.1.1" class="pilcrow">¶</a></p>
-</li>
-            </ul>
-<p id="section-4.2.1.4-13">The following constants are used:<a href="#section-4.2.1.4-13" class="pilcrow">¶</a></p>
-<ul class="normal">
-<li class="normal" id="section-4.2.1.4-14.1">
-                <p id="section-4.2.1.4-14.1.1">QDELAY_DEV_AVG_G (1/64): Exponentially Weighted Moving Average (EWMA) factor for qdelay_dev_norm<a href="#section-4.2.1.4-14.1.1" class="pilcrow">¶</a></p>
-</li>
-              <li class="normal" id="section-4.2.1.4-14.2">
-                <p id="section-4.2.1.4-14.2.1">QDELAY_DEV_NORM (0.025): The normalization factor for qdelay_dev_norm<a href="#section-4.2.1.4-14.2.1" class="pilcrow">¶</a></p>
-</li>
-              <li class="normal" id="section-4.2.1.4-14.3">
-                <p id="section-4.2.1.4-14.3.1">QDELAY_DEV_NORM_TH (1.0): A threshold for the limitation ref_wnd growth and ref_wnd_overhead.<a href="#section-4.2.1.4-14.3.1" class="pilcrow">¶</a></p>
-</li>
-            </ul>
-<div id="competing-flows-compensation">
-<section id="section-4.2.1.4.1">
-              <h6 id="name-competing-flows-compensatio">
-<a href="#section-4.2.1.4.1" class="section-number selfRef">4.2.1.4.1. </a><a href="#name-competing-flows-compensatio" class="section-name selfRef">Competing Flows Compensation</a>
-              </h6>
-<p id="section-4.2.1.4.1-1">It is likely that a flow will have to share congested bottlenecks with other
-flows that use a more aggressive congestion control algorithm (for example,
-large FTP flows using loss-based congestion control). The worst condition occurs
-when the bottleneck queues are of tail-drop type with a large buffer
-size. SCReAMv2 takes care of such situations by adjusting the qdelay_target when
-loss-based flows are detected, as shown in the pseudocode below.<a href="#section-4.2.1.4.1-1" class="pilcrow">¶</a></p>
-<div class="alignLeft art-text artwork" id="section-4.2.1.4.1-2">
-<pre>
-adjust_qdelay_target(qdelay)
-  qdelay_norm_t = qdelay / QDELAY_TARGET_LOW
-  update_qdelay_norm_history(qdelay_norm_t)
-  # Compute variance
-  qdelay_norm_var_t = VARIANCE(qdelay_norm_history(200))
-  # Compensation for competing traffic
-  # Compute average
-  qdelay_norm_avg_t = AVERAGE(qdelay_norm_history(50))
-  # Compute upper limit to target delay
-  new_target_t = qdelay_norm_avg_t + sqrt(qdelay_norm_var_t)
-  new_target_t *= QDELAY_TARGET_LO
-  if (loss_event_rate &gt; 0.002)
-    # Data unit losses detected
-    qdelay_target = 1.5 * new_target_t
-  else
-    if (qdelay_norm_var_t &lt; 0.2)
-      # Reasonably safe to set target qdelay
-      qdelay_target = new_target_t
-    else
-      # Check if target delay can be reduced; this helps prevent
-      # the target delay from being locked to high values forever
-      if (new_target_t &lt; QDELAY_TARGET_LO)
-        # Decrease target delay quickly, as measured queuing
-        # delay is lower than target
-        qdelay_target = max(qdelay_target * 0.5, new_target_t)
-      else
-        # Decrease target delay slowly
-        qdelay_target *= 0.9
-      end
-    end
-  end
+function calculate_ref_wnd_delay_scale()
+  # Reduce average max queue delay and move min average
+  # queue delay towards the max
+  qdelay_max_avg = qdelay_max_avg * (1.0 - QDELAY_MIN_MAX_AVG_G)
+  qdelay_min_avg = qdelay_min_avg * (1.0 - QDELAY_MIN_MAX_AVG_G) +
+    qdelay_max_avg * QDELAY_MIN_MAX_AVG_G
 
-  # Apply limits
-  qdelay_target = min(QDELAY_TARGET_HI, qdelay_target)
-  qdelay_target = max(QDELAY_TARGET_LO, qdelay_target)
-</pre><a href="#section-4.2.1.4.1-2" class="pilcrow">¶</a>
+  # Calculate ref_wnd_delay_scale, range [0.0 1.0]
+  qdelay_dev_avg = (1.0 - QDELAY_DEV_AVG_G) * qdelay_dev_avg +
+    QDELAY_DEV_AVG_G * (qdelay_max_avg - qdelay_min_avg)
+  ref_wnd_delay_scale = max(0.0, min(1.0, 1.0 - qdelay_dev_avg / QDELAY_DEV_THRESHOLD))
+end
+</pre><a href="#section-4.2.1.4-11" class="pilcrow">¶</a>
 </div>
-<p id="section-4.2.1.4.1-3">The follwoing variable is used:<a href="#section-4.2.1.4.1-3" class="pilcrow">¶</a></p>
+<p id="section-4.2.1.4-12">The following variables are used:<a href="#section-4.2.1.4-12" class="pilcrow">¶</a></p>
 <ul class="normal">
-<li class="normal" id="section-4.2.1.4.1-4.1">
-                  <p id="section-4.2.1.4.1-4.1.1">loss_event_rate (0.0): The estimated fraction of RTTs with lost data units
-detected.<a href="#section-4.2.1.4.1-4.1.1" class="pilcrow">¶</a></p>
+<li class="normal" id="section-4.2.1.4-13.1">
+                <p id="section-4.2.1.4-13.1.1">qdelay_dev_avg (0.0): indicates how much the queue delay varies[s]<a href="#section-4.2.1.4-13.1.1" class="pilcrow">¶</a></p>
 </li>
-              </ul>
-<p id="section-4.2.1.4.1-5">Two temporary variables are calculated. qdelay_norm_avg_t is the long-term
-average queue delay, qdelay_norm_var_t is the long-term variance of the queue
-delay. A high qdelay_norm_var_t indicates that the queue delay changes; this can
-be an indication that bottleneck bandwidth is reduced or that a competing flow
-has just entered. Thus, it indicates that it is not safe to adjust the queue
-delay target.<a href="#section-4.2.1.4.1-5" class="pilcrow">¶</a></p>
-<p id="section-4.2.1.4.1-6">A low qdelay_norm_var_t indicates that the queue delay is relatively stable. The
-reason could be that the queue delay is low, but it could also be that a
-competing flow is causing the bottleneck to reach the point that data unit losses
-start to occur, in which case the queue delay will stay relatively high for a
-longer time.<a href="#section-4.2.1.4.1-6" class="pilcrow">¶</a></p>
-<p id="section-4.2.1.4.1-7">The queue delay target is allowed to be increased if either the loss event rate
-is above a given threshold or qdelay_norm_var_t is low. Both these conditions
-indicate that a competing flow may be present. In all other cases, the queue
-delay target is decreased.<a href="#section-4.2.1.4.1-7" class="pilcrow">¶</a></p>
-<p id="section-4.2.1.4.1-8">The function that adjusts the qdelay_target is simple and could produce false
-positives and false negatives. The case that self-inflicted congestion by the
-SCReAMv2 algorithm may be falsely interpreted as the presence of competing
-loss-based FTP flows is a false positive. The opposite case -- where the
-algorithm fails to detect the presence of a competing FTP flow -- is a false
-negative.<a href="#section-4.2.1.4.1-8" class="pilcrow">¶</a></p>
-<p id="section-4.2.1.4.1-9">Extensive simulations have shown that the algorithm performs well in LTE and 5G
-test cases and that it also performs well in simple bandwidth-limited bottleneck
-test cases with competing FTP flows. However, the potential failure of the
-algorithm cannot be completely ruled out. A false positive (i.e., when
-self-inflicted congestion is mistakenly identified as competing flows) is
-especially problematic when it leads to increasing the target queue delay, which
-can cause the end-to-end delay to increase dramatically.<a href="#section-4.2.1.4.1-9" class="pilcrow">¶</a></p>
-<p id="section-4.2.1.4.1-10">If it is deemed unlikely that competing flows occur over the same bottleneck,
-the algorithm described in this section MAY be turned off. One such case is
-QoS-enabled bearers in 3GPP-based access such as LTE and 5G. However, when
-sending over the Internet, often the network conditions are not known for sure,
-so in general it is not possible to make safe assumptions on how a network is
-used and whether or not competing flows share the same bottleneck. Therefore,
-turning this algorithm off must be considered with caution, as it can lead to
-basically zero throughput if competing with loss-based traffic.<a href="#section-4.2.1.4.1-10" class="pilcrow">¶</a></p>
-</section>
-</div>
+              <li class="normal" id="section-4.2.1.4-13.2">
+                <p id="section-4.2.1.4-13.2.1">ref_wnd_delay_scale (1.0): A scale factor this applied to the ref_wnd increase as well as the reference window headroom<a href="#section-4.2.1.4-13.2.1" class="pilcrow">¶</a></p>
+</li>
+            </ul>
+<p id="section-4.2.1.4-14">The following constants are used:<a href="#section-4.2.1.4-14" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-4.2.1.4-15.1">
+                <p id="section-4.2.1.4-15.1.1">QDELAY_DEV_AVG_G (1.0/32): Exponentially Weighted Moving Average (EWMA) factor for qdelay_dev_avg<a href="#section-4.2.1.4-15.1.1" class="pilcrow">¶</a></p>
+</li>
+              <li class="normal" id="section-4.2.1.4-15.2">
+                <p id="section-4.2.1.4-15.2.1">QDELAY_DEV_THRESHOLD (0.01): Threshold for qdelay_dev_avg [s]<a href="#section-4.2.1.4-15.2.1" class="pilcrow">¶</a></p>
+</li>
+            </ul>
 </section>
 </div>
 </section>
@@ -2111,80 +2069,79 @@ basically zero throughput if competing with loss-based traffic.<a href="#section
 <p id="section-4.2.2-1">The reference window update contains two parts. One that reduces the reference
 window when congestion events (listed above) occur, and one part that
 continuously increases the reference window.<a href="#section-4.2.2-1" class="pilcrow">¶</a></p>
-<p id="section-4.2.2-2">The following variables are defined:<a href="#section-4.2.2-2" class="pilcrow">¶</a></p>
+<p id="section-4.2.2-2">The reference window is reduced whenever a congestion event is detected. A congestion event is either packet loss, ECN-CE marked packets or increased queue delay. The reference window reduction is applied at most once every (smoothed RTT) or, to improve fairness to other flows with a different RTT, at least very VIRTUAL_RTT second.<a href="#section-4.2.2-2" class="pilcrow">¶</a></p>
+<p id="section-4.2.2-3">The reference window is increased once per smother RTT (s_rtt). The reference window can also increase even when a congestion event occurs. Their provided the L4S scalable congestion control property where a one-MSS-increase of the reference window per RTT is offset by two marked packets per RTT.<a href="#section-4.2.2-3" class="pilcrow">¶</a></p>
+<p id="section-4.2.2-4">The following variables are defined:<a href="#section-4.2.2-4" class="pilcrow">¶</a></p>
 <ul class="normal">
-<li class="normal" id="section-4.2.2-3.1">
-              <p id="section-4.2.2-3.1.1">ref_wnd (MIN_REF_WND): Reference window [byte].<a href="#section-4.2.2-3.1.1" class="pilcrow">¶</a></p>
+<li class="normal" id="section-4.2.2-5.1">
+              <p id="section-4.2.2-5.1.1">ref_wnd (MIN_REF_WND): Reference window [byte].<a href="#section-4.2.2-5.1.1" class="pilcrow">¶</a></p>
 </li>
-            <li class="normal" id="section-4.2.2-3.2">
-              <p id="section-4.2.2-3.2.1">ref_wnd_i (1): Reference window inflection point [byte].<a href="#section-4.2.2-3.2.1" class="pilcrow">¶</a></p>
+            <li class="normal" id="section-4.2.2-5.2">
+              <p id="section-4.2.2-5.2.1">ref_wnd_i (1): Reference window inflection point [byte].<a href="#section-4.2.2-5.2.1" class="pilcrow">¶</a></p>
 </li>
-            <li class="normal" id="section-4.2.2-3.3">
-              <p id="section-4.2.2-3.3.1">qdelay_target (QDELAY_TARGET_LO): qdelay target [s], a variable qdelay target
+            <li class="normal" id="section-4.2.2-5.3">
+              <p id="section-4.2.2-5.3.1">qdelay_target (QDELAY_TARGET_LO): qdelay target [s], a variable qdelay target
 is introduced to manage cases where a fixed qdelay target would otherwise
 starve the data flow under such circumstances (e.g., FTP competes for the
 bandwidth over the same bottleneck). The qdelay target is allowed to vary
-between QDELAY_TARGET_LO and QDELAY_TARGET_HI.<a href="#section-4.2.2-3.3.1" class="pilcrow">¶</a></p>
+between QDELAY_TARGET_LO and QDELAY_TARGET_HI.<a href="#section-4.2.2-5.3.1" class="pilcrow">¶</a></p>
 </li>
-            <li class="normal" id="section-4.2.2-3.4">
-              <p id="section-4.2.2-3.4.1">last_congestion_detected_time (0): Last time congestion detected [s].<a href="#section-4.2.2-3.4.1" class="pilcrow">¶</a></p>
+            <li class="normal" id="section-4.2.2-5.4">
+              <p id="section-4.2.2-5.4.1">last_congestion_detected_time (0.0): Last time congestion detected [s].<a href="#section-4.2.2-5.4.1" class="pilcrow">¶</a></p>
 </li>
-            <li class="normal" id="section-4.2.2-3.5">
-              <p id="section-4.2.2-3.5.1">last_reaction_to_congestion_time (0): Last time congestion avoidance occured [s].<a href="#section-4.2.2-3.5.1" class="pilcrow">¶</a></p>
+            <li class="normal" id="section-4.2.2-5.5">
+              <p id="section-4.2.2-5.5.1">last_reaction_to_congestion_time (0.0): Last time congestion avoidance occurred [s].<a href="#section-4.2.2-5.5.1" class="pilcrow">¶</a></p>
 </li>
-            <li class="normal" id="section-4.2.2-3.6">
-              <p id="section-4.2.2-3.6.1">last_ref_wnd_i_update_time (0): Last time ref_wnd_i was updated [s].<a href="#section-4.2.2-3.6.1" class="pilcrow">¶</a></p>
+            <li class="normal" id="section-4.2.2-5.6">
+              <p id="section-4.2.2-5.6.1">ref_wnd_i_update_allowed (true): Allow update of ref_wnd_i.<a href="#section-4.2.2-5.6.1" class="pilcrow">¶</a></p>
 </li>
           </ul>
-<p id="section-4.2.2-4">Further the following constants are used (the RECOMMENDED values, within parentheses "()",
-for the constants are deduced from experiments):<a href="#section-4.2.2-4" class="pilcrow">¶</a></p>
+<p id="section-4.2.2-6">Further the following constants are used (the RECOMMENDED values, within parentheses "()",
+for the constants are deduced from experiments):<a href="#section-4.2.2-6" class="pilcrow">¶</a></p>
 <ul class="normal">
-<li class="normal" id="section-4.2.2-5.1">
-              <p id="section-4.2.2-5.1.1">QDELAY_TARGET_LO (0.06): Target value for the minimum qdelay [s].<a href="#section-4.2.2-5.1.1" class="pilcrow">¶</a></p>
+<li class="normal" id="section-4.2.2-7.1">
+              <p id="section-4.2.2-7.1.1">QDELAY_TARGET_LO (0.06): Target value for the minimum qdelay [s].<a href="#section-4.2.2-7.1.1" class="pilcrow">¶</a></p>
 </li>
-            <li class="normal" id="section-4.2.2-5.2">
-              <p id="section-4.2.2-5.2.1">QDELAY_TARGET_HI (0.4): Target value for the maximum qdelay [s]. This
+            <li class="normal" id="section-4.2.2-7.2">
+              <p id="section-4.2.2-7.2.1">QDELAY_TARGET_HI (0.4): Target value for the maximum qdelay [s]. This
 parameter provides an upper limit to how much the target qdelay
 (qdelay_target) can be increased in order to cope with competing loss-based
 flows. However, the target qdelay does not have to be initialized to this high
 value, as it would increase end-to-end delay and also make the rate control
-and congestion control loops sluggish.<a href="#section-4.2.2-5.2.1" class="pilcrow">¶</a></p>
+and congestion control loops sluggish.<a href="#section-4.2.2-7.2.1" class="pilcrow">¶</a></p>
 </li>
-            <li class="normal" id="section-4.2.2-5.3">
-              <p id="section-4.2.2-5.3.1">MIN_REF_WND (3000): Minimum reference window [byte].<a href="#section-4.2.2-5.3.1" class="pilcrow">¶</a></p>
+            <li class="normal" id="section-4.2.2-7.3">
+              <p id="section-4.2.2-7.3.1">MIN_REF_WND (3000): Minimum reference window [byte].<a href="#section-4.2.2-7.3.1" class="pilcrow">¶</a></p>
 </li>
-            <li class="normal" id="section-4.2.2-5.4">
-              <p id="section-4.2.2-5.4.1">BYTES_IN_FLIGHT_HEAD_ROOM (1.5): Extra headroom for bytes in flight.<a href="#section-4.2.2-5.4.1" class="pilcrow">¶</a></p>
+            <li class="normal" id="section-4.2.2-7.4">
+              <p id="section-4.2.2-7.4.1">BYTES_IN_FLIGHT_HEAD_ROOM (1.5): Extra headroom for bytes in flight.<a href="#section-4.2.2-7.4.1" class="pilcrow">¶</a></p>
 </li>
-            <li class="normal" id="section-4.2.2-5.5">
-              <p id="section-4.2.2-5.5.1">BETA_LOSS (0.7): ref_wnd scale factor due to loss event.<a href="#section-4.2.2-5.5.1" class="pilcrow">¶</a></p>
+            <li class="normal" id="section-4.2.2-7.5">
+              <p id="section-4.2.2-7.5.1">BETA_LOSS (0.7): ref_wnd scale factor due to loss event.<a href="#section-4.2.2-7.5.1" class="pilcrow">¶</a></p>
 </li>
-            <li class="normal" id="section-4.2.2-5.6">
-              <p id="section-4.2.2-5.6.1">BETA_ECN (0.8): ref_wnd scale factor due to ECN event.<a href="#section-4.2.2-5.6.1" class="pilcrow">¶</a></p>
+            <li class="normal" id="section-4.2.2-7.6">
+              <p id="section-4.2.2-7.6.1">BETA_ECN (0.8): ref_wnd scale factor due to ECN event.<a href="#section-4.2.2-7.6.1" class="pilcrow">¶</a></p>
 </li>
-            <li class="normal" id="section-4.2.2-5.7">
-              <p id="section-4.2.2-5.7.1">MSS (1000): Maximum segment size = Max data unit size [byte].<a href="#section-4.2.2-5.7.1" class="pilcrow">¶</a></p>
+            <li class="normal" id="section-4.2.2-7.7">
+              <p id="section-4.2.2-7.7.1">MSS (1000): Maximum segment size = Max data unit size [byte].<a href="#section-4.2.2-7.7.1" class="pilcrow">¶</a></p>
 </li>
-            <li class="normal" id="section-4.2.2-5.8">
-              <p id="section-4.2.2-5.8.1">POST_CONGESTION_DELAY_RTT (100): Determines how many RTTs after a congestion
-event the reference window growth should be cautious.<a href="#section-4.2.2-5.8.1" class="pilcrow">¶</a></p>
+            <li class="normal" id="section-4.2.2-7.8">
+              <p id="section-4.2.2-7.8.1">POST_CONGESTION_DELAY_RTT (100): Determines how many RTTs after a congestion
+event the reference window growth should be cautious.<a href="#section-4.2.2-7.8.1" class="pilcrow">¶</a></p>
 </li>
-            <li class="normal" id="section-4.2.2-5.9">
-              <p id="section-4.2.2-5.9.1">MUL_INCREASE_FACTOR (0.02): Determines how much (as a fraction of ref_wnd)
-that the ref_wnd can increase per RTT.<a href="#section-4.2.2-5.9.1" class="pilcrow">¶</a></p>
+            <li class="normal" id="section-4.2.2-7.9">
+              <p id="section-4.2.2-7.9.1">MUL_INCREASE_FACTOR (0.02): Determines how much (as a fraction of ref_wnd)
+that the ref_wnd can increase per RTT.<a href="#section-4.2.2-7.9.1" class="pilcrow">¶</a></p>
 </li>
-            <li class="normal" id="section-4.2.2-5.10">
-              <p id="section-4.2.2-5.10.1">IS_L4S (false): Congestion control operates in L4S mode.<a href="#section-4.2.2-5.10.1" class="pilcrow">¶</a></p>
+            <li class="normal" id="section-4.2.2-7.10">
+              <p id="section-4.2.2-7.10.1">IS_L4S (false): Congestion control operates in L4S mode.<a href="#section-4.2.2-7.10.1" class="pilcrow">¶</a></p>
 </li>
-            <li class="normal" id="section-4.2.2-5.11">
-              <p id="section-4.2.2-5.11.1">VIRTUAL_RTT (0.025): Virtual RTT [s]. This mimics Prague's RTT fairness such that flows with RTT
-below VIRTUAL_RTT should get a roughly equal share over an L4S path.<a href="#section-4.2.2-5.11.1" class="pilcrow">¶</a></p>
-</li>
-            <li class="normal" id="section-4.2.2-5.12">
-              <p id="section-4.2.2-5.12.1">MIN_QUEUE_DELAY_DEV_SCALE (0.1): Min allowed scaling of ref_wnd backoff and increase due to large qdelay_dev_norm.<a href="#section-4.2.2-5.12.1" class="pilcrow">¶</a></p>
+            <li class="normal" id="section-4.2.2-7.11">
+              <p id="section-4.2.2-7.11.1">VIRTUAL_RTT (0.025): Virtual RTT [s]. This mimics Prague's RTT fairness such that flows with RTT
+below VIRTUAL_RTT should get a roughly equal share over an L4S path.<a href="#section-4.2.2-7.11.1" class="pilcrow">¶</a></p>
 </li>
           </ul>
-<div id="reference-window-reduction">
+<div id="ref-wnd-reduction">
 <section id="section-4.2.2.1">
             <h5 id="name-reference-window-reduction">
 <a href="#section-4.2.2.1" class="section-number selfRef">4.2.2.1. </a><a href="#name-reference-window-reduction" class="section-name selfRef">Reference Window Reduction</a>
@@ -2193,10 +2150,11 @@ below VIRTUAL_RTT should get a roughly equal share over an L4S path.<a href="#se
 <pre>
 # Compute scaling factor for reference window adjustment
 # when close to the last known max value before congestion
-# ref_wnd_i is updated before this code
-# loss_detected and data_units_marked indicates that packets
-# are marked or lost since last_reaction_to_congestion_time
-scl_t = (ref_wnd-ref_wnd_i) / ref_wnd_i
+# ref_wnd_i is updated before this code.
+# The boolean flags loss_detected and data_units_marked
+# indicate that packets are marked or lost since
+# last_reaction_to_congestion_time
+scl_t = (ref_wnd - ref_wnd_i) / ref_wnd_i
 scl_t *= 8
 scl_t = scl_t * scl_t
 scl_t = max(0.1, min(1.0, scl_t))
@@ -2206,12 +2164,13 @@ if (loss_detected || data_units_marked)
 end
 
 # The reference window is updated at least every VIRTUAL_RTT
-if (now - last_reaction_to_congestion_time &gt;= min(VIRTUAL_RTT,s_rtt)
+if (now - last_reaction_to_congestion_time &gt;= min(VIRTUAL_RTT, s_rtt)
   if (loss_detected)
     is_loss_t = true
   else if (data_units_marked)
     is_ce_t = true
-  else if (qdelay_avg &gt; qdelay_target/2 &amp;&amp; !(is_ce_t || is_loss_t))
+  else if (qdelay_avg &gt; qdelay_target / 2 &amp;&amp;
+    !(is_ce_t || is_loss_t))
     # The calculation of l4s_alpha_v_t is based on qdelay_avg to reduce
     # sensitivity to sudden non-congestion related delay spikes that can
     # occur due to lower protocol retransmissions or cell change
@@ -2223,12 +2182,10 @@ if (now - last_reaction_to_congestion_time &gt;= min(VIRTUAL_RTT,s_rtt)
 end
 
 if (is_loss_t || is_ce_t || is_virtual_ce_t)
-  if (now - last_ref_wnd_i_update_time &gt; 10*s_rtt)
-    # Update ref_wnd_i, no more often than every 10 RTTs
-    # Additional median filtering over more congestion epochs
-    # may improve accuracy of ref_wnd_i
-    last_ref_wnd_i_update_time = now
+  if (ref_wnd_i_update_allowed)
+    # Update ref_wnd_i
     ref_wnd_i = ref_wnd
+    ref_wnd_i_update_allowed = false
   end
 end
 
@@ -2244,8 +2201,9 @@ if (is_ce_t)
     backoff_t = l4s_alpha / 2
 
     # Scale down backoff when RTT is high to avoid overreaction to
-    # congestion
-    backoff_t /= max(1.0, s_rtt/VIRTUAL_RTT)
+    # congestion. This is related to that congestion backoff can occur
+    # every min(VIRTUAL_RTT, s_rtt)
+    backoff_t /= max(1.0, s_rtt / VIRTUAL_RTT)
 
     # Jitter is considered large if the qdelay is larger than qdelay_target/4
     # when L4S is enabled
@@ -2255,17 +2213,14 @@ if (is_ce_t)
         backoff_t *= max(0.25, scl_t)
 
         # Optional additional code for increased rate stability
-        # qdelay_dev_norm is zero if REDUCE_JITTER is false
         # Counterbalance the limitation in CWND increase when the queue
-        # delay varies. This helps to avoid starvation in the presence of
-        # competing TCP Prague flows
+        # delay varies.
         # Code has no effect if REDUCE_JITTER == false
-        backoff_t *= max(MIN_QUEUE_DELAY_DEV_SCALE,
-          (QDELAY_DEV_NORM_TH - qdelay_dev_norm) / QDELAY_DEV_NORM_TH)
+        backoff_t *= max(0.25, ref_wnd_delay_scale)
     end
 
     if (now - last_reaction_to_congestion_time &gt;
-        100*max(VIRTUAL_RTT,s_rtt))
+      100 * max(VIRTUAL_RTT, s_rtt))
       # A long time (&gt;100 RTTs) since last congested because
       # link throughput exceeds max video bitrate.
       # There is a certain risk that ref_wnd has increased way above
@@ -2284,7 +2239,8 @@ if (is_virtual_ce_t)
   backoff_t = l4s_alpha_v_t / 2
 
   # Scale down backoff when RTT is high to avoid overreaction to
-  # congestion
+  # congestion This is related to that congestion backoff can occur
+  # every min(VIRTUAL_RTT, s_rtt)
   backoff_t /= max(1.0, s_rtt/VIRTUAL_RTT)
 
   ref_wnd = (1.0 - backoff_t) * ref_wnd
@@ -2296,9 +2252,26 @@ if (is_loss_t || is_ce_t || is_virtual_ce_t)
 end
 </pre><a href="#section-4.2.2.1-1" class="pilcrow">¶</a>
 </div>
+<p id="section-4.2.2.1-2">The reference window reduction, when congestion is detected due to L4S marking or increased delay, is constrained by a number of factors:<a href="#section-4.2.2.1-2" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-4.2.2.1-3.1">
+                <p id="section-4.2.2.1-3.1.1">For cases that the target rate is lower than the acknowledged bitrate, it is likely that the target bitrate is already reduced because of an increased RTT. A further (large) decrease of the reference window would then only lead to an unnecessary undershoot.<a href="#section-4.2.2.1-3.1.1" class="pilcrow">¶</a></p>
+</li>
+              <li class="normal" id="section-4.2.2.1-3.2">
+                <p id="section-4.2.2.1-3.2.1">For large RTTs, a restriction attenuates variations in the reference window<a href="#section-4.2.2.1-3.2.1" class="pilcrow">¶</a></p>
+</li>
+              <li class="normal" id="section-4.2.2.1-3.3">
+                <p id="section-4.2.2.1-3.3.1">When the reference window is close to the last known max value, this reduces large variations<a href="#section-4.2.2.1-3.3.1" class="pilcrow">¶</a></p>
+</li>
+              <li class="normal" id="section-4.2.2.1-3.4">
+                <p id="section-4.2.2.1-3.4.1">When ref_wnd_delay_scale is small<a href="#section-4.2.2.1-3.4.1" class="pilcrow">¶</a></p>
+</li>
+            </ul>
+<p id="section-4.2.2.1-4">Link layer losses, i.e. losses that are not congestion related can lead to unwarranted congestion back-off. One method is to apply congestion backoff only when an average loss rate exceeds a threshold. A suggested modification to the code above is found in <a href="#link-loss-rate-policer" class="auto internal xref">Section 4.5.2</a>.
+The reference window can undershoot on congestion, an optional method to remedy this feature is described in <a href="#ref-wnd-undershoot" class="auto internal xref">Section 4.5.3</a>.<a href="#section-4.2.2.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
-<div id="reference-window-increase">
+<div id="ref-wnd-increase">
 <section id="section-4.2.2.2">
             <h5 id="name-reference-window-increase">
 <a href="#section-4.2.2.2" class="section-number selfRef">4.2.2.2. </a><a href="#name-reference-window-increase" class="section-name selfRef">Reference Window Increase</a>
@@ -2310,19 +2283,19 @@ end
 
 post_congestion_scale_t = max(0.0, min(1.0,
   (now - last_congestion_detected_time) /
-  (POST_CONGESTION_DELAY_RTTS * max(VIRTUAL_RTT, s_rtt))))
+    (POST_CONGESTION_DELAY_RTTS * max(VIRTUAL_RTT, s_rtt))))
 
 # Scale factor for ref_wnd update
-ref_wnd_scale_factor_t = 1.0 + (MUL_INCREASE_FACTOR  * ref_wnd) / MSS
+ref_wnd_scale_factor_t = 1.0 + (MUL_INCREASE_FACTOR * ref_wnd) / MSS
 
 # Calculate bytes acked that are not CE marked
 # For the case that only accumulated number of CE marked packets is
 # reported by the feedback, it is necessary to make an approximation
 # of bytes_newly_acked_ce based on average data unit size.
-bytes_newly_acked_minus_ce_t = bytes_newly_acked-
+bytes_newly_acked_minus_ce_t = bytes_newly_acked -
                                bytes_newly_acked_ce
 
-increment_t = bytes_newly_acked_minus_ce_t*ref_wnd_ratio
+increment_t = bytes_newly_acked_minus_ce_t * ref_wnd_ratio
 
 # Reduce increment for small RTTs
 tmp_t = min(1.0, s_rtt / VIRTUAL_RTT)
@@ -2330,28 +2303,27 @@ increment_t *= tmp_t
 
 # Apply limit to reference window growth when close to last
 # known max value before congestion
-increment_t *= max(0.25,scl_t)
+increment_t *= max(0.25, scl_t)
 
 # Optional additional code for increased rate stability
-# qdelay_dev_norm is zero if REDUCE_JITTER is false
-# Put a additional restriction on reference window growth if qdelay varies a lot.
+# Put an additional restriction on reference window growth if qdelay varies a lot.
 # Better to enforce a slow increase in reference window and get
-# a more stable bitrate. Restriction is limited by MIN_QUEUE_DELAY_DEV_SCALE to avoid that
-# ref_wnd growth becomes zero.
+# a more stable bitrate. Restriction is limited to 0.1 to
+# avoid that ref_wnd growth stalls.
 # Code has no effect if REDUCE_JITTER == false
-increment_t *= max(MIN_QUEUE_DELAY_DEV_SCALE,
-  (QDELAY_DEV_NORM_TH - qdelay_dev_norm) / QDELAY_DEV_NORM_TH)
+increment_t *= max(0.1, ref_wnd_delay_scale)
 
 # Scale up increment with multiplicative increase
 # Limit multiplicative increase when congestion occurred
 # recently and when reference window is close to the last
 # known max value.
-float tmp_t = ref_wnd_scale_factor_t
+tmp_t = ref_wnd_scale_factor_t
 if (tmp_t &gt; 1.0)
   tmp_t = 1.0 + (tmp_t - 1.0) * post_congestion_scale_t * scl_t
 end
 increment_t *= tmp_t
 
+ref_wnd_prev_ = ref_wnd
 # Increase ref_wnd only if bytes in flight is large enough
 # Quite a lot of slack is allowed here to avoid that bitrate
 # locks to low values.
@@ -2361,6 +2333,9 @@ max_allowed_t = MSS + max(max_bytes_in_flight,
 int ref_wnd_t = ref_wnd + increment_t
 if (ref_wnd_t &lt;= max_allowed_t &amp;&amp; target_bitrate &lt; TARGET_BITRATE_MAX)
   ref_wnd = ref_wnd_t
+end
+if (ref_wnd &gt; ref_wnd_prev_)
+  ref_wnd_i_update_allowed = true
 end
 </pre><a href="#section-4.2.2.2-1" class="pilcrow">¶</a>
 </div>
@@ -2389,7 +2364,7 @@ to manage this:<a href="#section-4.2.2.2-5" class="pilcrow">¶</a></p>
 <li class="normal" id="section-4.2.2.2-6.1">
                 <p id="section-4.2.2.2-6.1.1">Restore correct value of ref_wnd upon congestion. This is done if is a
 prolonged time since the link was congested. A typical example is that
-SCReAMv2 has been rate limited, i.e the target bitrate has reached the
+SCReAMv2 has been rate limited, i.e. the target bitrate has reached the
 TARGET_BITRATE_MAX.<a href="#section-4.2.2.2-6.1.1" class="pilcrow">¶</a></p>
 </li>
               <li class="normal" id="section-4.2.2.2-6.2">
@@ -2399,6 +2374,13 @@ values. See <span>[<a href="#SCReAM-CPP-implementation" class="cite xref">SCReAM
 </li>
             </ul>
 <p id="section-4.2.2.2-7">The two mechanisms complement one another.<a href="#section-4.2.2.2-7" class="pilcrow">¶</a></p>
+<p id="section-4.2.2.2-8">The ref_wnd can optionally be restricted by max_policed_ref_wnd, described in <a href="#link-loss-rate-policer" class="auto internal xref">Section 4.5.2</a>, to reduce packet losses when transmission links are subject to rate policing.
+The additional code for this is shown below.<a href="#section-4.2.2.2-8" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-4.2.2.2-9">
+<pre>
+ref_wnd = min(ref_wnd, max_policed_ref_wnd)
+</pre><a href="#section-4.2.2.2-9" class="pilcrow">¶</a>
+</div>
 </section>
 </div>
 </section>
@@ -2420,6 +2402,7 @@ transmitted. Updated when ref_wnd is updated and when data unit is
 transmitted [byte].<a href="#section-4.3-2.1.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
+<p id="section-4.3-3">The sender transmission control is executed for each transmitted packet, the send interval is dictated by the pacing but is restricted by the send window. In practice it, however, can be more practical to transmit packets in small burst to save processing power, or alternatively, to offload the pacing to OS kernel function.<a href="#section-4.3-3" class="pilcrow">¶</a></p>
 <div id="send-window">
 <section id="section-4.3.1">
           <h4 id="name-send-window-calculation">
@@ -2456,17 +2439,17 @@ reference window and the amount of bytes in flight according to the pseudocode
 below. The multiplication of ref_wnd with ref_wnd_overhead has the effect that bytes in flight is 'around' the ref_wnd
 rather than limited by the ref_wnd. The
 implementation allows the data unit queue to be small even when the frame sizes vary
-and thus increased e2e delay can be avoided.<a href="#section-4.3.1-3" class="pilcrow">¶</a></p>
+and thus, increased e2e delay can be avoided.<a href="#section-4.3.1-3" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-4.3.1-4">
 <pre>
 send_wnd = ref_wnd * ref_wnd_overhead - bytes_in_flight
 </pre><a href="#section-4.3.1-4" class="pilcrow">¶</a>
 </div>
-<p id="section-4.3.1-5">The send window is updated whenever an data unit is transmitted or an feedback
+<p id="section-4.3.1-5">The send window is updated whenever a data unit is transmitted or an feedback
 messaged is received.<a href="#section-4.3.1-5" class="pilcrow">¶</a></p>
 <p id="section-4.3.1-6">The ref_wnd_overhead is adjusted dynamically. A large overhead is beneficial when the network link is uncongested as it allows to
-transmit large media frames with little transmission delay. A large overhead is also beneficial for cases where network links use virtual queue marking or can temporarly absorb bursts from L4S capable flows.
-If, on the other hand the network link is congested, then it is better to restrict how much bytes in flight exceeds the reference window because is not possible to push data faster than the reference window allows. This restriction reduces varaitions in RTT caused by self-congestion and improves performance for the cases where media encoders are slow to react to changes in target rate.<a href="#section-4.3.1-6" class="pilcrow">¶</a></p>
+transmit large media frames with little transmission delay. A large overhead is also beneficial for cases where network links use virtual queue marking or can temporarily absorb bursts from L4S capable flows.
+If, on the other hand the network link is congested, then it is better to restrict how much bytes in flight exceeds the reference window because is not possible to push data faster than the reference window allows. This restriction reduces variations in RTT caused by self-congestion and improves performance for the cases where media encoders are slow to react to changes in target rate.<a href="#section-4.3.1-6" class="pilcrow">¶</a></p>
 <p id="section-4.3.1-7">The following constants are used (the RECOMMENDED values, within parentheses "()",
 for the constants are deduced from experiments):<a href="#section-4.3.1-7" class="pilcrow">¶</a></p>
 <ul class="normal">
@@ -2482,7 +2465,7 @@ exceed ref_wnd.<a href="#section-4.3.1-8.1.1" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-4.3.1-10">
 <pre>
 ref_wnd_overhead = REF_WND_OVERHEAD_MIN +
-  (REF_WND_OVERHEAD_MAX - REF_WND_OVERHEAD_MIN)*max(0.0,(QDELAY_DEV_NORM_TH-qdelay_dev_norm)/QDELAY_DEV_NORM_TH)
+  (REF_WND_OVERHEAD_MAX - REF_WND_OVERHEAD_MIN) * ref_wnd_delay_scale
 </pre><a href="#section-4.3.1-10" class="pilcrow">¶</a>
 </div>
 </section>
@@ -2531,7 +2514,7 @@ pace_bitrate = max(RATE_PACE_MIN, target_bitrate) *
 # Calculate and apply relaxed pacing
 nominal_rate_t = target_bitrate/TARGET_BITRATE_MAX
 pace_rate_scale_t = min(1.0,
-  (nominal_rate_t-RELAXED_PACING_LIMIT_LOW)/(1.0 - RELAXED_PACING_LIMIT_LOW))
+  (nominal_rate_t - RELAXED_PACING_LIMIT_LOW) / (1.0 - RELAXED_PACING_LIMIT_LOW))
 pace_rate_scale_t = min(1.0,
   max(1.0 / MAX_RELAXED_PACING_FACTOR, 1.0 - pace_rate_scale_t))
 pace_bitrate /= pace_rate_scale_t
@@ -2551,16 +2534,16 @@ minimum pacing rate.<a href="#section-4.3.2-7" class="pilcrow">¶</a></p>
 <a href="#section-4.4" class="section-number selfRef">4.4. </a><a href="#name-media-rate-control-2" class="section-name selfRef">Media Rate Control</a>
         </h3>
 <p id="section-4.4-1">The media rate control algorithm is executed whenever the reference window is
-updated and calculates the target bitrate:<a href="#section-4.4-1" class="pilcrow">¶</a></p>
+updated and calculates the target bitrate. It is, however, not necessary to execute this part more often than the frame period of the media encoder.<a href="#section-4.4-1" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-4.4-2.1">
             <p id="section-4.4-2.1.1">target_bitrate (0): Media target bitrate [bps].<a href="#section-4.4-2.1.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="section-4.4-2.2">
-            <p id="section-4.4-2.2.1">rate_adjust_factor (0): Adjustment factor to avoid unnecessary media queue buildup.<a href="#section-4.4-2.2.1" class="pilcrow">¶</a></p>
+            <p id="section-4.4-2.2.1">rate_adjust_factor (0.0): Adjustment factor to avoid unnecessary media queue buildup.<a href="#section-4.4-2.2.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="section-4.4-2.3">
-            <p id="section-4.4-2.3.1">frame_size_dev (0): Frame size deviation.<a href="#section-4.4-2.3.1" class="pilcrow">¶</a></p>
+            <p id="section-4.4-2.3.1">frame_size_dev (0.0): Frame size deviation.<a href="#section-4.4-2.3.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="section-4.4-2.4">
             <p id="section-4.4-2.4.1">frame_period (0.02): An estimated frame period.<a href="#section-4.4-2.4.1" class="pilcrow">¶</a></p>
@@ -2569,7 +2552,7 @@ updated and calculates the target bitrate:<a href="#section-4.4-1" class="pilcro
 <p id="section-4.4-3">The following constants are used by the media rate control:<a href="#section-4.4-3" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-4.4-4.1">
-            <p id="section-4.4-4.1.1">PACKET_OVERHEAD (20) : Estimated packetization overhead [byte].<a href="#section-4.4-4.1.1" class="pilcrow">¶</a></p>
+            <p id="section-4.4-4.1.1">PACKET_OVERHEAD (20): Estimated packetization overhead [byte].<a href="#section-4.4-4.1.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="section-4.4-4.2">
             <p id="section-4.4-4.2.1">TARGET_BITRATE_MIN: Minimum target bitrate in [bps] (bits per second).<a href="#section-4.4-4.2.1" class="pilcrow">¶</a></p>
@@ -2578,16 +2561,16 @@ updated and calculates the target bitrate:<a href="#section-4.4-1" class="pilcro
             <p id="section-4.4-4.3.1">TARGET_BITRATE_MAX: Maximum target bitrate in [bps].<a href="#section-4.4-4.3.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="section-4.4-4.4">
-            <p id="section-4.4-4.4.1">RATE_ADJUST_GAIN (1/16): Adjustment gain for rate adjustment to compensate for media queue buildup.<a href="#section-4.4-4.4.1" class="pilcrow">¶</a></p>
+            <p id="section-4.4-4.4.1">RATE_ADJUST_GAIN (1.0/16): Adjustment gain for rate adjustment to compensate for media queue buildup.<a href="#section-4.4-4.4.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="section-4.4-4.5">
-            <p id="section-4.4-4.5.1">FRAME_SIZE_DEV_ALPHA (1/64): Time constant to compensate for varying frame sizes.<a href="#section-4.4-4.5.1" class="pilcrow">¶</a></p>
+            <p id="section-4.4-4.5.1">FRAME_SIZE_DEV_ALPHA (1.0/64): Time constant to compensate for varying frame sizes.<a href="#section-4.4-4.5.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
-<p id="section-4.4-5">The target bitrate is essentiatlly based on the reference window ref_wnd and the (smoothed) RTT s_rtt according to<a href="#section-4.4-5" class="pilcrow">¶</a></p>
+<p id="section-4.4-5">The target bitrate is essentially based on the reference window ref_wnd and the (smoothed) RTT s_rtt according to<a href="#section-4.4-5" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-4.4-6">
 <pre>
-target_bitrate = 8 * ref_wnd / s_rtt
+target_bitrate = 8.0 * ref_wnd / s_rtt
 </pre><a href="#section-4.4-6" class="pilcrow">¶</a>
 </div>
 <p id="section-4.4-7">The role of the media rate control is to strike a reasonable balance between a
@@ -2608,7 +2591,7 @@ scenarios<a href="#section-4.4-8" class="pilcrow">¶</a></p>
 </li>
         </ul>
 <p id="section-4.4-10">The rate_adjust_factor helps to reduce the target rate when the delay in the data unit increases beyond frame_period/4, this allows for some modest queue buildup to ensure a good link utilization. The frame_size_dev calculates the positive deviation in frame sizes from the nominal, this helps compensate for larger variations in frame size, systematic errors in media encoder output bitrate and also to some extent sluggish media rate control loops where the media coder rate lags behind the target bitrate.
-The complete pseudo code for adjustment of the target bitrate is shown below. The algorithm parts for rate_adjust_factor and frame_size_dev are suggested examples how to compensate for that frames sized deviate from the nominal.<a href="#section-4.4-10" class="pilcrow">¶</a></p>
+The complete pseudo code for adjustment of the target bitrate is shown below. The algorithm parts for rate_adjust_factor and frame_size_dev are suggested examples how to compensate for that frame sizes deviate from the nominal.<a href="#section-4.4-10" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-4.4-11">
 <pre>
 # Calculate the rate_adjust_factor and the frame_size_dev for each new media frame.
@@ -2638,7 +2621,7 @@ tmp_t *= 1.0 - min(0.2, max(0.0, ref_wnd_ratio - 0.1))
 
 # Additional compensation for packetization overhead,
 # important when MSS is small
-tmp_t_ *= MSS / (MSS + PACKET_OVERHEAD)
+tmp_t *= MSS / (MSS + PACKET_OVERHEAD)
 
 # An additional downscaling is needed to avoid unnecessary
 # sender queue build-up, better to set the target bitrate
@@ -2654,35 +2637,41 @@ target_bitrate = min(TARGET_BITRATE_MAX,
 </div>
 </section>
 </div>
-<div id="clock-drift-issues-and-remedies">
+<div id="additional-functions">
 <section id="section-4.5">
-        <h3 id="name-clock-drift-issues-and-reme">
-<a href="#section-4.5" class="section-number selfRef">4.5. </a><a href="#name-clock-drift-issues-and-reme" class="section-name selfRef">Clock drift issues and remedies</a>
+        <h3 id="name-additional-functions">
+<a href="#section-4.5" class="section-number selfRef">4.5. </a><a href="#name-additional-functions" class="section-name selfRef">Additional functions</a>
         </h3>
-<p id="section-4.5-1">SCReAM can suffer from the same issues with clock drift as is the case with LEDBAT <span>[<a href="#RFC6817" class="cite xref">RFC6817</a>]</span>. However, Appendix A.2 in <span>[<a href="#RFC6817" class="cite xref">RFC6817</a>]</span> describes ways to mitigate issues with clock drift. A clockdrift compensation method is also implemented in <span>[<a href="#SCReAM-CPP-implementation" class="cite xref">SCReAM-CPP-implementation</a>]</span>. The SCReAM implementation resets base delay history when it is determined that clock drift or skip becomes too large. This is achieved by reducing the target bitrate for a few RTTs.<a href="#section-4.5-1" class="pilcrow">¶</a></p>
-<p id="section-4.5-2">The variables and constants are:
-* delay_min_avg (0): A long term averaged min queue delay [s].<a href="#section-4.5-2" class="pilcrow">¶</a></p>
+<p id="section-4.5-1">This section covers additional functionality that is not critical for the function of the SCReAM congestion control algorithm, but can nevertheless, improve the performance.<a href="#section-4.5-1" class="pilcrow">¶</a></p>
+<div id="clock-drift">
+<section id="section-4.5.1">
+          <h4 id="name-clock-drift-issues-and-reme">
+<a href="#section-4.5.1" class="section-number selfRef">4.5.1. </a><a href="#name-clock-drift-issues-and-reme" class="section-name selfRef">Clock drift issues and remedies</a>
+          </h4>
+<p id="section-4.5.1-1">SCReAM can suffer from the same issues with clock drift as is the case with LEDBAT <span>[<a href="#RFC6817" class="cite xref">RFC6817</a>]</span>. However, Appendix A.2 in <span>[<a href="#RFC6817" class="cite xref">RFC6817</a>]</span> describes ways to mitigate issues with clock drift. A clock drift compensation method is also implemented in <span>[<a href="#SCReAM-CPP-implementation" class="cite xref">SCReAM-CPP-implementation</a>]</span>. The SCReAM implementation resets base delay history when it is determined that clock drift or skip becomes too large. This is achieved by reducing the target bitrate for a few RTTs.<a href="#section-4.5.1-1" class="pilcrow">¶</a></p>
+<p id="section-4.5.1-2">The variables and constants are:
+* delay_min_avg (0): A long term averaged min queue delay [s].<a href="#section-4.5.1-2" class="pilcrow">¶</a></p>
 <ul class="normal">
-<li class="normal" id="section-4.5-3.1">
-            <p id="section-4.5-3.1.1">qdelay_min (MAX_VALUE): The min queue delay measured during an RTT [s], initialized to a very high value.<a href="#section-4.5-3.1.1" class="pilcrow">¶</a></p>
+<li class="normal" id="section-4.5.1-3.1">
+              <p id="section-4.5.1-3.1.1">qdelay_min (MAX_VALUE): The min queue delay measured during an RTT [s], initialized to a very high value.<a href="#section-4.5.1-3.1.1" class="pilcrow">¶</a></p>
 </li>
-          <li class="normal" id="section-4.5-3.2">
-            <p id="section-4.5-3.2.1">QDELAY_MIN_AVG_ALPHA (1/256): Slow EWMA time constant for delay_min_avg.<a href="#section-4.5-3.2.1" class="pilcrow">¶</a></p>
+            <li class="normal" id="section-4.5.1-3.2">
+              <p id="section-4.5.1-3.2.1">QDELAY_MIN_AVG_ALPHA (1.0/256): Slow EWMA time constant for delay_min_avg.<a href="#section-4.5.1-3.2.1" class="pilcrow">¶</a></p>
 </li>
-        </ul>
-<p id="section-4.5-4">The steps for the clockdrift compensation is as follows:<a href="#section-4.5-4" class="pilcrow">¶</a></p>
+          </ul>
+<p id="section-4.5.1-4">The steps for the clock drift compensation is as follows:<a href="#section-4.5.1-4" class="pilcrow">¶</a></p>
 <ul class="normal">
-<li class="normal" id="section-4.5-5.1">
-            <p id="section-4.5-5.1.1">Store the min qdelay (qdelay_min) during one RTT.<a href="#section-4.5-5.1.1" class="pilcrow">¶</a></p>
+<li class="normal" id="section-4.5.1-5.1">
+              <p id="section-4.5.1-5.1.1">Store the min qdelay (qdelay_min) during one RTT.<a href="#section-4.5.1-5.1.1" class="pilcrow">¶</a></p>
 </li>
-          <li class="normal" id="section-4.5-5.2">
-            <p id="section-4.5-5.2.1">When an RTT has elapsed:<a href="#section-4.5-5.2.1" class="pilcrow">¶</a></p>
+            <li class="normal" id="section-4.5.1-5.2">
+              <p id="section-4.5.1-5.2.1">When an RTT has elapsed:<a href="#section-4.5.1-5.2.1" class="pilcrow">¶</a></p>
 </li>
-        </ul>
-<div class="alignLeft art-text artwork" id="section-4.5-6">
+          </ul>
+<div class="alignLeft art-text artwork" id="section-4.5.1-6">
 <pre>
 # Update delay_min_avg
-qdelay_min_avg = (1 - QDELAY_MIN_AVG_ALPHA) * qdelay_min_avg +
+qdelay_min_avg = (1.0 - QDELAY_MIN_AVG_ALPHA) * qdelay_min_avg +
   QDELAY_MIN_AVG_ALPHA * qdelay_min
 qdelay_min = MAX_VALUE # set qdelay_min to a very high value
 if qdelay_min_avg &gt; qdelay_target / 4
@@ -2691,7 +2680,197 @@ if qdelay_min_avg &gt; qdelay_target / 4
   # 1. Reset queue delay history
   # 2. Scale down target bitrate by 50% for a period of max(5 * s_rtt, 0.2)
 end
-</pre><a href="#section-4.5-6" class="pilcrow">¶</a>
+</pre><a href="#section-4.5.1-6" class="pilcrow">¶</a>
+</div>
+</section>
+</div>
+<div id="link-loss-rate-policer">
+<section id="section-4.5.2">
+          <h4 id="name-link-layer-losses-and-rate-">
+<a href="#section-4.5.2" class="section-number selfRef">4.5.2. </a><a href="#name-link-layer-losses-and-rate-" class="section-name selfRef">Link layer losses and rate policers</a>
+          </h4>
+<p id="section-4.5.2-1">Link layer losses, i.e. losses that are not congestion related can lead to unwarranted congestion backoff. One method is to apply a conditional loss backoff only when an average loss rate exceeds a threshold. This increases robustness against non-congestion related losses. One problem is that such a method can also increase congestion related packet loss which can be detrimental for real time media such as video. This is resolved in that immediate loss backoff is triggered when the queue delay increases. While the conditional loss backoff increases robustness against link layer losses, it is inevitable that the algorithm can delay congestion backoff and thus cause increased packet loss rate. The constant LOSS_RATE_THRESHOLD should therefore be set low enough, with the objective to increase robustness to link layer losses only.<a href="#section-4.5.2-1" class="pilcrow">¶</a></p>
+<p id="section-4.5.2-2">A loss rate is calculated for each packet with an average value reflecting the number of packets send with in two  RTTs or 4/LOSS_RATE_THRESHOLD packets for small ref_win values. This avoids that multiple consecutive link layer losses cause the loss rate to increase too quickly. The averaging is selected to be slow enough to avoid that single packet drops cause backoff, provided that the queue delay is low, and fast enough to avoid excessive packet loss in the presence of very shallow queues.<a href="#section-4.5.2-2" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-4.5.2-3">
+<pre>
+# Apply an EWMA filter with a 2 RTT time constant
+# or at least 4/LOSS_RATE_THRESHOLD packets.
+alpha = min(LOSS_RATE_THRESHOLD / 4, mss / ref_wnd / 2)
+if (packet_is_lost)
+  loss_rate = (1.0 - alpha) * loss_rate + alpha
+else
+  loss_rate = (1.0 - alpha) * loss_rate
+</pre><a href="#section-4.5.2-3" class="pilcrow">¶</a>
+</div>
+<p id="section-4.5.2-4">The following variables and constants are used:<a href="#section-4.5.2-4" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-4.5.2-5.1">
+              <p id="section-4.5.2-5.1.1">loss_rate (0.0): Average loss rate.<a href="#section-4.5.2-5.1.1" class="pilcrow">¶</a></p>
+</li>
+            <li class="normal" id="section-4.5.2-5.2">
+              <p id="section-4.5.2-5.2.1">packet_is_lost: Set to true if a packet is determined to be lost.<a href="#section-4.5.2-5.2.1" class="pilcrow">¶</a></p>
+</li>
+            <li class="normal" id="section-4.5.2-5.3">
+              <p id="section-4.5.2-5.3.1">LOSS_RATE_THRESHOLD (0.01): Threshold for triggering loss based reference window backoff.<a href="#section-4.5.2-5.3.1" class="pilcrow">¶</a></p>
+</li>
+          </ul>
+<p id="section-4.5.2-6">Rate policers can give quite large loss bursts, which can impact real time media quality quite badly. A rate policer is characterized by that it does not build a queue. Hence, the rate policer detection triggers on the observation that the loss rate is high and the queue delay is low.<a href="#section-4.5.2-6" class="pilcrow">¶</a></p>
+<p id="section-4.5.2-7">The code below modifies the 'if (loss_detected)' part in <a href="#ref-wnd-reduction" class="auto internal xref">Section 4.2.2.1</a><a href="#section-4.5.2-7" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-4.5.2-8">
+<pre>
+..
+  if (loss_detected)
+    # Conditional loss backoff
+    if (loss_rate &gt; LOSS_RATE_THRESHOLD || qdelay_avg &gt; qdelay_target / 4)
+      is_loss_t = true
+    end
+    # Detection of rate policer induced loss and setting of limit to ref_wnd
+    if (loss_rate &gt; LOSS_RATE_THRESHOLD_POLICER &amp;&amp;
+        qdelay_avg &lt; qdelay_target / 4)
+      max_policed_ref_wnd = ref_wnd*BETA_LOSS_POLICER
+    end
+..
+</pre><a href="#section-4.5.2-8" class="pilcrow">¶</a>
+</div>
+<p id="section-4.5.2-9">The variables and constants are:<a href="#section-4.5.2-9" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-4.5.2-10.1">
+              <p id="section-4.5.2-10.1.1">max_policed_ref_wnd (MAX_VALUE): Upper limit on ref_wnd.<a href="#section-4.5.2-10.1.1" class="pilcrow">¶</a></p>
+</li>
+            <li class="normal" id="section-4.5.2-10.2">
+              <p id="section-4.5.2-10.2.1">LOSS_RATE_THRESHOLD_POLICER (0.1): loss rate threshold for detection of policer.<a href="#section-4.5.2-10.2.1" class="pilcrow">¶</a></p>
+</li>
+            <li class="normal" id="section-4.5.2-10.3">
+              <p id="section-4.5.2-10.3.1">BETA_LOSS_POLICER (0.9): ref_wnd scale for calculation of max_policed_ref_wnd.<a href="#section-4.5.2-10.3.1" class="pilcrow">¶</a></p>
+</li>
+          </ul>
+<p id="section-4.5.2-11">The max_policed_ref_wnd enforces an upper limit to the ref_wnd. The max_policed_ref_wnd should increase by a small fraction, for instance 0.001 per RTT that gradually lifts the limit, this prevents that possible false detection of rate policers causes a permanent restriction on ref_wnd.<a href="#section-4.5.2-11" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="ref-wnd-undershoot">
+<section id="section-4.5.3">
+          <h4 id="name-reference-window-undershoot">
+<a href="#section-4.5.3" class="section-number selfRef">4.5.3. </a><a href="#name-reference-window-undershoot" class="section-name selfRef">Reference window undershoot at congestion</a>
+          </h4>
+<p id="section-4.5.3-1">The reference window can in certan cases undershoot when congestion occurs, one such case is when the RTT increases at the same time that the reference window is reduced. The RTT increase can push down the target rate faster then the reference window is reduced. An additional reduction of the reference window can be superfluous in some cases. One method to determine if additional reduction is unnecessary is to inspect how the acknowledged bitrate relates to the target bitrate. If the target rate is well below the ACKed bitrate, then additional reduction of the reference window is unnecessary. This is implemented as additional code that modifies the reference window backoff in <a href="#ref-wnd-reduction" class="auto internal xref">Section 4.2.2.1</a>.<a href="#section-4.5.3-1" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-4.5.3-2">
+<pre>
+# Reduce backoff when target bitrate is lower than the ACKnowledged rate
+# this may be an indication that the target rate is already reduced
+# due to an increased RTT
+if (target_bitrate &lt; acked_bitrate * ACKED_BITRATE_MARGIN)
+    backoff_t *= BACKOFF_SCALE_LOW_TARGET_RATE
+end
+</pre><a href="#section-4.5.3-2" class="pilcrow">¶</a>
+</div>
+<p id="section-4.5.3-3">The variables and constants are:<a href="#section-4.5.3-3" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-4.5.3-4.1">
+              <p id="section-4.5.3-4.1.1">ACKED_BITRATE_MARGIN (0.8): Safety margin for triggering of downscaling of backoff for cases where target bitrate is already low.<a href="#section-4.5.3-4.1.1" class="pilcrow">¶</a></p>
+</li>
+            <li class="normal" id="section-4.5.3-4.2">
+              <p id="section-4.5.3-4.2.1">BACKOFF_SCALE_LOW_TARGETRATE (0.25): Downscaling of backoff when target rate is already low compared to the ACKnowledged bitrate.<a href="#section-4.5.3-4.2.1" class="pilcrow">¶</a></p>
+</li>
+            <li class="normal" id="section-4.5.3-4.3">
+              <p id="section-4.5.3-4.3.1">acked_bitrate (0.0): A running average of the ACKnowledged bitrate [bps]. The averaging time should be around one RTT. For periodic media such as video it is beneficial to calculate the acked_bitrate over two frame periods for a reasonably accurate value.<a href="#section-4.5.3-4.3.1" class="pilcrow">¶</a></p>
+</li>
+          </ul>
+</section>
+</div>
+<div id="competing-flows-compensation">
+<section id="section-4.5.4">
+          <h4 id="name-competing-flows-compensatio">
+<a href="#section-4.5.4" class="section-number selfRef">4.5.4. </a><a href="#name-competing-flows-compensatio" class="section-name selfRef">Competing Flows Compensation</a>
+          </h4>
+<p id="section-4.5.4-1">It is likely that a flow will have to share congested bottlenecks with other
+flows that use a more aggressive congestion control algorithm (for example,
+large FTP flows using loss-based congestion control). The worst condition occurs
+when the bottleneck queues are of tail-drop type with a large buffer
+size. SCReAMv2 takes care of such situations by adjusting the qdelay_target when
+loss-based flows are detected, as shown in the optional pseudocode below.<a href="#section-4.5.4-1" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-4.5.4-2">
+<pre>
+adjust_qdelay_target(qdelay)
+  qdelay_norm_t = qdelay / QDELAY_TARGET_LOW
+  update_qdelay_norm_history(qdelay_norm_t)
+  # Compute variance
+  qdelay_norm_var_t = VARIANCE(qdelay_norm_history(200))
+  # Compensation for competing traffic
+  # Compute average
+  qdelay_norm_avg_t = AVERAGE(qdelay_norm_history(50))
+  # Compute upper limit to target delay
+  new_target_t = qdelay_norm_avg_t + sqrt(qdelay_norm_var_t)
+  new_target_t *= QDELAY_TARGET_LO
+  if (loss_event_rate &gt; 0.002)
+    # Data unit losses detected
+    qdelay_target = 1.5 * new_target_t
+  else
+    if (qdelay_norm_var_t &lt; 0.2)
+      # Reasonably safe to set target qdelay
+      qdelay_target = new_target_t
+    else
+      # Check if target delay can be reduced; this helps prevent
+      # the target delay from being locked to high values forever
+      if (new_target_t &lt; QDELAY_TARGET_LO)
+        # Decrease target delay quickly, as measured queuing
+        # delay is lower than target
+        qdelay_target = max(qdelay_target * 0.5, new_target_t)
+      else
+        # Decrease target delay slowly
+        qdelay_target *= 0.9
+      end
+    end
+  end
+
+  # Apply limits
+  qdelay_target = min(QDELAY_TARGET_HI, qdelay_target)
+  qdelay_target = max(QDELAY_TARGET_LO, qdelay_target)
+</pre><a href="#section-4.5.4-2" class="pilcrow">¶</a>
+</div>
+<p id="section-4.5.4-3">The following variable is used:<a href="#section-4.5.4-3" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-4.5.4-4.1">
+              <p id="section-4.5.4-4.1.1">loss_event_rate (0.0): The estimated fraction of RTTs with lost data units
+detected.<a href="#section-4.5.4-4.1.1" class="pilcrow">¶</a></p>
+</li>
+          </ul>
+<p id="section-4.5.4-5">Two temporary variables are calculated. qdelay_norm_avg_t is the long-term
+average queue delay, qdelay_norm_var_t is the long-term variance of the queue
+delay. A high qdelay_norm_var_t indicates that the queue delay changes; this can
+be an indication that bottleneck bandwidth is reduced or that a competing flow
+has just entered. Thus, it indicates that it is not safe to adjust the queue
+delay target.<a href="#section-4.5.4-5" class="pilcrow">¶</a></p>
+<p id="section-4.5.4-6">A low qdelay_norm_var_t indicates that the queue delay is relatively stable. The
+reason could be that the queue delay is low, but it could also be that a
+competing flow is causing the bottleneck to reach the point that data unit losses
+start to occur, in which case the queue delay will stay relatively high for a
+longer time.<a href="#section-4.5.4-6" class="pilcrow">¶</a></p>
+<p id="section-4.5.4-7">The queue delay target is allowed to be increased if either the loss event rate
+is above a given threshold or qdelay_norm_var_t is low. Both these conditions
+indicate that a competing flow may be present. In all other cases, the queue
+delay target is decreased.<a href="#section-4.5.4-7" class="pilcrow">¶</a></p>
+<p id="section-4.5.4-8">The function that adjusts the qdelay_target is simple and could produce false
+positives and false negatives. The case that self-inflicted congestion by the
+SCReAMv2 algorithm may be falsely interpreted as the presence of competing
+loss-based FTP flows is a false positive. The opposite case -- where the
+algorithm fails to detect the presence of a competing FTP flow -- is a false
+negative.<a href="#section-4.5.4-8" class="pilcrow">¶</a></p>
+<p id="section-4.5.4-9">Extensive simulations have shown that the algorithm performs well in LTE and 5G
+test cases and that it also performs well in simple bandwidth-limited bottleneck
+test cases with competing FTP flows. However, the potential failure of the
+algorithm cannot be completely ruled out. A false positive (i.e., when
+self-inflicted congestion is mistakenly identified as competing flows) is
+especially problematic when it leads to increasing the target queue delay, which
+can cause the end-to-end delay to increase dramatically.<a href="#section-4.5.4-9" class="pilcrow">¶</a></p>
+<p id="section-4.5.4-10">If it is deemed unlikely that competing flows occur over the same bottleneck,
+the algorithm described in this section MAY be turned off. One such case is
+QoS-enabled bearers in 3GPP-based access such as LTE and 5G. However, when
+sending over the Internet, often the network conditions are not known for sure,
+so in general it is not possible to make safe assumptions on how a network is
+used and whether or not competing flows share the same bottleneck. Therefore,
+turning this algorithm off must be considered with caution, as it can lead to
+basically zero throughput if competing with loss-based traffic.<a href="#section-4.5.4-10" class="pilcrow">¶</a></p>
+</section>
 </div>
 </section>
 </div>
@@ -2702,7 +2881,7 @@ end
       <h2 id="name-receiver-requirements-on-fe">
 <a href="#section-5" class="section-number selfRef">5. </a><a href="#name-receiver-requirements-on-fe" class="section-name selfRef">Receiver Requirements on Feedback Intensity</a>
       </h2>
-<p id="section-5-1">The simple task of the receiver is to feed back acknowledgements with with time
+<p id="section-5-1">The simple task of the receiver is to feedback acknowledgements with time
 stamp and ECN bits indication for received data units to the sender. Upon reception
 of each data unit, the receiver MUST maintain enough information to send the
 aforementioned values to the sender via an RTCP transport- layer feedback
@@ -2723,11 +2902,10 @@ SCReAMv2 implementation follows the guidelines below. Feedback should forcibly b
 </li>
       </ul>
 <p id="section-5-4">The feedback interval depends on the media bitrate. At low bitrates, it is
-sufficient with a feedback every frame; while at high bitrates, a feedback
-shorther feedback interval is recommended to keep the self-clocking in SCReAMv2
+sufficient with feedback every frame; while at high bitrates, a shorter feedback interval is recommended to keep the self-clocking in SCReAMv2
 working well. One indication that feedback is too sparse is that the SCReAMv2
 implementation cannot reach high bitrates, even in uncongested links. More
-frequent feedback might solve this issue.<a href="#section-5-4" class="pilcrow">¶</a></p>
+frequent feedback can solve this issue.<a href="#section-5-4" class="pilcrow">¶</a></p>
 <p id="section-5-5">The transmission interval is not critical. So, in the case of multi-stream handling between two hosts, the feedback for two or more synchronization sources (SSRCs) can be bundled to save UDP/IP overhead.<a href="#section-5-5" class="pilcrow">¶</a></p>
 <p id="section-5-6">SCReAMv2 works with AVPF regular mode; immediate or early mode is not required
 by SCReAMv2 but can nonetheless be useful for RTCP messages not directly related
@@ -2765,11 +2943,11 @@ possible reasons to this:<a href="#section-6-2.2.1" class="pilcrow">¶</a></p>
 SCReAMv2 push down the target_bitrate to give sufficient headroom and avoid
 queue buildup in the network. It is in general recommended to operate video
 coders in low latency mode and enable GDR (Gradual Decoding Refresh) if
-possible to minimize frame size variations.<a href="#section-6-2.2.2.1.1" class="pilcrow">¶</a></p>
+possible, to minimize frame size variations.<a href="#section-6-2.2.2.1.1" class="pilcrow">¶</a></p>
 </li>
             <li class="normal" id="section-6-2.2.2.2">
               <p id="section-6-2.2.2.2.1">Link layer properties: Media transport in 5G in uplink typically requires to
-transmit a scheduling request (SR) to get persmission to transmit
+transmit a scheduling request (SR) to get permission to transmit
 data. Because transmission of video is frame based, there is a high
 likelihood that the channel becomes idle between frames (especially with
 L4S), in which case a new SR/grant exchange is needed. This potentially
@@ -2779,16 +2957,14 @@ utilization as a result.<a href="#section-6-2.2.2.2.1" class="pilcrow">¶</a></p
           </ul>
 </li>
         <li class="normal" id="section-6-2.3">
-          <p id="section-6-2.3.1">Packet pacing is recommended, it is however possible to operate SCReAMv2 with
-packet pacing disabled. The code in <span>[<a href="#SCReAM-CPP-implementation" class="cite xref">SCReAM-CPP-implementation</a>]</span> implements
-additional mechanisms to achieve a high link utilization when packet pacing is
-disabled. Additional packet pacing headroom can be beneficial if unusually large media frames are generated, this can reduce unnecessary queue build-up in the data unit queue.<a href="#section-6-2.3.1" class="pilcrow">¶</a></p>
+          <p id="section-6-2.3.1">Packet pacing is recommended. It is however possible to operate SCReAMv2 with
+packet pacing disabled, this can however give a reduced link utilization over L4S enabled paths. Additional packet pacing headroom can be beneficial if unusually large media frames are generated; this can reduce unnecessary queue build-up in the data unit queue.<a href="#section-6-2.3.1" class="pilcrow">¶</a></p>
 </li>
         <li class="normal" id="section-6-2.4">
           <p id="section-6-2.4.1">Feedback issues: RTCP feedback packets <span>[<a href="#RFC8888" class="cite xref">RFC8888</a>]</span> can be lost, this means that
 the loss detection in SCReAMv2 may trigger even though packets arrive safely
 on the receiver side. <span>[<a href="#SCReAM-CPP-implementation" class="cite xref">SCReAM-CPP-implementation</a>]</span> solves this by using
-overlapping RTCP feedback, i.e RTCP feedback is transmitted no more seldom
+overlapping RTCP feedback, i.e. RTCP feedback is transmitted no more seldom
 than every 16th packet, and where each RTCP feedback spans the last 32
 received packets. This however creates unnecessary overhead. <span>[<a href="#RFC3550" class="cite xref">RFC3550</a>]</span> RR
 (Receiver Reports) can possibly be another solution to achieve better
@@ -2800,7 +2976,7 @@ of inherent design.<a href="#section-6-2.4.1" class="pilcrow">¶</a></p>
  However, SCReAM can settle for a lower number of marked packets per RTT in steady state
  due to measures taken in the calculation of the ref_wnd and the target_bitrate
  that are necessary to get a stable bitrate and lower queue delay.
- In those cases SCReAM may get a lower share of the link capacity
+ In those cases, SCReAM may get a lower share of the link capacity
  when competing against e.g. a large file transfer with TCP Prague congestion control.<a href="#section-6-2.5.1" class="pilcrow">¶</a></p>
 </li>
         <li class="normal" id="section-6-2.6">
@@ -2811,7 +2987,19 @@ few examples are found in <span>[<a href="#SCReAM-evaluation-L4S" class="cite xr
           <p id="section-6-2.7.1">SCReAM (+L4S) is currently being integrated in chrome for performance evaluation and comparison against GCC, nightly Chrome Canary builds are available at <span>[<a href="#SCReAM-Chrome-Canary" class="cite xref">SCReAM-Chrome-Canary</a>]</span>.<a href="#section-6-2.7.1" class="pilcrow">¶</a></p>
 </li>
         <li class="normal" id="section-6-2.8">
-          <p id="section-6-2.8.1">The addition of the optional qdelay_dev_norm related restriction on ref_wnd increase can cause the rate increase to go slower when the non-congestion related jitter is high. Non-congestion related jitter can occur for instance in 5G where the amount of scheduling delay jitter depends of factors like TDD (Time Division Duplex) patterns an overall load in a cell. Improved methods to take delay jitter and compensate for that can remedy this. The objective is to avoid the restriction when the delay jitter is not congestion related. Discriminating between non-congestion related delay jitter and congestion related ditto is however not an easy task. One method to to estimate the jitter when link is known to be uncongested. A challenge is that congestion related jitter emerges already as the application bitrate gets near the congestion point and this can make distinction more difficult. The example algorithm in the draft is expected to be modified in a future draft version.<a href="#section-6-2.8.1" class="pilcrow">¶</a></p>
+          <p id="section-6-2.8.1">The addition of the optional ref_wnd_delay_scale related restriction on ref_wnd increase can cause the rate increase to go slower when the non-congestion related jitter is high. Non-congestion related jitter can occur for instance in 5G where the amount of scheduling delay jitter depends on factors like TDD (Time Division Duplex) patterns an overall load in a cell. The algorithm is somewhat robust to scheduling jitter as it calculates ref_wnd_delay_scale based on the difference between the max and min queue delay. Still, there can be cases where large amounts of scheduling jitter can give a slow ramp up of the bitrate.<a href="#section-6-2.8.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-6-2.9">
+          <p id="section-6-2.9.1">Rate policers can cause loss bursts. These loss bursts are particularly harmful for real time media transmission and it is problematic to detect the existence of rate policers in the transmission path. The example algorithm in the draft resolves the problem with rate policers to some degree. The algorithm is however not bullet proof, assumptions around queue delay can for instance fail on links where the RTT varies, such as satellite links. In addition, rate policers can be configured in many ways. The proposed algoritm in this draft can therefore make or break.<a href="#section-6-2.9.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-6-2.10">
+          <p id="section-6-2.10.1">The competing flows compensation described in <a href="#competing-flows-compensation" class="auto internal xref">Section 4.5.4</a> has an inherent risk of false positives, the outcome would be that an increased delay is met by an increased to delay, something that can self-amplify. The algorithm was devised already for <span>[<a href="#RFC8298" class="cite xref">RFC8298</a>]</span> when access links could become bloated. Things have however changed since 2017 when RFC8298 was published. Firstly, bufferbloat and remedies to it is better understood. Secondly, more recent congestion control algorithms are designed to not bloat access links that lack active queue management. Thirdly, the algorithm in <a href="#clock-drift" class="auto internal xref">Section 4.5.1</a> that addresses clock-drift addresses this issue inherently as a compenting flow still adds an offset in queue delay when SCReAM temporarly reduces its target rate temporarily. The need for competing flows compensation would therefore need to be investigated further.<a href="#section-6-2.10.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-6-2.11">
+          <p id="section-6-2.11.1">The calculation of the target bitrate based on the reference window and the average RTT can lead to over-optimistic target rate values for instance when the source becomes idle or delivers a media bitrate that is lower than the target bitrate. To resolve this issue, it is recommended to update the average RTT with a longer time constant when bytes in flight is lower than the reference window by some margin.<a href="#section-6-2.11.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-6-2.12">
+          <p id="section-6-2.12.1">AI-tools can generate code based on the current draft version albeit with some caveats around execution order and poorly defined calculations/definitions of variables. A later version will address this.<a href="#section-6-2.12.1" class="pilcrow">¶</a></p>
 </li>
       </ul>
 </section>
@@ -2975,10 +3163,10 @@ SCReAM/SCReAMv2 when no feedback is received.<a href="#section-8-1" class="pilcr
       <h2 id="name-acknowledgments">
 <a href="#appendix-A" class="section-number selfRef">Appendix A. </a><a href="#name-acknowledgments" class="section-name selfRef">Acknowledgments</a>
       </h2>
-<p id="appendix-A-1">Zaheduzzaman Sarker was a co-author of RFC 8298 the previous version
-of scream which this document was based on. We would like to thank the
-following people for their comments, questions, and support during the
-work that led to this memo: Per Kjellander, Björn Terelius.<a href="#appendix-A-1" class="pilcrow">¶</a></p>
+<p id="appendix-A-1">Zaheduzzaman Sarker is co-author of RFC 8298, the previous version
+of SCReAM.<a href="#appendix-A-1" class="pilcrow">¶</a></p>
+<p id="appendix-A-2">We would like to thank the following people for their comments, questions, and support during the
+work that led to this memo: Per Kjellander, Björn Terelius.<a href="#appendix-A-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="changes-in-the-draft-versions">
@@ -2986,213 +3174,266 @@ work that led to this memo: Per Kjellander, Björn Terelius.<a href="#appendix-A
       <h2 id="name-changes-in-the-draft-versio">
 <a href="#appendix-B" class="section-number selfRef">Appendix B. </a><a href="#name-changes-in-the-draft-versio" class="section-name selfRef">Changes in the draft versions</a>
       </h2>
-<div id="changes-in-draft-version-02">
+<div id="working-group-draft-submissions">
 <section id="appendix-B.1">
-        <h3 id="name-changes-in-draft-version-02">
-<a href="#appendix-B.1" class="section-number selfRef">B.1. </a><a href="#name-changes-in-draft-version-02" class="section-name selfRef">Changes in draft version -02</a>
+        <h3 id="name-working-group-draft-submiss">
+<a href="#appendix-B.1" class="section-number selfRef">B.1. </a><a href="#name-working-group-draft-submiss" class="section-name selfRef">Working group draft submissions</a>
         </h3>
-<p id="appendix-B.1-1">Algorithm changes in draft version -02 were:<a href="#appendix-B.1-1" class="pilcrow">¶</a></p>
+<div id="draft-version-00">
+<section id="appendix-B.1.1">
+          <h4 id="name-draft-version-00">
+<a href="#appendix-B.1.1" class="section-number selfRef">B.1.1. </a><a href="#name-draft-version-00" class="section-name selfRef">Draft version -00</a>
+          </h4>
 <ul class="normal">
-<li class="normal" id="appendix-B.1-2.1">
-            <p id="appendix-B.1-2.1.1">Slow down reference window growth when close to the last known maximum value is disabled
+<li class="normal" id="appendix-B.1.1-1.1">
+              <p id="appendix-B.1.1-1.1.1">Same contents as individual draft -07<a href="#appendix-B.1.1-1.1.1" class="pilcrow">¶</a></p>
+</li>
+          </ul>
+</section>
+</div>
+<div id="changes-in-draft-version-01">
+<section id="appendix-B.1.2">
+          <h4 id="name-changes-in-draft-version-01">
+<a href="#appendix-B.1.2" class="section-number selfRef">B.1.2. </a><a href="#name-changes-in-draft-version-01" class="section-name selfRef">Changes in Draft version -01</a>
+          </h4>
+<ul class="normal">
+<li class="normal" id="appendix-B.1.2-1.1">
+              <p id="appendix-B.1.2-1.1.1">New reference window scaling which acts on difference between max and min queue delay replaces earlier algorithm.<a href="#appendix-B.1.2-1.1.1" class="pilcrow">¶</a></p>
+</li>
+            <li class="normal" id="appendix-B.1.2-1.2">
+              <p id="appendix-B.1.2-1.2.1">Additional conditional loss threshold added as optional to increase robustness against non-congestion related (e.g link layer) losses.<a href="#appendix-B.1.2-1.2.1" class="pilcrow">¶</a></p>
+</li>
+            <li class="normal" id="appendix-B.1.2-1.3">
+              <p id="appendix-B.1.2-1.3.1">Added note about method to detect the extistence of rate policers and to reduce packet losses when rate policers are applied in network nodes.<a href="#appendix-B.1.2-1.3.1" class="pilcrow">¶</a></p>
+</li>
+            <li class="normal" id="appendix-B.1.2-1.4">
+              <p id="appendix-B.1.2-1.4.1">Added rate policer remediation algorithm.<a href="#appendix-B.1.2-1.4.1" class="pilcrow">¶</a></p>
+</li>
+            <li class="normal" id="appendix-B.1.2-1.5">
+              <p id="appendix-B.1.2-1.5.1">Added discussion on code generation with AI-tools based on the draft.<a href="#appendix-B.1.2-1.5.1" class="pilcrow">¶</a></p>
+</li>
+            <li class="normal" id="appendix-B.1.2-1.6">
+              <p id="appendix-B.1.2-1.6.1">Added method to reduce ref_wnd undershoot when L4S or delay based congestion occurs.<a href="#appendix-B.1.2-1.6.1" class="pilcrow">¶</a></p>
+</li>
+          </ul>
+</section>
+</div>
+</section>
+</div>
+<div id="individual-draft-submissions">
+<section id="appendix-B.2">
+        <h3 id="name-individual-draft-submission">
+<a href="#appendix-B.2" class="section-number selfRef">B.2. </a><a href="#name-individual-draft-submission" class="section-name selfRef">Individual draft submissions</a>
+        </h3>
+<div id="changes-in-draft-version-02">
+<section id="appendix-B.2.1">
+          <h4 id="name-changes-in-draft-version-02">
+<a href="#appendix-B.2.1" class="section-number selfRef">B.2.1. </a><a href="#name-changes-in-draft-version-02" class="section-name selfRef">Changes in draft version -02</a>
+          </h4>
+<p id="appendix-B.2.1-1">Algorithm changes in draft version -02 were:<a href="#appendix-B.2.1-1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="appendix-B.2.1-2.1">
+              <p id="appendix-B.2.1-2.1.1">Slow down reference window growth when close to the last known maximum value is disabled
 and when L4S is active. This makes SCReAM adhere more closely to two marked packets
-per RTT at steady state.<a href="#appendix-B.1-2.1.1" class="pilcrow">¶</a></p>
+per RTT at steady state.<a href="#appendix-B.2.1-2.1.1" class="pilcrow">¶</a></p>
 </li>
-          <li class="normal" id="appendix-B.1-2.2">
-            <p id="appendix-B.1-2.2.1">Reference window decrease and increase reduced by up to 50% when ref_wnd/mss
-is small. This reduces rate oscillations.<a href="#appendix-B.1-2.2.1" class="pilcrow">¶</a></p>
+            <li class="normal" id="appendix-B.2.1-2.2">
+              <p id="appendix-B.2.1-2.2.1">Reference window decrease and increase reduced by up to 50% when ref_wnd/mss
+is small. This reduces rate oscillations.<a href="#appendix-B.2.1-2.2.1" class="pilcrow">¶</a></p>
 </li>
-          <li class="normal" id="appendix-B.1-2.3">
-            <p id="appendix-B.1-2.3.1">Target bitrate down adjustment when ref_wnd/mss is small is modified to
+            <li class="normal" id="appendix-B.2.1-2.3">
+              <p id="appendix-B.2.1-2.3.1">Target bitrate down adjustment when ref_wnd/mss is small is modified to
 avoid that the data unit queue grows excessively in certain low
-bitrate cases.<a href="#appendix-B.1-2.3.1" class="pilcrow">¶</a></p>
+bitrate cases.<a href="#appendix-B.2.1-2.3.1" class="pilcrow">¶</a></p>
 </li>
-          <li class="normal" id="appendix-B.1-2.4">
-            <p id="appendix-B.1-2.4.1">Timing set to multiples of RTTs instead of seconds.<a href="#appendix-B.1-2.4.1" class="pilcrow">¶</a></p>
+            <li class="normal" id="appendix-B.2.1-2.4">
+              <p id="appendix-B.2.1-2.4.1">Timing set to multiples of RTTs instead of seconds.<a href="#appendix-B.2.1-2.4.1" class="pilcrow">¶</a></p>
 </li>
-        </ul>
+          </ul>
 </section>
 </div>
 <div id="changes-in-draft-version-03">
-<section id="appendix-B.2">
-        <h3 id="name-changes-in-draft-version-03">
-<a href="#appendix-B.2" class="section-number selfRef">B.2. </a><a href="#name-changes-in-draft-version-03" class="section-name selfRef">Changes in Draft version -03</a>
-        </h3>
-<p id="appendix-B.2-1">Draft version -03 is a major editorial pass including removal of some
-outdated or background information and reorganisation of several sections:<a href="#appendix-B.2-1" class="pilcrow">¶</a></p>
+<section id="appendix-B.2.2">
+          <h4 id="name-changes-in-draft-version-03">
+<a href="#appendix-B.2.2" class="section-number selfRef">B.2.2. </a><a href="#name-changes-in-draft-version-03" class="section-name selfRef">Changes in Draft version -03</a>
+          </h4>
+<p id="appendix-B.2.2-1">Draft version -03 is a major editorial pass including removal of some
+outdated or background information and reorganisation of several sections:<a href="#appendix-B.2.2-1" class="pilcrow">¶</a></p>
 <ul class="normal">
-<li class="normal" id="appendix-B.2-2.1">
-            <p id="appendix-B.2-2.1.1">Much shorter abstract and introduction focusing on what's new in SCReAMv2.<a href="#appendix-B.2-2.1.1" class="pilcrow">¶</a></p>
+<li class="normal" id="appendix-B.2.2-2.1">
+              <p id="appendix-B.2.2-2.1.1">Much shorter abstract and introduction focusing on what's new in SCReAMv2.<a href="#appendix-B.2.2-2.1.1" class="pilcrow">¶</a></p>
 </li>
-          <li class="normal" id="appendix-B.2-2.2">
-            <p id="appendix-B.2-2.2.1">Removal of Section 1.1. on "Wireless (LTE and 5G) Access Properties" and
-Section 1.2. on "Why is it a self-clocked algorithm?"<a href="#appendix-B.2-2.2.1" class="pilcrow">¶</a></p>
+            <li class="normal" id="appendix-B.2.2-2.2">
+              <p id="appendix-B.2.2-2.2.1">Removal of Section 1.1. on "Wireless (LTE and 5G) Access Properties" and
+Section 1.2. on "Why is it a self-clocked algorithm?"<a href="#appendix-B.2.2-2.2.1" class="pilcrow">¶</a></p>
 </li>
-          <li class="normal" id="appendix-B.2-2.3">
-            <p id="appendix-B.2-2.3.1">New Section on "Updates compared to SCReAM (version 1)" in introduction
-based on old Section on "Algorithm Changes".<a href="#appendix-B.2-2.3.1" class="pilcrow">¶</a></p>
+            <li class="normal" id="appendix-B.2.2-2.3">
+              <p id="appendix-B.2.2-2.3.1">New Section on "Updates compared to SCReAM (version 1)" in introduction
+based on old Section on "Algorithm Changes".<a href="#appendix-B.2.2-2.3.1" class="pilcrow">¶</a></p>
 </li>
-          <li class="normal" id="appendix-B.2-2.4">
-            <p id="appendix-B.2-2.4.1">Section <a href="#ledbat-tfwc" class="auto internal xref">Section 1.3</a> updated and shortened.<a href="#appendix-B.2-2.4.1" class="pilcrow">¶</a></p>
+            <li class="normal" id="appendix-B.2.2-2.4">
+              <p id="appendix-B.2.2-2.4.1">Section <a href="#ledbat-tfwc" class="auto internal xref">Section 1.3</a> updated and shortened.<a href="#appendix-B.2.2-2.4.1" class="pilcrow">¶</a></p>
 </li>
-          <li class="normal" id="appendix-B.2-2.5">
-            <p id="appendix-B.2-2.5.1">Overview Section <a href="#scream-overview" class="auto internal xref">Section 3</a> revised; now also including the overview
-figure and the basic algorithms.<a href="#appendix-B.2-2.5.1" class="pilcrow">¶</a></p>
+            <li class="normal" id="appendix-B.2.2-2.5">
+              <p id="appendix-B.2.2-2.5.1">Overview Section <a href="#scream-overview" class="auto internal xref">Section 3</a> revised; now also including the overview
+figure and the basic algorithms.<a href="#appendix-B.2.2-2.5.1" class="pilcrow">¶</a></p>
 </li>
-          <li class="normal" id="appendix-B.2-2.6">
-            <p id="appendix-B.2-2.6.1">Old section on "Constants and variables" removed; instead all variables are now listed
-in the respective sections that explain the code.<a href="#appendix-B.2-2.6.1" class="pilcrow">¶</a></p>
+            <li class="normal" id="appendix-B.2.2-2.6">
+              <p id="appendix-B.2.2-2.6.1">Old section on "Constants and variables" removed; instead all variables are now listed
+in the respective sections that explain the code.<a href="#appendix-B.2.2-2.6.1" class="pilcrow">¶</a></p>
 </li>
-          <li class="normal" id="appendix-B.2-2.7">
-            <p id="appendix-B.2-2.7.1">New Section on "Sender Side State" explaining some basic variables.<a href="#appendix-B.2-2.7.1" class="pilcrow">¶</a></p>
+            <li class="normal" id="appendix-B.2.2-2.7">
+              <p id="appendix-B.2.2-2.7.1">New Section on "Sender Side State" explaining some basic variables.<a href="#appendix-B.2.2-2.7.1" class="pilcrow">¶</a></p>
 </li>
-          <li class="normal" id="appendix-B.2-2.8">
-            <p id="appendix-B.2-2.8.1">Pseudo code and the corresponding explanations in Section <a href="#network-cc-2" class="auto internal xref">Section 4.2</a> on
+            <li class="normal" id="appendix-B.2.2-2.8">
+              <p id="appendix-B.2.2-2.8.1">Pseudo code and the corresponding explanations in Section <a href="#network-cc-2" class="auto internal xref">Section 4.2</a> on
 "Network Congestion Control" moved into the respective subsections in
-section <a href="#reaction-delay-loss-ce" class="auto internal xref">Section 4.2.1</a> on "Congestion Detection".<a href="#appendix-B.2-2.8.1" class="pilcrow">¶</a></p>
+section <a href="#reaction-delay-loss-ce" class="auto internal xref">Section 4.2.1</a> on "Congestion Detection".<a href="#appendix-B.2.2-2.8.1" class="pilcrow">¶</a></p>
 </li>
-          <li class="normal" id="appendix-B.2-2.9">
-            <p id="appendix-B.2-2.9.1">Separate section on "Sender Transmission Control" introduced.<a href="#appendix-B.2-2.9.1" class="pilcrow">¶</a></p>
+            <li class="normal" id="appendix-B.2.2-2.9">
+              <p id="appendix-B.2.2-2.9.1">Separate section on "Sender Transmission Control" introduced.<a href="#appendix-B.2.2-2.9.1" class="pilcrow">¶</a></p>
 </li>
-          <li class="normal" id="appendix-B.2-2.10">
-            <p id="appendix-B.2-2.10.1">Section "Lost Data Unit Detection" merged into Section <a href="#reaction-loss" class="auto internal xref">Section 4.2.1.1</a>.<a href="#appendix-B.2-2.10.1" class="pilcrow">¶</a></p>
+            <li class="normal" id="appendix-B.2.2-2.10">
+              <p id="appendix-B.2.2-2.10.1">Section "Lost Data Unit Detection" merged into Section <a href="#reaction-loss" class="auto internal xref">Section 4.2.1.1</a>.<a href="#appendix-B.2.2-2.10.1" class="pilcrow">¶</a></p>
 </li>
-          <li class="normal" id="appendix-B.2-2.11">
-            <p id="appendix-B.2-2.11.1">Section "Stream Prioritization" removed.<a href="#appendix-B.2-2.11.1" class="pilcrow">¶</a></p>
+            <li class="normal" id="appendix-B.2.2-2.11">
+              <p id="appendix-B.2.2-2.11.1">Section "Stream Prioritization" removed.<a href="#appendix-B.2.2-2.11.1" class="pilcrow">¶</a></p>
 </li>
-          <li class="normal" id="appendix-B.2-2.12">
-            <p id="appendix-B.2-2.12.1">Section on "Competing Flows Compensation" moved into Section <a href="#reaction-delay-loss-ce" class="auto internal xref">Section 4.2.1</a>
-on "Congestion Detection".<a href="#appendix-B.2-2.12.1" class="pilcrow">¶</a></p>
+            <li class="normal" id="appendix-B.2.2-2.12">
+              <p id="appendix-B.2.2-2.12.1">Section on "Competing Flows Compensation" moved into Section <a href="#reaction-delay-loss-ce" class="auto internal xref">Section 4.2.1</a>
+on "Congestion Detection".<a href="#appendix-B.2.2-2.12.1" class="pilcrow">¶</a></p>
 </li>
-        </ul>
+          </ul>
 </section>
 </div>
 <div id="changes-in-draft-version-04">
-<section id="appendix-B.3">
-        <h3 id="name-changes-in-draft-version-04">
-<a href="#appendix-B.3" class="section-number selfRef">B.3. </a><a href="#name-changes-in-draft-version-04" class="section-name selfRef">Changes in Draft version -04</a>
-        </h3>
+<section id="appendix-B.2.3">
+          <h4 id="name-changes-in-draft-version-04">
+<a href="#appendix-B.2.3" class="section-number selfRef">B.2.3. </a><a href="#name-changes-in-draft-version-04" class="section-name selfRef">Changes in Draft version -04</a>
+          </h4>
 <ul class="normal">
-<li class="normal" id="appendix-B.3-1.1">
-            <p id="appendix-B.3-1.1.1">Restructuring of code.<a href="#appendix-B.3-1.1.1" class="pilcrow">¶</a></p>
+<li class="normal" id="appendix-B.2.3-1.1">
+              <p id="appendix-B.2.3-1.1.1">Restructuring of code.<a href="#appendix-B.2.3-1.1.1" class="pilcrow">¶</a></p>
 </li>
-          <li class="normal" id="appendix-B.3-1.2">
-            <p id="appendix-B.3-1.2.1">Reduction of target rate when bytes_in_flight is higher than ref_wnd is done also when l4s_active, replaced with requirement that queue_delay is large.<a href="#appendix-B.3-1.2.1" class="pilcrow">¶</a></p>
+            <li class="normal" id="appendix-B.2.3-1.2">
+              <p id="appendix-B.2.3-1.2.1">Reduction of target rate when bytes_in_flight is higher than ref_wnd is done also when l4s_active, replaced with requirement that queue_delay is large.<a href="#appendix-B.2.3-1.2.1" class="pilcrow">¶</a></p>
 </li>
-          <li class="normal" id="appendix-B.3-1.3">
-            <p id="appendix-B.3-1.3.1">Additional constraint for increase of ref_wnd added.<a href="#appendix-B.3-1.3.1" class="pilcrow">¶</a></p>
+            <li class="normal" id="appendix-B.2.3-1.3">
+              <p id="appendix-B.2.3-1.3.1">Additional constraint for increase of ref_wnd added.<a href="#appendix-B.2.3-1.3.1" class="pilcrow">¶</a></p>
 </li>
-          <li class="normal" id="appendix-B.3-1.4">
-            <p id="appendix-B.3-1.4.1">Discussion on when it is beneficial to reduce REF_WND_OVERHEAD added.<a href="#appendix-B.3-1.4.1" class="pilcrow">¶</a></p>
+            <li class="normal" id="appendix-B.2.3-1.4">
+              <p id="appendix-B.2.3-1.4.1">Discussion on when it is beneficial to reduce REF_WND_OVERHEAD added.<a href="#appendix-B.2.3-1.4.1" class="pilcrow">¶</a></p>
 </li>
-        </ul>
+          </ul>
 </section>
 </div>
 <div id="changes-in-draft-version-05">
-<section id="appendix-B.4">
-        <h3 id="name-changes-in-draft-version-05">
-<a href="#appendix-B.4" class="section-number selfRef">B.4. </a><a href="#name-changes-in-draft-version-05" class="section-name selfRef">Changes in Draft version -05</a>
-        </h3>
-<p id="appendix-B.4-1">Draft version -05 contains some clarifications based on a review by Per Kjellander
- and Björn Terelius plus some code modifications and text.<a href="#appendix-B.4-1" class="pilcrow">¶</a></p>
+<section id="appendix-B.2.4">
+          <h4 id="name-changes-in-draft-version-05">
+<a href="#appendix-B.2.4" class="section-number selfRef">B.2.4. </a><a href="#name-changes-in-draft-version-05" class="section-name selfRef">Changes in Draft version -05</a>
+          </h4>
+<p id="appendix-B.2.4-1">Draft version -05 contains some clarifications based on a review by Per Kjellander
+ and Björn Terelius plus some code modifications and text.<a href="#appendix-B.2.4-1" class="pilcrow">¶</a></p>
 <ul class="normal">
-<li class="normal" id="appendix-B.4-2.1">
-            <p id="appendix-B.4-2.1.1">l4s_active state removed as delay based congestion control is always active.<a href="#appendix-B.4-2.1.1" class="pilcrow">¶</a></p>
+<li class="normal" id="appendix-B.2.4-2.1">
+              <p id="appendix-B.2.4-2.1.1">l4s_active state removed as delay based congestion control is always active.<a href="#appendix-B.2.4-2.1.1" class="pilcrow">¶</a></p>
 </li>
-          <li class="normal" id="appendix-B.4-2.2">
-            <p id="appendix-B.4-2.2.1">ref_wnd reduction when long time since congested limited to only limit ref_wnd to last max_bytes_in_flight_prev.<a href="#appendix-B.4-2.2.1" class="pilcrow">¶</a></p>
+            <li class="normal" id="appendix-B.2.4-2.2">
+              <p id="appendix-B.2.4-2.2.1">ref_wnd reduction when long time since congested limited to only limit ref_wnd to last max_bytes_in_flight_prev.<a href="#appendix-B.2.4-2.2.1" class="pilcrow">¶</a></p>
 </li>
-          <li class="normal" id="appendix-B.4-2.3">
-            <p id="appendix-B.4-2.3.1">Calculation of l4s_alpha is modified to use a fast attack slow decay EWMA filter.<a href="#appendix-B.4-2.3.1" class="pilcrow">¶</a></p>
+            <li class="normal" id="appendix-B.2.4-2.3">
+              <p id="appendix-B.2.4-2.3.1">Calculation of l4s_alpha is modified to use a fast attack slow decay EWMA filter.<a href="#appendix-B.2.4-2.3.1" class="pilcrow">¶</a></p>
 </li>
-          <li class="normal" id="appendix-B.4-2.4">
-            <p id="appendix-B.4-2.4.1">Congestion backoff downscaling also for virtual L4S marking when ref_wnd is very small.<a href="#appendix-B.4-2.4.1" class="pilcrow">¶</a></p>
+            <li class="normal" id="appendix-B.2.4-2.4">
+              <p id="appendix-B.2.4-2.4.1">Congestion backoff downscaling also for virtual L4S marking when ref_wnd is very small.<a href="#appendix-B.2.4-2.4.1" class="pilcrow">¶</a></p>
 </li>
-          <li class="normal" id="appendix-B.4-2.5">
-            <p id="appendix-B.4-2.5.1">Congestion backoff is reduced if RTT is higher than VIRTUAL_RTT.<a href="#appendix-B.4-2.5.1" class="pilcrow">¶</a></p>
+            <li class="normal" id="appendix-B.2.4-2.5">
+              <p id="appendix-B.2.4-2.5.1">Congestion backoff is reduced if RTT is higher than VIRTUAL_RTT.<a href="#appendix-B.2.4-2.5.1" class="pilcrow">¶</a></p>
 </li>
-          <li class="normal" id="appendix-B.4-2.6">
-            <p id="appendix-B.4-2.6.1">ref_wnd increase is reduced if L4S is likely non-active and queue delay increases.<a href="#appendix-B.4-2.6.1" class="pilcrow">¶</a></p>
+            <li class="normal" id="appendix-B.2.4-2.6">
+              <p id="appendix-B.2.4-2.6.1">ref_wnd increase is reduced if L4S is likely non-active and queue delay increases.<a href="#appendix-B.2.4-2.6.1" class="pilcrow">¶</a></p>
 </li>
-        </ul>
+          </ul>
 </section>
 </div>
 <div id="changes-in-draft-version-06">
-<section id="appendix-B.5">
-        <h3 id="name-changes-in-draft-version-06">
-<a href="#appendix-B.5" class="section-number selfRef">B.5. </a><a href="#name-changes-in-draft-version-06" class="section-name selfRef">Changes in Draft version -06</a>
-        </h3>
+<section id="appendix-B.2.5">
+          <h4 id="name-changes-in-draft-version-06">
+<a href="#appendix-B.2.5" class="section-number selfRef">B.2.5. </a><a href="#name-changes-in-draft-version-06" class="section-name selfRef">Changes in Draft version -06</a>
+          </h4>
 <ul class="normal">
-<li class="normal" id="appendix-B.5-1.1">
-            <p id="appendix-B.5-1.1.1">Correction of typos.<a href="#appendix-B.5-1.1.1" class="pilcrow">¶</a></p>
+<li class="normal" id="appendix-B.2.5-1.1">
+              <p id="appendix-B.2.5-1.1.1">Correction of typos.<a href="#appendix-B.2.5-1.1.1" class="pilcrow">¶</a></p>
 </li>
-          <li class="normal" id="appendix-B.5-1.2">
-            <p id="appendix-B.5-1.2.1">Correction of send_wnd calculation.<a href="#appendix-B.5-1.2.1" class="pilcrow">¶</a></p>
+            <li class="normal" id="appendix-B.2.5-1.2">
+              <p id="appendix-B.2.5-1.2.1">Correction of send_wnd calculation.<a href="#appendix-B.2.5-1.2.1" class="pilcrow">¶</a></p>
 </li>
-          <li class="normal" id="appendix-B.5-1.3">
-            <p id="appendix-B.5-1.3.1">Additional variable qdelay_dev_norm that indicated how much the queue delay varies.<a href="#appendix-B.5-1.3.1" class="pilcrow">¶</a></p>
+            <li class="normal" id="appendix-B.2.5-1.3">
+              <p id="appendix-B.2.5-1.3.1">Additional variable qdelay_dev_norm that indicated how much the queue delay varies.<a href="#appendix-B.2.5-1.3.1" class="pilcrow">¶</a></p>
 </li>
-          <li class="normal" id="appendix-B.5-1.4">
-            <p id="appendix-B.5-1.4.1">Additional ref_wnd_overhead varable to limit how much bytes in flight can exceed the reference window in congested situations.<a href="#appendix-B.5-1.4.1" class="pilcrow">¶</a></p>
+            <li class="normal" id="appendix-B.2.5-1.4">
+              <p id="appendix-B.2.5-1.4.1">Additional ref_wnd_overhead varable to limit how much bytes in flight can exceed the reference window in congested situations.<a href="#appendix-B.2.5-1.4.1" class="pilcrow">¶</a></p>
 </li>
-          <li class="normal" id="appendix-B.5-1.5">
-            <p id="appendix-B.5-1.5.1">REF_WND_OVERHEAD replaced by REF_WND_OVERHEAD_MIN and REF_WND_OVERHEAD_MAX.<a href="#appendix-B.5-1.5.1" class="pilcrow">¶</a></p>
+            <li class="normal" id="appendix-B.2.5-1.5">
+              <p id="appendix-B.2.5-1.5.1">REF_WND_OVERHEAD replaced by REF_WND_OVERHEAD_MIN and REF_WND_OVERHEAD_MAX.<a href="#appendix-B.2.5-1.5.1" class="pilcrow">¶</a></p>
 </li>
-          <li class="normal" id="appendix-B.5-1.6">
-            <p id="appendix-B.5-1.6.1">Reference window increase is restricted additionally when queue delay varies a lot.<a href="#appendix-B.5-1.6.1" class="pilcrow">¶</a></p>
+            <li class="normal" id="appendix-B.2.5-1.6">
+              <p id="appendix-B.2.5-1.6.1">Reference window increase is restricted additionally when queue delay varies a lot.<a href="#appendix-B.2.5-1.6.1" class="pilcrow">¶</a></p>
 </li>
-          <li class="normal" id="appendix-B.5-1.7">
-            <p id="appendix-B.5-1.7.1">rel_framesize_high calculation is removed.<a href="#appendix-B.5-1.7.1" class="pilcrow">¶</a></p>
+            <li class="normal" id="appendix-B.2.5-1.7">
+              <p id="appendix-B.2.5-1.7.1">rel_framesize_high calculation is removed.<a href="#appendix-B.2.5-1.7.1" class="pilcrow">¶</a></p>
 </li>
-          <li class="normal" id="appendix-B.5-1.8">
-            <p id="appendix-B.5-1.8.1">Reduction of target bitrate when bytes in flight is high is removed because it is not helpful when media coders are sluggish.<a href="#appendix-B.5-1.8.1" class="pilcrow">¶</a></p>
+            <li class="normal" id="appendix-B.2.5-1.8">
+              <p id="appendix-B.2.5-1.8.1">Reduction of target bitrate when bytes in flight is high is removed because it is not helpful when media coders are sluggish.<a href="#appendix-B.2.5-1.8.1" class="pilcrow">¶</a></p>
 </li>
-          <li class="normal" id="appendix-B.5-1.9">
-            <p id="appendix-B.5-1.9.1">Calculation of l4s_alpha_v_t simplified, l4s_alpha_lim_t removed.<a href="#appendix-B.5-1.9.1" class="pilcrow">¶</a></p>
+            <li class="normal" id="appendix-B.2.5-1.9">
+              <p id="appendix-B.2.5-1.9.1">Calculation of l4s_alpha_v_t simplified, l4s_alpha_lim_t removed.<a href="#appendix-B.2.5-1.9.1" class="pilcrow">¶</a></p>
 </li>
-          <li class="normal" id="appendix-B.5-1.10">
-            <p id="appendix-B.5-1.10.1">Bug in condition for calculation of l4s_alpha_v_t fixed.<a href="#appendix-B.5-1.10.1" class="pilcrow">¶</a></p>
+            <li class="normal" id="appendix-B.2.5-1.10">
+              <p id="appendix-B.2.5-1.10.1">Bug in condition for calculation of l4s_alpha_v_t fixed.<a href="#appendix-B.2.5-1.10.1" class="pilcrow">¶</a></p>
 </li>
-          <li class="normal" id="appendix-B.5-1.11">
-            <p id="appendix-B.5-1.11.1">bytes_in_flight_ratio removed.<a href="#appendix-B.5-1.11.1" class="pilcrow">¶</a></p>
+            <li class="normal" id="appendix-B.2.5-1.11">
+              <p id="appendix-B.2.5-1.11.1">bytes_in_flight_ratio removed.<a href="#appendix-B.2.5-1.11.1" class="pilcrow">¶</a></p>
 </li>
-          <li class="normal" id="appendix-B.5-1.12">
-            <p id="appendix-B.5-1.12.1">Moved Changes per draft version to this appendix.<a href="#appendix-B.5-1.12.1" class="pilcrow">¶</a></p>
+            <li class="normal" id="appendix-B.2.5-1.12">
+              <p id="appendix-B.2.5-1.12.1">Moved Changes per draft version to this appendix.<a href="#appendix-B.2.5-1.12.1" class="pilcrow">¶</a></p>
 </li>
-        </ul>
+          </ul>
 </section>
 </div>
 <div id="changes-in-draft-version-07">
-<section id="appendix-B.6">
-        <h3 id="name-changes-in-draft-version-07">
-<a href="#appendix-B.6" class="section-number selfRef">B.6. </a><a href="#name-changes-in-draft-version-07" class="section-name selfRef">Changes in Draft version -07</a>
-        </h3>
+<section id="appendix-B.2.6">
+          <h4 id="name-changes-in-draft-version-07">
+<a href="#appendix-B.2.6" class="section-number selfRef">B.2.6. </a><a href="#name-changes-in-draft-version-07" class="section-name selfRef">Changes in Draft version -07</a>
+          </h4>
 <ul class="normal">
-<li class="normal" id="appendix-B.6-1.1">
-            <p id="appendix-B.6-1.1.1">Additional restriction of ref_wnd increase and ref_wnd_overhead when ref_wnd/MSS is very low.<a href="#appendix-B.6-1.1.1" class="pilcrow">¶</a></p>
+<li class="normal" id="appendix-B.2.6-1.1">
+              <p id="appendix-B.2.6-1.1.1">Additional restriction of ref_wnd increase and ref_wnd_overhead when ref_wnd/MSS is very low.<a href="#appendix-B.2.6-1.1.1" class="pilcrow">¶</a></p>
 </li>
-          <li class="normal" id="appendix-B.6-1.2">
-            <p id="appendix-B.6-1.2.1">Additional compensation for increased media queue delay and frame size variation when calculating target bitrate.<a href="#appendix-B.6-1.2.1" class="pilcrow">¶</a></p>
+            <li class="normal" id="appendix-B.2.6-1.2">
+              <p id="appendix-B.2.6-1.2.1">Additional compensation for increased media queue delay and frame size variation when calculating target bitrate.<a href="#appendix-B.2.6-1.2.1" class="pilcrow">¶</a></p>
 </li>
-          <li class="normal" id="appendix-B.6-1.3">
-            <p id="appendix-B.6-1.3.1">Changes in text on feedback.<a href="#appendix-B.6-1.3.1" class="pilcrow">¶</a></p>
+            <li class="normal" id="appendix-B.2.6-1.3">
+              <p id="appendix-B.2.6-1.3.1">Changes in text on feedback.<a href="#appendix-B.2.6-1.3.1" class="pilcrow">¶</a></p>
 </li>
-          <li class="normal" id="appendix-B.6-1.4">
-            <p id="appendix-B.6-1.4.1">Section on handling of systematic error in media encoder output bitrate removed as this is adressed in section Media Rate Control.<a href="#appendix-B.6-1.4.1" class="pilcrow">¶</a></p>
+            <li class="normal" id="appendix-B.2.6-1.4">
+              <p id="appendix-B.2.6-1.4.1">Section on handling of systematic error in media encoder output bitrate removed as this is adressed in section Media Rate Control.<a href="#appendix-B.2.6-1.4.1" class="pilcrow">¶</a></p>
 </li>
-          <li class="normal" id="appendix-B.6-1.5">
-            <p id="appendix-B.6-1.5.1">Added section Clock drift issues and remedies.<a href="#appendix-B.6-1.5.1" class="pilcrow">¶</a></p>
+            <li class="normal" id="appendix-B.2.6-1.5">
+              <p id="appendix-B.2.6-1.5.1">Added section Clock drift issues and remedies.<a href="#appendix-B.2.6-1.5.1" class="pilcrow">¶</a></p>
 </li>
-          <li class="normal" id="appendix-B.6-1.6">
-            <p id="appendix-B.6-1.6.1">Removed '*= max(0.5,1.0-ref_wnd_ratio)' as this function is replaced by qdelay_dev_norm related restriction on reference window growth.<a href="#appendix-B.6-1.6.1" class="pilcrow">¶</a></p>
+            <li class="normal" id="appendix-B.2.6-1.6">
+              <p id="appendix-B.2.6-1.6.1">Removed '*= max(0.5,1.0-ref_wnd_ratio)' as this function is replaced by qdelay_dev_norm related restriction on reference window growth.<a href="#appendix-B.2.6-1.6.1" class="pilcrow">¶</a></p>
 </li>
-          <li class="normal" id="appendix-B.6-1.7">
-            <p id="appendix-B.6-1.7.1">Removed extra selective restriction on ref_wnd growth when L4S is not enabled as this function is replaced by qdelay_dev_norm related restriction on reference window growth.<a href="#appendix-B.6-1.7.1" class="pilcrow">¶</a></p>
+            <li class="normal" id="appendix-B.2.6-1.7">
+              <p id="appendix-B.2.6-1.7.1">Removed extra selective restriction on ref_wnd growth when L4S is not enabled as this function is replaced by qdelay_dev_norm related restriction on reference window growth.<a href="#appendix-B.2.6-1.7.1" class="pilcrow">¶</a></p>
 </li>
-          <li class="normal" id="appendix-B.6-1.8">
-            <p id="appendix-B.6-1.8.1">Additional wording on the improvement of the optional qdelay_dev_norm related restriction based on extimation of the non-congestion related delay jitter.<a href="#appendix-B.6-1.8.1" class="pilcrow">¶</a></p>
+            <li class="normal" id="appendix-B.2.6-1.8">
+              <p id="appendix-B.2.6-1.8.1">Additional wording on the improvement of the optional qdelay_dev_norm related restriction based on extimation of the non-congestion related delay jitter.<a href="#appendix-B.2.6-1.8.1" class="pilcrow">¶</a></p>
 </li>
-        </ul>
+          </ul>
+</section>
+</div>
 </section>
 </div>
 </section>
