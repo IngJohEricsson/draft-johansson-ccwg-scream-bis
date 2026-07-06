@@ -6,7 +6,7 @@ CCWG                                                        I. Johansson
 Internet-Draft                                             M. Westerlund
 Obsoletes: 8298 (if approved)                               M. Kühlewind
 Intended status: Experimental                                   Ericsson
-Expires: 3 January 2027                                      2 July 2026
+Expires: 7 January 2027                                      6 July 2026
 
 
               Self-Clocked Rate Adaptation for Multimedia
@@ -54,7 +54,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 3 January 2027.
+   This Internet-Draft will expire on 7 January 2027.
 
 Copyright Notice
 
@@ -1076,8 +1076,8 @@ end
 
    The sender transmission control is executed for each transmitted
    packet, the send interval is dictated by the pacing but is restricted
-   by the send window.  In practice it however can be more practical to
-   transmit packets in small burst to save processing power, or
+   by the send window.  In practice it, however, can be more practical
+   to transmit packets in small burst to save processing power, or
    alternatively, to offload the pacing to OS kernel function.
 
 4.3.1.  Send Window Calculation
