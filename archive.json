@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-07-05T04:04:34.754869+00:00",
+  "timestamp": "2026-07-07T04:01:43.825354+00:00",
   "repo": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
   "labels": [
     {
@@ -4215,24 +4215,26 @@
       "id": "PR_kwDOK7AJUs7dZeCy",
       "title": "Ingo 260512",
       "url": "https://github.com/IngJohEricsson/draft-johansson-ccwg-scream-bis/pull/54",
-      "state": "OPEN",
+      "state": "MERGED",
       "author": "IngJohEricsson",
       "authorAssociation": "OWNER",
       "assignees": [],
       "labels": [],
       "body": "Two optional additions\r\n+ Conditional loss backoff for increased robustness against link layer (non-congestion) losses \r\n+ Rate policer detection and remediation action to reduce packet losses \r\n+ Discussion on reduced backoff when target bitrate is less than ACKed bitrate",
       "createdAt": "2026-05-20T06:58:00Z",
-      "updatedAt": "2026-07-02T17:13:24Z",
+      "updatedAt": "2026-07-06T15:05:55Z",
       "baseRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
       "baseRefName": "main",
       "baseRefOid": "1ada5332a9b51281c7f1118686f052e200e99236",
       "headRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
       "headRefName": "ingo-260512",
-      "headRefOid": "93310483e846c075bb6928226320ba35485811d2",
-      "closedAt": null,
-      "mergedAt": null,
-      "mergedBy": null,
-      "mergeCommit": null,
+      "headRefOid": "2ede00c086b7b99c79aa85de69c36d17618ba79d",
+      "closedAt": "2026-07-06T15:05:55Z",
+      "mergedAt": "2026-07-06T15:05:55Z",
+      "mergedBy": "mirjak",
+      "mergeCommit": {
+        "oid": "eafb29456065925570eca51bc74232f096c50afd"
+      },
       "comments": [],
       "reviews": [
         {
@@ -4934,6 +4936,126 @@
               "body": "````suggestion\nThe max_policed_ref_wnd enforces an upper limit to the ref_wnd. The max_policed_ref_wnd should increase by a small fraction, for instance 0.001 per RTT that gradually lifts the limit, this prevents that possible false detection of rate policers causes a permanent restriction on ref_wnd.\n````",
               "createdAt": "2026-07-02T17:05:19Z",
               "updatedAt": "2026-07-02T17:05:20Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs8AAAABFFqM_Q",
+          "commit": {
+            "abbreviatedOid": "9331048"
+          },
+          "author": "mirjak",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-07-06T13:47:13Z",
+          "updatedAt": "2026-07-06T13:47:13Z",
+          "comments": [
+            {
+              "originalPosition": 656,
+              "body": "```suggestion\nThe sender transmission control is executed for each transmitted packet, the send interval is dictated by the pacing but is restricted by the send window. In practice it, however, can be more practical to transmit packets in small burst to save processing power, or alternatively, to offload the pacing to OS kernel function.\n```",
+              "createdAt": "2026-07-06T13:47:13Z",
+              "updatedAt": "2026-07-06T13:47:13Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs8AAAABFFq5AA",
+          "commit": {
+            "abbreviatedOid": "694f3c4"
+          },
+          "author": "mirjak",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-07-06T13:48:29Z",
+          "updatedAt": "2026-07-06T13:48:30Z",
+          "comments": [
+            {
+              "originalPosition": 707,
+              "body": "```suggestion\nupdated and calculates the target bitrate. It is, however, not necessary to execute this part more often than the frame period of the media encoder.\n```",
+              "createdAt": "2026-07-06T13:48:30Z",
+              "updatedAt": "2026-07-06T13:48:30Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs8AAAABFGBgtA",
+          "commit": {
+            "abbreviatedOid": "2ede00c"
+          },
+          "author": "mirjak",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-07-06T14:34:05Z",
+          "updatedAt": "2026-07-06T14:34:05Z",
+          "comments": [
+            {
+              "originalPosition": 288,
+              "body": "Why do you apply these steps? What's the reason for this?\n\nIt's a bit confusing that you overwrite qdelay_max_avg/qdelay_min_avg here. Maybe it would better to use a new variable like qdelay_max_avg_scaled/qdelay_min_avg_scaled?",
+              "createdAt": "2026-07-06T14:34:05Z",
+              "updatedAt": "2026-07-06T14:34:05Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs8AAAABFGEfSg",
+          "commit": {
+            "abbreviatedOid": "2ede00c"
+          },
+          "author": "IngJohEricsson",
+          "authorAssociation": "OWNER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-07-06T14:40:01Z",
+          "updatedAt": "2026-07-06T14:40:01Z",
+          "comments": [
+            {
+              "originalPosition": 288,
+              "body": "It is not really an overwrite. \r\nThe max value will gradually decrease down to zero, but will be updated to a higher value if new incoming feedback indicates a higher value.\r\nThe min value will gradually increase up to the max value, but can be updated to a lower value if new incoming feedback has a lower qdelay.\r\nIn a perfect link with zero congestion jitter and zero clock drift, both the min and max values will be zero",
+              "createdAt": "2026-07-06T14:40:01Z",
+              "updatedAt": "2026-07-06T14:40:02Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs8AAAABFGGBiQ",
+          "commit": {
+            "abbreviatedOid": "2ede00c"
+          },
+          "author": "mirjak",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-07-06T14:43:16Z",
+          "updatedAt": "2026-07-06T14:43:17Z",
+          "comments": [
+            {
+              "originalPosition": 288,
+              "body": "But you also set qdelay_max_avg/qdelay_min_avg in line 622 and 621. that doesn't seem right to me then...?\n",
+              "createdAt": "2026-07-06T14:43:16Z",
+              "updatedAt": "2026-07-06T14:43:17Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs8AAAABFGISzg",
+          "commit": {
+            "abbreviatedOid": "2ede00c"
+          },
+          "author": "IngJohEricsson",
+          "authorAssociation": "OWNER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-07-06T14:47:14Z",
+          "updatedAt": "2026-07-06T14:47:14Z",
+          "comments": [
+            {
+              "originalPosition": 288,
+              "body": "These update to the min and max values, the code on lines 674 and 675 does the kind of forgetting about the min and max\r\n",
+              "createdAt": "2026-07-06T14:47:14Z",
+              "updatedAt": "2026-07-06T14:47:14Z"
             }
           ]
         }
