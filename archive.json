@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-07-07T04:01:43.825354+00:00",
+  "timestamp": "2026-08-09T02:10:16.753183+00:00",
   "repo": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
   "labels": [
     {
@@ -5060,6 +5060,58 @@
           ]
         }
       ]
+    },
+    {
+      "number": 55,
+      "id": "PR_kwDOK7AJUs78OPNe",
+      "title": "Fix github venue",
+      "url": "https://github.com/IngJohEricsson/draft-johansson-ccwg-scream-bis/pull/55",
+      "state": "OPEN",
+      "author": "mengelbart",
+      "authorAssociation": "NONE",
+      "assignees": [],
+      "labels": [],
+      "body": "The link to the GitHub repository and issue tracker of the draft points to the wrong location.",
+      "createdAt": "2026-08-07T20:59:05Z",
+      "updatedAt": "2026-08-07T20:59:05Z",
+      "baseRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
+      "baseRefName": "main",
+      "baseRefOid": "eafb29456065925570eca51bc74232f096c50afd",
+      "headRepository": "mengelbart/draft-johansson-ccwg-scream-bis",
+      "headRefName": "fix-github-venue",
+      "headRefOid": "954121944be843c70c132310f918e77ff80bf394",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [],
+      "reviews": []
+    },
+    {
+      "number": 56,
+      "id": "PR_kwDOK7AJUs78OTBW",
+      "title": "Fix two typos",
+      "url": "https://github.com/IngJohEricsson/draft-johansson-ccwg-scream-bis/pull/56",
+      "state": "OPEN",
+      "author": "mengelbart",
+      "authorAssociation": "NONE",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2026-08-07T21:02:06Z",
+      "updatedAt": "2026-08-07T21:02:06Z",
+      "baseRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
+      "baseRefName": "main",
+      "baseRefOid": "eafb29456065925570eca51bc74232f096c50afd",
+      "headRepository": "mengelbart/draft-johansson-ccwg-scream-bis",
+      "headRefName": "fix-typos",
+      "headRefOid": "1735cba0805f27d4202edeb7aeee5da589059f45",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [],
+      "reviews": []
     }
   ]
 }
