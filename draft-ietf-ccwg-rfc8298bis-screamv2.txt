@@ -6,7 +6,7 @@ CCWG                                                        I. Johansson
 Internet-Draft                                             M. Westerlund
 Obsoletes: 8298 (if approved)                               M. Kühlewind
 Intended status: Experimental                                   Ericsson
-Expires: 7 January 2027                                      6 July 2026
+Expires: 11 February 2027                                 10 August 2026
 
 
               Self-Clocked Rate Adaptation for Multimedia
@@ -37,7 +37,7 @@ About This Document
    https://www.ietf.org/mailman/listinfo/ccwg/.
 
    Source for this draft and an issue tracker can be found at
-   https://github.com/gloinul/draft-johansson-ccwg-scream-bis.
+   https://github.com/IngJohEricsson/draft-johansson-ccwg-scream-bis.
 
 Status of This Memo
 
@@ -54,7 +54,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 7 January 2027.
+   This Internet-Draft will expire on 11 February 2027.
 
 Copyright Notice
 
