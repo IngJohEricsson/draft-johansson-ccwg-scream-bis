@@ -12,7 +12,7 @@ submissiontype: IETF
 venue:
   group: Congestion Control Working Group (ccwg)
   mail: ccwg@ietf.org
-  github: gloinul/draft-johansson-ccwg-scream-bis
+  github: IngJohEricsson/draft-johansson-ccwg-scream-bis
 
 author:
   -
