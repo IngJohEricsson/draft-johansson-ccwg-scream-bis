@@ -975,13 +975,6 @@ to manage this:
 
 The two mechanisms complement one another.
 
-The ref_wnd can optionally be restricted by max_policed_ref_wnd, described in {{link-loss-rate-policer}}, to reduce packet losses when transmission links are subject to rate policing.
-The additional code for this is shown below.
-
-~~~~
-ref_wnd = min(ref_wnd, max_policed_ref_wnd)
-~~~~
-
 ## Sender Transmission Control
 
 The Sender Transmission control calculates of send window at the sender.
@@ -1220,7 +1213,7 @@ if qdelay_min_avg > qdelay_target / 4
 end
 ~~~
 
-### Link layer losses and rate policers {#link-loss-rate-policer}
+### Link layer losses {#link-loss}
 
 Link layer losses, i.e. losses that are not congestion related can lead to unwarranted congestion backoff. One method is to apply a conditional loss backoff only when an average loss rate exceeds a threshold. This increases robustness against non-congestion related losses. One problem is that such a method can also increase congestion related packet loss which can be detrimental for real time media such as video. This is resolved in that immediate loss backoff is triggered when the queue delay increases. While the conditional loss backoff increases robustness against link layer losses, it is inevitable that the algorithm can delay congestion backoff and thus cause increased packet loss rate. The constant LOSS_RATE_THRESHOLD should therefore be set low enough, with the objective to increase robustness to link layer losses only.
 
@@ -1245,8 +1238,6 @@ The following variables and constants are used:
 
 * LOSS_RATE_THRESHOLD (0.01): Threshold for triggering loss based reference window backoff.
 
-Rate policers can give quite large loss bursts, which can impact real time media quality quite badly. A rate policer is characterized by that it does not build a queue. Hence, the rate policer detection triggers on the observation that the loss rate is high and the queue delay is low.
-
 The code below modifies the 'if (loss_detected)' part in {{ref-wnd-reduction}}
 
 ~~~
@@ -1256,23 +1247,8 @@ The code below modifies the 'if (loss_detected)' part in {{ref-wnd-reduction}}
     if (loss_rate > LOSS_RATE_THRESHOLD || qdelay_avg > qdelay_target / 4)
       is_loss_t = true
     end
-    # Detection of rate policer induced loss and setting of limit to ref_wnd
-    if (loss_rate > LOSS_RATE_THRESHOLD_POLICER &&
-        qdelay_avg < qdelay_target / 4)
-      max_policed_ref_wnd = ref_wnd*BETA_LOSS_POLICER
-    end
 ..
 ~~~
-
-The variables and constants are:
-
-* max_policed_ref_wnd (MAX_VALUE): Upper limit on ref_wnd.
-
-* LOSS_RATE_THRESHOLD_POLICER (0.1): loss rate threshold for detection of policer.
-
-* BETA_LOSS_POLICER (0.9): ref_wnd scale for calculation of max_policed_ref_wnd.
-
-The max_policed_ref_wnd enforces an upper limit to the ref_wnd. The max_policed_ref_wnd should increase by a small fraction, for instance 0.001 per RTT that gradually lifts the limit, this prevents that possible false detection of rate policers causes a permanent restriction on ref_wnd.
 
 ### Reference window undershoot at congestion {#ref-wnd-undershoot}
 
@@ -1483,7 +1459,7 @@ This section covers a few discussion points.
 
 * The addition of the optional ref_wnd_delay_scale related restriction on ref_wnd increase can cause the rate increase to go slower when the non-congestion related jitter is high. Non-congestion related jitter can occur for instance in 5G where the amount of scheduling delay jitter depends on factors like TDD (Time Division Duplex) patterns an overall load in a cell. The algorithm is somewhat robust to scheduling jitter as it calculates ref_wnd_delay_scale based on the difference between the max and min queue delay. Still, there can be cases where large amounts of scheduling jitter can give a slow ramp up of the bitrate.
 
-* Rate policers can cause loss bursts. These loss bursts are particularly harmful for real time media transmission and it is problematic to detect the existence of rate policers in the transmission path. The example algorithm in the draft resolves the problem with rate policers to some degree. The algorithm is however not bullet proof, assumptions around queue delay can for instance fail on links where the RTT varies, such as satellite links. In addition, rate policers can be configured in many ways. The proposed algoritm in this draft can therefore make or break.
+* Rate policers can cause loss bursts. These loss bursts are particularly harmful for real time media transmission and it is problematic to detect the existence of rate policers in the transmission path. The congestion control algorithm presented here does not include rate policer remediation. Rather it is hoped that rate policers are replaced with less harmful tools such as rate shapers.   
 
 * The competing flows compensation described in {{competing-flows-compensation}} has an inherent risk of false positives, the outcome would be that an increased delay is met by an increased to delay, something that can self-amplify. The algorithm was devised already for {{RFC8298}} when access links could become bloated. Things have however changed since 2017 when RFC8298 was published. Firstly, bufferbloat and remedies to it is better understood. Secondly, more recent congestion control algorithms are designed to not bloat access links that lack active queue management. Thirdly, the algorithm in {{clock-drift}} that addresses clock-drift addresses this issue inherently as a compenting flow still adds an offset in queue delay when SCReAM temporarly reduces its target rate temporarily. The need for competing flows compensation would therefore need to be investigated further.
 
@@ -1528,13 +1504,17 @@ work that led to this memo: Per Kjellander, Björn Terelius.
 
 * Additional conditional loss threshold added as optional to increase robustness against non-congestion related (e.g link layer) losses.
 
-* Added note about method to detect the extistence of rate policers and to reduce packet losses when rate policers are applied in network nodes.
+* Added note about method to detect the existence of rate policers and to reduce packet losses when rate policers are applied in network nodes.
 
 * Added rate policer remediation algorithm.
 
 * Added discussion on code generation with AI-tools based on the draft.
 
 * Added method to reduce ref_wnd undershoot when L4S or delay based congestion occurs.
+
+### Changes in Draft version -02
+
+* Rate policer remediation algorithm removed based on feedback at IETF-126.
 
 ## Individual draft submissions
 
