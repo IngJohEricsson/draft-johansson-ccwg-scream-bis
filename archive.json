@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-08-11T02:09:20.147973+00:00",
+  "timestamp": "2026-08-13T02:28:56.602983+00:00",
   "repo": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
   "labels": [
     {
@@ -328,6 +328,22 @@
       "body": "The MSS definition could be clearer: \n\nThere also appear to be an assumption here in regards to what segment sizes are expected. The algorithm will work best if there are sufficient number of segments transmitted, allowing for pacing. \n\nNeed to consider to add text on this aspect and how MSS and expected rates do interact.\n\n",
       "createdAt": "2025-11-25T13:13:12Z",
       "updatedAt": "2025-11-25T13:13:12Z",
+      "closedAt": null,
+      "comments": []
+    },
+    {
+      "number": 57,
+      "id": "I_kwDOK7AJUs8AAAABMPwHPg",
+      "title": "Remove policer remediation",
+      "url": "https://github.com/IngJohEricsson/draft-johansson-ccwg-scream-bis/issues/57",
+      "state": "OPEN",
+      "author": "IngJohEricsson",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "At IETF 126 it was argued (Neil Cardwell, Stuart Cheshire) that policer remediation actions are better skipped. Said and done. remove this from the draft. ",
+      "createdAt": "2026-08-11T04:54:27Z",
+      "updatedAt": "2026-08-11T04:54:27Z",
       "closedAt": null,
       "comments": []
     }
