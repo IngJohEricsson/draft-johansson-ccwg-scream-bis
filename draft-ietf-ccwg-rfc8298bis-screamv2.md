@@ -658,16 +658,16 @@ function calculate_ref_wnd_delay_scale()
   # Calculate a bounded difference
   if (is_congestion_decected)
      diff_t = min(LATENCY_DIFF_MARGIN, qdelay_short_avg-qdelay_long_avg-LATENCY_DIFF_MARGIN)
-     if (diff_t > 0.0) 
+     if (diff_t > 0.0)
         latency_diff_avg += LATENCY_DIFF_UP_GAIN*diff_t
-     else 
+     else
         latency_diff_avg += LATENCY_DIFF_DOWN_GAIN*diff_t
       end
      latency_diff_avg = max(0.0, min(1.0, latency_diff_avg))
    else
-     qdelay_long_avg = qdelay_short_avg 
-   end 
-   
+     qdelay_long_avg = qdelay_short_avg
+   end
+
 end
 ~~~
 
@@ -887,7 +887,7 @@ post_congestion_scale_t = max(0.0, min(1.0,
   (now - last_congestion_detected_time) /
     (POST_CONGESTION_DELAY_RTTS * max(VIRTUAL_RTT, s_rtt))))
 
-post_congestion_scale_t *= latency_diff_ref_wnd_scale_t 
+post_congestion_scale_t *= latency_diff_ref_wnd_scale_t
 
 # Scale factor for ref_wnd update
 ref_wnd_scale_factor_t = 1.0 + (MUL_INCREASE_FACTOR * ref_wnd) / MSS
@@ -980,13 +980,6 @@ to manage this:
   values. See {{SCReAM-CPP-implementation}} for details.
 
 The two mechanisms complement one another.
-
-The ref_wnd can optionally be restricted by max_policed_ref_wnd, described in {{link-loss-rate-policer}}, to reduce packet losses when transmission links are subject to rate policing.
-The additional code for this is shown below.
-
-~~~~
-ref_wnd = min(ref_wnd, max_policed_ref_wnd)
-~~~~
 
 ## Sender Transmission Control
 
@@ -1473,7 +1466,7 @@ This section covers a few discussion points.
 
 * The addition of the optional ref_wnd_delay_scale related restriction on ref_wnd increase can cause the rate increase to go slower when the non-congestion related jitter is high. Non-congestion related jitter can occur for instance in 5G where the amount of scheduling delay jitter depends on factors like TDD (Time Division Duplex) patterns an overall load in a cell. The algorithm is somewhat robust to scheduling jitter as it calculates ref_wnd_delay_scale based on the difference between the max and min queue delay. Still, there can be cases where large amounts of scheduling jitter can give a slow ramp up of the bitrate.
 
-* Rate policers can cause loss bursts. These loss bursts are particularly harmful for real time media transmission and it is problematic to detect the existence of rate policers in the transmission path. The example algorithm in the draft resolves the problem with rate policers to some degree. The algorithm is however not bullet proof, assumptions around queue delay can for instance fail on links where the RTT varies, such as satellite links. In addition, rate policers can be configured in many ways. 
+* Rate policers can cause loss bursts. These loss bursts are particularly harmful for real time media transmission and it is problematic to detect the existence of rate policers in the transmission path. The example algorithm in the draft resolves the problem with rate policers to some degree. The algorithm is however not bullet proof, assumptions around queue delay can for instance fail on links where the RTT varies, such as satellite links. In addition, rate policers can be configured in many ways.
 
 * The competing flows compensation described in {{competing-flows-compensation}} has an inherent risk of false positives, the outcome would be that an increased delay is met by an increased to delay, something that can self-amplify. The algorithm was devised already for {{RFC8298}} when access links could become bloated. Things have however changed since 2017 when RFC8298 was published. Firstly, bufferbloat and remedies to it is better understood. Secondly, more recent congestion control algorithms are designed to not bloat access links that lack active queue management. Thirdly, the algorithm in {{clock-drift}} that addresses clock-drift addresses this issue inherently as a compenting flow still adds an offset in queue delay when SCReAM temporarly reduces its target rate temporarily. The need for competing flows compensation would therefore need to be investigated further.
 
