@@ -873,7 +873,7 @@ The reference window reduction, when congestion is detected due to L4S marking o
 * When ref_wnd_delay_scale is small
 
 Link layer losses, i.e. losses that are not congestion related can lead to unwarranted congestion back-off. One method is to apply congestion backoff only when an average loss rate exceeds a threshold. A suggested modification to the code above is found in {{link-loss}}.
-The reference window can undershoot on congestion, an optional method to remedy this feature is described in {{ref-wnd-undershoot}}.
+The reference window can undershoot on congestion, an optional method to remedy this feature is described in {{ref-wnd-ushoot}}.
 
 #### Reference Window Increase {#ref-wnd-increase}
 
@@ -1257,7 +1257,7 @@ The code below modifies the 'if (loss_detected)' part in {{ref-wnd-reduction}}
     end
 ..
 ~~~
-### Reference window undershoot at congestion {#ref-wnd-undershoot}
+### Reference window undershoot at congestion {#ref-wnd-ushoot}
 
 The reference window can in certan cases undershoot when congestion occurs, one such case is when the RTT increases at the same time that the reference window is reduced. The RTT increase can push down the target rate faster then the reference window is reduced. An additional reduction of the reference window can be superfluous in some cases. One method to determine if additional reduction is unnecessary is to inspect how the acknowledged bitrate relates to the target bitrate. If the target rate is well below the ACKed bitrate, then additional reduction of the reference window is unnecessary. This is implemented as additional code that modifies the reference window backoff in {{ref-wnd-reduction}}.
 
