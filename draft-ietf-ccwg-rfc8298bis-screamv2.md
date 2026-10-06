@@ -588,7 +588,7 @@ The following variables are used:
 
 * last_fraction_marked (0.0): fraction marked data units in last update
 
-The following constants are used
+The following constants are used:
 
 * L4S_AVG_G (1.0/16): Exponentially Weighted Moving Average (EWMA) factor 
 
@@ -688,7 +688,7 @@ The following constants are used:
 * LATENCY_DIFF_MARGIN (0.001): Latency margin for increasing latency_diff_avg [s]
 
 * LATENCY_DIFF_UP_GAIN (20.0): Gain factor for increased latency
-* 
+
 * LATENCY_DIFF_DOWN_GAIN (2.0): Gain factor for decreased latency
 
 ### Reference Window Update {#ref-wnd-update}
