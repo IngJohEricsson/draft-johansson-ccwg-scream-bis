@@ -562,12 +562,9 @@ if (now - last_update_l4s_alpha_time >= min(0.01, s_rtt))
   fraction_marked_t = data_units_marked_this_rtt/
                       data_units_delivered_this_rtt
 
-  # Apply a fast attack slow decay EWMA
-  if (fraction_marked_t >= l4s_alpha)
-     l4s_alpha = L4S_AVG_G_UP * fraction_marked_t +
-       (1.0 - L4S_AVG_G_UP) * l4S_alpha
-  else
-     l4s_alpha = (1.0 - L4S_AVG_G_DOWN) * l4S_alpha
+  # Apply EWMA filtering of fraction_marked_t
+  l4s_alpha = L4S_AVG_G * fraction_marked_t +
+       (1.0 - L4S_AVG_G) * l4S_alpha
 
   last_update_l4s_alpha_time = now
   data_units_delivered_this_rtt = 0
@@ -593,12 +590,7 @@ The following variables are used:
 
 The following constants are used
 
-* L4S_AVG_G_UP (1.0/8): Exponentially Weighted Moving Average (EWMA) factor for l4s_alpha increase
-
-* L4S_AVG_G_DOWN (1.0/128): Exponentially Weighted Moving Average (EWMA) factor for l4s_alpha decrease
-
-The calculation of l4s_alpha is done with a fast attack slow decay EWMA filter.
-This can give a more stable performance when L4S bottlenecks have high marking thresholds.
+* L4S_AVG_G (1.0/16): Exponentially Weighted Moving Average (EWMA) factor 
 
 #### Detecting Increased Queue Delay {#reaction-delay}
 
@@ -617,10 +609,6 @@ Two variables, qdelay_max_avg and qdelay_min_avg track how much the min and max 
 
 ~~~
 # Update min and max average queue delay for every ACKed RTP packet
-if (REDUCE_JITTER == true)
-  qdelay_max_avg = min(qdelay_target, max(qdelay, qdelay_max_avg)))
-  qdelay_min_avg = min(qdelay, qdelay_min_avg))
-end
 
 if (now - last_update_qdelay_avg_time >= min(virtual_rtt, s_rtt))
   # Calculate qdelay_avg
@@ -646,10 +634,6 @@ The following variables are used:
 {{RFC6817}}. A qdelay sample is obtained for each received acknowledgement.
 It is typically sufficient with one update per received acknowledgement.
 
-* qdelay_max_avg (qdelay_target): Max average queue delay [s], needed only of REDUCE_JITTER==true
-
-* qdelay_min_avg (0.0): Min average queue delay [s], needed only if REDUCE_JITTER==true
-
 * last_update_qdelay_avg_time (0.0): Last time qdelay_avg was updated [s]
 
 * s_rtt (0.0): Smoothed RTT [s], computed with a similar method to that
@@ -661,38 +645,51 @@ The following constants are used:
 
 * REDUCE_JITTER (false): (optional) config knob to enable jitter filtering
 
-* QDELAY_MIN_MAX_AVG_G (1.0/16): Filter gain for qdelay_min_avg and qdelay_max_avg
-
 The SCReAM algorithm can be further improved for a greater rate stability by taking variations in qdelay into consideration. The goal is to react less to delay variations, caused by e.g. link layer related scheduling and retransmissions, but still be reactive to actual queue delay, caused by congestion. The code below provides a example implementation but more advanced statistical analysis can be considered.
 
-The variable qdelay_dev_avg indicates the delay jitter, or to be more concrete, a moving average over the difference between qdelay_max_avg and qdelay_min_avg. Based on qdelay_dev_avg a scaling factor ref_wnd_delay_scale is calculated that is then applied to the reference window increase and the reference window headroom. The ref_wnd_delay_scale is 1.0 when the jitter is zero and decreases to 0.0 when the jitter grows to QDELAY_DEV_THRESHOLD or above. The scaling factor decreases when the delay jitter increases to limit the congestion reaction to short term delay variations and slow down the reference window growth for better stability.
+The variable latency_diff_avg tracks the difference between a short and long average of the qdelay. A positive delta indicates increased latency and increased latency_diff_avg and vice versa. The use of long and short average gives some robustness against e.g. scheduling jitter. 
 
 ~~~
 function calculate_ref_wnd_delay_scale()
-  # Reduce average max queue delay and move min average
-  # queue delay towards the max
-  qdelay_max_avg = qdelay_max_avg * (1.0 - QDELAY_MIN_MAX_AVG_G)
-  qdelay_min_avg = qdelay_min_avg * (1.0 - QDELAY_MIN_MAX_AVG_G) +
-    qdelay_max_avg * QDELAY_MIN_MAX_AVG_G
+  # Calculate a short and long average of qdelay
+  qdelay_short_avg = qdelay_short_avg * (1.0 - QDELAY_SHORT_AVG_G) + qdelay * QDELAY_SHORT_AVG_G
+  qdelay_long_avg = qdelay_long_avg * (1.0 - QDELAY_LONG_AVG_G) + qdelay * QDELAY_LONG_AVG_G
 
-  # Calculate ref_wnd_delay_scale, range [0.0 1.0]
-  qdelay_dev_avg = (1.0 - QDELAY_DEV_AVG_G) * qdelay_dev_avg +
-    QDELAY_DEV_AVG_G * (qdelay_max_avg - qdelay_min_avg)
-  ref_wnd_delay_scale = max(0.0, min(1.0, 1.0 - qdelay_dev_avg / QDELAY_DEV_THRESHOLD))
+  # Calculate a bounded difference
+  if (is_congestion_decected)
+     diff_t = min(LATENCY_DIFF_MARGIN, qdelay_short_avg-qdelay_long_avg-LATENCY_DIFF_MARGIN)
+     if (diff_t > 0.0) 
+        latency_diff_avg += LATENCY_DIFF_UP_GAIN*diff_t
+     else 
+        latency_diff_avg += LATENCY_DIFF_DOWN_GAIN*diff_t
+      end
+     latency_diff_avg = max(0.0, min(1.0, latency_diff_avg))
+   else
+     qdelay_long_avg = qdelay_short_avg 
+   end 
+   
 end
 ~~~
 
 The following variables are used:
 
-* qdelay_dev_avg (0.0): indicates how much the queue delay varies[s]
+* qdelay_short_avg (0.0): Short average queue delay [s], needed only of REDUCE_JITTER==true
 
-* ref_wnd_delay_scale (1.0): A scale factor this applied to the ref_wnd increase as well as the reference window headroom
+* qdelay_long_avg (0.0): Long average queue delay [s], needed only if REDUCE_JITTER==true
+
+* latency_diff_avg (0.0): indicates how much the queue delay varies[s]
 
 The following constants are used:
 
-* QDELAY_DEV_AVG_G (1.0/32): Exponentially Weighted Moving Average (EWMA) factor for qdelay_dev_avg
+* QDELAY_SHORT_AVG_G (1.0/5): Exponentially Weighted Moving Average (EWMA) factor for qdelay_short_avg
 
-* QDELAY_DEV_THRESHOLD (0.01): Threshold for qdelay_dev_avg [s]
+* QDELAY_LONG_AVG_G (1.0/50): Exponentially Weighted Moving Average (EWMA) factor for qdelay_long_avg
+
+* LATENCY_DIFF_MARGIN (0.001): Latency margin for increasing latency_diff_avg [s]
+
+* LATENCY_DIFF_UP_GAIN (20.0): Gain factor for increased latency
+* 
+* LATENCY_DIFF_DOWN_GAIN (2.0): Gain factor for decreased latency
 
 ### Reference Window Update {#ref-wnd-update}
 
@@ -717,6 +714,8 @@ The following variables are defined:
   between QDELAY_TARGET_LO and QDELAY_TARGET_HI.
 
 * last_congestion_detected_time (0.0): Last time congestion detected [s].
+
+* is_congestion_decected (false): True if congestion has been detected
 
 * last_reaction_to_congestion_time (0.0): Last time congestion avoidance occurred [s].
 
@@ -792,6 +791,7 @@ if (now - last_reaction_to_congestion_time >= min(VIRTUAL_RTT, s_rtt)
 end
 
 if (is_loss_t || is_ce_t || is_virtual_ce_t)
+  is_congestion_decected = true
   if (ref_wnd_i_update_allowed)
     # Update ref_wnd_i
     ref_wnd_i = ref_wnd
@@ -872,7 +872,7 @@ The reference window reduction, when congestion is detected due to L4S marking o
 
 * When ref_wnd_delay_scale is small
 
-Link layer losses, i.e. losses that are not congestion related can lead to unwarranted congestion back-off. One method is to apply congestion backoff only when an average loss rate exceeds a threshold. A suggested modification to the code above is found in {{link-loss-rate-policer}}.
+Link layer losses, i.e. losses that are not congestion related can lead to unwarranted congestion back-off. One method is to apply congestion backoff only when an average loss rate exceeds a threshold. A suggested modification to the code above is found in {{link-loss}}.
 The reference window can undershoot on congestion, an optional method to remedy this feature is described in {{ref-wnd-undershoot}}.
 
 #### Reference Window Increase {#ref-wnd-increase}
@@ -881,9 +881,13 @@ The reference window can undershoot on congestion, an optional method to remedy 
 # Delay factor for multiplicative reference window increase
 # after congestion
 
+latency_diff_ref_wnd_scale_t = 1.0 - latency_diff_avg
+
 post_congestion_scale_t = max(0.0, min(1.0,
   (now - last_congestion_detected_time) /
     (POST_CONGESTION_DELAY_RTTS * max(VIRTUAL_RTT, s_rtt))))
+
+post_congestion_scale_t *= latency_diff_ref_wnd_scale_t 
 
 # Scale factor for ref_wnd update
 ref_wnd_scale_factor_t = 1.0 + (MUL_INCREASE_FACTOR * ref_wnd) / MSS
@@ -910,8 +914,10 @@ increment_t *= max(0.25, scl_t)
 # Better to enforce a slow increase in reference window and get
 # a more stable bitrate. Restriction is limited to 0.1 to
 # avoid that ref_wnd growth stalls.
-# Code has no effect if REDUCE_JITTER == false
-increment_t *= max(0.1, ref_wnd_delay_scale)
+# Code has no effect if REDUCE_JITTER == false or L4S is enabled.
+if (!IS_L4S)
+   increment_t *= max(0.1, latency_diff_ref_wnd_scale_t)
+end
 
 # Scale up increment with multiplicative increase
 # Limit multiplicative increase when congestion occurred
@@ -919,7 +925,7 @@ increment_t *= max(0.1, ref_wnd_delay_scale)
 # known max value.
 tmp_t = ref_wnd_scale_factor_t
 if (tmp_t > 1.0)
-  tmp_t = 1.0 + (tmp_t - 1.0) * post_congestion_scale_t * scl_t
+  tmp_t = 1.0 + (tmp_t - 1.0) * post_congestion_scale_t
 end
 increment_t *= tmp_t
 
@@ -1220,7 +1226,7 @@ if qdelay_min_avg > qdelay_target / 4
 end
 ~~~
 
-### Link layer losses and rate policers {#link-loss-rate-policer}
+### Link layer losses and rate policers {#link-loss}
 
 Link layer losses, i.e. losses that are not congestion related can lead to unwarranted congestion backoff. One method is to apply a conditional loss backoff only when an average loss rate exceeds a threshold. This increases robustness against non-congestion related losses. One problem is that such a method can also increase congestion related packet loss which can be detrimental for real time media such as video. This is resolved in that immediate loss backoff is triggered when the queue delay increases. While the conditional loss backoff increases robustness against link layer losses, it is inevitable that the algorithm can delay congestion backoff and thus cause increased packet loss rate. The constant LOSS_RATE_THRESHOLD should therefore be set low enough, with the objective to increase robustness to link layer losses only.
 
@@ -1256,24 +1262,8 @@ The code below modifies the 'if (loss_detected)' part in {{ref-wnd-reduction}}
     if (loss_rate > LOSS_RATE_THRESHOLD || qdelay_avg > qdelay_target / 4)
       is_loss_t = true
     end
-    # Detection of rate policer induced loss and setting of limit to ref_wnd
-    if (loss_rate > LOSS_RATE_THRESHOLD_POLICER &&
-        qdelay_avg < qdelay_target / 4)
-      max_policed_ref_wnd = ref_wnd*BETA_LOSS_POLICER
-    end
 ..
 ~~~
-
-The variables and constants are:
-
-* max_policed_ref_wnd (MAX_VALUE): Upper limit on ref_wnd.
-
-* LOSS_RATE_THRESHOLD_POLICER (0.1): loss rate threshold for detection of policer.
-
-* BETA_LOSS_POLICER (0.9): ref_wnd scale for calculation of max_policed_ref_wnd.
-
-The max_policed_ref_wnd enforces an upper limit to the ref_wnd. The max_policed_ref_wnd should increase by a small fraction, for instance 0.001 per RTT that gradually lifts the limit, this prevents that possible false detection of rate policers causes a permanent restriction on ref_wnd.
-
 ### Reference window undershoot at congestion {#ref-wnd-undershoot}
 
 The reference window can in certan cases undershoot when congestion occurs, one such case is when the RTT increases at the same time that the reference window is reduced. The RTT increase can push down the target rate faster then the reference window is reduced. An additional reduction of the reference window can be superfluous in some cases. One method to determine if additional reduction is unnecessary is to inspect how the acknowledged bitrate relates to the target bitrate. If the target rate is well below the ACKed bitrate, then additional reduction of the reference window is unnecessary. This is implemented as additional code that modifies the reference window backoff in {{ref-wnd-reduction}}.
@@ -1483,7 +1473,7 @@ This section covers a few discussion points.
 
 * The addition of the optional ref_wnd_delay_scale related restriction on ref_wnd increase can cause the rate increase to go slower when the non-congestion related jitter is high. Non-congestion related jitter can occur for instance in 5G where the amount of scheduling delay jitter depends on factors like TDD (Time Division Duplex) patterns an overall load in a cell. The algorithm is somewhat robust to scheduling jitter as it calculates ref_wnd_delay_scale based on the difference between the max and min queue delay. Still, there can be cases where large amounts of scheduling jitter can give a slow ramp up of the bitrate.
 
-* Rate policers can cause loss bursts. These loss bursts are particularly harmful for real time media transmission and it is problematic to detect the existence of rate policers in the transmission path. The example algorithm in the draft resolves the problem with rate policers to some degree. The algorithm is however not bullet proof, assumptions around queue delay can for instance fail on links where the RTT varies, such as satellite links. In addition, rate policers can be configured in many ways. The proposed algoritm in this draft can therefore make or break.
+* Rate policers can cause loss bursts. These loss bursts are particularly harmful for real time media transmission and it is problematic to detect the existence of rate policers in the transmission path. The example algorithm in the draft resolves the problem with rate policers to some degree. The algorithm is however not bullet proof, assumptions around queue delay can for instance fail on links where the RTT varies, such as satellite links. In addition, rate policers can be configured in many ways. 
 
 * The competing flows compensation described in {{competing-flows-compensation}} has an inherent risk of false positives, the outcome would be that an increased delay is met by an increased to delay, something that can self-amplify. The algorithm was devised already for {{RFC8298}} when access links could become bloated. Things have however changed since 2017 when RFC8298 was published. Firstly, bufferbloat and remedies to it is better understood. Secondly, more recent congestion control algorithms are designed to not bloat access links that lack active queue management. Thirdly, the algorithm in {{clock-drift}} that addresses clock-drift addresses this issue inherently as a compenting flow still adds an offset in queue delay when SCReAM temporarly reduces its target rate temporarily. The need for competing flows compensation would therefore need to be investigated further.
 
