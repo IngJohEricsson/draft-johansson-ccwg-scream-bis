@@ -590,7 +590,7 @@ The following variables are used:
 
 The following constants are used:
 
-* L4S_AVG_G (1.0/16): Exponentially Weighted Moving Average (EWMA) factor 
+* L4S_AVG_G (1.0/16): Exponentially Weighted Moving Average (EWMA) factor
 
 #### Detecting Increased Queue Delay {#reaction-delay}
 
@@ -647,7 +647,7 @@ The following constants are used:
 
 The SCReAM algorithm can be further improved for a greater rate stability by taking variations in qdelay into consideration. The goal is to react less to delay variations, caused by e.g. link layer related scheduling and retransmissions, but still be reactive to actual queue delay, caused by congestion. The code below provides a example implementation but more advanced statistical analysis can be considered.
 
-The variable latency_diff_avg tracks the difference between a short and long average of the qdelay. A positive delta indicates increased latency and increased latency_diff_avg and vice versa. The use of long and short average gives some robustness against e.g. scheduling jitter. 
+The variable latency_diff_avg tracks the difference between a short and long average of the qdelay. A positive delta indicates increased latency and increased latency_diff_avg and vice versa. The use of long and short average gives some robustness against e.g. scheduling jitter.
 
 ~~~
 function calculate_ref_wnd_delay_scale()
