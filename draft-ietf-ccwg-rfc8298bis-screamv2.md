@@ -656,7 +656,7 @@ function calculate_latency_diff_avg()
   qdelay_long_avg = qdelay_long_avg * (1.0 - QDELAY_LONG_AVG_G) + qdelay * QDELAY_LONG_AVG_G
 
   # Calculate a bounded difference
-  if (is_congestion_decected)
+  if (is_congestion_detected)
      diff_t = min(LATENCY_DIFF_MARGIN, qdelay_short_avg-qdelay_long_avg-LATENCY_DIFF_MARGIN)
      if (diff_t > 0.0)
         latency_diff_avg += LATENCY_DIFF_UP_GAIN*diff_t
@@ -715,7 +715,7 @@ The following variables are defined:
 
 * last_congestion_detected_time (0.0): Last time congestion detected [s].
 
-* is_congestion_decected (false): True if congestion has been detected
+* is_congestion_detected (false): True if congestion has been detected
 
 * last_reaction_to_congestion_time (0.0): Last time congestion avoidance occurred [s].
 
@@ -791,7 +791,7 @@ if (now - last_reaction_to_congestion_time >= min(VIRTUAL_RTT, s_rtt)
 end
 
 if (is_loss_t || is_ce_t || is_virtual_ce_t)
-  is_congestion_decected = true
+  is_congestion_detected = true
   if (ref_wnd_i_update_allowed)
     # Update ref_wnd_i
     ref_wnd_i = ref_wnd
@@ -873,7 +873,7 @@ The reference window reduction, when congestion is detected due to L4S marking o
 * When ref_wnd_delay_scale is small
 
 Link layer losses, i.e. losses that are not congestion related can lead to unwarranted congestion back-off. One method is to apply congestion backoff only when an average loss rate exceeds a threshold. A suggested modification to the code above is found in {{link-loss}}.
-The reference window can undershoot on congestion, an optional method to remedy this feature is described in.
+The reference window can undershoot on congestion, an optional method to remedy this feature is described in {{ref-wnd-undershoot}}.
 
 #### Reference Window Increase {#ref-wnd-increase}
 
