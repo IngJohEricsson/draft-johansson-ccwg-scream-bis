@@ -622,7 +622,7 @@ if (now - last_update_qdelay_avg_time >= min(virtual_rtt, s_rtt))
   # Optional code to calculate the variation on queue delay, which is an
   # Indication of congestion or near congestion.
   if (REDUCE_JITTER == true)
-    calculate_ref_wnd_delay_scale()
+    calculate_latency_diff_avg()
   end
   last_update_qdelay_avg_time = now
 end
@@ -650,7 +650,7 @@ The SCReAM algorithm can be further improved for a greater rate stability by tak
 The variable latency_diff_avg tracks the difference between a short and long average of the qdelay. A positive delta indicates increased latency and increased latency_diff_avg and vice versa. The use of long and short average gives some robustness against e.g. scheduling jitter.
 
 ~~~
-function calculate_ref_wnd_delay_scale()
+function calculate_latency_diff_avg()
   # Calculate a short and long average of qdelay
   qdelay_short_avg = qdelay_short_avg * (1.0 - QDELAY_SHORT_AVG_G) + qdelay * QDELAY_SHORT_AVG_G
   qdelay_long_avg = qdelay_long_avg * (1.0 - QDELAY_LONG_AVG_G) + qdelay * QDELAY_LONG_AVG_G
@@ -873,7 +873,7 @@ The reference window reduction, when congestion is detected due to L4S marking o
 * When ref_wnd_delay_scale is small
 
 Link layer losses, i.e. losses that are not congestion related can lead to unwarranted congestion back-off. One method is to apply congestion backoff only when an average loss rate exceeds a threshold. A suggested modification to the code above is found in {{link-loss}}.
-The reference window can undershoot on congestion, an optional method to remedy this feature is described in {{ref-wnd-undershoot}}.
+The reference window can undershoot on congestion, an optional method to remedy this feature is described in.
 
 #### Reference Window Increase {#ref-wnd-increase}
 
