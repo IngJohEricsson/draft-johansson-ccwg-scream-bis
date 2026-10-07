@@ -1493,6 +1493,8 @@ This section covers a few discussion points.
 
 * The calculation of the target bitrate based on the reference window and the average RTT can lead to over-optimistic target rate values for instance when the source becomes idle or delivers a media bitrate that is lower than the target bitrate. To resolve this issue, it is recommended to update the average RTT with a longer time constant when bytes in flight is lower than the reference window by some margin.
 
+* Video encoders can in some cases output a lower bitrate than the target bitrate, one example is for instance a video encoder pipeline that initiates with a low resolution or frame rate. Because ref_wnd is limited by the bytes in flight multiplied by BYTES_IN_FLIGHT_HEAD_ROOM the result can be that the bitrate is stuck at a low value. WebRTC exploit padding to overcome this issue. Unused target bitrate is filled up with duplicate transmitted packets and thus helps to increase the target bitrate enough to make the video encoder pipeline switch up the resolution and/or frame rate.
+
 * AI-tools can generate code based on the current draft version albeit with some caveats around execution order and poorly defined calculations/definitions of variables. A later version will address this.
 
 # IANA Considerations {#iana}
