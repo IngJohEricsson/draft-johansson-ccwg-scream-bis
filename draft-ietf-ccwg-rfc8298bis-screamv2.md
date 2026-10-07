@@ -952,7 +952,7 @@ if (ref_wnd > ref_wnd_prev_)
 end
 ~~~
 
-The latency_diff_ref_wnd_scale_t scales the reference window increase. Firstly the increase is downscaled to target between 0.5 and 2.0 (L4S) marked packets per RTT. For L4S this reflects that larger queue delay spikes lead to that the L4S marking saturates at 100% with the consequence that the congestion is under estimated. Secondly an additional restriction is applied when L4S is not enabled to make non-L4S rate adaptation more stable.  
+The latency_diff_ref_wnd_scale_t scales the reference window increase. Firstly the increase is downscaled to target between 0.5 and 2.0 (L4S) marked packets per RTT. For L4S this reflects that larger queue delay spikes lead to that the L4S marking saturates at 100% with the consequence that the congestion is under estimated. Secondly an additional restriction is applied when L4S is not enabled to make non-L4S rate adaptation more stable.
 
 The multiplicative increase is restricted directly after a congestion event and
 the restriction is gradually relaxed as the time since last congested
