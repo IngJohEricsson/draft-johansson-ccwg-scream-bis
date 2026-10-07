@@ -605,8 +605,6 @@ retransmissions.
 
 qdelay_avg is updated with a slow attack, fast decay EWMA filter as described below.
 
-Two variables, qdelay_max_avg and qdelay_min_avg track how much the min and max queue delay varies over time. The qdelay_max_avg is reduced gradually towards zero while the qdelay_min_avg is averaged towards qdelay_max_avg. This makes the difference between qdelay_max_avg and qdelay_min_avg robust against clock drift and also adds some immunity against scheduling jitter, which affects both qdelay_max_avg and qdelay_min_avg.
-
 ~~~
 # Update min and max average queue delay for every ACKed RTP packet
 
@@ -633,6 +631,8 @@ The following variables are used:
 * qdelay (0.0): When the sender receives feedback, the qdelay [s] is calculated as outlined in
 {{RFC6817}}. A qdelay sample is obtained for each received acknowledgement.
 It is typically sufficient with one update per received acknowledgement.
+
+* qdelay_avg(0.0): The average qdelay [s].
 
 * qdelay_avg_prev(0.0): The qdelay_avg from previous update [s].
 
@@ -664,18 +664,17 @@ function calculate_latency_diff_avg()
         latency_diff_avg += LATENCY_DIFF_UP_GAIN*diff_t
      else
         latency_diff_avg += LATENCY_DIFF_DOWN_GAIN*diff_t
-      end
+     end
      latency_diff_avg = max(0.0, min(1.0, latency_diff_avg))
-   else
+  else
      qdelay_long_avg = qdelay_short_avg
-   end
-
+  end
 end
 ~~~
 
 The following variables are used:
 
-* qdelay_short_avg (0.0): Short average queue delay [s], needed only of REDUCE_JITTER==true
+* qdelay_short_avg (0.0): Short average queue delay [s], needed only if REDUCE_JITTER==true
 
 * qdelay_long_avg (0.0): Long average queue delay [s], needed only if REDUCE_JITTER==true
 
@@ -1224,7 +1223,7 @@ if qdelay_min_avg > qdelay_target / 4
 end
 ~~~
 
-### Link layer losses and rate policers {#link-loss}
+### Link layer losses {#link-loss}
 
 Link layer losses, i.e. losses that are not congestion related can lead to unwarranted congestion backoff. One method is to apply a conditional loss backoff only when an average loss rate exceeds a threshold. This increases robustness against non-congestion related losses. One problem is that such a method can also increase congestion related packet loss which can be detrimental for real time media such as video. This is resolved in that immediate loss backoff is triggered when the queue delay increases. While the conditional loss backoff increases robustness against link layer losses, it is inevitable that the algorithm can delay congestion backoff and thus cause increased packet loss rate. The constant LOSS_RATE_THRESHOLD should therefore be set low enough, with the objective to increase robustness to link layer losses only.
 
@@ -1249,8 +1248,6 @@ The following variables and constants are used:
 
 * LOSS_RATE_THRESHOLD (0.01): Threshold for triggering loss based reference window backoff.
 
-Rate policers can give quite large loss bursts, which can impact real time media quality quite badly. A rate policer is characterized by that it does not build a queue. Hence, the rate policer detection triggers on the observation that the loss rate is high and the queue delay is low.
-
 The code below modifies the 'if (loss_detected)' part in {{ref-wnd-reduction}}
 
 ~~~
@@ -1262,6 +1259,7 @@ The code below modifies the 'if (loss_detected)' part in {{ref-wnd-reduction}}
     end
 ..
 ~~~
+
 ### Reference window undershoot at congestion {#ref-wnd-undershoot}
 
 The reference window can in certan cases undershoot when congestion occurs, one such case is when the RTT increases at the same time that the reference window is reduced. The RTT increase can push down the target rate faster then the reference window is reduced. An additional reduction of the reference window can be superfluous in some cases. One method to determine if additional reduction is unnecessary is to inspect how the acknowledged bitrate relates to the target bitrate. If the target rate is well below the ACKed bitrate, then additional reduction of the reference window is unnecessary. This is implemented as additional code that modifies the reference window backoff in {{ref-wnd-reduction}}.
@@ -1525,6 +1523,16 @@ work that led to this memo: Per Kjellander, Björn Terelius.
 * Added discussion on code generation with AI-tools based on the draft.
 
 * Added method to reduce ref_wnd undershoot when L4S or delay based congestion occurs.
+
+### Changes in Draft version -02
+
+* Removed rate policer remediation algorithm based on feedback at IETF-126.
+
+* Reference window increase scaling algorithm modified for increased robustness against scheduling delay jitter.
+
+* Delay based congestion backoff inhibited when qdelay_avg decreases.
+
+* send_wnd calculation updated to avoid stalling when ref_wnd is very low.
 
 ## Individual draft submissions
 
