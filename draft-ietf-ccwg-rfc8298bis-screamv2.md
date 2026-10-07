@@ -634,6 +634,8 @@ The following variables are used:
 {{RFC6817}}. A qdelay sample is obtained for each received acknowledgement.
 It is typically sufficient with one update per received acknowledgement.
 
+* qdelay_avg_prev(0.0): The qdelay_avg from previous update [s].
+
 * last_update_qdelay_avg_time (0.0): Last time qdelay_avg was updated [s]
 
 * s_rtt (0.0): Smoothed RTT [s], computed with a similar method to that
@@ -779,16 +781,19 @@ if (now - last_reaction_to_congestion_time >= min(VIRTUAL_RTT, s_rtt)
   else if (data_units_marked)
     is_ce_t = true
   else if (qdelay_avg > qdelay_target / 2 &&
+    qdelay_avg >= qdelay_avg_prev &&
     !(is_ce_t || is_loss_t))
     # The calculation of l4s_alpha_v_t is based on qdelay_avg to reduce
     # sensitivity to sudden non-congestion related delay spikes that can
-    # occur due to lower protocol retransmissions or cell change
+    # occur due to lower protocol retransmissions or cell change.
+    # Congestion is not signaled if qdelay_avg shows a tendency to decrease.
     l4s_alpha_v_t = min(1.0, max(0.0,
             (qdelay_avg - qdelay_target / 2) /
             (qdelay_target / 2)))
     is_virtual_ce_t = true
   end
 end
+qdelay_avg_prev = qdelay_avg
 
 if (is_loss_t || is_ce_t || is_virtual_ce_t)
   is_congestion_detected = true
@@ -898,7 +903,10 @@ ref_wnd_scale_factor_t = 1.0 + (MUL_INCREASE_FACTOR * ref_wnd) / MSS
 bytes_newly_acked_minus_ce_t = bytes_newly_acked -
                                bytes_newly_acked_ce
 
-increment_t = bytes_newly_acked_minus_ce_t * ref_wnd_ratio
+# Scale the increment between 0.5 and 2.0 (L4S) marked packets
+# per RTT depending on how the queue delay varies.
+increment_scale_t = 4.0 - 3.0 * latency_diff_ref_wnd_scale_t
+increment_t = bytes_newly_acked_minus_ce_t * ref_wnd_ratio / increment_scale_t
 
 # Reduce increment for small RTTs
 tmp_t = min(1.0, s_rtt / VIRTUAL_RTT)
@@ -908,12 +916,12 @@ increment_t *= tmp_t
 # known max value before congestion
 increment_t *= max(0.25, scl_t)
 
-# Optional additional code for increased rate stability
+# Optional additional code for increased rate stability when L4S is not enabled
 # Put an additional restriction on reference window growth if qdelay varies a lot.
 # Better to enforce a slow increase in reference window and get
 # a more stable bitrate. Restriction is limited to 0.1 to
 # avoid that ref_wnd growth stalls.
-# Code has no effect if REDUCE_JITTER == false or L4S is enabled.
+# Code has no effect if REDUCE_JITTER == false
 if (!IS_L4S)
    increment_t *= max(0.1, latency_diff_ref_wnd_scale_t)
 end
@@ -944,10 +952,7 @@ if (ref_wnd > ref_wnd_prev_)
 end
 ~~~
 
-The ref_wnd_scale_factor_t scales the reference window increase. The
-ref_wnd_scale_factor_t is increased with larger ref_wnd to allow for a
-multiplicative increase and thus a faster convergence when link capacity
-increases.
+The latency_diff_ref_wnd_scale_t scales the reference window increase. Firstly the increase is downscaled to target between 0.5 and 2.0 (L4S) marked packets per RTT. For L4S this reflects that larger queue delay spikes lead to that the L4S marking saturates at 100% with the consequence that the congestion is under estimated. Secondly an additional restriction is applied when L4S is not enabled to make non-L4S rate adaptation more stable.  
 
 The multiplicative increase is restricted directly after a congestion event and
 the restriction is gradually relaxed as the time since last congested
@@ -957,7 +962,7 @@ this means that the SCReAMv2 algorithm will adhere to the 2 marked data units pe
 RTT equilibrium at steady state congestion, with the exception of the case
 below.
 
-The reference window increase is restricted to values as small as 0.1MSS/RTT
+The reference window increase is restricted to values as small as 0.25MSS/RTT
 when the reference window is close to the last known max value (ref_wnd_i). This
 increases stability and reduces periodic overshoot.
 
@@ -1022,10 +1027,11 @@ reference window and the amount of bytes in flight according to the pseudocode
 below. The multiplication of ref_wnd with ref_wnd_overhead has the effect that bytes in flight is 'around' the ref_wnd
 rather than limited by the ref_wnd. The
 implementation allows the data unit queue to be small even when the frame sizes vary
-and thus, increased e2e delay can be avoided.
+and thus, increased e2e delay can be avoided. A min window of 2*MSS is applied to avoid that the ACK clocking stalls in case MIN_REF_WND is set very low, for cases when SCReAM is used to congestion control at very low bitrates.
 
 ~~~
-send_wnd = ref_wnd * ref_wnd_overhead - bytes_in_flight
+min_window_t = max(ref_wnd * ref_wnd_overhead, 2*MSS)
+send_wnd = min_window_t - bytes_in_flight
 ~~~
 
 The send window is updated whenever a data unit is transmitted or an feedback
@@ -1047,7 +1053,7 @@ The ref_wnd_overhead is calculated as:
 
 ~~~
 ref_wnd_overhead = REF_WND_OVERHEAD_MIN +
-  (REF_WND_OVERHEAD_MAX - REF_WND_OVERHEAD_MIN) * ref_wnd_delay_scale
+  (REF_WND_OVERHEAD_MAX - REF_WND_OVERHEAD_MIN) * latency_diff_ref_wnd_scale_t
 ~~~
 
 ### Packet Pacing {#packet-pacing}
@@ -1463,11 +1469,13 @@ This section covers a few discussion points.
 
 * SCReAM (+L4S) is currently being integrated in chrome for performance evaluation and comparison against GCC, nightly Chrome Canary builds are available at {{SCReAM-Chrome-Canary}}.
 
-* The addition of the optional ref_wnd_delay_scale related restriction on ref_wnd increase can cause the rate increase to go slower when the non-congestion related jitter is high. Non-congestion related jitter can occur for instance in 5G where the amount of scheduling delay jitter depends on factors like TDD (Time Division Duplex) patterns an overall load in a cell. The algorithm is somewhat robust to scheduling jitter as it calculates ref_wnd_delay_scale based on the difference between the max and min queue delay. Still, there can be cases where large amounts of scheduling jitter can give a slow ramp up of the bitrate.
+* The addition of the optional latency_diff_avg related restriction on ref_wnd increase can cause the rate increase to go slower when the non-congestion related jitter is high. Non-congestion related jitter can occur for instance in 5G where the amount of scheduling delay jitter depends on factors like TDD (Time Division Duplex) patterns an overall load in a cell. The algorithm is somewhat robust to scheduling jitter as it calculates latency_diff_avg based on the difference between a short and long average of the queue delay. Still, there can be cases where large amounts of scheduling jitter can give a slow ramp up of the bitrate.
 
-* Rate policers can cause loss bursts. These loss bursts are particularly harmful for real time media transmission and it is problematic to detect the existence of rate policers in the transmission path. The example algorithm in the draft resolves the problem with rate policers to some degree. The algorithm is however not bullet proof, assumptions around queue delay can for instance fail on links where the RTT varies, such as satellite links. In addition, rate policers can be configured in many ways.
+* Rate policers can cause loss bursts. These loss bursts are particularly harmful for real time media transmission and it is problematic to detect the existence of rate policers in the transmission path. The best cure is that the use of rate policers is avoided in access networks.
 
 * The competing flows compensation described in {{competing-flows-compensation}} has an inherent risk of false positives, the outcome would be that an increased delay is met by an increased to delay, something that can self-amplify. The algorithm was devised already for {{RFC8298}} when access links could become bloated. Things have however changed since 2017 when RFC8298 was published. Firstly, bufferbloat and remedies to it is better understood. Secondly, more recent congestion control algorithms are designed to not bloat access links that lack active queue management. Thirdly, the algorithm in {{clock-drift}} that addresses clock-drift addresses this issue inherently as a compenting flow still adds an offset in queue delay when SCReAM temporarly reduces its target rate temporarily. The need for competing flows compensation would therefore need to be investigated further.
+
+* CPU limitation can lead to a case that SCReAM cannot push packets as fast as the congestion control would allow. This can lead to that ref_wnd increases due to lack of congestion signals. Even though ref_wnd increase is restricted by BYTES_IN_FLIGHT_HEAD_ROOM, the result can be that the target rate becomes overestimated, resulting in an RTP queue build-up. The not too controversial advice is therefore to limit the max target bitrate to levels that are supported by the device.
 
 * The calculation of the target bitrate based on the reference window and the average RTT can lead to over-optimistic target rate values for instance when the source becomes idle or delivers a media bitrate that is lower than the target bitrate. To resolve this issue, it is recommended to update the average RTT with a longer time constant when bytes in flight is lower than the reference window by some margin.
 
