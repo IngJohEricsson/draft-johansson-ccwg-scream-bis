@@ -716,11 +716,15 @@ The following variables are defined:
 
 * last_congestion_detected_time (0.0): Last time congestion detected [s].
 
-* is_congestion_detected (false): True if congestion has been detected
+* is_congestion_detected (false): True if congestion has been detected.
 
 * last_reaction_to_congestion_time (0.0): Last time congestion avoidance occurred [s].
 
 * ref_wnd_i_update_allowed (true): Allow update of ref_wnd_i.
+
+* ref_wnd_i_update_time (0.0): Last time ref_wnd_i was updated [s].
+
+* ref_wnd_lowest (0): Lowest reference window during a congestion epoch [byte] 
 
 Further the following constants are used (the RECOMMENDED values, within parentheses "()",
 for the constants are deduced from experiments):
@@ -754,6 +758,8 @@ for the constants are deduced from experiments):
 
 * VIRTUAL_RTT (0.025): Virtual RTT [s]. This mimics Prague's RTT fairness such that flows with RTT
   below VIRTUAL_RTT should get a roughly equal share over an L4S path.
+
+* REF_WND_I_UPDATE_MAX_HOLD_RTTS (50): Max number of RTTs that ref_wnd_i is held for update.
 
 #### Reference Window Reduction {#ref-wnd-reduction}
 
@@ -796,10 +802,19 @@ qdelay_avg_prev = qdelay_avg
 
 if (is_loss_t || is_ce_t || is_virtual_ce_t)
   is_congestion_detected = true
+  # Update ref_wnd_i if possible
+  if (ref_wnd > ref_wnd_lowest*1.05 ||
+    now - ref_wnd_i_update_time > REF_WND_I_UPDATE_MAX_HOLD_RTTS*s_rtt)
+    # Allow update of ref_wnd_i only if ref_wnd has increased sufficiently (5%) above the
+    # lowest ref_wnd or the hold time has expired.
+    # This prevents that ref_wnd_i is wrongly stepped down during a period of congestion.
+    ref_wnd_i_update_allowed = true
+  end 
   if (ref_wnd_i_update_allowed)
     # Update ref_wnd_i
     ref_wnd_i = ref_wnd
     ref_wnd_i_update_allowed = false
+    ref_wnd_i_update_time = now
   end
 end
 
@@ -860,6 +875,7 @@ if (is_virtual_ce_t)
   ref_wnd = (1.0 - backoff_t) * ref_wnd
 end
 ref_wnd = max(MIN_REF_WND, ref_wnd)
+ref_wnd_lowest = ref_wnd
 
 if (is_loss_t || is_ce_t || is_virtual_ce_t)
   last_reaction_to_congestion_time = now
@@ -1533,6 +1549,8 @@ work that led to this memo: Per Kjellander, Björn Terelius.
 * Delay based congestion backoff inhibited when qdelay_avg decreases.
 
 * send_wnd calculation updated to avoid stalling when ref_wnd is very low.
+
+* Updated calculation of ref_wnd_i.
 
 ## Individual draft submissions
 
