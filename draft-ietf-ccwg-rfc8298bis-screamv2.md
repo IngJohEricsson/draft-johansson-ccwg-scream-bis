@@ -724,7 +724,7 @@ The following variables are defined:
 
 * ref_wnd_i_update_time (0.0): Last time ref_wnd_i was updated [s].
 
-* ref_wnd_lowest (0): Lowest reference window during a congestion epoch [byte] 
+* ref_wnd_lowest (0): Lowest reference window during a congestion epoch [byte].
 
 Further the following constants are used (the RECOMMENDED values, within parentheses "()",
 for the constants are deduced from experiments):
@@ -809,7 +809,7 @@ if (is_loss_t || is_ce_t || is_virtual_ce_t)
     # lowest ref_wnd or the hold time has expired.
     # This prevents that ref_wnd_i is wrongly stepped down during a period of congestion.
     ref_wnd_i_update_allowed = true
-  end 
+  end
   if (ref_wnd_i_update_allowed)
     # Update ref_wnd_i
     ref_wnd_i = ref_wnd
