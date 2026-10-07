@@ -785,7 +785,7 @@ if (now - last_reaction_to_congestion_time >= min(VIRTUAL_RTT, s_rtt)
     # The calculation of l4s_alpha_v_t is based on qdelay_avg to reduce
     # sensitivity to sudden non-congestion related delay spikes that can
     # occur due to lower protocol retransmissions or cell change.
-    # Congestion is not signaled if qdelay_avg shows a tendency to decrease.
+    # Congestion is not signalled if qdelay_avg shows a tendency to decrease.
     l4s_alpha_v_t = min(1.0, max(0.0,
             (qdelay_avg - qdelay_target / 2) /
             (qdelay_target / 2)))
@@ -1262,7 +1262,7 @@ The code below modifies the 'if (loss_detected)' part in {{ref-wnd-reduction}}
 
 ### Reference window undershoot at congestion {#ref-wnd-undershoot}
 
-The reference window can in certan cases undershoot when congestion occurs, one such case is when the RTT increases at the same time that the reference window is reduced. The RTT increase can push down the target rate faster then the reference window is reduced. An additional reduction of the reference window can be superfluous in some cases. One method to determine if additional reduction is unnecessary is to inspect how the acknowledged bitrate relates to the target bitrate. If the target rate is well below the ACKed bitrate, then additional reduction of the reference window is unnecessary. This is implemented as additional code that modifies the reference window backoff in {{ref-wnd-reduction}}.
+The reference window can in certain cases undershoot when congestion occurs, one such case is when the RTT increases at the same time that the reference window is reduced. The RTT increase can push down the target rate faster then the reference window is reduced. An additional reduction of the reference window can be superfluous in some cases. One method to determine if additional reduction is unnecessary is to inspect how the acknowledged bitrate relates to the target bitrate. If the target rate is well below the ACKed bitrate, then additional reduction of the reference window is unnecessary. This is implemented as additional code that modifies the reference window backoff in {{ref-wnd-reduction}}.
 
 ~~~
 # Reduce backoff when target bitrate is lower than the ACKnowledged rate
@@ -1471,7 +1471,7 @@ This section covers a few discussion points.
 
 * Rate policers can cause loss bursts. These loss bursts are particularly harmful for real time media transmission and it is problematic to detect the existence of rate policers in the transmission path. The best cure is that the use of rate policers is avoided in access networks.
 
-* The competing flows compensation described in {{competing-flows-compensation}} has an inherent risk of false positives, the outcome would be that an increased delay is met by an increased to delay, something that can self-amplify. The algorithm was devised already for {{RFC8298}} when access links could become bloated. Things have however changed since 2017 when RFC8298 was published. Firstly, bufferbloat and remedies to it is better understood. Secondly, more recent congestion control algorithms are designed to not bloat access links that lack active queue management. Thirdly, the algorithm in {{clock-drift}} that addresses clock-drift addresses this issue inherently as a compenting flow still adds an offset in queue delay when SCReAM temporarly reduces its target rate temporarily. The need for competing flows compensation would therefore need to be investigated further.
+* The competing flows compensation described in {{competing-flows-compensation}} has an inherent risk of false positives, the outcome would be that an increased delay is met by an increased to delay, something that can self-amplify. The algorithm was devised already for {{RFC8298}} when access links could become bloated. Things have however changed since 2017 when RFC8298 was published. Firstly, bufferbloat and remedies to it is better understood. Secondly, more recent congestion control algorithms are designed to not bloat access links that lack active queue management. Thirdly, the algorithm in {{clock-drift}} that addresses clock-drift addresses this issue inherently as a competing flow still adds an offset in queue delay when SCReAM temporarily reduces its target rate temporarily. The need for competing flows compensation would therefore need to be investigated further.
 
 * CPU limitation can lead to a case that SCReAM cannot push packets as fast as the congestion control would allow. This can lead to that ref_wnd increases due to lack of congestion signals. Even though ref_wnd increase is restricted by BYTES_IN_FLIGHT_HEAD_ROOM, the result can be that the target rate becomes overestimated, resulting in an RTP queue build-up. The not too controversial advice is therefore to limit the max target bitrate to levels that are supported by the device.
 
