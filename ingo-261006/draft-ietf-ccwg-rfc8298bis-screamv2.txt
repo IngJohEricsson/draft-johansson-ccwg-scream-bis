@@ -844,7 +844,7 @@ if (now - last_reaction_to_congestion_time >= min(VIRTUAL_RTT, s_rtt)
     # The calculation of l4s_alpha_v_t is based on qdelay_avg to reduce
     # sensitivity to sudden non-congestion related delay spikes that can
     # occur due to lower protocol retransmissions or cell change.
-    # Congestion is not signaled if qdelay_avg shows a tendency to decrease.
+    # Congestion is not signalled if qdelay_avg shows a tendency to decrease.
     l4s_alpha_v_t = min(1.0, max(0.0,
             (qdelay_avg - qdelay_target / 2) /
             (qdelay_target / 2)))
@@ -1403,7 +1403,7 @@ end
 
 4.5.3.  Reference window undershoot at congestion
 
-   The reference window can in certan cases undershoot when congestion
+   The reference window can in certain cases undershoot when congestion
    occurs, one such case is when the RTT increases at the same time that
    the reference window is reduced.  The RTT increase can push down the
    target rate faster then the reference window is reduced.  An
@@ -1677,8 +1677,8 @@ end
       more recent congestion control algorithms are designed to not
       bloat access links that lack active queue management.  Thirdly,
       the algorithm in Section 4.5.1 that addresses clock-drift
-      addresses this issue inherently as a compenting flow still adds an
-      offset in queue delay when SCReAM temporarly reduces its target
+      addresses this issue inherently as a competing flow still adds an
+      offset in queue delay when SCReAM temporarily reduces its target
       rate temporarily.  The need for competing flows compensation would
       therefore need to be investigated further.
 
