@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-09-15T04:29:16.101176+00:00",
+  "timestamp": "2026-10-08T05:37:05.195733+00:00",
   "repo": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
   "labels": [
     {
@@ -5172,6 +5172,32 @@
           "comments": []
         }
       ]
+    },
+    {
+      "number": 59,
+      "id": "PR_kwDOK7AJUs8AAAABHHav_Q",
+      "title": "Ingo 261006",
+      "url": "https://github.com/IngJohEricsson/draft-johansson-ccwg-scream-bis/pull/59",
+      "state": "OPEN",
+      "author": "IngJohEricsson",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "Updates based on recent experiments, The main new is that the detection of increased queue delay should be more robust against scheduling delay jitter",
+      "createdAt": "2026-10-07T12:18:51Z",
+      "updatedAt": "2026-10-07T12:18:51Z",
+      "baseRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
+      "baseRefName": "main",
+      "baseRefOid": "d30e8b8a33ce03a78fa2601e3ef30380a872ebb8",
+      "headRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
+      "headRefName": "ingo-261006",
+      "headRefOid": "470b95300f2312c7774d732295362fe2dd03d920",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [],
+      "reviews": []
     }
   ]
 }
