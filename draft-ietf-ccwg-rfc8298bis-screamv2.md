@@ -796,6 +796,7 @@ if (now - last_reaction_to_congestion_time >= min(VIRTUAL_RTT, s_rtt)
             (qdelay_avg - qdelay_target / 2) /
             (qdelay_target / 2)))
     is_virtual_ce_t = true
+    last_congestion_detected_time = now
   end
 end
 qdelay_avg_prev = qdelay_avg
@@ -962,9 +963,7 @@ int ref_wnd_t = ref_wnd + increment_t
 if (ref_wnd_t <= max_allowed_t && target_bitrate < TARGET_BITRATE_MAX)
   ref_wnd = ref_wnd_t
 end
-if (ref_wnd > ref_wnd_prev_)
-  ref_wnd_i_update_allowed = true
-end
+
 ~~~
 
 The latency_diff_ref_wnd_scale_t scales the reference window increase. Firstly the increase is downscaled to target between 0.5 and 2.0 (L4S) marked packets per RTT. For L4S this reflects that larger queue delay spikes lead to that the L4S marking saturates at 100% with the consequence that the congestion is under estimated. Secondly an additional restriction is applied when L4S is not enabled to make non-L4S rate adaptation more stable.
