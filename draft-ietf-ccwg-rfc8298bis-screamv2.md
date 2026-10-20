@@ -426,7 +426,7 @@ needed:
   down to but not including the acknowledged data unit with the highest sequence
   number.
 
-* bytes_in_flight_prev (0): Number of bytes in flight from previous round [byte]. 
+* bytes_in_flight_prev (0): Number of bytes in flight from previous round [byte].
 
 bytes_in_flight can be also seen as the difference between the highest transmitted
 byte sequence number and the highest acknowledged byte sequence number. As an
@@ -1292,7 +1292,7 @@ if (target_bitrate < acked_bitrate * ACKED_BITRATE_MARGIN)
   # outputs a higher rate than target.
   if (bytes_in_flight < bytes_in_flight_prev)
     backoff_t = 0
-  else      
+  else
     backoff_t *= BACKOFF_SCALE_LOW_TARGET_RATE
   end
 end
