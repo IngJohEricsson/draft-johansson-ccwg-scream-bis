@@ -6,7 +6,7 @@ CCWG                                                        I. Johansson
 Internet-Draft                                             M. Westerlund
 Obsoletes: 8298 (if approved)                               M. Kühlewind
 Intended status: Experimental                                   Ericsson
-Expires: 10 April 2027                                    7 October 2026
+Expires: 23 April 2027                                   20 October 2026
 
 
               Self-Clocked Rate Adaptation for Multimedia
@@ -54,7 +54,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 10 April 2027.
+   This Internet-Draft will expire on 23 April 2027.
 
 Copyright Notice
 
@@ -857,6 +857,7 @@ if (now - last_reaction_to_congestion_time >= min(VIRTUAL_RTT, s_rtt)
             (qdelay_avg - qdelay_target / 2) /
             (qdelay_target / 2)))
     is_virtual_ce_t = true
+    last_congestion_detected_time = now
   end
 end
 qdelay_avg_prev = qdelay_avg
@@ -1032,9 +1033,6 @@ max_allowed_t = MSS + max(max_bytes_in_flight,
 int ref_wnd_t = ref_wnd + increment_t
 if (ref_wnd_t <= max_allowed_t && target_bitrate < TARGET_BITRATE_MAX)
   ref_wnd = ref_wnd_t
-end
-if (ref_wnd > ref_wnd_prev_)
-  ref_wnd_i_update_allowed = true
 end
 
    The latency_diff_ref_wnd_scale_t scales the reference window
