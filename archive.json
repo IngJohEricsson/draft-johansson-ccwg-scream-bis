@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-10-08T05:37:05.195733+00:00",
+  "timestamp": "2026-10-22T04:16:01.597833+00:00",
   "repo": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
   "labels": [
     {
@@ -5145,7 +5145,7 @@
       "labels": [],
       "body": "",
       "createdAt": "2026-09-14T09:01:24Z",
-      "updatedAt": "2026-09-14T11:44:54Z",
+      "updatedAt": "2026-10-21T13:52:49Z",
       "baseRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
       "baseRefName": "main",
       "baseRefOid": "d30e8b8a33ce03a78fa2601e3ef30380a872ebb8",
@@ -5170,6 +5170,19 @@
           "createdAt": "2026-09-14T11:44:54Z",
           "updatedAt": "2026-09-14T11:44:54Z",
           "comments": []
+        },
+        {
+          "id": "PRR_kwDOK7AJUs8AAAABTdWtig",
+          "commit": {
+            "abbreviatedOid": "86eff1a"
+          },
+          "author": "gloinul",
+          "authorAssociation": "COLLABORATOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2026-10-21T13:52:49Z",
+          "updatedAt": "2026-10-21T13:52:49Z",
+          "comments": []
         }
       ]
     },
@@ -5185,19 +5198,59 @@
       "labels": [],
       "body": "Updates based on recent experiments, The main new is that the detection of increased queue delay should be more robust against scheduling delay jitter",
       "createdAt": "2026-10-07T12:18:51Z",
-      "updatedAt": "2026-10-07T12:18:51Z",
+      "updatedAt": "2026-10-21T13:52:01Z",
       "baseRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
       "baseRefName": "main",
       "baseRefOid": "d30e8b8a33ce03a78fa2601e3ef30380a872ebb8",
       "headRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
       "headRefName": "ingo-261006",
-      "headRefOid": "470b95300f2312c7774d732295362fe2dd03d920",
+      "headRefOid": "a8d2627816106662450f7641b30f0fbe7d6de527",
       "closedAt": null,
       "mergedAt": null,
       "mergedBy": null,
       "mergeCommit": null,
       "comments": [],
-      "reviews": []
+      "reviews": [
+        {
+          "id": "PRR_kwDOK7AJUs8AAAABTPK-eA",
+          "commit": {
+            "abbreviatedOid": "0b3ef99"
+          },
+          "author": "github-actions",
+          "authorAssociation": "NONE",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-10-20T13:47:38Z",
+          "updatedAt": "2026-10-20T13:47:39Z",
+          "comments": [
+            {
+              "originalPosition": 404,
+              "body": "````suggestion\n  else\n````",
+              "createdAt": "2026-10-20T13:47:38Z",
+              "updatedAt": "2026-10-20T13:47:39Z"
+            },
+            {
+              "originalPosition": 4,
+              "body": "````suggestion\n* bytes_in_flight_prev (0): Number of bytes in flight from previous round [byte].\n````",
+              "createdAt": "2026-10-20T13:47:39Z",
+              "updatedAt": "2026-10-20T13:47:39Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOK7AJUs8AAAABTdWDCg",
+          "commit": {
+            "abbreviatedOid": "a8d2627"
+          },
+          "author": "gloinul",
+          "authorAssociation": "COLLABORATOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2026-10-21T13:52:01Z",
+          "updatedAt": "2026-10-21T13:52:01Z",
+          "comments": []
+        }
+      ]
     }
   ]
 }
