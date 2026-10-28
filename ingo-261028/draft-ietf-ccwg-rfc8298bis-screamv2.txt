@@ -882,7 +882,7 @@ qdelay_avg_prev = qdelay_avg
 if (is_loss_t || is_ce_t || is_virtual_ce_t)
   is_congestion_detected = true
   # Update ref_wnd_i if possible
-  if (ref_wnd > ref_wnd_lowest*1.05 ||
+  if (ref_wnd > max(ref_wnd_lowest+MSS, ref_wnd_lowest*1.05) ||
     now - ref_wnd_i_update_time > REF_WND_I_UPDATE_MAX_HOLD_RTTS*s_rtt)
     # Allow update of ref_wnd_i only if ref_wnd has increased sufficiently (5%) above the
     # lowest ref_wnd or the hold time has expired.
