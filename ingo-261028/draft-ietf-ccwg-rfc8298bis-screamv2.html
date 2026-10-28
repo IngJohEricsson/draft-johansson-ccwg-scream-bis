@@ -2247,7 +2247,7 @@ if (is_ce_t)
 
     # Jitter is considered large if the qdelay is larger than qdelay_target/4
     # when L4S is enabled
-    if (qdelay_avg&lt; qdelay_target * 0.25)
+    if (qdelay_avg &lt; qdelay_target * 0.25)
         # Scale down backoff if close to the last known max reference window
         # This is complemented with a scale down of the reference window increase
         backoff_t *= scl_t
