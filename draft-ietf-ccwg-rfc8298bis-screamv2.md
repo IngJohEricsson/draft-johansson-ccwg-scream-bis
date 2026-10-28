@@ -661,10 +661,13 @@ function calculate_latency_diff_avg()
 
   # Calculate a bounded difference
   if (is_congestion_detected)
-     diff_t = min(LATENCY_DIFF_MARGIN, qdelay_short_avg-qdelay_long_avg-LATENCY_DIFF_MARGIN)
+     diff_t = min(LATENCY_DIFF_MARGIN_1, qdelay_short_avg-qdelay_long_avg-LATENCY_DIFF_MARGIN_1)
      if (diff_t > 0.0)
-        latency_diff_avg += LATENCY_DIFF_UP_GAIN*diff_t
+        # Increase latency_diff_avg with additional restriction if qdelay is low 
+        tmp_t = min(1.0, qdelay_avg/LATENCY_DIFF_MARGIN_2)
+        latency_diff_avg += LATENCY_DIFF_UP_GAIN*diff_t*tmp_t
      else
+        # Decrease latency_diff_avg
         latency_diff_avg += LATENCY_DIFF_DOWN_GAIN*diff_t
      end
      latency_diff_avg = max(0.0, min(1.0, latency_diff_avg))
@@ -688,7 +691,9 @@ The following constants are used:
 
 * QDELAY_LONG_AVG_G (1.0/50): Exponentially Weighted Moving Average (EWMA) factor for qdelay_long_avg
 
-* LATENCY_DIFF_MARGIN (0.001): Latency margin for increasing latency_diff_avg [s]
+* LATENCY_DIFF_MARGIN_1 (0.001): Latency margin for increasing latency_diff_avg [s]
+
+* LATENCY_DIFF_MARGIN_2 (0.01): Additional margin to avoid over-sensitivity when qdelay is low [s]
 
 * LATENCY_DIFF_UP_GAIN (20.0): Gain factor for increased latency
 
@@ -766,6 +771,8 @@ for the constants are deduced from experiments):
 #### Reference Window Reduction {#ref-wnd-reduction}
 
 ~~~
+latency_diff_ref_wnd_scale_t = 1.0 - latency_diff_avg
+
 # Compute scaling factor for reference window adjustment
 # when close to the last known max value before congestion
 # ref_wnd_i is updated before this code.
@@ -775,14 +782,20 @@ for the constants are deduced from experiments):
 scl_t = (ref_wnd - ref_wnd_i) / ref_wnd_i
 scl_t *= 8
 scl_t = scl_t * scl_t
-scl_t = max(0.1, min(1.0, scl_t))
+scl_t = max(0.25, min(1.0, scl_t))
+
+if (ref_wnd > ref_wnd_i && scl_t < 1.0)
+   # Restrict ref_wnd increase when ref_wnd > ref_wnd_i and
+   # queue delay varies
+   scl_t *= max(0.2, latency_diff_ref_wnd_scale_t)
+end
 
 if (loss_detected || data_units_marked)
    last_congestion_detected_time = now
 end
 
-# The reference window is updated at least every VIRTUAL_RTT
-if (now - last_reaction_to_congestion_time >= min(VIRTUAL_RTT, s_rtt)
+# The reference window is updated every s_rtt
+if (now - last_reaction_to_congestion_time >= s_rtt
   if (loss_detected)
     is_loss_t = true
   else if (data_units_marked)
@@ -832,27 +845,22 @@ if (is_ce_t)
     # L4S mode
     backoff_t = l4s_alpha / 2
 
-    # Scale down backoff when RTT is high to avoid overreaction to
-    # congestion. This is related to that congestion backoff can occur
-    # every min(VIRTUAL_RTT, s_rtt)
-    backoff_t /= max(1.0, s_rtt / VIRTUAL_RTT)
-
     # Jitter is considered large if the qdelay is larger than qdelay_target/4
     # when L4S is enabled
     if (qdelay < qdelay_target * 0.25)
         # Scale down backoff if close to the last known max reference window
         # This is complemented with a scale down of the reference window increase
-        backoff_t *= max(0.25, scl_t)
+        backoff_t *= scl_t
 
         # Optional additional code for increased rate stability
         # Counterbalance the limitation in CWND increase when the queue
         # delay varies.
         # Code has no effect if REDUCE_JITTER == false
-        backoff_t *= max(0.25, ref_wnd_delay_scale)
+        backoff_t *= max(0.25, latency_diff_ref_wnd_scale_t)
     end
 
     if (now - last_reaction_to_congestion_time >
-      100 * max(VIRTUAL_RTT, s_rtt))
+      100 * s_rtt)
       # A long time (>100 RTTs) since last congested because
       # link throughput exceeds max video bitrate.
       # There is a certain risk that ref_wnd has increased way above
@@ -869,11 +877,6 @@ if (is_ce_t)
 end
 if (is_virtual_ce_t)
   backoff_t = l4s_alpha_v_t / 2
-
-  # Scale down backoff when RTT is high to avoid overreaction to
-  # congestion This is related to that congestion backoff can occur
-  # every min(VIRTUAL_RTT, s_rtt)
-  backoff_t /= max(1.0, s_rtt/VIRTUAL_RTT)
 
   ref_wnd = (1.0 - backoff_t) * ref_wnd
 end
@@ -903,8 +906,6 @@ Link layer losses, i.e. losses that are not congestion related can lead to unwar
 # Delay factor for multiplicative reference window increase
 # after congestion
 
-latency_diff_ref_wnd_scale_t = 1.0 - latency_diff_avg
-
 post_congestion_scale_t = max(0.0, min(1.0,
   (now - last_congestion_detected_time) /
     (POST_CONGESTION_DELAY_RTTS * max(VIRTUAL_RTT, s_rtt))))
@@ -932,17 +933,7 @@ increment_t *= tmp_t
 
 # Apply limit to reference window growth when close to last
 # known max value before congestion
-increment_t *= max(0.25, scl_t)
-
-# Optional additional code for increased rate stability when L4S is not enabled
-# Put an additional restriction on reference window growth if qdelay varies a lot.
-# Better to enforce a slow increase in reference window and get
-# a more stable bitrate. Restriction is limited to 0.1 to
-# avoid that ref_wnd growth stalls.
-# Code has no effect if REDUCE_JITTER == false
-if (!IS_L4S)
-   increment_t *= max(0.1, latency_diff_ref_wnd_scale_t)
-end
+increment_t *= scl_t
 
 # Scale up increment with multiplicative increase
 # Limit multiplicative increase when congestion occurred
@@ -1562,6 +1553,10 @@ work that led to this memo: Per Kjellander, Björn Terelius.
 * send_wnd calculation updated to avoid stalling when ref_wnd is very low.
 
 * Updated calculation of ref_wnd_i.
+
+* Restriction on ref_wnd increase when qdelay varies is applied only when ref_wnd > ref_wnd_i
+
+* ref_wnd reduction upon congestion is applied at most every s_rtt, the scaling based on virtual_rtt is thus removed
 
 ## Individual draft submissions
 
