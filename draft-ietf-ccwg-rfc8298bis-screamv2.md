@@ -847,16 +847,10 @@ if (is_ce_t)
 
     # Jitter is considered large if the qdelay is larger than qdelay_target/4
     # when L4S is enabled
-    if (qdelay < qdelay_target * 0.25)
+    if (qdelay_avg< qdelay_target * 0.25)
         # Scale down backoff if close to the last known max reference window
         # This is complemented with a scale down of the reference window increase
         backoff_t *= scl_t
-
-        # Optional additional code for increased rate stability
-        # Counterbalance the limitation in CWND increase when the queue
-        # delay varies.
-        # Code has no effect if REDUCE_JITTER == false
-        backoff_t *= max(0.25, latency_diff_ref_wnd_scale_t)
     end
 
     if (now - last_reaction_to_congestion_time >
@@ -1557,6 +1551,8 @@ work that led to this memo: Per Kjellander, Björn Terelius.
 * Restriction on ref_wnd increase when qdelay varies is applied only when ref_wnd > ref_wnd_i
 
 * ref_wnd reduction upon congestion is applied at most every s_rtt, the scaling based on virtual_rtt is thus removed
+
+* Superfluous backoff downscaling and L4S congestion removed 
 
 ## Individual draft submissions
 
