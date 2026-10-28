@@ -1552,7 +1552,7 @@ work that led to this memo: Per Kjellander, Björn Terelius.
 
 * ref_wnd reduction upon congestion is applied at most every s_rtt, the scaling based on virtual_rtt is thus removed
 
-* Superfluous backoff downscaling and L4S congestion removed 
+* Superfluous backoff downscaling when L4S congestion removed
 
 ## Individual draft submissions
 
