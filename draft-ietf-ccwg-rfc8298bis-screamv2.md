@@ -783,12 +783,12 @@ latency_diff_ref_wnd_scale_t = 1.0 - latency_diff_avg
 scl_t = (ref_wnd - ref_wnd_i) / ref_wnd_i
 scl_t *= 8
 scl_t = scl_t * scl_t
-scl_t = max(0.25, min(1.0, scl_t))
+scl_t = max(0.2, min(1.0, scl_t))
 
 if (ref_wnd > ref_wnd_i && scl_t < 1.0)
    # Restrict ref_wnd increase when ref_wnd > ref_wnd_i and
    # queue delay varies
-   scl_t *= max(0.2, latency_diff_ref_wnd_scale_t)
+   scl_t = max(0.2, scl_t * latency_diff_ref_wnd_scale_t)
 end
 
 if (loss_detected || data_units_marked)
