@@ -661,7 +661,8 @@ function calculate_latency_diff_avg()
 
   # Calculate a bounded difference
   if (is_congestion_detected)
-     diff_t = min(LATENCY_DIFF_MARGIN_1, qdelay_short_avg-qdelay_long_avg-LATENCY_DIFF_MARGIN_1)
+     diff_t = max(-LATENCY_DIFF_MARGIN_1, min(LATENCY_DIFF_MARGIN_1,
+              qdelay_short_avg-qdelay_long_avg-LATENCY_DIFF_MARGIN_1))
      if (diff_t > 0.0)
         # Increase latency_diff_avg with additional restriction if qdelay is low
         tmp_t = min(1.0, qdelay_avg/LATENCY_DIFF_MARGIN_2)
