@@ -1555,6 +1555,10 @@ work that led to this memo: Per Kjellander, Björn Terelius.
 
 * Superfluous backoff downscaling when L4S congestion removed
 
+### Changes in Draft version -03
+
+* Resubmit of -02 (which was not correctly updated)
+
 ## Individual draft submissions
 
 ### Changes in draft version -02
