@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-10-27T04:36:05.722029+00:00",
+  "timestamp": "2026-11-03T06:12:27.880931+00:00",
   "repo": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
   "labels": [
     {
@@ -5143,9 +5143,9 @@
       "authorAssociation": "OWNER",
       "assignees": [],
       "labels": [],
-      "body": "",
+      "body": "resolves #57 ",
       "createdAt": "2026-09-14T09:01:24Z",
-      "updatedAt": "2026-10-21T13:52:49Z",
+      "updatedAt": "2026-11-02T16:23:53Z",
       "baseRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
       "baseRefName": "main",
       "baseRefOid": "d30e8b8a33ce03a78fa2601e3ef30380a872ebb8",
@@ -5182,6 +5182,19 @@
           "body": "",
           "createdAt": "2026-10-21T13:52:49Z",
           "updatedAt": "2026-10-21T13:52:49Z",
+          "comments": []
+        },
+        {
+          "id": "PRR_kwDOK7AJUs8AAAABVh1C9w",
+          "commit": {
+            "abbreviatedOid": "86eff1a"
+          },
+          "author": "mirjak",
+          "authorAssociation": "COLLABORATOR",
+          "state": "APPROVED",
+          "body": "Yes, this change is good and agree at last meeting!",
+          "createdAt": "2026-11-02T16:23:53Z",
+          "updatedAt": "2026-11-02T16:23:53Z",
           "comments": []
         }
       ]
@@ -5250,6 +5263,56 @@
           "body": "",
           "createdAt": "2026-10-21T13:52:01Z",
           "updatedAt": "2026-10-21T13:52:01Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 60,
+      "id": "PR_kwDOK7AJUs8AAAABMGuLyQ",
+      "title": "Ingo 261028",
+      "url": "https://github.com/IngJohEricsson/draft-johansson-ccwg-scream-bis/pull/60",
+      "state": "MERGED",
+      "author": "IngJohEricsson",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "Updated calculation of scl_t, latency_diff_avg increase more restricted when queue delay is very low. Updated when ref_wnd reduction is applied (at most once per s_rtt)",
+      "createdAt": "2026-11-01T12:27:32Z",
+      "updatedAt": "2026-11-02T16:32:35Z",
+      "baseRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
+      "baseRefName": "main",
+      "baseRefOid": "8998043cba410941df2bfc9a10da8038995d05fa",
+      "headRepository": "IngJohEricsson/draft-johansson-ccwg-scream-bis",
+      "headRefName": "ingo-261028",
+      "headRefOid": "bfd2a15cea8500be718bf97cf7c997dc4fda34bb",
+      "closedAt": "2026-11-02T16:32:35Z",
+      "mergedAt": "2026-11-02T16:32:35Z",
+      "mergedBy": "IngJohEricsson",
+      "mergeCommit": {
+        "oid": "99d63a461fd39ceedcb8041c171bd9ba01f44d5f"
+      },
+      "comments": [
+        {
+          "author": "mirjak",
+          "authorAssociation": "COLLABORATOR",
+          "body": "I think this change is okay. However, we should really focus on simplifying and not adding more stuff without clear reasoning. ",
+          "createdAt": "2026-11-02T16:26:51Z",
+          "updatedAt": "2026-11-02T16:26:51Z"
+        }
+      ],
+      "reviews": [
+        {
+          "id": "PRR_kwDOK7AJUs8AAAABVh5iWA",
+          "commit": {
+            "abbreviatedOid": "bfd2a15"
+          },
+          "author": "gloinul",
+          "authorAssociation": "COLLABORATOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2026-11-02T16:29:24Z",
+          "updatedAt": "2026-11-02T16:29:24Z",
           "comments": []
         }
       ]
