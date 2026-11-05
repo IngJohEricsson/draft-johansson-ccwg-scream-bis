@@ -1300,7 +1300,7 @@ New algorithm for calculation of increased qdelay_target in case more queue buil
 ~~~
 adjust_qdelay_target(qdelay)
   if (qdelay_avg > qdelay_target / 2)
-    if (now - last_qdelay_target_update_time > 3 * s_rtt)
+    if (now - last_qdelay_target_update_time > 5 * s_rtt)
       # *2.0 because delay based CC kicks in when qdelay_avg > qdelay_target / 2.0
       # *1.1 because of averaging, this to avoid occasional delay based backoff
       updated_target_t = qdelay_avg * 2.0 * 1.1
@@ -1311,7 +1311,6 @@ adjust_qdelay_target(qdelay)
       diff_t *= 0.5 * latency_diff_avg
       # update qdelay_target
       qdelay_target = min(QDELAY_TARGET_HI, qdelay_target + diff_t)
-      last_qdelay_target_update_time = now
       return
     end
     if (qdelay_target == QDELAY_TARGET_HI)
