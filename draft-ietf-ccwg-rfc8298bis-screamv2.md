@@ -1296,6 +1296,7 @@ The variables and constants are:
 ### Cross traffic remediation {#cross-traffic}
 
 New algorithm for calculation of increased qdelay_target in case more queue building cross traffic (TCP or QUIC) is detected.
+The algorithm is executed every s_rtt.
 
 ~~~
 adjust_qdelay_target(qdelay)
@@ -1306,11 +1307,11 @@ adjust_qdelay_target(qdelay)
       updated_target_t = qdelay_avg * 2.0 * 1.1
       diff_t = updated_target_t-qdelay_target
       # Limit increase if queue delay is low
-      # Also limit step to avoid risk of increased self-congestion
-      # when occasional delay spikes occur
-      diff_t *= 0.5 * latency_diff_avg
+      diff_t *= 0.5
       # update qdelay_target
       qdelay_target = min(QDELAY_TARGET_HI, qdelay_target + diff_t)
+      # No update of last_qdelay_target_update_time,
+      # allow qdelay_target to be updated every s_rtt
       return
     end
     if (qdelay_target == QDELAY_TARGET_HI)
