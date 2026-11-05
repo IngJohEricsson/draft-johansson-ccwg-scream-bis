@@ -1295,7 +1295,7 @@ The variables and constants are:
 
 ### Cross traffic remediation {#cross-traffic}
 
-New algorithm for calculation of increased qdelay_target in case more queue building cross traffic (TCP or QUIC) is detected. 
+New algorithm for calculation of increased qdelay_target in case more queue building cross traffic (TCP or QUIC) is detected.
 
 ~~~
 adjust_qdelay_target(qdelay)
