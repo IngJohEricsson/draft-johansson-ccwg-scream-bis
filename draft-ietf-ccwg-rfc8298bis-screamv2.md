@@ -1292,6 +1292,37 @@ The variables and constants are:
 
 * acked_bitrate (0.0): A running average of the ACKnowledged bitrate [bps]. The averaging time should be around one RTT. For periodic media such as video it is beneficial to calculate the acked_bitrate over two frame periods for a reasonably accurate value.
 
+
+### Cross traffic remediation {#cross-traffic}
+
+New algorithm for calculation of increased qdelay_target in case more queue building cross traffic (TCP or QUIC) is detected. 
+
+~~~
+adjust_qdelay_target(qdelay)
+  if (qdelay_avg > qdelay_target / 2)
+    if (now - last_qdelay_target_update_time > 3 * s_rtt)
+      # *2.0 because delay based CC kicks in when qdelay_avg > qdelay_target / 2.0
+      # *1.1 because of averaging, this to avoid occasional delay based backoff
+      updated_target_t = qdelay_avg * 2.0 * 1.1
+      diff_t = updated_target_t-qdelay_target
+      # Limit increase if queue delay is low
+      # Also limit step to avoid risk of increased self-congestion
+      # when occasional delay spikes occur
+      diff_t *= 0.5 * latency_diff_avg
+      # update qdelay_target
+      qdelay_target = min(QDELAY_TARGET_HI, qdelay_target + diff_t)
+      last_qdelay_target_update_time = now
+      return
+    end
+    if (qdelay_target == QDELAY_TARGET_HI)
+      last_qdelay_target_update_time = now
+    else if (now - last_qdelay_target_update_time > s_rtt)
+      # reduce qdelay_target
+      qdelay_target = max(QDELAY_TARGET_LO, qdelay_target*0.99)
+    end
+end
+~~~
+
 ### Competing Flows Compensation {#competing-flows-compensation}
 
 It is likely that a flow will have to share congested bottlenecks with other
@@ -1558,6 +1589,10 @@ work that led to this memo: Per Kjellander, Björn Terelius.
 ### Changes in Draft version -03
 
 * Resubmit of -02 (which was not correctly updated)
+
+### Changes in Draft version -04
+
+* Updated algorithm for increasing qdelay_target if more queue building cross traffic is detected
 
 ## Individual draft submissions
 
