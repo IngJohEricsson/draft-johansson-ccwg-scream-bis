@@ -1304,11 +1304,11 @@ adjust_qdelay_target(qdelay)
     if (now - last_qdelay_target_update_time > 5 * s_rtt)
       # *2.0 because delay based CC kicks in when qdelay_avg > qdelay_target / 2.0
       # *1.1 because of averaging, this to avoid occasional delay based backoff
-      updated_target_t = qdelay_avg * 2.0 * 1.1
-      diff_t = updated_target_t-qdelay_target
+      updated_target_t = qdelay_avg * 2.0
+      diff_t = updated_target_t - qdelay_target
       # Limit increase to avoid that false positives lead to
       # excessive self congestion
-      diff_t *= 0.25
+      diff_t *= 0.125
       # update qdelay_target
       qdelay_target = min(QDELAY_TARGET_HI, qdelay_target + diff_t)
       # No update of last_qdelay_target_update_time,
