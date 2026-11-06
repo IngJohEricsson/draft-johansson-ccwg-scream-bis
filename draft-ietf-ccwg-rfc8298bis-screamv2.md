@@ -1301,30 +1301,53 @@ The algorithm is executed every s_rtt.
 ~~~
 adjust_qdelay_target(qdelay)
   if (qdelay_avg > qdelay_target / 2)
-    if (now - last_qdelay_target_update_time > 5 * s_rtt)
+    if (n_rtts_with_large_qdelay == 0)
+      ref_wnd_restore_value = ref_wnd
+      # This value may need to be adjusted down if loss occurs
+    end
+    # Require N_LARGE_QDELAY_LIMIT with high qdelay_avg, this prevents that self congestion
+    # leads to increased qdelay_target. The ref_wnd is however reduced because of
+    # delay based congestion backoff. The ref_wnd_restore_value is used to undo this.
+    if (n_rtts_with_large_qdelay > N_LARGE_QDELAY_LIMIT)
       # *2.0 because delay based CC kicks in when qdelay_avg > qdelay_target / 2.0
-      # *1.1 because of averaging, this to avoid occasional delay based backoff
       updated_target_t = qdelay_avg * 2.0
-      diff_t = updated_target_t - qdelay_target
-      # Limit increase to avoid that false positives lead to
-      # excessive self congestion
-      diff_t *= 0.125
+
       # update qdelay_target
+      diff_t = updated_target_t - qdelay_target
       qdelay_target = min(QDELAY_TARGET_HI, qdelay_target + diff_t)
+
+      # restore ref_wnd to offset the ref_wnd decrease caused
+      # by delay based backoff
+      ref_wnd = max(ref_wnd, ref_wnd_restore_value)
+      ref_wnd_restore_value = 0;
+
       # No update of last_qdelay_target_update_time,
       # allow qdelay_target to be updated every s_rtt
-      # Reset ref_wnd_i
-      ref_wnd_i = 1
-      return
     end
-    if (qdelay_target == QDELAY_TARGET_HI)
-      last_qdelay_target_update_time = now
-    else if (now - last_qdelay_target_update_time > s_rtt)
-      # reduce qdelay_target
-      qdelay_target = max(QDELAY_TARGET_LO, qdelay_target*0.99)
-    end
+    n_rtts_with_large_qdelay++
+    return
+  end
+  n_rtts_with_large_qdelay = 0
+  if (qdelay_target == QDELAY_TARGET_HI)
+    last_qdelay_target_update_time = now
+  else if (now - last_qdelay_target_update_time > s_rtt)
+    # reduce qdelay_target
+    qdelay_target = max(QDELAY_TARGET_LO, qdelay_target*0.99)
+  end
 end
 ~~~
+
+Note
+scl_t is forced to 1.0  when qdelay_target > QDELAY_TARGET_LO
+
+Constant :
+N_LARGE_QDELAY_LIMIT = 10
+
+Variables :
+n_rtts_with_large_qdelay = 0
+ref_wnd_restore_value = 0
+
+
 
 ### Competing Flows Compensation {#competing-flows-compensation}
 
