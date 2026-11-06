@@ -1312,6 +1312,8 @@ adjust_qdelay_target(qdelay)
       qdelay_target = min(QDELAY_TARGET_HI, qdelay_target + diff_t)
       # No update of last_qdelay_target_update_time,
       # allow qdelay_target to be updated every s_rtt
+      # Reset ref_wnd_i
+      ref_wnd_i = 1
       return
     end
     if (qdelay_target == QDELAY_TARGET_HI)
