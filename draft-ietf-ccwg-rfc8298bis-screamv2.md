@@ -1307,7 +1307,7 @@ adjust_qdelay_target(qdelay)
       updated_target_t = qdelay_avg * 2.0 * 1.1
       diff_t = updated_target_t-qdelay_target
       # Limit increase if queue delay is low
-      diff_t *= 0.5
+      diff_t *= 0.25
       # update qdelay_target
       qdelay_target = min(QDELAY_TARGET_HI, qdelay_target + diff_t)
       # No update of last_qdelay_target_update_time,
