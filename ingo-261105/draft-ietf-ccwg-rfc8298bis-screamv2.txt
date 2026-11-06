@@ -6,7 +6,7 @@ CCWG                                                        I. Johansson
 Internet-Draft                                             M. Westerlund
 Obsoletes: 8298 (if approved)                               M. Kühlewind
 Intended status: Experimental                                   Ericsson
-Expires: 9 May 2027                                      5 November 2026
+Expires: 10 May 2027                                     6 November 2026
 
 
               Self-Clocked Rate Adaptation for Multimedia
@@ -54,7 +54,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 9 May 2027.
+   This Internet-Draft will expire on 10 May 2027.
 
 Copyright Notice
 
@@ -1468,7 +1468,7 @@ adjust_qdelay_target(qdelay)
       updated_target_t = qdelay_avg * 2.0 * 1.1
       diff_t = updated_target_t-qdelay_target
       # Limit increase if queue delay is low
-      diff_t *= 0.5
+      diff_t *= 0.25
       # update qdelay_target
       qdelay_target = min(QDELAY_TARGET_HI, qdelay_target + diff_t)
       # No update of last_qdelay_target_update_time,
