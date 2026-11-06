@@ -2807,7 +2807,8 @@ adjust_qdelay_target(qdelay)
       # *1.1 because of averaging, this to avoid occasional delay based backoff
       updated_target_t = qdelay_avg * 2.0 * 1.1
       diff_t = updated_target_t-qdelay_target
-      # Limit increase if queue delay is low
+      # Limit increase to avoid that false positives lead to
+      # excessive self congestion
       diff_t *= 0.25
       # update qdelay_target
       qdelay_target = min(QDELAY_TARGET_HI, qdelay_target + diff_t)
