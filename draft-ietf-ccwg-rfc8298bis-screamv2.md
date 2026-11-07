@@ -1295,8 +1295,8 @@ The variables and constants are:
 
 ### Cross traffic remediation {#cross-traffic}
 
-New algorithm for calculation of increased qdelay_target in case more queue building cross traffic (TCP or QUIC) is detected.
-The algorithm is executed every s_rtt.
+New algorithm for calculation of increased qdelay_target in case more queue building cross traffic (TCP or QUIC) is detected. The algorithm is executed every s_rtt.
+The algorithm awaits N_LARGE_QDELAY_LIMIT+1 RTTs with qdelay_avg > qdelay_target / 2. This reduces the risk that qdelay_target is increased due to self congestion (false positives). The approach makes the ref_wnd is pushed down by the delay based congestion control. A restore point is kept that undoes the ref_wnd reduction.
 
 ~~~
 adjust_qdelay_target(qdelay)
@@ -1325,6 +1325,7 @@ adjust_qdelay_target(qdelay)
       # allow qdelay_target to be updated every s_rtt
     end
     n_rtts_with_large_qdelay++
+    last_qdelay_target_update_time = now
     return
   end
   n_rtts_with_large_qdelay = 0
@@ -1333,6 +1334,7 @@ adjust_qdelay_target(qdelay)
   else if (now - last_qdelay_target_update_time > s_rtt)
     # reduce qdelay_target
     qdelay_target = max(QDELAY_TARGET_LO, qdelay_target*0.99)
+    last_qdelay_target_update_time = now
   end
 end
 ~~~
