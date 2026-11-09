@@ -1365,7 +1365,7 @@ The following variables are used:
 
 * last_qdelay_target_update_time(0.0): Time of the last update of qdelay_target [s].
 
-Self-congestion can in some cases cause qdelay_target to increase. The most typical case is link outtages that can occur in WiFi and also in cellular access when coverage is lost for shorter periods. An increased qdelay_target can prolong congestion. The more likely case is however that the connection is restored and the queue delay drops quickly, the qdelay_target is more quickly reduced in such cases.  
+Self-congestion can in some cases cause qdelay_target to increase. The most typical case is link outtages that can occur in WiFi and also in cellular access when coverage is lost for shorter periods. An increased qdelay_target can prolong congestion. The more likely case is however that the connection is restored and the queue delay drops quickly, the qdelay_target is more quickly reduced in such cases.
 
 
 ### Competing Flows Compensation {#competing-flows-compensation}
