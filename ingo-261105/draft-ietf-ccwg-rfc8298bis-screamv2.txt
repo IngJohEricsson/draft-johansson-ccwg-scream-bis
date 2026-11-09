@@ -1835,6 +1835,7 @@ end
       increase of qdelay_target because of self-congestion.  The
       presented algorithm has undergone initial testing in a (home) WiFi
       network as well as in a 5G test network with good results so far.
+      It is expected that the algorithm will be further developed.
 
    *  Based on assessment by Kiro CLI, AI-tools can generate code based
       on the current draft version.  What is mainly missing is the
