@@ -6,7 +6,7 @@ CCWG                                                        I. Johansson
 Internet-Draft                                             M. Westerlund
 Obsoletes: 8298 (if approved)                               M. Kühlewind
 Intended status: Experimental                                   Ericsson
-Expires: 11 May 2027                                     7 November 2026
+Expires: 13 May 2027                                     9 November 2026
 
 
               Self-Clocked Rate Adaptation for Multimedia
@@ -54,7 +54,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 11 May 2027.
+   This Internet-Draft will expire on 13 May 2027.
 
 Copyright Notice
 
@@ -1242,7 +1242,7 @@ t_pace = data_unit_size * 8 / pace_bitrate
       varying frame sizes.
 
    The target bitrate is essentially based on the reference window
-   ref_wnd and the (smoothed) RTT s_rtt according to
+   ref_wnd and the (smoothed) RTT s_rtt according to.
 
    target_bitrate = 8.0 * ref_wnd / s_rtt
 
@@ -1456,20 +1456,32 @@ end
 
 4.5.4.  Cross traffic remediation
 
-   New algorithm for calculation of increased qdelay_target in case more
-   queue building cross traffic (TCP or QUIC) is detected.  The
-   algorithm is executed every s_rtt.  The algorithm awaits
-   N_LARGE_QDELAY_LIMIT+1 RTTs with qdelay_avg > qdelay_target / 2.
-   This reduces the risk that qdelay_target is increased due to self
-   congestion (false positives).  The approach makes the ref_wnd is
-   pushed down by the delay based congestion control.  A restore point
-   is kept that undoes the ref_wnd reduction.
+   An optional algorithm for calculation of increased qdelay_target in
+   case more queue building cross traffic (TCP or QUIC) is detected is
+   detailed below.  The algorithm is executed every s_rtt.  Algorithms
+   that try to sense cross traffic face a risk of false positives in the
+   sense that self-congestion can in itself lead to increased
+   qdelay_target.  An algorithm that is tuned too cautios however risks
+   missing the onset of queue building cross traffic (false negatives).
+   Thus a balance needs to be struck between false potitives and false
+   negatives.  But in never gets perfect because of the inherent, quite
+   counter productive, approach to increase tolerance for delay when the
+   delay increases.
+
+   The algorithm awaits N_LARGE_QDELAY_LIMIT+1 RTTs with qdelay_avg >
+   qdelay_target / 2 until qdelay_target is increased.  This reduces the
+   risk that qdelay_target is increased due to self-congestion (false
+   positives).  The downside is that the ref_wnd is pushed down by the
+   delay based congestion control during this wait period.  A restore
+   point is kept that undos the ref_wnd reduction.
 
 adjust_qdelay_target(qdelay)
   if (qdelay_avg > qdelay_target / 2)
-    if (n_rtts_with_large_qdelay == 0)
-      ref_wnd_restore_value = ref_wnd
+    n_rtts_with_large_qdelay++
+    if (n_rtts_with_large_qdelay == 1)
+      # Save a restore value of ref_wnd
       # This value may need to be adjusted down if loss occurs
+      ref_wnd_restore_value = ref_wnd
     end
     # Require N_LARGE_QDELAY_LIMIT with high qdelay_avg, this prevents that self congestion
     # leads to increased qdelay_target. The ref_wnd is however reduced because of
@@ -1490,7 +1502,6 @@ adjust_qdelay_target(qdelay)
       # No update of last_qdelay_target_update_time,
       # allow qdelay_target to be updated every s_rtt
     end
-    n_rtts_with_large_qdelay++
     last_qdelay_target_update_time = now
     return
   end
@@ -1498,27 +1509,59 @@ adjust_qdelay_target(qdelay)
   if (qdelay_target == QDELAY_TARGET_HI)
     last_qdelay_target_update_time = now
   else if (now - last_qdelay_target_update_time > s_rtt)
-    # reduce qdelay_target
-    qdelay_target = max(QDELAY_TARGET_LO, qdelay_target*0.99)
+    # Reduce qdelay_target
+    if (qdelay_avg < qdelay_target * 0.25)
+      # Reduce faster if qdelay_avg is low, this may be because
+      # + cross traffic is finalized
+      # + a temporal link outage caused queue delay to increase
+      qdelay_target = max(QDELAY_TARGET_LO, qdelay_target*0.9)
+    else
+      # More likely that it is still queue building cross traffic,
+      # reduce more slowly
+      qdelay_target = max(QDELAY_TARGET_LO, qdelay_target*0.99)
+    end
     last_qdelay_target_update_time = now
   end
 end
 
-   Note scl_t is forced to 1.0 when qdelay_target > QDELAY_TARGET_LO
+   Additional actions is to enforce scl_t to 1.0, i.e disable the
+   infection point scaling when qdelay_target > QDELAY_TARGET_LO.  The
+   algorithm should be applied after qdelay_avg is calculated.
 
-   Constant : N_LARGE_QDELAY_LIMIT = 10
+   The following constants are used:
 
-   Variables : n_rtts_with_large_qdelay = 0 ref_wnd_restore_value = 0
+   *  N_LARGE_QDELAY_LIMIT (10): Number of RTTs before queue delay
+      increase is considered to be because of queue building cross
+      traffic.
+
+   The following variables are used:
+
+   *  n_rtts_with_large_qdelay(0): Number of consecutive RTTs with large
+      queue delay.
+
+   *  ref_wnd_restore_value(0): Restore value for ref_wnd [byte].
+
+   *  last_qdelay_target_update_time(0.0): Time of the last update of
+      qdelay_target [s].
+
+   Self-congestion can in some cases cause qdelay_target to increase.
+   The most typical case is link outtages that can occur in WiFi and
+   also in cellular access when coverage is lost for shorter periods.
+   An increased qdelay_target can prolong congestion.  The more likely
+   case is however that the connection is restored and the queue delay
+   drops quickly, the qdelay_target is more quickly reduced in such
+   cases.
 
 4.5.5.  Competing Flows Compensation
 
-   It is likely that a flow will have to share congested bottlenecks
-   with other flows that use a more aggressive congestion control
-   algorithm (for example, large FTP flows using loss-based congestion
-   control).  The worst condition occurs when the bottleneck queues are
-   of tail-drop type with a large buffer size.  SCReAMv2 takes care of
-   such situations by adjusting the qdelay_target when loss-based flows
-   are detected, as shown in the optional pseudocode below.
+   NOTE!. This algorithm is deprecated and will be removed It is likely
+   that a flow will have to share congested bottlenecks with other flows
+   that use a more aggressive congestion control algorithm (for example,
+   large FTP flows using loss-based congestion control).  The worst
+   condition occurs when the bottleneck queues are of tail-drop type
+   with a large buffer size.  SCReAMv2 takes care of such situations by
+   adjusting the qdelay_target when loss-based flows are detected, as
+   shown in the optional pseudocode below.
 
    adjust_qdelay_target(qdelay)
      qdelay_norm_t = qdelay / QDELAY_TARGET_LOW
@@ -1740,16 +1783,16 @@ end
       transmission path.  The best cure is that the use of rate policers
       is avoided in access networks.
 
-   *  The competing flows compensation described in Section 4.5.5 has an
-      inherent risk of false positives, the outcome would be that an
-      increased delay is met by an increased to delay, something that
-      can self-amplify.  The algorithm was devised already for [RFC8298]
-      when access links could become bloated.  Things have however
-      changed since 2017 when RFC8298 was published.  Firstly,
-      bufferbloat and remedies to it is better understood.  Secondly,
-      more recent congestion control algorithms are designed to not
-      bloat access links that lack active queue management.  Thirdly,
-      the algorithm in Section 4.5.1 that addresses clock-drift
+   *  [TODO, remove this] The competing flows compensation described in
+      Section 4.5.5 has an inherent risk of false positives, the outcome
+      would be that an increased delay is met by an increased to delay,
+      something that can self-amplify.  The algorithm was devised
+      already for [RFC8298] when access links could become bloated.
+      Things have however changed since 2017 when RFC8298 was published.
+      Firstly, bufferbloat and remedies to it is better understood.
+      Secondly, more recent congestion control algorithms are designed
+      to not bloat access links that lack active queue management.
+      Thirdly, the algorithm in Section 4.5.1 that addresses clock-drift
       addresses this issue inherently as a competing flow still adds an
       offset in queue delay when SCReAM temporarily reduces its target
       rate temporarily.  The need for competing flows compensation would
@@ -1782,6 +1825,16 @@ end
       transmitted packets and thus helps to increase the target bitrate
       enough to make the video encoder pipeline switch up the resolution
       and/or frame rate.
+
+   *  Queue building cross traffic can cause the delay based congestion
+      control in SCReAM to trigger congestion backoff.  An example
+      algorithm is presented that increases qdelay_target when cross
+      traffic is detected.  Such algorithms are however never perfect
+      and they need to strike some balance between being able to detect
+      and remedy the impact of cross traffic, and avoiding harmful
+      increase of qdelay_target because of self-congestion.  The
+      presented algorithm has undergone initial testing in a (home) WiFi
+      network as well as in a 5G test network with good results so far.
 
    *  Based on assessment by Kiro CLI, AI-tools can generate code based
       on the current draft version.  What is mainly missing is the

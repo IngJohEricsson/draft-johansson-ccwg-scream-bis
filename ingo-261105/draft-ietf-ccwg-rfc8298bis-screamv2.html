@@ -1051,7 +1051,7 @@ svg {
 </tr></thead>
 <tfoot><tr>
 <td class="left">Johansson, et al.</td>
-<td class="center">Expires 11 May 2027</td>
+<td class="center">Expires 13 May 2027</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1067,12 +1067,12 @@ svg {
 <a href="https://www.rfc-editor.org/rfc/rfc8298" class="eref">8298</a> (if approved)</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2026-11-07" class="published">7 November 2026</time>
+<time datetime="2026-11-09" class="published">9 November 2026</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Experimental</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2027-05-11">11 May 2027</time></dd>
+<dd class="expires"><time datetime="2027-05-13">13 May 2027</time></dd>
 <dt class="label-authors">Authors:</dt>
 <dd class="authors">
 <div class="author">
@@ -1134,7 +1134,7 @@ This specification obsoletes RFC 8298.<a href="#section-abstract-1" class="pilcr
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 11 May 2027.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 13 May 2027.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -2592,7 +2592,7 @@ updated and calculates the target bitrate. It is, however, not necessary to exec
             <p id="section-4.4-4.5.1">FRAME_SIZE_DEV_ALPHA (1.0/64): Time constant to compensate for varying frame sizes.<a href="#section-4.4-4.5.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
-<p id="section-4.4-5">The target bitrate is essentially based on the reference window ref_wnd and the (smoothed) RTT s_rtt according to<a href="#section-4.4-5" class="pilcrow">¶</a></p>
+<p id="section-4.4-5">The target bitrate is essentially based on the reference window ref_wnd and the (smoothed) RTT s_rtt according to.<a href="#section-4.4-5" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-4.4-6">
 <pre>
 target_bitrate = 8.0 * ref_wnd / s_rtt
@@ -2796,15 +2796,18 @@ end
           <h4 id="name-cross-traffic-remediation">
 <a href="#section-4.5.4" class="section-number selfRef">4.5.4. </a><a href="#name-cross-traffic-remediation" class="section-name selfRef">Cross traffic remediation</a>
           </h4>
-<p id="section-4.5.4-1">New algorithm for calculation of increased qdelay_target in case more queue building cross traffic (TCP or QUIC) is detected. The algorithm is executed every s_rtt.
-The algorithm awaits N_LARGE_QDELAY_LIMIT+1 RTTs with qdelay_avg &gt; qdelay_target / 2. This reduces the risk that qdelay_target is increased due to self congestion (false positives). The approach makes the ref_wnd is pushed down by the delay based congestion control. A restore point is kept that undoes the ref_wnd reduction.<a href="#section-4.5.4-1" class="pilcrow">¶</a></p>
-<div class="alignLeft art-text artwork" id="section-4.5.4-2">
+<p id="section-4.5.4-1">An optional algorithm for calculation of increased qdelay_target in case more queue building cross traffic (TCP or QUIC) is detected is detailed below. The algorithm is executed every s_rtt.
+Algorithms that try to sense cross traffic face a risk of false positives in the sense that self-congestion can in itself lead to increased qdelay_target. An algorithm that is tuned too cautios however risks missing the onset of queue building cross traffic (false negatives). Thus a balance needs to be struck between false potitives and false negatives. But in never gets perfect because of the inherent, quite counter productive, approach to increase tolerance for delay when the delay increases.<a href="#section-4.5.4-1" class="pilcrow">¶</a></p>
+<p id="section-4.5.4-2">The algorithm awaits N_LARGE_QDELAY_LIMIT+1 RTTs with qdelay_avg &gt; qdelay_target / 2 until qdelay_target is increased. This reduces the risk that qdelay_target is increased due to self-congestion (false positives). The downside is that the ref_wnd is pushed down by the delay based congestion control during this wait period. A restore point is kept that undos the ref_wnd reduction.<a href="#section-4.5.4-2" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-4.5.4-3">
 <pre>
 adjust_qdelay_target(qdelay)
   if (qdelay_avg &gt; qdelay_target / 2)
-    if (n_rtts_with_large_qdelay == 0)
-      ref_wnd_restore_value = ref_wnd
+    n_rtts_with_large_qdelay++
+    if (n_rtts_with_large_qdelay == 1)
+      # Save a restore value of ref_wnd
       # This value may need to be adjusted down if loss occurs
+      ref_wnd_restore_value = ref_wnd
     end
     # Require N_LARGE_QDELAY_LIMIT with high qdelay_avg, this prevents that self congestion
     # leads to increased qdelay_target. The ref_wnd is however reduced because of
@@ -2825,7 +2828,6 @@ adjust_qdelay_target(qdelay)
       # No update of last_qdelay_target_update_time,
       # allow qdelay_target to be updated every s_rtt
     end
-    n_rtts_with_large_qdelay++
     last_qdelay_target_update_time = now
     return
   end
@@ -2833,20 +2835,42 @@ adjust_qdelay_target(qdelay)
   if (qdelay_target == QDELAY_TARGET_HI)
     last_qdelay_target_update_time = now
   else if (now - last_qdelay_target_update_time &gt; s_rtt)
-    # reduce qdelay_target
-    qdelay_target = max(QDELAY_TARGET_LO, qdelay_target*0.99)
+    # Reduce qdelay_target
+    if (qdelay_avg &lt; qdelay_target * 0.25)
+      # Reduce faster if qdelay_avg is low, this may be because
+      # + cross traffic is finalized
+      # + a temporal link outage caused queue delay to increase
+      qdelay_target = max(QDELAY_TARGET_LO, qdelay_target*0.9)
+    else
+      # More likely that it is still queue building cross traffic,
+      # reduce more slowly
+      qdelay_target = max(QDELAY_TARGET_LO, qdelay_target*0.99)
+    end
     last_qdelay_target_update_time = now
   end
 end
-</pre><a href="#section-4.5.4-2" class="pilcrow">¶</a>
+</pre><a href="#section-4.5.4-3" class="pilcrow">¶</a>
 </div>
-<p id="section-4.5.4-3">Note
-scl_t is forced to 1.0  when qdelay_target &gt; QDELAY_TARGET_LO<a href="#section-4.5.4-3" class="pilcrow">¶</a></p>
-<p id="section-4.5.4-4">Constant :
-N_LARGE_QDELAY_LIMIT = 10<a href="#section-4.5.4-4" class="pilcrow">¶</a></p>
-<p id="section-4.5.4-5">Variables :
-n_rtts_with_large_qdelay = 0
-ref_wnd_restore_value = 0<a href="#section-4.5.4-5" class="pilcrow">¶</a></p>
+<p id="section-4.5.4-4">Additional actions is to enforce scl_t to 1.0, i.e disable the infection point scaling when qdelay_target &gt; QDELAY_TARGET_LO. The algorithm should be applied after qdelay_avg is calculated.<a href="#section-4.5.4-4" class="pilcrow">¶</a></p>
+<p id="section-4.5.4-5">The following constants are used:<a href="#section-4.5.4-5" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-4.5.4-6.1">
+              <p id="section-4.5.4-6.1.1">N_LARGE_QDELAY_LIMIT (10): Number of RTTs before queue delay increase is considered to be because of queue building cross traffic.<a href="#section-4.5.4-6.1.1" class="pilcrow">¶</a></p>
+</li>
+          </ul>
+<p id="section-4.5.4-7">The following variables are used:<a href="#section-4.5.4-7" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-4.5.4-8.1">
+              <p id="section-4.5.4-8.1.1">n_rtts_with_large_qdelay(0): Number of consecutive RTTs with large queue delay.<a href="#section-4.5.4-8.1.1" class="pilcrow">¶</a></p>
+</li>
+            <li class="normal" id="section-4.5.4-8.2">
+              <p id="section-4.5.4-8.2.1">ref_wnd_restore_value(0): Restore value for ref_wnd [byte].<a href="#section-4.5.4-8.2.1" class="pilcrow">¶</a></p>
+</li>
+            <li class="normal" id="section-4.5.4-8.3">
+              <p id="section-4.5.4-8.3.1">last_qdelay_target_update_time(0.0): Time of the last update of qdelay_target [s].<a href="#section-4.5.4-8.3.1" class="pilcrow">¶</a></p>
+</li>
+          </ul>
+<p id="section-4.5.4-9">Self-congestion can in some cases cause qdelay_target to increase. The most typical case is link outtages that can occur in WiFi and also in cellular access when coverage is lost for shorter periods. An increased qdelay_target can prolong congestion. The more likely case is however that the connection is restored and the queue delay drops quickly, the qdelay_target is more quickly reduced in such cases.<a href="#section-4.5.4-9" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="competing-flows-compensation">
@@ -2854,7 +2878,8 @@ ref_wnd_restore_value = 0<a href="#section-4.5.4-5" class="pilcrow">¶</a></p>
           <h4 id="name-competing-flows-compensatio">
 <a href="#section-4.5.5" class="section-number selfRef">4.5.5. </a><a href="#name-competing-flows-compensatio" class="section-name selfRef">Competing Flows Compensation</a>
           </h4>
-<p id="section-4.5.5-1">It is likely that a flow will have to share congested bottlenecks with other
+<p id="section-4.5.5-1">NOTE!. This algorithm is deprecated and will be removed
+It is likely that a flow will have to share congested bottlenecks with other
 flows that use a more aggressive congestion control algorithm (for example,
 large FTP flows using loss-based congestion control). The worst condition occurs
 when the bottleneck queues are of tail-drop type with a large buffer
@@ -3065,7 +3090,7 @@ few examples are found in <span>[<a href="#SCReAM-evaluation-L4S" class="cite xr
           <p id="section-6-2.9.1">Rate policers can cause loss bursts. These loss bursts are particularly harmful for real time media transmission and it is problematic to detect the existence of rate policers in the transmission path. The best cure is that the use of rate policers is avoided in access networks.<a href="#section-6-2.9.1" class="pilcrow">¶</a></p>
 </li>
         <li class="normal" id="section-6-2.10">
-          <p id="section-6-2.10.1">The competing flows compensation described in <a href="#competing-flows-compensation" class="auto internal xref">Section 4.5.5</a> has an inherent risk of false positives, the outcome would be that an increased delay is met by an increased to delay, something that can self-amplify. The algorithm was devised already for <span>[<a href="#RFC8298" class="cite xref">RFC8298</a>]</span> when access links could become bloated. Things have however changed since 2017 when RFC8298 was published. Firstly, bufferbloat and remedies to it is better understood. Secondly, more recent congestion control algorithms are designed to not bloat access links that lack active queue management. Thirdly, the algorithm in <a href="#clock-drift" class="auto internal xref">Section 4.5.1</a> that addresses clock-drift addresses this issue inherently as a competing flow still adds an offset in queue delay when SCReAM temporarily reduces its target rate temporarily. The need for competing flows compensation would therefore need to be investigated further.<a href="#section-6-2.10.1" class="pilcrow">¶</a></p>
+          <p id="section-6-2.10.1">[TODO, remove this] The competing flows compensation described in <a href="#competing-flows-compensation" class="auto internal xref">Section 4.5.5</a> has an inherent risk of false positives, the outcome would be that an increased delay is met by an increased to delay, something that can self-amplify. The algorithm was devised already for <span>[<a href="#RFC8298" class="cite xref">RFC8298</a>]</span> when access links could become bloated. Things have however changed since 2017 when RFC8298 was published. Firstly, bufferbloat and remedies to it is better understood. Secondly, more recent congestion control algorithms are designed to not bloat access links that lack active queue management. Thirdly, the algorithm in <a href="#clock-drift" class="auto internal xref">Section 4.5.1</a> that addresses clock-drift addresses this issue inherently as a competing flow still adds an offset in queue delay when SCReAM temporarily reduces its target rate temporarily. The need for competing flows compensation would therefore need to be investigated further.<a href="#section-6-2.10.1" class="pilcrow">¶</a></p>
 </li>
         <li class="normal" id="section-6-2.11">
           <p id="section-6-2.11.1">CPU limitation can lead to a case that SCReAM cannot push packets as fast as the congestion control would allow. This can lead to that ref_wnd increases due to lack of congestion signals. Even though ref_wnd increase is restricted by BYTES_IN_FLIGHT_HEAD_ROOM, the result can be that the target rate becomes overestimated, resulting in an RTP queue build-up. The not too controversial advice is therefore to limit the max target bitrate to levels that are supported by the device.<a href="#section-6-2.11.1" class="pilcrow">¶</a></p>
@@ -3077,7 +3102,10 @@ few examples are found in <span>[<a href="#SCReAM-evaluation-L4S" class="cite xr
           <p id="section-6-2.13.1">Video encoders can in some cases output a lower bitrate than the target bitrate, one example is for instance a video encoder pipeline that initiates with a low resolution or frame rate. Because ref_wnd is limited by the bytes in flight multiplied by BYTES_IN_FLIGHT_HEAD_ROOM the result can be that the bitrate is stuck at a low value. WebRTC exploits padding to overcome this issue. Unused target bitrate is filled up with duplicate transmitted packets and thus helps to increase the target bitrate enough to make the video encoder pipeline switch up the resolution and/or frame rate.<a href="#section-6-2.13.1" class="pilcrow">¶</a></p>
 </li>
         <li class="normal" id="section-6-2.14">
-          <p id="section-6-2.14.1">Based on assessment by Kiro CLI, AI-tools can generate code based on the current draft version. What is mainly missing is the handling of the transport protocol specific parts such as RTP/RTCP or QUIC.<a href="#section-6-2.14.1" class="pilcrow">¶</a></p>
+          <p id="section-6-2.14.1">Queue building cross traffic can cause the delay based congestion control in SCReAM to trigger congestion backoff. An example algorithm is presented that increases qdelay_target when cross traffic is detected. Such algorithms are however never perfect and they need to strike some balance between being able to detect and remedy the impact of cross traffic, and avoiding harmful increase of qdelay_target because of self-congestion. The presented algorithm has undergone initial testing in a (home) WiFi network as well as in a 5G test network with good results so far.<a href="#section-6-2.14.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-6-2.15">
+          <p id="section-6-2.15.1">Based on assessment by Kiro CLI, AI-tools can generate code based on the current draft version. What is mainly missing is the handling of the transport protocol specific parts such as RTP/RTCP or QUIC.<a href="#section-6-2.15.1" class="pilcrow">¶</a></p>
 </li>
       </ul>
 </section>
