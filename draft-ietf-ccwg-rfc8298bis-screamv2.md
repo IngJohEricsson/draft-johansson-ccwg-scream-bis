@@ -1306,8 +1306,9 @@ adjust_qdelay_target(qdelay)
     n_rtts_with_large_qdelay++
     if (n_rtts_with_large_qdelay == 1)
       # Save a restore value of ref_wnd
-      # This value may need to be adjusted down if loss occurs
-      ref_wnd_restore_value = ref_wnd
+      # Scale down slightly to reduce risk of increasing qdelay_target
+      # because of self congestion
+      ref_wnd_restore_value = ref_wnd * 0.8
     end
     # Require N_LARGE_QDELAY_LIMIT with high qdelay_avg, this prevents that self congestion
     # leads to increased qdelay_target. The ref_wnd is however reduced because of
@@ -1350,8 +1351,9 @@ adjust_qdelay_target(qdelay)
   end
 end
 ~~~
+The algorithm should be applied after qdelay_avg is calculated.
 
-Additional actions is to enforce scl_t to 1.0, i.e disable the infection point scaling when qdelay_target > QDELAY_TARGET_LO. The algorithm should be applied after qdelay_avg is calculated.
+Additional actions is to enforce scl_t to 1.0, i.e disable the infection point scaling when qdelay_target > QDELAY_TARGET_LO. 
 
 The following constants are used:
 
