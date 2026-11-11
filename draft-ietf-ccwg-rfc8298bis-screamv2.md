@@ -1296,9 +1296,9 @@ The variables and constants are:
 ### Cross traffic remediation {#cross-traffic}
 
 An optional algorithm for calculation of increased qdelay_target in case more queue building cross traffic (TCP or QUIC) is detected is detailed below. The algorithm is executed every s_rtt.
-Algorithms that try to sense cross traffic face a risk of false positives in the sense that self-congestion can in itself lead to increased qdelay_target. An algorithm that is tuned too cautios however risks missing the onset of queue building cross traffic (false negatives). Thus a balance needs to be struck between false potitives and false negatives. But in never gets perfect because of the inherent, quite counter productive, approach to increase tolerance for delay when the delay increases.
+Algorithms that try to sense cross traffic face a risk of false positives in the sense that self-congestion can in itself lead to increased qdelay_target. An algorithm that is tuned too cautios however risks missing the onset of queue building cross traffic (false negatives). Thus a balance needs to be struck between false potitives and false negatives. But in never gets perfect because of the inherent, quite counter-productive, approach to increase tolerance for delay when the delay increases.
 
-The algorithm awaits N_LARGE_QDELAY_LIMIT+1 RTTs with qdelay_avg > qdelay_target / 2 until qdelay_target is increased. This reduces the risk that qdelay_target is increased due to self-congestion (false positives). The downside is that the ref_wnd is pushed down by the delay based congestion control during this wait period. A restore point is kept that undos the ref_wnd reduction.
+The algorithm awaits N_LARGE_QDELAY_LIMIT RTTs with qdelay_avg > qdelay_target / 2 until qdelay_target is increased. This reduces the risk that qdelay_target is increased due to self-congestion (false positives). The downside is that the ref_wnd is pushed down by the delay based congestion control during this wait period. A restore point is therefore kept that undos the ref_wnd reduction.
 
 ~~~
 adjust_qdelay_target(qdelay)
@@ -1310,10 +1310,11 @@ adjust_qdelay_target(qdelay)
       # because of self congestion
       ref_wnd_restore_value = ref_wnd * 0.8
     end
-    # Require N_LARGE_QDELAY_LIMIT with high qdelay_avg, this prevents that self congestion
-    # leads to increased qdelay_target. The ref_wnd is however reduced because of
-    # delay based congestion backoff. The ref_wnd_restore_value is used to undo this.
-    if (n_rtts_with_large_qdelay > N_LARGE_QDELAY_LIMIT)
+    # Require N_LARGE_QDELAY_LIMIT with high qdelay_avg, this reduces the risk
+    # that self congestion leads to increased qdelay_target.
+    # The ref_wnd is however reduced because of delay based congestion backoff.
+    # The ref_wnd_restore_value is used to undo this.
+    if (n_rtts_with_large_qdelay >= N_LARGE_QDELAY_LIMIT)
       # *2.0 because delay based CC kicks in when qdelay_avg > qdelay_target / 2.0
       updated_target_t = qdelay_avg * 2.0
 
@@ -1353,7 +1354,7 @@ end
 ~~~
 The algorithm should be applied after qdelay_avg is calculated.
 
-Additional actions is to enforce scl_t to 1.0, i.e disable the infection point scaling when qdelay_target > QDELAY_TARGET_LO.
+Additional actions is to enforce scl_t to 1.0, i.e disable the inflection point scaling when qdelay_target > QDELAY_TARGET_LO.
 
 The following constants are used:
 
