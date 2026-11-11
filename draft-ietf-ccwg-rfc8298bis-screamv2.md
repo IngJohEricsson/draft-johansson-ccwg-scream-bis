@@ -1353,7 +1353,7 @@ end
 ~~~
 The algorithm should be applied after qdelay_avg is calculated.
 
-Additional actions is to enforce scl_t to 1.0, i.e disable the infection point scaling when qdelay_target > QDELAY_TARGET_LO. 
+Additional actions is to enforce scl_t to 1.0, i.e disable the infection point scaling when qdelay_target > QDELAY_TARGET_LO.
 
 The following constants are used:
 
