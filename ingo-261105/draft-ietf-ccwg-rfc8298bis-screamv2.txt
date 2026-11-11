@@ -851,9 +851,10 @@ scl_t *= 8
 scl_t = scl_t * scl_t
 scl_t = max(0.2, min(1.0, scl_t))
 
-if (ref_wnd > ref_wnd_i && scl_t < 1.0)
+if (ref_wnd > ref_wnd_i && scl_t < 1.0 && !IS_L4S)
    # Restrict ref_wnd increase when ref_wnd > ref_wnd_i and
-   # queue delay varies
+   # queue delay varies.
+   # Not applied when L4S is enabled
    scl_t = max(0.2, scl_t * latency_diff_ref_wnd_scale_t)
 end
 
